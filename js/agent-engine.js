@@ -3299,6 +3299,12 @@ var AgentEngine = (function () {
       // Remove all resolved entries immediately (approved, rejected, cancelled, overridden)
       if (staleEntry.status === 'approved' || staleEntry.status === 'rejected' ||
           staleEntry.status === 'cancelled' || staleEntry.status === 'overridden') {
+        // EXCEPT proposals: resolved *_proposal entries must REMAIN in the queue —
+        // the server retains them 30d because the propose-time reject-cooldown and
+        // semantic dedup read them. This client purge is how a CEO-rejected
+        // "Operation: Budget Lockdown" re-materialized VERBATIM 90 minutes after
+        // rejection (2026-08-02): the cooldown's history had been wiped from under it.
+        if (/_proposal$/.test(String(staleEntry.type || staleEntry.kind || ''))) continue;
         queue.splice(s, 1);
         changed = true;
         cleaned++;

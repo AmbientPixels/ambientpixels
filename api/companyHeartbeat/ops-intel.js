@@ -42,7 +42,12 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
       runId: r.runId || r.id || '',
       startedAt: r.startedAt || r.timestamp || '',
       durationMs: r.durationMs || r.duration || 0,
-      status: (r.status || (err ? 'error' : 'ok')) === 'ok' ? 'ok' : 'error',
+      // 'warn' is ADVISORY (run completed; gate counters tripped — e.g. agents
+      // poking canceled campaigns). Collapsing it into 'error' made 2 warns in 5
+      // runs read as "40% heartbeat failure", fired a false RED alert at Forge
+      // every cycle, and seeded a fleet-wide phantom-incident narrative
+      // (2026-07-28 → 08-02). Only genuine errors count as failures.
+      status: r.status === 'warn' ? 'warn' : ((r.status || (err ? 'error' : 'ok')) === 'ok' ? 'ok' : 'error'),
       agentsRan: perCount || r.agentsRan || 0,
       actionsExecuted: (aa.executed != null ? aa.executed : (r.actionsExecuted || r.totalActions)) || 0,
       actionsBlocked: (aa.blocked != null ? aa.blocked : r.actionsBlocked) || 0,
@@ -279,8 +284,10 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   // Heartbeat health
   var last5 = hb.last5 || [];
   var okCount = last5.filter(function (r) { return r.status === 'ok'; }).length;
+  var warnCount = last5.filter(function (r) { return r.status === 'warn'; }).length;
   lines.push('\nHEARTBEAT HEALTH:');
-  lines.push('- Last 5 runs: ' + okCount + '/' + last5.length + ' OK | Avg: ' + Math.round((hb.avgDurationMs || 0) / 1000) + 's | Trend: ' + (hb.trend || 'unknown'));
+  lines.push('- Last 5 runs: ' + okCount + '/' + last5.length + ' OK' + (warnCount > 0 ? ' + ' + warnCount + ' WARN' : '') + ' | Avg: ' + Math.round((hb.avgDurationMs || 0) / 1000) + 's | Trend: ' + (hb.trend || 'unknown'));
+  if (warnCount > 0) lines.push('  (WARN = run COMPLETED with advisory gate counts — e.g. blocked actions on canceled campaigns. WARN is NOT a failure; never count it toward a failure rate.)');
   last5.forEach(function (r) {
     var ts = r.startedAt ? new Date(r.startedAt).toISOString().substring(11, 16) : '?';
     lines.push('  - ' + ts + ': ' + r.status.toUpperCase() + ', ' + Math.round(r.durationMs / 1000) + 's, ' + r.actionsExecuted + ' actions' + (r.actionsBlocked > 0 ? ' (' + r.actionsBlocked + ' blocked)' : '') + (r.errorSummary ? ' — ERROR: ' + r.errorSummary : ''));
