@@ -583,6 +583,25 @@ function findBlockingReply(actions, taskId) {
 //     and tracks sent/declined for these entries unchanged.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Bluesky search is LOOSE term matching, and this lane has no URL requirement
+// to filter noise — the very first live run matched political posts about TV
+// "interviews" and a "regular service will now resume" post (the VERB). Every
+// candidate must show actual resume-noun intent:
+//   - possessive usage ("my resume" / "my cv") = noun by construction, OR
+//   - resume/cv mentioned ALONGSIDE a job-context word.
+// Precision over recall: at 4 drafts/day, a missed prospect costs nothing;
+// a pitch on a political rant costs the brand.
+// (?![a-z]) instead of a trailing \b: JS \b is ASCII-only, so "résumé\b" never
+// matches — é is a non-word char to \b and the boundary silently fails.
+var _RESUME_POSSESSIVE_RE = /\b(?:my|our|his|her|their|your)\s+(?:resume|r[eé]sum[eé]|cv)(?![a-z])/i;
+var _RESUME_NOUN_RE = /\b(?:resume|r[eé]sum[eé]|cv)(?![a-z])/i;
+var _JOB_CONTEXT_RE = /\b(?:job|jobs|hiring|hired|interview|interviews|applicat\w*|career|laid off|layoff|recruiter|recruiting|ats|cover letter|unemploy\w*|job hunt\w*|job search\w*)\b/i;
+function _hasResumeIntent(text) {
+  var t = String(text || '');
+  if (_RESUME_POSSESSIVE_RE.test(t)) return true;
+  return _RESUME_NOUN_RE.test(t) && _JOB_CONTEXT_RE.test(t);
+}
+
 // candidates + existing prospects (ALL lanes) + cfg → new lane entries
 // (status 'discovered'), bounded by maxQueuedProspects headroom.
 function filterRoastProspects(candidates, prospects, cfg, nowMs) {
@@ -607,6 +626,7 @@ function filterRoastProspects(candidates, prospects, cfg, nowMs) {
     if (!Number.isFinite(t) || nowMs - t > maxAgeMs) continue;
     if (((c.likeCount || 0) + (c.replyCount || 0)) < minEngagement) continue;
     if (String(c.text || '').trim().length < minPostChars) continue;
+    if (!_hasResumeIntent(c.text)) continue;
     var authorKey = String(c.author).toLowerCase();
     if (seenAuthors[authorKey]) continue;
     seenAuthors[authorKey] = true;
@@ -779,6 +799,7 @@ module.exports = {
   repairReplyLinkTo: repairReplyLinkTo,
   filterRoastProspects: filterRoastProspects,
   buildRoastReplyTask: buildRoastReplyTask,
+  _hasResumeIntent: _hasResumeIntent,
   runRoastLane: runRoastLane,
   runProspectPipeline: runProspectPipeline
 };

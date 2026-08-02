@@ -584,6 +584,26 @@ function mockStorage(initial) {
     assert.strictEqual(out.length, 0);
   });
 
+  test('_hasResumeIntent: the four LIVE junk matches from the first run are all rejected', () => {
+    // Bluesky loose term search matched these on 2026-08-02 — regression corpus.
+    assert.strictEqual(PP._hasResumeIntent('You consider Laura Ingraham an education?  No wonder YouTube is filled with hilarious interviews with MAGA geniuses!'), false);
+    assert.strictEqual(PP._hasResumeIntent('In our biz, we tell people that TV interviews (and, by extension, live streams) are about leaving someone with a feeling.'), false);
+    assert.strictEqual(PP._hasResumeIntent('We apologize for the interruption. Regular service will now resume.'), false, 'resume-the-verb must not match');
+    assert.strictEqual(PP._hasResumeIntent("I don't know who cia is and no I don't watch Bill Maher. Did you watch the interviews with the candidates?"), false);
+  });
+
+  test('_hasResumeIntent: genuine job-seeker posts pass', () => {
+    assert.strictEqual(PP._hasResumeIntent('Three months of job hunting and my resume gets zero interviews. Any feedback welcome.'), true);
+    assert.strictEqual(PP._hasResumeIntent('Can someone roast my CV? Applying to jobs and hearing nothing back.'), true);
+    assert.strictEqual(PP._hasResumeIntent('Laid off last week. Rewriting the resume and dreading every recruiter call.'), true, 'resume + job context, no possessive');
+    assert.strictEqual(PP._hasResumeIntent('Wondering if my résumé is even ATS readable'), true, 'accented résumé possessive');
+  });
+
+  test('filterRoastProspects: intent guard wired in (verb-resume candidate dropped)', () => {
+    const junk = RC({ text: 'We apologize for the interruption. Regular service will now resume shortly, thanks all.' });
+    assert.strictEqual(PP.filterRoastProspects([junk], [], RCFG, NOW_R).length, 0);
+  });
+
   test('filterRoastProspects: stale posts dropped, headroom respects discovered backlog', () => {
     const stale = RC({ indexedAt: new Date(NOW_R - 72 * 3600e3).toISOString() });
     assert.strictEqual(PP.filterRoastProspects([stale], [], RCFG, NOW_R).length, 0, 'older than maxPostAgeHours');
