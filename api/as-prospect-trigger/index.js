@@ -3,7 +3,7 @@
 // For post-deploy verification without waiting for the 2h timer.
 
 const storage = require('../_utils/companyStorage');
-const { runProspectPipeline } = require('../companyHeartbeat/prospect-pipeline');
+const { runProspectPipeline, runRoastLane } = require('../companyHeartbeat/prospect-pipeline');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,11 +23,13 @@ module.exports = async function (context, req) {
     return;
   }
   try {
-    const result = await runProspectPipeline({
-      storage: storage,
-      log: function () { context.log.apply(context, arguments); }
-    });
-    context.res = { status: 200, headers: corsHeaders, body: { status: 'ok', result: result } };
+    const _log = function () { context.log.apply(context, arguments); };
+    // ?lane=roast runs only the roast lane (post-deploy verification); default runs both.
+    const laneParam = (req.query && req.query.lane) || (req.body && req.body.lane) || '';
+    let result = null, roast = null;
+    if (laneParam !== 'roast') result = await runProspectPipeline({ storage: storage, log: _log });
+    if (laneParam === 'roast' || laneParam === '' || laneParam === 'all') roast = await runRoastLane({ storage: storage, log: _log });
+    context.res = { status: 200, headers: corsHeaders, body: { status: 'ok', result: result, roast: roast } };
   } catch (err) {
     context.res = { status: 500, headers: corsHeaders, body: { error: String(err).substring(0, 300) } };
   }

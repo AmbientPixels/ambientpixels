@@ -1,0 +1,28 @@
+{
+  "_comment": "Resume Roast outreach lane (2026-08-02). Job-seeker intent keywords for Bluesky discovery. Runtime overrides live in systemConfig.roastProspecting (merge: file defaults <- systemConfig). Lane ships DISABLED — enable via systemConfig, no deploy needed.",
+  "keywords": [
+    "roast my resume",
+    "resume feedback",
+    "review my resume",
+    "resume advice",
+    "fix my resume",
+    "resume tips",
+    "rewrite my resume",
+    "ats resume",
+    "cover letter help",
+    "job hunting",
+    "job search is brutal",
+    "applying to jobs",
+    "no interviews",
+    "just got laid off"
+  ],
+  "defaults": {
+    "enabled": false,
+    "maxDraftsPerDay": 4,
+    "maxQueuedProspects": 15,
+    "maxPostAgeHours": 48,
+    "minEngagement": 0,
+    "minPostChars": 25,
+    "destinationUrl": "https://ambientpixels.ai/pixel-agents/run.html?agent=resume-roast"
+  }
+}

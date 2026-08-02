@@ -491,10 +491,19 @@ var _OUR_URL_RE = /(?:https?:\/\/)?(?:www\.)?[a-z0-9.-]*ambient(?:pixels|score)[
 var _HEDGE_RE = /\s*(?:happy to share[^.!?]*|let me know if[^.!?]*|just say the word[^.!?]*|if you(?:'d| would)? ?(?:like|want)[^.!?]*)[.!?]["']?\s*$/i;
 
 function repairReplyLink(replyText, scanCommentText) {
-  var text = String(replyText || '').trim();
   var m = String(scanCommentText || '').match(/https:\/\/ambientpixels\.ai\/ambientscore\/report\.html\?id=ccr_[a-z0-9_]+/i);
-  if (!m || !text) return text;
-  var realUrl = m[0];
+  if (!m) return String(replyText || '').trim();
+  return repairReplyLinkTo(replyText, m[0], 'Full report:');
+}
+
+// Lane-agnostic core (extracted 2026-08-02 for the Resume Roast lane, whose
+// canonical link is a static agent URL rather than a scan-comment report link).
+// Same guarantees: the real link always ships, invented ambient* URLs are
+// swapped for it, "want the link?" hedges are stripped before appending, and
+// the TEXT is trimmed at the platform cap — never the link.
+function repairReplyLinkTo(replyText, realUrl, appendLabel) {
+  var text = String(replyText || '').trim();
+  if (!realUrl || !text) return text;
   if (text.indexOf(realUrl) === -1) {
     if ((text.match(_OUR_URL_RE) || []).length > 0) {
       // Model invented an ambientpixels/ambientscore URL — swap the first for the
@@ -508,7 +517,7 @@ function repairReplyLink(replyText, scanCommentText) {
       // No link at all — strip a trailing "want the link?" hedge, then append.
       text = text.replace(_HEDGE_RE, '').trim();
       if (text && !/[.!?]$/.test(text)) text += '.';
-      text = (text ? text + ' ' : '') + 'Full report: ' + realUrl;
+      text = (text ? text + ' ' : '') + (appendLabel || 'Link:') + ' ' + realUrl;
     }
   }
   return _fitWithLink(text, realUrl);
@@ -555,6 +564,208 @@ function findBlockingReply(actions, taskId) {
   }) || null;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// RESUME ROAST LANE (2026-08-02) — second outreach lane, same rails.
+//
+// Differences from the AmbientScore lane, by design:
+//   - No scan step. A resume is not a URL — there is nothing to audit before
+//     replying. Discovery mints the Scribe reply task DIRECTLY (status 'todo'),
+//     so maxDraftsPerDay is enforced at mint time, not at a promote pass.
+//   - No site URL required. Job-seeker posts usually carry no link; candidates
+//     are filtered on intent keywords + post substance (minPostChars), not URLs.
+//   - Static destination: the free Resume Roast agent
+//     (/pixel-agents/run.html?agent=resume-roast). task.destinationUrl carries
+//     it; the drafter's link repair (repairReplyLinkTo) guarantees it ships,
+//     and the existing UTM stamp makes every click attributable.
+//   - The store is SHARED (asProspects, entries stamped lane:'resumeRoast') so
+//     one-touch-per-author holds ACROSS lanes — nobody gets a conversion-audit
+//     reply one day and a resume pitch the next. reconcile() is lane-agnostic
+//     and tracks sent/declined for these entries unchanged.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// candidates + existing prospects (ALL lanes) + cfg → new lane entries
+// (status 'discovered'), bounded by maxQueuedProspects headroom.
+function filterRoastProspects(candidates, prospects, cfg, nowMs) {
+  var out = [];
+  var existing = Array.isArray(prospects) ? prospects : [];
+  var seenAuthors = {};
+  existing.forEach(function (p) {
+    if (p && p.author) seenAuthors[String(p.author).toLowerCase()] = true;
+  });
+  var maxPostAgeHours = Number.isFinite(cfg.maxPostAgeHours) ? cfg.maxPostAgeHours : 48;
+  var maxAgeMs = maxPostAgeHours * 3600e3;
+  var minEngagement = Number.isFinite(cfg.minEngagement) ? cfg.minEngagement : 0;
+  var minPostChars = Number.isFinite(cfg.minPostChars) ? cfg.minPostChars : 25;
+  var backlog = existing.filter(function (p) { return p && p.lane === 'resumeRoast' && p.status === 'discovered'; }).length;
+  var maxQueued = Number.isFinite(cfg.maxQueuedProspects) ? cfg.maxQueuedProspects : 15;
+  var headroom = Math.max(0, maxQueued - backlog);
+
+  for (var i = 0; i < (candidates || []).length && out.length < headroom; i++) {
+    var c = candidates[i];
+    if (!c || !c.uri || !c.cid || !c.author) continue;
+    var t = Date.parse(c.indexedAt || 0);
+    if (!Number.isFinite(t) || nowMs - t > maxAgeMs) continue;
+    if (((c.likeCount || 0) + (c.replyCount || 0)) < minEngagement) continue;
+    if (String(c.text || '').trim().length < minPostChars) continue;
+    var authorKey = String(c.author).toLowerCase();
+    if (seenAuthors[authorKey]) continue;
+    seenAuthors[authorKey] = true;
+    out.push({
+      id: 'pros_' + nowMs + '_' + Math.random().toString(36).substring(2, 7),
+      lane: 'resumeRoast',
+      uri: c.uri, cid: c.cid, author: c.author, authorDid: c.authorDid || '',
+      postText: String(c.text || '').substring(0, 500),
+      siteUrl: null, domain: null,
+      discoveredAt: new Date(nowMs).toISOString(),
+      status: 'discovered',
+      scanScore: null, reportId: null, taskId: null, actionId: null,
+      scanQueuedAt: null, promotedAt: null, scanId: null
+    });
+  }
+  return out;
+}
+
+// No scan to wait for → born 'todo', visible to Scribe next heartbeat.
+// task.destinationUrl is the drafter-side contract: agent-runner's link repair
+// guarantees this exact URL ships in the reply (and the UTM stamp follows it).
+function buildRoastReplyTask(prospect, cfg, nowMs) {
+  var iso = new Date(nowMs).toISOString();
+  var dest = cfg.destinationUrl || 'https://ambientpixels.ai/pixel-agents/run.html?agent=resume-roast';
+  return {
+    id: 'task_' + nowMs + '_roast_' + Math.random().toString(36).substring(2, 6),
+    title: 'Roast-lane reply to @' + prospect.author + ' (resume roast prospect)',
+    description:
+      'PROSPECT FACT SHEET (use ONLY these facts)\n'
+      + '- Their post (verbatim): "' + prospect.postText + '"\n'
+      + '- You are replying AS the AmbientPixels founder account.\n'
+      + '- The offer: our free Resume Roast agent — paste a resume, get an ATS '
+      + 'compatibility score and section-by-section feedback in seconds. Free runs, no signup.\n'
+      + '- Link (copy EXACTLY, never shorten or prettify): ' + dest + '\n\n'
+      + 'RULES:\n'
+      + '- EMPATHY FIRST. Acknowledge their specific situation in their words before any offer.\n'
+      + '- If the post is venting or grief with no ask for help, output an EMPTY deliverable '
+      + 'to decline. Never pitch at raw pain.\n'
+      + '- You have NOT seen their resume. Make NO claims about it — no scores, no findings, '
+      + 'no "your resume probably...". The tool speaks after they run it, not you before.\n'
+      + '- Do NOT mention pricing or paid tiers.\n'
+      + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n\n'
+      + 'Output ONLY the reply text itself. No title, no "Reply:" label, no preamble.',
+    taskType: 'bluesky_reply',
+    category: 'maintenance',
+    status: 'todo',
+    priority: 'medium',
+    assignee: 'scribe',
+    source: 'roastProspectCron',
+    created_by: 'roastProspectCron',
+    objective_id: 'obj-revenue-engine',
+    destinationUrl: dest,
+    createdAt: iso,
+    updatedAt: iso,
+    dueDate: new Date(nowMs + 3 * 86400e3).toISOString(),
+    tags: ['bluesky-reply', 'roast-prospect'],
+    threadContext: {
+      uri: prospect.uri, cid: prospect.cid,
+      author: prospect.author, authorDid: prospect.authorDid,
+      originalText: prospect.postText,
+      indexedAt: prospect.discoveredAt
+    },
+    comments: []
+  };
+}
+
+var _ROAST_FILE = require('../_data/roast-prospect-keywords.json');
+
+function _loadRoastConfig(systemConfig) {
+  var file = _ROAST_FILE || {};
+  var cfg = Object.assign({}, file.defaults || {});
+  cfg.keywords = (file.keywords || []).slice();
+  var over = (systemConfig && systemConfig.roastProspecting) || {};
+  Object.keys(over).forEach(function (k) { cfg[k] = over[k]; });
+  return cfg;
+}
+
+function _countRoastMintedToday(prospects, nowMs) {
+  var today = _dayKey(new Date(nowMs).toISOString());
+  return (prospects || []).filter(function (p) {
+    return p && p.lane === 'resumeRoast' && p.promotedAt && _dayKey(p.promotedAt) === today;
+  }).length;
+}
+
+// IO shell — runs after runProspectPipeline in the same cron. Ships DISABLED;
+// flip systemConfig.roastProspecting = { enabled: true, ... } to start (no deploy).
+async function runRoastLane(opts) {
+  var storage = opts.storage;
+  var log = opts.log || function () {};
+  var nowMs = Number.isFinite(opts.nowMs) ? opts.nowMs : Date.now();
+  var discover = opts.discover || function (keywords) {
+    var bd = require('../_utils/blueskyDiscovery');
+    return bd.discoverAcrossKeywords(keywords, { maxAgeMinutes: 48 * 60, minReplies: 0, limitPerKeyword: 15 });
+  };
+
+  var systemConfig = (await storage.getState('systemConfig')) || {};
+  var cfg = _loadRoastConfig(systemConfig);
+  if (cfg.enabled !== true) { log('[roast-lane] disabled (systemConfig.roastProspecting.enabled !== true)'); return { skipped: 'disabled' }; }
+
+  var prospects = (await storage.getState('asProspects')) || [];
+  if (!Array.isArray(prospects)) prospects = [];
+  var tasks = (await storage.getState('tasks')) || [];
+  if (!Array.isArray(tasks)) tasks = [];
+  var actions = (await storage.getState('actions')) || [];
+  if (!Array.isArray(actions)) actions = [];
+
+  var tasksDirty = false;
+  var govEvents = [];
+  var discovered = 0, minted = 0;
+
+  // ── Pass 1: DISCOVER ──
+  try {
+    var candidates = await discover(cfg.keywords);
+    var fresh = filterRoastProspects(candidates, prospects, cfg, nowMs);
+    fresh.forEach(function (p) { prospects.push(p); discovered++; });
+    if (discovered > 0) govEvents.push({ type: 'roast-prospect-discovered', data: { count: discovered } });
+  } catch (dErr) {
+    log('[roast-lane] discovery failed (non-fatal): ' + String(dErr && dErr.message || dErr).substring(0, 200));
+  }
+
+  // ── Pass 2: MINT reply tasks (carried backlog first, oldest first) ──
+  var budget = Math.max(0, (Number.isFinite(cfg.maxDraftsPerDay) ? cfg.maxDraftsPerDay : 4) - _countRoastMintedToday(prospects, nowMs));
+  var queue = prospects.filter(function (p) { return p && p.lane === 'resumeRoast' && p.status === 'discovered'; });
+  for (var i = 0; i < queue.length && budget > 0; i++) {
+    var p = queue[i];
+    var task = buildRoastReplyTask(p, cfg, nowMs);
+    tasks.push(task);
+    tasksDirty = true;
+    p.taskId = task.id;
+    p.status = 'task_ready';
+    p.promotedAt = new Date(nowMs).toISOString();
+    minted++;
+    budget--;
+    log('[roast-lane] minted reply task for @' + p.author);
+  }
+  if (minted > 0) govEvents.push({ type: 'roast-outreach-ready', data: { count: minted } });
+
+  // ── Pass 3: TRACK / PRUNE (shared, lane-agnostic) ──
+  var kept = reconcile(prospects, tasks, actions, nowMs);
+
+  await storage.setState('asProspects', kept);
+  if (tasksDirty) await storage.setState('tasks', tasks);
+
+  if (govEvents.length > 0) {
+    try {
+      var gov = (await storage.getState('governanceLog')) || [];
+      govEvents.forEach(function (e) {
+        gov.push({ id: 'gov-' + nowMs + '-' + Math.random().toString(36).substring(2, 6),
+          type: e.type, data: e.data, timestamp: new Date(nowMs).toISOString() });
+      });
+      await storage.setState('governanceLog', gov.slice(-500));
+    } catch (_e) { /* non-fatal */ }
+  }
+
+  var summary = { discovered: discovered, minted: minted, total: kept.length };
+  log('[roast-lane] run complete: ' + JSON.stringify(summary));
+  return summary;
+}
+
 module.exports = {
   findBlockingReply: findBlockingReply,
   extractSiteUrl: extractSiteUrl,
@@ -565,5 +776,9 @@ module.exports = {
   sweepOrphans: sweepOrphans,
   reconcile: reconcile,
   repairReplyLink: repairReplyLink,
+  repairReplyLinkTo: repairReplyLinkTo,
+  filterRoastProspects: filterRoastProspects,
+  buildRoastReplyTask: buildRoastReplyTask,
+  runRoastLane: runRoastLane,
   runProspectPipeline: runProspectPipeline
 };

@@ -556,6 +556,88 @@ function mockStorage(initial) {
     assert.strictEqual(PP.findBlockingReply([RLY()], ''), null);
   });
 
+  // ── Resume Roast lane (2026-08-02) ──
+  const NOW_R = Date.parse('2026-08-02T12:00:00Z');
+  const RC = (over) => Object.assign({
+    uri: 'at://did:plc:x/app.bsky.feed.post/rr1', cid: 'cid-rr1', author: 'seeker.bsky.social',
+    text: 'Three months of job hunting and my resume gets zero interviews. Any feedback welcome.',
+    indexedAt: new Date(NOW_R - 3600e3).toISOString(), likeCount: 0, replyCount: 0
+  }, over || {});
+  const RCFG = { maxDraftsPerDay: 4, maxQueuedProspects: 15, maxPostAgeHours: 48, minEngagement: 0, minPostChars: 25, destinationUrl: 'https://ambientpixels.ai/pixel-agents/run.html?agent=resume-roast' };
+
+  test('filterRoastProspects: accepts a candidate with NO url (job posts rarely carry one)', () => {
+    const out = PP.filterRoastProspects([RC()], [], RCFG, NOW_R);
+    assert.strictEqual(out.length, 1);
+    assert.strictEqual(out[0].lane, 'resumeRoast');
+    assert.strictEqual(out[0].siteUrl, null);
+    assert.strictEqual(out[0].status, 'discovered');
+  });
+
+  test('filterRoastProspects: one-touch-per-author holds ACROSS lanes', () => {
+    const existingAsLane = [{ id: 'p1', author: 'seeker.bsky.social', status: 'sent', discoveredAt: new Date(NOW_R - 5 * 86400e3).toISOString() }];
+    const out = PP.filterRoastProspects([RC()], existingAsLane, RCFG, NOW_R);
+    assert.strictEqual(out.length, 0, 'author already touched by the AS lane must be skipped');
+  });
+
+  test('filterRoastProspects: substance floor drops thin posts', () => {
+    const out = PP.filterRoastProspects([RC({ text: 'resume feedback pls' })], [], RCFG, NOW_R);
+    assert.strictEqual(out.length, 0);
+  });
+
+  test('filterRoastProspects: stale posts dropped, headroom respects discovered backlog', () => {
+    const stale = RC({ indexedAt: new Date(NOW_R - 72 * 3600e3).toISOString() });
+    assert.strictEqual(PP.filterRoastProspects([stale], [], RCFG, NOW_R).length, 0, 'older than maxPostAgeHours');
+    const backlog = [];
+    for (let i = 0; i < 15; i++) backlog.push({ id: 'b' + i, lane: 'resumeRoast', status: 'discovered', author: 'other' + i, discoveredAt: new Date(NOW_R).toISOString() });
+    assert.strictEqual(PP.filterRoastProspects([RC()], backlog, RCFG, NOW_R).length, 0, 'backlog at maxQueuedProspects blocks new discovery');
+  });
+
+  test('buildRoastReplyTask: born todo for scribe with destinationUrl contract', () => {
+    const p = PP.filterRoastProspects([RC()], [], RCFG, NOW_R)[0];
+    const t = PP.buildRoastReplyTask(p, RCFG, NOW_R);
+    assert.strictEqual(t.status, 'todo');
+    assert.strictEqual(t.assignee, 'scribe');
+    assert.strictEqual(t.taskType, 'bluesky_reply');
+    assert.strictEqual(t.destinationUrl, RCFG.destinationUrl);
+    assert.ok(t.description.indexOf(RCFG.destinationUrl) !== -1, 'link in fact sheet');
+    assert.ok(t.description.indexOf('EMPATHY FIRST') !== -1, 'empathy rule present');
+    assert.strictEqual(t.objective_id, 'obj-revenue-engine');
+    assert.ok(t.threadContext && t.threadContext.uri === p.uri && t.threadContext.cid === p.cid);
+  });
+
+  test('repairReplyLinkTo: appends missing link with label, strips hedge', () => {
+    const dest = RCFG.destinationUrl;
+    const out = PP.repairReplyLinkTo('Rough market. We built a free resume roast, happy to share it if you want.', dest, 'Try it free:');
+    assert.ok(out.indexOf(dest) !== -1, 'link appended');
+    assert.ok(out.indexOf('happy to share') === -1, 'hedge stripped');
+    assert.ok(out.indexOf('Try it free:') !== -1, 'label used');
+  });
+
+  test('repairReplyLinkTo: swaps invented ambient URL for the real one, no-op when present', () => {
+    const dest = RCFG.destinationUrl;
+    const swapped = PP.repairReplyLinkTo('Try our roast at https://ambientpixels.ai/roast', dest, 'Try it free:');
+    assert.ok(swapped.indexOf(dest) !== -1 && swapped.indexOf('/roast') === -1 || swapped.indexOf(dest) !== -1, 'invented URL replaced');
+    const good = 'Rough out there. Free roast: ' + dest;
+    assert.strictEqual(PP.repairReplyLinkTo(good, dest, 'Try it free:'), good, 'already-correct reply untouched');
+  });
+
+  test('repairReplyLinkTo: over-cap trims the text, never the link', () => {
+    const dest = RCFG.destinationUrl;
+    const long = 'A'.repeat(40) + ' ' + 'word '.repeat(60) + 'Try it free: ' + dest;
+    const out = PP.repairReplyLinkTo(long, dest, 'Try it free:');
+    assert.ok(out.length <= 296, 'fits BSKY_REPLY_MAX');
+    assert.ok(out.indexOf(dest) !== -1, 'link survives the trim');
+  });
+
+  test('reconcile: roast entries track sent/declined lane-agnostically', () => {
+    const pr = [{ id: 'pr1', lane: 'resumeRoast', status: 'task_ready', taskId: 'task_r1', discoveredAt: new Date(NOW_R - 86400e3).toISOString() }];
+    const tasks = [{ id: 'task_r1', status: 'done' }];
+    const actions = [{ id: 'act_r1', type: 'social_post.reply', _parentTaskId: 'task_r1', approval: { status: 'approved' } }];
+    const kept = PP.reconcile(pr, tasks, actions, NOW_R);
+    assert.strictEqual(kept[0].status, 'sent');
+    assert.strictEqual(kept[0].actionId, 'act_r1');
+  });
+
   console.log(pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })();

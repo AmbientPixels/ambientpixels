@@ -26,7 +26,7 @@ const {
   MAX_GOVERNANCE_LOG_ENTRIES
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
-const { repairReplyLink: _repairReplyLink, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
+const { repairReplyLink: _repairReplyLink, repairReplyLinkTo: _repairReplyLinkTo, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
 const SUTM = require('../_utils/socialUtm');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
@@ -2147,6 +2147,15 @@ Write the full deliverable first, then the structured JSON block.`;
                   if (_repairedReply !== _finalReply) {
                     context.log('[Heartbeat] scribe: bluesky-reply report-link repair applied for task', action.taskId);
                     _finalReply = _repairedReply;
+                  }
+                } else if (task.destinationUrl) {
+                  // Lane tasks with a static destination (Resume Roast: the free
+                  // agent link) get the same guarantee as report links — the link
+                  // ALWAYS ships, invented ambient* URLs are swapped for it.
+                  const _repairedDest = _repairReplyLinkTo(_finalReply, task.destinationUrl, 'Try it free:');
+                  if (_repairedDest !== _finalReply) {
+                    context.log('[Heartbeat] scribe: bluesky-reply destination-link repair applied for task', action.taskId);
+                    _finalReply = _repairedDest;
                   }
                 }
               } catch (_lrErr) {
