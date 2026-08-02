@@ -5228,6 +5228,24 @@ Write the full deliverable first, then the structured JSON block.`;
       } else {
         const _memType = (mem.type || '').trim().toLowerCase();
 
+        // Write-time near-duplicate detection (2026-08-02): Forge accumulated 48/50
+        // memories re-asserting the same failure claim across types (context /
+        // learning / verified_fact, many verbatim) — and re-reading them every cycle
+        // amplified a phantom incident for 5 days. Factual types must not re-assert
+        // what is already stored. Structural types (weekly_report, reflection,
+        // consolidated_belief) legitimately revisit themes and are exempt. The ≥8-word
+        // guard keeps titleSimilarity's smaller-set overlap from false-blocking short
+        // texts (any superset match scores 1.0 on tiny word sets).
+        var _memDupOf = null;
+        var _memTextTrim = (mem.text || '').trim().substring(0, 300);
+        if (_memTextTrim && !L4_STRUCTURAL_TYPES.has(_memType) && _memTextTrim.split(/\s+/).length >= 8) {
+          var _memExisting = _agentMemoryStore[agentId] || [];
+          for (var _mdI = _memExisting.length - 1; _mdI >= 0; _mdI--) {
+            var _mdM = _memExisting[_mdI];
+            if (_mdM && _mdM.text && titleSimilarity(_memTextTrim, _mdM.text) >= 0.75) { _memDupOf = _mdM; break; }
+          }
+        }
+
         // Type validation
         if (!_memType || !L4_ALLOWED_TYPES.has(_memType)) {
           _memBlockedReason = 'invalid_type';
@@ -5255,6 +5273,14 @@ Write the full deliverable first, then the structured JSON block.`;
           await logEvent('policy-violation', agentId, 'Memory write blocked: daily cap exceeded', cycleId, {
             runId: cycleId, agentId: agentId, gate: 'memory_rate_cap', reason: 'daily_cap_exceeded',
             cap: MAX_L4_WRITES_PER_AGENT_PER_DAY, current: _getMemWriteCount(agentId)
+          });
+        }
+        // Near-duplicate gate — the claim is already stored; re-asserting it is loop fuel
+        else if (_memDupOf) {
+          _memBlockedReason = 'near_duplicate';
+          await logEvent('policy-violation', agentId, 'Memory write blocked: near-duplicate of ' + _memDupOf.id, cycleId, {
+            runId: cycleId, agentId: agentId, gate: 'memory_dup', reason: 'near_duplicate',
+            dupOf: _memDupOf.id, dupType: _memDupOf.type || null, textPreview: _memTextTrim.substring(0, 80)
           });
         }
         // All checks passed — store

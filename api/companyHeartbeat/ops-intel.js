@@ -14,7 +14,9 @@ var THRESHOLDS = {
   dailyCostSpikeMult:    { yellow: 1.5, red: 3.0 },
   backlogUtilization:    { yellow: 80, red: 95 },
   agentBlockedRate:      { yellow: 30, red: 60 },
-  governanceViolations7d:{ yellow: 3, red: 8 }
+  // Abnormal violations only (routine protective-gate blocks excluded) — the old
+  // 3/8 values predate Apr 2026 gate logging and were permanently RED.
+  governanceViolations7d:{ yellow: 20, red: 50 }
 };
 
 function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteIntel, nowMs) {
@@ -189,17 +191,42 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   else if (perf.p50 > THRESHOLDS.p50Latency.yellow) perfAlert = (perfAlert || '') + ' p50_yellow';
 
   // ── Governance ──
-  var violations7d = govLog.filter(function (g) {
+  // Two long-standing distortions fixed 2026-08-02:
+  // 1. The old filter counted EVERY governanceLog entry in the window as a
+  //    "violation" — including web_search telemetry and ceo-approval events —
+  //    so Forge was told "213 governance violations (7d)" when most were the
+  //    system working normally.
+  // 2. The alert thresholds (yellow 3 / red 8) predate Apr 2026, when every
+  //    blocking gate started logging policy-violations. Routine protective
+  //    blocks (freeze gates, dedup, rate caps doing their jobs) put the alert
+  //    permanently RED — a standing false crisis signal. The alert now counts
+  //    only ABNORMAL violations (quality failures, schema breaks, unknown
+  //    gates); routine blocks are reported separately as gate activity.
+  var ROUTINE_GATES = {
+    campaign_freeze: 1, campaign_status: 1, objective_gate: 1, objective_status: 1,
+    objective_cap: 1, task_ceiling: 1, research_ceiling: 1, content_package_pending: 1,
+    proposal_daily_limit: 1, proposal_pending_dup: 1, proposal_semantic_dup: 1,
+    proposal_reject_cooldown: 1, social_attempts_cap: 1, campaign_daily_cap: 1,
+    repeat_promo_url: 1, semantic_dup: 1, fuzzy_dup: 1, exact_dup: 1, orphan: 1,
+    rate_limit: 1, memory_rate_cap: 1, memory_dup: 1, memory_schema: 1,
+    agent_cooldown: 1, mode_gate: 1, tier4_forbidden: 1, pipeline_type_mismatch: 1,
+    social_promo: 1
+  };
+  var _govWindow = govLog.filter(function (g) {
     var ts = Date.parse(g.timestamp || '');
     return Number.isFinite(ts) && ts >= sevenCutoff;
   });
+  var violations7d = _govWindow.filter(function (g) { return g && g.type === 'policy-violation'; });
   var violationsByAgent = {};
   var violationTypes = {};
+  var routineBlocks7d = 0;
+  var abnormalViolations7d = 0;
   violations7d.forEach(function (g) {
     var aid = (g.data && g.data.agent) || g.agentId || 'unknown';
     violationsByAgent[aid] = (violationsByAgent[aid] || 0) + 1;
-    var vType = g.type || 'unknown';
-    violationTypes[vType] = (violationTypes[vType] || 0) + 1;
+    var gate = (g.details && g.details.gate) || (g.data && g.data.gate) || 'unknown';
+    violationTypes[gate] = (violationTypes[gate] || 0) + 1;
+    if (ROUTINE_GATES[gate]) routineBlocks7d++; else abnormalViolations7d++;
   });
   var topViolationType = Object.keys(violationTypes).sort(function (a, b) { return violationTypes[b] - violationTypes[a]; })[0] || null;
 
@@ -223,8 +250,8 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   if (backlog.utilization >= THRESHOLDS.backlogUtilization.red) alerts.push({ level: 'RED', signal: 'Backlog at ' + backlog.utilization + '%', threshold: THRESHOLDS.backlogUtilization.red + '%' });
   else if (backlog.utilization >= THRESHOLDS.backlogUtilization.yellow) alerts.push({ level: 'YELLOW', signal: 'Backlog at ' + backlog.utilization + '%', threshold: THRESHOLDS.backlogUtilization.yellow + '%' });
 
-  if (violations7d.length >= THRESHOLDS.governanceViolations7d.red) alerts.push({ level: 'RED', signal: violations7d.length + ' governance violations (7d)', threshold: THRESHOLDS.governanceViolations7d.red });
-  else if (violations7d.length >= THRESHOLDS.governanceViolations7d.yellow) alerts.push({ level: 'YELLOW', signal: violations7d.length + ' governance violations (7d)', threshold: THRESHOLDS.governanceViolations7d.yellow });
+  if (abnormalViolations7d >= THRESHOLDS.governanceViolations7d.red) alerts.push({ level: 'RED', signal: abnormalViolations7d + ' ABNORMAL governance violations (7d, routine gate blocks excluded)', threshold: THRESHOLDS.governanceViolations7d.red });
+  else if (abnormalViolations7d >= THRESHOLDS.governanceViolations7d.yellow) alerts.push({ level: 'YELLOW', signal: abnormalViolations7d + ' abnormal governance violations (7d, routine gate blocks excluded)', threshold: THRESHOLDS.governanceViolations7d.yellow });
 
   // Stalled agent alerts
   stalledAgents.forEach(function (s) {
@@ -263,6 +290,8 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
     },
     governance: {
       violations7d: violations7d.length,
+      routineBlocks7d: routineBlocks7d,
+      abnormalViolations7d: abnormalViolations7d,
       byAgent: violationsByAgent,
       topType: topViolationType
     },
@@ -349,7 +378,7 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   // Governance
   if (gov.violations7d > 0) {
     var byAgent = Object.keys(gov.byAgent || {}).map(function (a) { return a + ': ' + gov.byAgent[a]; }).join(', ');
-    lines.push('\nGOVERNANCE: ' + gov.violations7d + ' violations (7d)' + (byAgent ? ' (' + byAgent + ')' : '') + (gov.topType ? ' — top: ' + gov.topType : ''));
+    lines.push('\nGOVERNANCE: ' + (gov.abnormalViolations7d != null ? gov.abnormalViolations7d + ' abnormal violations (7d) + ' + (gov.routineBlocks7d || 0) + ' routine gate blocks (gates working as designed — NOT incidents)' : gov.violations7d + ' violations (7d)') + (byAgent ? ' (' + byAgent + ')' : '') + (gov.topType ? ' — top gate: ' + gov.topType : ''));
   }
 
   // Threshold alerts
