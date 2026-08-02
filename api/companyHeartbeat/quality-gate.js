@@ -167,7 +167,8 @@ var _OWN_URL_ALLOWLIST = [
   /^\/storyforge(?:[/?#]|$)/,
   /^\/pixel-agents(?:[/?#]|$)/,
   /^\/agent-forge(?:[/?#]|$)/,
-  /^\/blindspot(?:[/?#]|$)/
+  /^\/blindspot(?:[/?#]|$)/,
+  /^\/resume-roast(?:[/?#]|$)/
 ];
 
 // Brand-name hosts the model invents (ambientscore.ai went out in a draft — the

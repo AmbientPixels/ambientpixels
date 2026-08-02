@@ -23,6 +23,6 @@
     "maxPostAgeHours": 48,
     "minEngagement": 0,
     "minPostChars": 25,
-    "destinationUrl": "https://ambientpixels.ai/pixel-agents/run.html?agent=resume-roast"
+    "destinationUrl": "https://ambientpixels.ai/resume-roast/"
   }
 }
