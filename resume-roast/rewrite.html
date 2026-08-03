@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Your Resume Rewrite — AmbientPixels</title>
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <style>
+    .rw-wrap { max-width: 820px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .rw-status { text-align: center; padding: 3rem 1rem; }
+    .rw-spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid rgba(127,127,127,.3); border-top-color: currentColor; border-radius: 50%; animation: rw-spin 0.9s linear infinite; }
+    @keyframes rw-spin { to { transform: rotate(360deg); } }
+    .rw-doc { white-space: pre-wrap; font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.92rem; line-height: 1.55; background: rgba(127,127,127,.08); border-radius: 8px; padding: 1.5rem; overflow-x: auto; }
+    .rw-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0 2rem; }
+    .rw-section { margin-top: 2rem; }
+    .rw-changes li { margin-bottom: 0.5rem; }
+    .rw-keywords span { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; background: rgba(127,127,127,.15); margin: 0 0.3rem 0.3rem 0; font-size: 0.85rem; }
+    .rw-refund { opacity: 0.75; font-size: 0.9rem; margin-top: 2rem; }
+    @media print { .rw-actions, .rw-refund, .rw-section-hide-print { display: none; } .rw-doc { background: none; padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="rw-wrap">
+    <div id="rw-loading" class="rw-status">
+      <div class="rw-spinner"></div>
+      <h1>Your rewrite is being prepared</h1>
+      <p>Usually ready in about a minute. This page updates automatically — the link also works later if you need to come back.</p>
+    </div>
+    <div id="rw-error" class="rw-status" style="display:none">
+      <h1>Something went wrong</h1>
+      <p id="rw-error-msg"></p>
+    </div>
+    <div id="rw-ready" style="display:none">
+      <h1>Your rewritten resume</h1>
+      <div class="rw-actions">
+        <button class="btn" id="rw-copy">Copy to clipboard</button>
+        <button class="btn" id="rw-download-md">Download .md</button>
+        <button class="btn" id="rw-download-txt">Download .txt</button>
+        <button class="btn" id="rw-print">Print</button>
+      </div>
+      <div class="rw-doc" id="rw-resume"></div>
+      <div class="rw-section rw-section-hide-print">
+        <h2>What changed and why</h2>
+        <ul class="rw-changes" id="rw-changes"></ul>
+      </div>
+      <div class="rw-section rw-section-hide-print">
+        <h2>ATS keywords</h2>
+        <p>Found in your resume:</p><div class="rw-keywords" id="rw-kw-present"></div>
+        <p>Worth adding if you genuinely have the experience:</p><div class="rw-keywords" id="rw-kw-missing"></div>
+      </div>
+      <p class="rw-refund">Not happy with the rewrite? Reply to your receipt email and we'll refund you, no questions asked.</p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var id = params.get('id');
+      var key = params.get('key');
+      var POLL_MS = 5000;
+      var MAX_POLLS = 120; // 10 minutes, then show the email fallback message
+
+      function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = String(s == null ? '' : s);
+        return d.innerHTML;
+      }
+
+      function showError(msg) {
+        document.getElementById('rw-loading').style.display = 'none';
+        document.getElementById('rw-ready').style.display = 'none';
+        document.getElementById('rw-error').style.display = '';
+        document.getElementById('rw-error-msg').textContent = msg;
+      }
+
+      function download(filename, text) {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      function render(data) {
+        var rw = data.rewrite;
+        document.getElementById('rw-loading').style.display = 'none';
+        document.getElementById('rw-ready').style.display = '';
+        document.getElementById('rw-resume').textContent = rw.rewritten_resume;
+        document.getElementById('rw-changes').innerHTML = (rw.changes || [])
+          .map(function (c) { return '<li><strong>' + esc(c.section) + ':</strong> ' + esc(c.what) + ' <em>(' + esc(c.why) + ')</em></li>'; })
+          .join('');
+        var kw = rw.ats_keywords || {};
+        document.getElementById('rw-kw-present').innerHTML = (kw.present || []).map(function (k) { return '<span>' + esc(k) + '</span>'; }).join('');
+        document.getElementById('rw-kw-missing').innerHTML = (kw.missing || []).map(function (k) { return '<span>' + esc(k) + '</span>'; }).join('');
+        document.getElementById('rw-copy').onclick = function () {
+          navigator.clipboard.writeText(rw.rewritten_resume).then(function () {
+            document.getElementById('rw-copy').textContent = 'Copied!';
+          });
+        };
+        document.getElementById('rw-download-md').onclick = function () { download('resume-rewrite.md', rw.rewritten_resume); };
+        document.getElementById('rw-download-txt').onclick = function () { download('resume-rewrite.txt', rw.rewritten_resume); };
+        document.getElementById('rw-print').onclick = function () { window.print(); };
+      }
+
+      if (!id || !key) { showError('This link is missing its key. Use the exact link from your email or checkout.'); return; }
+
+      var polls = 0;
+      function poll() {
+        polls++;
+        fetch('/api/roast-rewrite?id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(key))
+          .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+          .then(function (res) {
+            if (!res.ok) { showError(res.body.error || 'Could not load your order.'); return; }
+            var s = res.body.status;
+            if (s === 'delivered' && res.body.rewrite) { render(res.body); return; }
+            if (s === 'failed') { showError('Your rewrite hit a technical problem. We have been alerted — reply to your receipt email for a fix or an instant refund.'); return; }
+            if (s === 'created') { showError('This order has not been paid yet. If you just paid, wait a few seconds and refresh.'); return; }
+            if (polls >= MAX_POLLS) { showError('This is taking longer than expected. We will email the link when it is ready — you can close this page.'); return; }
+            setTimeout(poll, POLL_MS);
+          })
+          .catch(function () {
+            if (polls >= MAX_POLLS) { showError('Network trouble. We will email the link when the rewrite is ready.'); return; }
+            setTimeout(poll, POLL_MS);
+          });
+      }
+      poll();
+    })();
+  </script>
+</body>
+</html>
