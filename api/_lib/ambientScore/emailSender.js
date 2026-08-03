@@ -184,4 +184,11 @@ async function sendTeardownDeliveryEmail(toEmail, doc, viewLink) {
     <p style="font-size:13px;color:#6B6052;">Keep this email: the link above is your permanent access to the document.</p>`);
 }
 
-module.exports = { sendReportEmail, sendTeardownAckEmail, sendTeardownCeoNotify, sendTeardownDeliveryEmail };
+async function sendRewriteReadyEmail(toEmail, viewLink) {
+  return sendAcsEmail(toEmail, 'Your resume rewrite is ready',
+    '<p>Your Deep Roast Rewrite is done. Your resume has been professionally rewritten and ATS-optimized.</p>' +
+    '<p><a href="' + viewLink + '">View your rewritten resume</a></p>' +
+    '<p>Keep this link — it is your copy. Not happy with the rewrite? Reply to this email and we will refund you, no questions asked.</p>');
+}
+
+module.exports = { sendReportEmail, sendTeardownAckEmail, sendTeardownCeoNotify, sendTeardownDeliveryEmail, sendRewriteReadyEmail };
