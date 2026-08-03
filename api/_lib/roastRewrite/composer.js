@@ -67,8 +67,10 @@ function advanceQueue(queue, nowMs) {
   let failed = 0;
   for (const order of q) {
     if (!order || order.status !== 'processing') continue;
+    // Non-finite processingAt (missing/corrupt) must NOT skip forever — fail
+    // closed and treat it as stale so it falls into the retry/fail path below.
     const startedMs = Date.parse(order.processingAt || 0);
-    if (!Number.isFinite(startedMs) || nowMs - startedMs < STALE_PROCESSING_MS) continue;
+    if (Number.isFinite(startedMs) && nowMs - startedMs < STALE_PROCESSING_MS) continue;
     order.retryCount = (order.retryCount || 0) + 1;
     if (order.retryCount > MAX_RETRIES) {
       order.status = 'failed';
@@ -83,7 +85,11 @@ function advanceQueue(queue, nowMs) {
 }
 
 // Retention (runner tick): drop never-paid orders after 48h (delete their docs,
-// which hold resume text) and scrub resume text from docs 30d after delivery.
+// which hold resume text) and scrub resume text from docs 30d after delivery
+// (or after creation, for orders that failed and were never delivered).
+// A malformed/missing timestamp parses to NaN — treat that as age 0 (i.e. an
+// infinite age once compared against "now"), so corrupted data fails CLOSED
+// (gets cleaned up) instead of hanging onto PII forever.
 function retentionPass(queue, nowMs) {
   const q = Array.isArray(queue) ? queue : [];
   const removeDocIds = [];
@@ -91,18 +97,37 @@ function retentionPass(queue, nowMs) {
   const kept = [];
   for (const order of q) {
     if (!order) continue;
-    if (order.status === 'created' && nowMs - Date.parse(order.createdAt || 0) > UNPAID_TTL_MS) {
+    const createdMs = Date.parse(order.createdAt || 0);
+    const createdAgeMs = nowMs - (Number.isFinite(createdMs) ? createdMs : 0);
+    if (order.status === 'created' && createdAgeMs > UNPAID_TTL_MS) {
       removeDocIds.push(order.orderId);
       continue;
     }
-    if (order.status === 'delivered' && !order.resumeScrubbed
-        && nowMs - Date.parse(order.deliveredAt || 0) > RESUME_RETENTION_MS) {
+    if (order.status === 'delivered' && !order.resumeScrubbed) {
+      const deliveredMs = Date.parse(order.deliveredAt || 0);
+      const deliveredAgeMs = nowMs - (Number.isFinite(deliveredMs) ? deliveredMs : 0);
+      if (deliveredAgeMs > RESUME_RETENTION_MS) {
+        order.resumeScrubbed = true;
+        scrubDocIds.push(order.orderId);
+      }
+    }
+    if (order.status === 'failed' && !order.resumeScrubbed && createdAgeMs > RESUME_RETENTION_MS) {
       order.resumeScrubbed = true;
       scrubDocIds.push(order.orderId);
     }
     kept.push(order);
   }
   return { queue: kept, removeDocIds, scrubDocIds };
+}
+
+// Queue-cap enforcement (endpoint calls this instead of `queue.shift()`
+// directly) so dropped entries never orphan their `roast_rewrite_<id>` docs —
+// caller must delete removeDocIds.
+function capQueue(queue) {
+  const q = Array.isArray(queue) ? queue.slice() : [];
+  if (q.length <= QUEUE_CAP) return { queue: q, removeDocIds: [] };
+  const dropped = q.splice(0, q.length - QUEUE_CAP);
+  return { queue: q, removeDocIds: dropped.map(o => o.orderId) };
 }
 
 // ── Composition ──────────────────────────────────────────────────
@@ -160,7 +185,7 @@ async function composeRewrite(resumeText, roastResult, callClaude) {
     try {
       const raw = await callClaudeWithBackoff(callClaude, prompt, {
         temperature: opts.temperature,
-        maxOutputTokens: 4000,
+        maxOutputTokens: 8000,
         caller: 'roast-rewrite-compose'
       });
       const parsed = parseJson(raw);
@@ -180,6 +205,7 @@ module.exports = {
   markPaid,
   advanceQueue,
   retentionPass,
+  capQueue,
   buildRewritePrompt,
   validateRewrite,
   composeRewrite,

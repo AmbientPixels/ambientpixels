@@ -183,4 +183,57 @@ enqueue('composeRewrite throws after both attempts fail', async () => {
   await assert.rejects(() => composer.composeRewrite('resume', null, stub), /failed after retries/);
 });
 
+// ── Fail-closed / cap fixes (review follow-up) ──
+
+enqueue('retentionPass fails closed on a malformed createdAt (removes it)', () => {
+  const now = Date.parse(NOW);
+  const corrupt = { orderId: 'rr_corrupt', status: 'created', createdAt: 'garbage' };
+  const result = composer.retentionPass([corrupt], now);
+  assert.deepStrictEqual(result.removeDocIds, ['rr_corrupt']);
+  assert.strictEqual(result.queue.length, 0);
+});
+
+enqueue('retentionPass scrubs resume PII from old failed orders', () => {
+  const now = Date.parse(NOW);
+  const oldFailed = {
+    orderId: 'rr_failed_old',
+    status: 'failed',
+    createdAt: new Date(now - composer.RESUME_RETENTION_MS - 1000).toISOString()
+  };
+  const result = composer.retentionPass([oldFailed], now);
+  assert.deepStrictEqual(result.scrubDocIds, ['rr_failed_old']);
+  assert.ok(result.queue.find(o => o.orderId === 'rr_failed_old').resumeScrubbed);
+  // second pass is a no-op once scrubbed
+  const again = composer.retentionPass(result.queue, now);
+  assert.deepStrictEqual(again.scrubDocIds, []);
+});
+
+enqueue('advanceQueue treats non-finite processingAt as stale, not stuck forever', () => {
+  const bad = { orderId: 'rr_bad_date', status: 'processing', processingAt: 'garbage', retryCount: 0 };
+  const r = composer.advanceQueue([bad], Date.parse(NOW));
+  assert.strictEqual(r.resets, 1);
+  assert.strictEqual(bad.status, 'paid');
+
+  const missing = { orderId: 'rr_missing_date', status: 'processing', retryCount: composer.MAX_RETRIES };
+  const r2 = composer.advanceQueue([missing], Date.parse(NOW));
+  assert.strictEqual(r2.failed, 1);
+  assert.strictEqual(missing.status, 'failed');
+});
+
+enqueue('capQueue drops oldest entries beyond QUEUE_CAP and returns their doc ids', () => {
+  const q = [];
+  for (let i = 0; i < composer.QUEUE_CAP + 2; i++) q.push({ orderId: 'rr_' + i, status: 'created' });
+  const result = composer.capQueue(q);
+  assert.strictEqual(result.queue.length, composer.QUEUE_CAP);
+  assert.deepStrictEqual(result.removeDocIds, ['rr_0', 'rr_1']);
+  assert.strictEqual(result.queue[0].orderId, 'rr_2');
+});
+
+enqueue('capQueue is a no-op under the cap', () => {
+  const q = [{ orderId: 'rr_only', status: 'created' }];
+  const result = composer.capQueue(q);
+  assert.strictEqual(result.queue.length, 1);
+  assert.deepStrictEqual(result.removeDocIds, []);
+});
+
 run();
