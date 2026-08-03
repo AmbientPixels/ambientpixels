@@ -1443,6 +1443,11 @@ git commit -m "feat: $9 rewrite upsell card after resume-roast results (dark unt
 
 No code. This is the go-live checklist; the deploy has already happened via auto-push with the switch off. **Everything below requires the CEO present** (real card, refund decision).
 
+**Hard preconditions before flipping the switch (added by code review):**
+1. `roastRewriteRunner` (Task 7) must be deployed and visible in the Function App — without it, a crashed compose leaves a paid order stuck in `processing` with no self-heal.
+2. Verify `FORM_INTAKE_SALT` is set in the Function App's application settings (not the committed default): `MSYS_NO_PATHCONV=1 az functionapp config appsettings list --name ambientpixels-nova-api --resource-group ambientpixelsV2 | grep -i FORM_INTAKE` — with the default salt, order tokens are forgeable and strangers' rewrites (resume-derived PII) readable.
+3. Check `api/host.json` `functionTimeout` comfortably covers worst-case compose (2 attempts × 2s/8s backoff + two ~60s Claude calls ≈ 3-4 min).
+
 - [ ] **Step 1: Set config (read-modify-write — GET first, ALWAYS)**
 
 ```bash
