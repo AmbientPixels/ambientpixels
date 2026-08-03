@@ -236,4 +236,25 @@ enqueue('capQueue is a no-op under the cap', () => {
   assert.deepStrictEqual(result.removeDocIds, []);
 });
 
+enqueue('capQueue drops oldest created entries first and never drops paid/processing entries', () => {
+  const q = [];
+  q.push({ orderId: 'rr_paid_old', status: 'paid' });
+  q.push({ orderId: 'rr_processing_old', status: 'processing' });
+  for (let i = 0; i < composer.QUEUE_CAP; i++) q.push({ orderId: 'rr_created_' + i, status: 'created' });
+  // length is QUEUE_CAP + 2 -> overflow of 2, both droppable via 'created'
+  const result = composer.capQueue(q);
+  assert.strictEqual(result.queue.length, composer.QUEUE_CAP);
+  assert.deepStrictEqual(result.removeDocIds, ['rr_created_0', 'rr_created_1']);
+  assert.ok(result.queue.find(o => o.orderId === 'rr_paid_old'), 'paid entry must survive');
+  assert.ok(result.queue.find(o => o.orderId === 'rr_processing_old'), 'processing entry must survive');
+});
+
+enqueue('capQueue returns over-cap unchanged when no created entries are droppable (safety beats cap)', () => {
+  const q = [];
+  for (let i = 0; i < composer.QUEUE_CAP + 3; i++) q.push({ orderId: 'rr_paid_' + i, status: 'paid' });
+  const result = composer.capQueue(q);
+  assert.strictEqual(result.queue.length, composer.QUEUE_CAP + 3);
+  assert.deepStrictEqual(result.removeDocIds, []);
+});
+
 run();

@@ -123,11 +123,29 @@ function retentionPass(queue, nowMs) {
 // Queue-cap enforcement (endpoint calls this instead of `queue.shift()`
 // directly) so dropped entries never orphan their `roast_rewrite_<id>` docs —
 // caller must delete removeDocIds.
+//
+// Status-aware (review follow-up, 2026-08-02): only 'created' entries (never
+// paid, nothing at stake yet) are droppable, and only the oldest ones. A
+// paid/processing/delivered/failed entry represents real money or in-flight
+// work and must never be silently dropped — if there aren't enough 'created'
+// entries to shed, the queue is returned over-cap unchanged. Safety beats cap.
 function capQueue(queue) {
   const q = Array.isArray(queue) ? queue.slice() : [];
-  if (q.length <= QUEUE_CAP) return { queue: q, removeDocIds: [] };
-  const dropped = q.splice(0, q.length - QUEUE_CAP);
-  return { queue: q, removeDocIds: dropped.map(o => o.orderId) };
+  const overflow = q.length - QUEUE_CAP;
+  if (overflow <= 0) return { queue: q, removeDocIds: [] };
+
+  const removeDocIds = [];
+  const kept = [];
+  let toDrop = overflow;
+  for (const order of q) {
+    if (toDrop > 0 && order && order.status === 'created') {
+      removeDocIds.push(order.orderId);
+      toDrop--;
+      continue;
+    }
+    kept.push(order);
+  }
+  return { queue: kept, removeDocIds };
 }
 
 // ── Composition ──────────────────────────────────────────────────
