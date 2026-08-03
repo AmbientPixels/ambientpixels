@@ -49,6 +49,10 @@ module.exports = async function (context) {
   if (!Array.isArray(snapshot) || snapshot.length === 0) return;
 
   const now = Date.now();
+  // UNPAID_TTL_MS (48h) must stay comfortably above Stripe Checkout's 24h
+  // session lifetime — this snapshot is read now but not acted on until the
+  // mutateState call below, so a value at or under 24h could purge a
+  // just-paid order's doc before the payment even lands.
   const dryRun = composer.retentionPass(snapshot, now);
   const removeSet = new Set(dryRun.removeDocIds);
   // An id due for full purge doesn't also need a separate scrub write first —
@@ -69,12 +73,23 @@ module.exports = async function (context) {
   }
   for (const orderId of scrubCandidates) {
     try {
-      const doc = await storage.getState('roast_rewrite_' + orderId);
-      if (!doc) {
-        // Nothing to scrub — no doc means no PII left to protect.
+      // Plain getState collapses "genuinely absent" and "read failed" to the
+      // same null, and a transient read error must NOT be treated as "no doc
+      // to protect" — that would mark resumeScrubbed=true forever on a doc
+      // that's still sitting there with the buyer's resume text. getStateWithMeta
+      // distinguishes the two: exists:false/failed:false is a real 404
+      // (nothing to protect); failed:true is an unreadable doc (retry it).
+      const meta = await storage.getStateWithMeta('roast_rewrite_' + orderId);
+      if (meta.failed) {
+        context.log.warn('[roastRewriteRunner] resume scrub read failed for ' + orderId + ' — doc unreadable, scrub retried next tick');
+        continue;
+      }
+      if (!meta.exists || !meta.value) {
+        // Genuinely absent — no doc means no PII left to protect.
         succeededIds.push(orderId);
         continue;
       }
+      const doc = meta.value;
       delete doc.resumeText;
       doc.roastResult = null;
       const ok = await storage.setState('roast_rewrite_' + orderId, doc);
