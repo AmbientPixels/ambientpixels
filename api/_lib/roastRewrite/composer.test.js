@@ -120,16 +120,20 @@ enqueue('markPaid reports bad-status when the order exists but is not created', 
 
 // ── advanceQueue ──
 
-enqueue('advanceQueue resets stale processing to paid, fails after retries', () => {
+enqueue('advanceQueue resets stale processing to paid, fails after retries, and reports affected ids', () => {
   const stale = { orderId: 'rr_s', status: 'processing', processingAt: NOW, retryCount: 0 };
   const later = Date.parse(NOW) + composer.STALE_PROCESSING_MS + 1000;
   const r1 = composer.advanceQueue([stale], later);
   assert.strictEqual(r1.resets, 1);
+  assert.deepStrictEqual(r1.resetIds, ['rr_s']);
+  assert.deepStrictEqual(r1.failedIds, []);
   assert.strictEqual(stale.status, 'paid');
   stale.status = 'processing';
   stale.retryCount = composer.MAX_RETRIES;
   const r2 = composer.advanceQueue([stale], later);
   assert.strictEqual(r2.failed, 1);
+  assert.deepStrictEqual(r2.failedIds, ['rr_s']);
+  assert.deepStrictEqual(r2.resetIds, []);
   assert.strictEqual(stale.status, 'failed');
 });
 
@@ -270,12 +274,50 @@ enqueue('advanceQueue treats non-finite processingAt as stale, not stuck forever
   const bad = { orderId: 'rr_bad_date', status: 'processing', processingAt: 'garbage', retryCount: 0 };
   const r = composer.advanceQueue([bad], Date.parse(NOW));
   assert.strictEqual(r.resets, 1);
+  assert.deepStrictEqual(r.resetIds, ['rr_bad_date']);
   assert.strictEqual(bad.status, 'paid');
 
   const missing = { orderId: 'rr_missing_date', status: 'processing', retryCount: composer.MAX_RETRIES };
   const r2 = composer.advanceQueue([missing], Date.parse(NOW));
   assert.strictEqual(r2.failed, 1);
+  assert.deepStrictEqual(r2.failedIds, ['rr_missing_date']);
   assert.strictEqual(missing.status, 'failed');
+});
+
+// ── retentionPass allowedIds (docs-first two-step retention) ──
+
+enqueue('retentionPass with allowedIds only removes/flags allowed candidates; others are left untouched', () => {
+  const now = Date.parse(NOW);
+  const staleUnpaidAllowed = { orderId: 'rr_allowed_remove', status: 'created', createdAt: new Date(now - composer.UNPAID_TTL_MS - 1000).toISOString() };
+  const staleUnpaidBlocked = { orderId: 'rr_blocked_remove', status: 'created', createdAt: new Date(now - composer.UNPAID_TTL_MS - 1000).toISOString() };
+  const oldDeliveredAllowed = { orderId: 'rr_allowed_scrub', status: 'delivered', createdAt: NOW, deliveredAt: new Date(now - composer.RESUME_RETENTION_MS - 1000).toISOString() };
+  const oldDeliveredBlocked = { orderId: 'rr_blocked_scrub', status: 'delivered', createdAt: NOW, deliveredAt: new Date(now - composer.RESUME_RETENTION_MS - 1000).toISOString() };
+
+  const result = composer.retentionPass(
+    [staleUnpaidAllowed, staleUnpaidBlocked, oldDeliveredAllowed, oldDeliveredBlocked],
+    now,
+    ['rr_allowed_remove', 'rr_allowed_scrub']
+  );
+
+  assert.deepStrictEqual(result.removeDocIds, ['rr_allowed_remove']);
+  assert.deepStrictEqual(result.scrubDocIds, ['rr_allowed_scrub']);
+  // Blocked candidates survive, unflagged.
+  assert.strictEqual(result.queue.length, 3); // blocked-remove, blocked-scrub, allowed-scrub (kept, just flagged)
+  const blockedRemove = result.queue.find(o => o.orderId === 'rr_blocked_remove');
+  assert.ok(blockedRemove, 'blocked created-expired entry must survive when not allowed');
+  const blockedScrub = result.queue.find(o => o.orderId === 'rr_blocked_scrub');
+  assert.ok(blockedScrub, 'blocked delivered entry must survive when not allowed');
+  assert.ok(!blockedScrub.resumeScrubbed, 'blocked delivered entry must not be flagged when not allowed');
+  const allowedScrub = result.queue.find(o => o.orderId === 'rr_allowed_scrub');
+  assert.ok(allowedScrub.resumeScrubbed, 'allowed delivered entry should be flagged');
+});
+
+enqueue('retentionPass omitted allowedIds behaves exactly like the unrestricted call (regression guard)', () => {
+  const now = Date.parse(NOW);
+  const staleUnpaid = { orderId: 'rr_no_restriction', status: 'created', createdAt: new Date(now - composer.UNPAID_TTL_MS - 1000).toISOString() };
+  const result = composer.retentionPass([staleUnpaid], now);
+  assert.deepStrictEqual(result.removeDocIds, ['rr_no_restriction']);
+  assert.strictEqual(result.queue.length, 0);
 });
 
 enqueue('capQueue drops oldest entries beyond QUEUE_CAP and returns their doc ids', () => {

@@ -27,22 +27,74 @@ const QUEUE_KEY = 'roast_rewrite_queue';
 const BACKSTOP_GRACE_MS = 3 * 60 * 1000;
 
 module.exports = async function (context) {
-  // ── Phase 1: self-heal + retention, one mutateState call ──
-  // The mutator re-derives everything from `fresh` (idempotent, re-runnable
-  // on conflict) and returns undefined — skipping the write — when the queue
-  // is empty or nothing actually changed this tick.
-  let healed = { resets: 0, failed: 0 };
-  let retention = { removeDocIds: [], scrubDocIds: [] };
+  // ── Phase 1: retention, docs-first (fixes an unretryable PII-orphan
+  // window) ──
+  // Doing the queue write BEFORE the doc purge/scrub IO would mean: if the
+  // process dies (or a doc write fails) between the two, retentionPass never
+  // re-emits that orderId — the flag/removal is already persisted — and a
+  // resume-bearing doc is orphaned forever with the failure unlogged. So
+  // instead: read-only snapshot -> dry-run retentionPass for candidates ->
+  // doc IO now (logged on failure) -> only the ids whose doc IO actually
+  // succeeded get passed back in as retentionPass's `allowedIds`, in the one
+  // real mutateState call that also runs advanceQueue. A doc IO failure
+  // leaves that order's queue entry untouched, so the next tick's dry run
+  // finds it as a candidate again and retries — nothing is lost or silent.
+  let snapshot;
+  try {
+    snapshot = (await storage.getState(QUEUE_KEY)) || [];
+  } catch (err) {
+    context.log.error('[roastRewriteRunner] queue read failed:', err.message);
+    return;
+  }
+  if (!Array.isArray(snapshot) || snapshot.length === 0) return;
+
+  const now = Date.now();
+  const dryRun = composer.retentionPass(snapshot, now);
+  const removeSet = new Set(dryRun.removeDocIds);
+  // An id due for full purge doesn't also need a separate scrub write first —
+  // it's about to be deleted outright. Kills the same-tick purge-then-rescrub
+  // overlap (a delivered order can cross both the 30d scrub and 60d purge
+  // thresholds in one tick, e.g. after downtime).
+  const scrubCandidates = dryRun.scrubDocIds.filter(id => !removeSet.has(id));
+
+  const succeededIds = [];
+  for (const orderId of dryRun.removeDocIds) {
+    try {
+      const ok = await storage.setState('roast_rewrite_' + orderId, { purged: true });
+      if (ok) succeededIds.push(orderId);
+      else context.log.warn('[roastRewriteRunner] doc purge write returned false for ' + orderId + ' — queue entry left untouched, retried next tick');
+    } catch (e) {
+      context.log.warn('[roastRewriteRunner] doc purge failed for ' + orderId + ' — queue entry left untouched, retried next tick:', e.message);
+    }
+  }
+  for (const orderId of scrubCandidates) {
+    try {
+      const doc = await storage.getState('roast_rewrite_' + orderId);
+      if (!doc) {
+        // Nothing to scrub — no doc means no PII left to protect.
+        succeededIds.push(orderId);
+        continue;
+      }
+      delete doc.resumeText;
+      doc.roastResult = null;
+      const ok = await storage.setState('roast_rewrite_' + orderId, doc);
+      if (ok) succeededIds.push(orderId);
+      else context.log.warn('[roastRewriteRunner] resume scrub write returned false for ' + orderId + ' — queue entry left unflagged, retried next tick');
+    } catch (e) {
+      context.log.warn('[roastRewriteRunner] resume scrub failed for ' + orderId + ' — queue entry left unflagged, retried next tick:', e.message);
+    }
+  }
+
+  // ── Phase 1b: self-heal + the real (restricted) retention write ──
+  let healed = { resets: 0, failed: 0, resetIds: [], failedIds: [] };
   let healRes;
   try {
     healRes = await storage.mutateState(QUEUE_KEY, function (fresh) {
       const arr = Array.isArray(fresh) ? fresh : [];
       if (arr.length === 0) return undefined;
-      const now = Date.now();
       const h = composer.advanceQueue(arr, now);
-      const r = composer.retentionPass(h.queue, now);
-      healed = { resets: h.resets, failed: h.failed };
-      retention = { removeDocIds: r.removeDocIds, scrubDocIds: r.scrubDocIds };
+      const r = composer.retentionPass(h.queue, now, succeededIds);
+      healed = { resets: h.resets, failed: h.failed, resetIds: h.resetIds, failedIds: h.failedIds };
       const changed = h.resets > 0 || h.failed > 0 || r.removeDocIds.length > 0 || r.scrubDocIds.length > 0;
       return changed ? r.queue : undefined;
     });
@@ -51,36 +103,20 @@ module.exports = async function (context) {
     return;
   }
 
-  // Empty/missing queue -> nothing existed to heal, retain, or claim. Bail.
-  const queueSnapshot = Array.isArray(healRes.value) ? healRes.value : [];
-  if (queueSnapshot.length === 0) return;
-
-  if (healed.resets || healed.failed) {
-    context.log('[roastRewriteRunner] self-heal: resets=' + healed.resets + ' failed=' + healed.failed);
+  if (!healRes.ok) {
+    // The doc IO above already happened and is idempotent (purge/scrub are
+    // safe to retry or to have run against a doc whose queue flag didn't
+    // stick) — the next tick's dry run will simply recompute the same
+    // candidates and this write will be attempted again.
+    context.log.error('[roastRewriteRunner] self-heal/retention queue write failed (mutateState reported not ok); doc IO already applied, next tick converges');
+  } else if (healRes.written && (healed.resets || healed.failed)) {
+    context.log('[roastRewriteRunner] self-heal: resets=' + healed.resets + ' (' + healed.resetIds.join(',') + ') failed=' + healed.failed + ' (' + healed.failedIds.join(',') + ')');
   }
 
-  // Doc IO outside the mutator: full purge for entries retentionPass dropped,
-  // resume-text scrub for entries it flagged this tick.
-  for (const orderId of retention.removeDocIds) {
-    try { await storage.setState('roast_rewrite_' + orderId, { purged: true }); } catch (e) { /* non-fatal, retried next tick */ }
-  }
-  for (const orderId of retention.scrubDocIds) {
-    try {
-      const doc = await storage.getState('roast_rewrite_' + orderId);
-      if (doc) {
-        delete doc.resumeText;
-        doc.roastResult = null;
-        await storage.setState('roast_rewrite_' + orderId, doc);
-      }
-    } catch (e) {
-      context.log.warn('[roastRewriteRunner] resume scrub failed for ' + orderId + ' (non-fatal):', e.message);
-    }
-  }
-
-  if (healed.failed > 0) {
+  if (healRes.written && healed.failed > 0) {
     await dispatchDiscord({
       title: 'Rewrite order FAILED after retries',
-      description: 'Check roast_rewrite_queue for status failed. $9 refund may be owed.',
+      description: 'Orders failed after retries: ' + healed.failedIds.join(', ') + '.\nCheck roast_rewrite_queue. $9 refund may be owed.',
       color: 0xC62828
     });
   }
@@ -92,7 +128,9 @@ module.exports = async function (context) {
   // our read and write, the mutator sees a stale/mismatched candidate and
   // this attempt naturally finds nothing (or mutateState retries against the
   // new fresh state). `!res.written` means we didn't win any claim this tick.
-  const now = Date.now();
+  // Fresh timestamp — Phase 1's doc IO can take a while, and the claim's
+  // grace-window check should reflect "now", not "when this tick started".
+  const claimNow = Date.now();
   let claimed = null;
   let claimRes;
   try {
@@ -100,15 +138,19 @@ module.exports = async function (context) {
       const arr = Array.isArray(fresh) ? fresh : [];
       const candidate = arr.find(function (o) {
         if (!o || o.status !== 'paid') return false;
-        // Non-finite paidAt/createdAt (missing/corrupt) parses to 0, i.e.
-        // infinitely old — claim it rather than waiting forever.
+        // A missing paidAt/createdAt coerces to Date.parse(0) (year 2000
+        // UTC) — a huge but finite age, already well past the grace window,
+        // so it's claimed rather than waited on forever. A present-but-
+        // malformed string parses to NaN instead, which the isFinite guard
+        // below falls back to epoch 0 for — an even larger (effectively
+        // infinite) age — also claimable.
         const paidMs = Date.parse(o.paidAt || o.createdAt || 0);
-        const age = now - (Number.isFinite(paidMs) ? paidMs : 0);
+        const age = claimNow - (Number.isFinite(paidMs) ? paidMs : 0);
         return age > BACKSTOP_GRACE_MS;
       });
       if (!candidate) return undefined;
       candidate.status = 'processing';
-      candidate.processingAt = new Date(now).toISOString();
+      candidate.processingAt = new Date(claimNow).toISOString();
       claimed = Object.assign({}, candidate);
       return arr;
     });
@@ -152,9 +194,12 @@ module.exports = async function (context) {
     doc.deliveredAt = nowIso;
     const docWriteOk = await storage.setState('roast_rewrite_' + orderId, doc);
     if (!docWriteOk) {
-      // Leave the queue at 'processing' — advanceQueue's stale self-heal will
-      // retry it next tick rather than us reporting delivery over an
-      // unrecorded doc write.
+      // The Claude call succeeded but we couldn't save its output — throw so
+      // this lands in the catch below, which runs the same retry accounting
+      // as a compose failure (retryCount++, back to 'paid' or to 'failed'
+      // once exhausted). That burns a compose retry even though composing
+      // itself worked; acceptable given MAX_RETRIES headroom, and safer than
+      // reporting delivery over a doc write that never landed.
       throw new Error('failed to persist rewrite doc for ' + orderId);
     }
 
@@ -166,6 +211,16 @@ module.exports = async function (context) {
       live.deliveredAt = nowIso;
       return arr;
     });
+    if (!deliverRes.ok) {
+      // The doc is saved (rewrite + deliveredAt) but the queue flip didn't
+      // persist, so the stored entry is still 'processing'. advanceQueue's
+      // stale-processing self-heal will eventually reset it to 'paid' and
+      // this runner will re-claim and recompose it — which can send a
+      // second "ready" email for the same order. Acceptable (better than
+      // losing the order), but worth knowing about if a buyer reports two
+      // emails.
+      context.log.error('[roastRewriteRunner] delivered-flip write failed for ' + orderId + '; queue still shows processing, will self-heal and re-claim next cycle (possible duplicate ready email)');
+    }
     const finalOrder = (deliverRes.value || []).find(function (o) { return o && o.orderId === orderId; }) || claimed;
 
     context.log('[roastRewriteRunner] delivered ' + orderId);

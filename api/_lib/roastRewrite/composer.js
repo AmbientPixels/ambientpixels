@@ -72,11 +72,15 @@ function markPaid(queue, session, nowIso) {
 }
 
 // Self-heal: a crash mid-compose leaves 'processing'; after STALE_PROCESSING_MS
-// it goes back to 'paid' (retryCount++) until retries are exhausted.
+// it goes back to 'paid' (retryCount++) until retries are exhausted. Returns
+// the affected orderIds alongside the counts so callers (the runner) can log
+// and alert on exactly which orders need attention without dumping the queue.
 function advanceQueue(queue, nowMs) {
   const q = Array.isArray(queue) ? queue : [];
   let resets = 0;
   let failed = 0;
+  const resetIds = [];
+  const failedIds = [];
   for (const order of q) {
     if (!order || order.status !== 'processing') continue;
     // Non-finite processingAt (missing/corrupt) must NOT skip forever — fail
@@ -88,34 +92,55 @@ function advanceQueue(queue, nowMs) {
       order.status = 'failed';
       order.error = 'retries exhausted after stale processing';
       failed++;
+      failedIds.push(order.orderId);
     } else {
       order.status = 'paid';
       resets++;
+      resetIds.push(order.orderId);
     }
   }
-  return { queue: q, resets, failed };
+  return { queue: q, resets, failed, resetIds, failedIds };
 }
 
 // Retention (runner tick): drop never-paid orders after 48h (delete their docs,
-// which hold resume text) and scrub resume text from docs 30d after delivery
-// (or after creation, for orders that failed and were never delivered).
-// A malformed/missing timestamp parses to NaN — treat that as age 0 (i.e. an
-// infinite age once compared against "now"), so corrupted data fails CLOSED
-// (gets cleaned up) instead of hanging onto PII forever.
-function retentionPass(queue, nowMs) {
+// which hold resume text), scrub resume text from docs 30d after delivery (or
+// after creation, for orders that failed and were never delivered), and fully
+// purge scrubbed entries once they've also passed the 60d link-lifetime.
+// A missing timestamp coerces to Date.parse(0) (year 2000 UTC) — already so
+// far in the past that every age check below already treats it as expired.
+// A present-but-malformed string (e.g. "garbage") parses to NaN instead,
+// which the Number.isFinite guards fall back to age 0 for. Either way,
+// corrupted or missing data fails CLOSED (gets cleaned up) instead of
+// hanging onto PII forever.
+//
+// `allowedIds` (array or Set, optional) restricts which candidates may
+// actually be removed/flagged this call — everything else about them (their
+// age, their eligibility) is still computed, but they're left untouched and
+// excluded from the returned id lists. Omitted/null means no restriction
+// (every eligible candidate is processed) — the original, pre-restriction
+// behavior. The runner uses this for a docs-first two-step retention: a
+// read-only dry run (no allowedIds) finds candidates, doc IO (purge/scrub)
+// runs against those candidates outside any mutator, and only the ids whose
+// doc IO actually succeeded are passed back in as allowedIds for the real
+// queue-mutating call — so a doc write failure leaves that order's queue
+// entry untouched and it naturally retries next tick, instead of the queue
+// recording a purge/scrub that never actually happened to the doc.
+function retentionPass(queue, nowMs, allowedIds) {
   const q = Array.isArray(queue) ? queue : [];
+  const allowed = allowedIds ? new Set(allowedIds) : null;
   const removeDocIds = [];
   const scrubDocIds = [];
   const kept = [];
   for (const order of q) {
     if (!order) continue;
+    const isAllowed = !allowed || allowed.has(order.orderId);
     const createdMs = Date.parse(order.createdAt || 0);
     const createdAgeMs = nowMs - (Number.isFinite(createdMs) ? createdMs : 0);
-    if (order.status === 'created' && createdAgeMs > UNPAID_TTL_MS) {
+    if (order.status === 'created' && createdAgeMs > UNPAID_TTL_MS && isAllowed) {
       removeDocIds.push(order.orderId);
       continue;
     }
-    if (order.status === 'delivered' && !order.resumeScrubbed) {
+    if (order.status === 'delivered' && !order.resumeScrubbed && isAllowed) {
       const deliveredMs = Date.parse(order.deliveredAt || 0);
       const deliveredAgeMs = nowMs - (Number.isFinite(deliveredMs) ? deliveredMs : 0);
       if (deliveredAgeMs > RESUME_RETENTION_MS) {
@@ -123,11 +148,11 @@ function retentionPass(queue, nowMs) {
         scrubDocIds.push(order.orderId);
       }
     }
-    if (order.status === 'failed' && !order.resumeScrubbed && createdAgeMs > RESUME_RETENTION_MS) {
+    if (order.status === 'failed' && !order.resumeScrubbed && createdAgeMs > RESUME_RETENTION_MS && isAllowed) {
       order.resumeScrubbed = true;
       scrubDocIds.push(order.orderId);
     }
-    if (order.resumeScrubbed && order.status === 'delivered') {
+    if (order.resumeScrubbed && order.status === 'delivered' && isAllowed) {
       const deliveredMs = Date.parse(order.deliveredAt || 0);
       const deliveredAgeMs = nowMs - (Number.isFinite(deliveredMs) ? deliveredMs : 0);
       if (deliveredAgeMs > FULL_PURGE_MS) {
@@ -135,7 +160,7 @@ function retentionPass(queue, nowMs) {
         continue;
       }
     }
-    if (order.resumeScrubbed && order.status === 'failed' && createdAgeMs > FULL_PURGE_MS) {
+    if (order.resumeScrubbed && order.status === 'failed' && createdAgeMs > FULL_PURGE_MS && isAllowed) {
       removeDocIds.push(order.orderId);
       continue;
     }
