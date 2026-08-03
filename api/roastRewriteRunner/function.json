@@ -1,0 +1,10 @@
+{
+  "bindings": [
+    {
+      "name": "rewriteTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 12/15 * * * *"
+    }
+  ]
+}

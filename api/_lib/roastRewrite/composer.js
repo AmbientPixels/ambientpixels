@@ -12,6 +12,14 @@ const STALE_PROCESSING_MS = 10 * 60 * 1000;        // one Claude call; 10 min st
 const MAX_RETRIES = 2;
 const UNPAID_TTL_MS = 48 * 60 * 60 * 1000;          // created-but-never-paid orders
 const RESUME_RETENTION_MS = 30 * 24 * 60 * 60 * 1000; // spec: scrub resume text 30d post-delivery
+// Bound queue growth (review follow-up, 2026-08-02): a scrubbed delivered/failed
+// entry no longer holds PII, but the entry itself lingers forever so buyers can
+// reload their delivery link. Drop the entry + fully purge the doc once that
+// link lifetime has also passed. 60d = 2x the 30d scrub window, i.e. buyers get
+// a 30-day grace period after their resume text is scrubbed before the link
+// dies entirely — a deliberate tradeoff of "link works for 60 days" against
+// "queue doesn't grow forever".
+const FULL_PURGE_MS = 2 * RESUME_RETENTION_MS;
 const PRICE_CENTS_DEFAULT = 900;
 const RESUME_MAX_CHARS = 20000;
 
@@ -118,6 +126,18 @@ function retentionPass(queue, nowMs) {
     if (order.status === 'failed' && !order.resumeScrubbed && createdAgeMs > RESUME_RETENTION_MS) {
       order.resumeScrubbed = true;
       scrubDocIds.push(order.orderId);
+    }
+    if (order.resumeScrubbed && order.status === 'delivered') {
+      const deliveredMs = Date.parse(order.deliveredAt || 0);
+      const deliveredAgeMs = nowMs - (Number.isFinite(deliveredMs) ? deliveredMs : 0);
+      if (deliveredAgeMs > FULL_PURGE_MS) {
+        removeDocIds.push(order.orderId);
+        continue;
+      }
+    }
+    if (order.resumeScrubbed && order.status === 'failed' && createdAgeMs > FULL_PURGE_MS) {
+      removeDocIds.push(order.orderId);
+      continue;
     }
     kept.push(order);
   }

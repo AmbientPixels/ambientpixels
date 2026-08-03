@@ -151,6 +151,49 @@ enqueue('retentionPass drops stale unpaid orders and flags old delivered resumes
   assert.deepStrictEqual(again.scrubDocIds, []);
 });
 
+enqueue('retentionPass fully purges a scrubbed delivered entry once the 60d link lifetime passes', () => {
+  const now = Date.parse(NOW);
+  const oldLink = {
+    orderId: 'rr_link_dead',
+    status: 'delivered',
+    createdAt: NOW,
+    deliveredAt: new Date(now - (2 * composer.RESUME_RETENTION_MS) - 1000).toISOString(),
+    resumeScrubbed: true
+  };
+  const result = composer.retentionPass([oldLink], now);
+  assert.deepStrictEqual(result.removeDocIds, ['rr_link_dead']);
+  assert.deepStrictEqual(result.scrubDocIds, []);
+  assert.strictEqual(result.queue.length, 0);
+});
+
+enqueue('retentionPass keeps a scrubbed delivered entry inside the 60d link lifetime', () => {
+  const now = Date.parse(NOW);
+  const recentLink = {
+    orderId: 'rr_link_alive',
+    status: 'delivered',
+    createdAt: NOW,
+    deliveredAt: new Date(now - (45 * 24 * 60 * 60 * 1000)).toISOString(),
+    resumeScrubbed: true
+  };
+  const result = composer.retentionPass([recentLink], now);
+  assert.deepStrictEqual(result.removeDocIds, []);
+  assert.strictEqual(result.queue.length, 1);
+  assert.strictEqual(result.queue[0].orderId, 'rr_link_alive');
+});
+
+enqueue('retentionPass fully purges a scrubbed failed entry once the 60d window passes', () => {
+  const now = Date.parse(NOW);
+  const oldFailedLink = {
+    orderId: 'rr_failed_dead',
+    status: 'failed',
+    createdAt: new Date(now - (2 * composer.RESUME_RETENTION_MS) - 1000).toISOString(),
+    resumeScrubbed: true
+  };
+  const result = composer.retentionPass([oldFailedLink], now);
+  assert.deepStrictEqual(result.removeDocIds, ['rr_failed_dead']);
+  assert.strictEqual(result.queue.length, 0);
+});
+
 // ── Prompt ──
 
 enqueue('prompt carries the integrity constraint and the source resume', () => {
