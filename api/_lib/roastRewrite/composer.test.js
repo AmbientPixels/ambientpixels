@@ -79,12 +79,13 @@ enqueue('createOrder returns queue entry + doc with matching orderId', () => {
 enqueue('markPaid flips created -> paid and captures Stripe email', () => {
   const { entry } = composer.createOrder('r', null, NOW);
   const session = makeSession({ metadata: { rewrite: '1', orderId: entry.orderId } });
-  const { order } = composer.markPaid([entry], session, NOW);
+  const { order, reason } = composer.markPaid([entry], session, NOW);
   assert.ok(order);
   assert.strictEqual(order.status, 'paid');
   assert.strictEqual(order.paidAt, NOW);
   assert.strictEqual(order.email, 'buyer@example.com');
   assert.strictEqual(order.sessionId, session.id);
+  assert.strictEqual(reason, null);
 });
 
 enqueue('markPaid dedups on sessionId (webhook retry)', () => {
@@ -94,13 +95,27 @@ enqueue('markPaid dedups on sessionId (webhook retry)', () => {
   const second = composer.markPaid(first.queue, session, NOW);
   assert.ok(first.order);
   assert.strictEqual(second.order, null);
+  assert.strictEqual(second.reason, 'dedup');
 });
 
 enqueue('markPaid ignores unknown orderId and non-rewrite sessions', () => {
   const { entry } = composer.createOrder('r', null, NOW);
-  assert.strictEqual(composer.markPaid([entry], makeSession({ metadata: { rewrite: '1', orderId: 'rr_nope' } }), NOW).order, null);
-  assert.strictEqual(composer.markPaid([entry], makeSession({ metadata: { teardown: '1' } }), NOW).order, null);
+  const missing = composer.markPaid([entry], makeSession({ metadata: { rewrite: '1', orderId: 'rr_nope' } }), NOW);
+  assert.strictEqual(missing.order, null);
+  assert.strictEqual(missing.reason, 'missing');
+  const notRewrite = composer.markPaid([entry], makeSession({ metadata: { teardown: '1' } }), NOW);
+  assert.strictEqual(notRewrite.order, null);
+  assert.strictEqual(notRewrite.reason, 'not-rewrite');
   assert.strictEqual(entry.status, 'created');
+});
+
+enqueue('markPaid reports bad-status when the order exists but is not created', () => {
+  const { entry } = composer.createOrder('r', null, NOW);
+  entry.status = 'paid';
+  const session = makeSession({ metadata: { rewrite: '1', orderId: entry.orderId } });
+  const { order, reason } = composer.markPaid([entry], session, NOW);
+  assert.strictEqual(order, null);
+  assert.strictEqual(reason, 'bad-status');
 });
 
 // ── advanceQueue ──

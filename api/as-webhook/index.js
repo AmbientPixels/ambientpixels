@@ -41,26 +41,32 @@ module.exports = async function (context, req) {
       if (session.metadata?.rewrite === '1') {
         const rrComposer = require('../_lib/roastRewrite/composer');
         let rrOrder = null;
+        const rrOrderIdMeta = (session.metadata && session.metadata.orderId) || '?';
         try {
           const nowIso = new Date().toISOString();
+          let rrReason = null;
           const res = await storage.mutateState('roast_rewrite_queue', function (fresh) {
             const result = rrComposer.markPaid(fresh || [], session, nowIso);
+            rrReason = result.reason;
             if (!result.order) return undefined;
             rrOrder = result.order;
             return result.queue;
           });
           if (!res.ok) {
             rrOrder = null;
-            context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ': mutateState reported not ok');
+            context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ' orderId=' + rrOrderIdMeta + ' key=roast_rewrite_queue: mutateState reported not ok');
           } else if (rrOrder && res.written) {
             context.log('[as-webhook] Rewrite order paid: ' + rrOrder.orderId);
+          } else if (rrReason === 'missing' || rrReason === 'bad-status') {
+            rrOrder = null;
+            context.log.error('[as-webhook] Rewrite payment with NO matching order (manual recovery needed): session ' + session.id + ' orderId=' + rrOrderIdMeta + ' reason=' + rrReason);
           } else {
             rrOrder = null;
-            context.log('[as-webhook] Rewrite session already processed, order missing, or write skipped: ' + session.id);
+            context.log('[as-webhook] Rewrite session already processed, order missing, or write skipped: ' + session.id + ' reason=' + rrReason);
           }
         } catch (rrErr) {
           rrOrder = null;
-          context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ':', rrErr.message);
+          context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ' orderId=' + rrOrderIdMeta + ' key=roast_rewrite_queue:', rrErr.message);
         }
 
         if (rrOrder) {

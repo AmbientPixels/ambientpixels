@@ -45,18 +45,22 @@ function createOrder(resumeText, roastResult, nowIso) {
 }
 
 // Webhook path. Dedups on sessionId so Stripe retries never double-fire.
+// `reason` distinguishes a no-op order (null) so callers can tell a benign
+// dedup apart from a payment with no matching order — the latter needs
+// error-level attention (manual recovery), the former doesn't.
 function markPaid(queue, session, nowIso) {
   const q = Array.isArray(queue) ? queue.slice() : [];
   const md = (session && session.metadata) || {};
-  if (md.rewrite !== '1' || !md.orderId) return { queue: q, order: null };
-  if (q.some(o => o && o.sessionId === session.id)) return { queue: q, order: null };
+  if (md.rewrite !== '1' || !md.orderId) return { queue: q, order: null, reason: 'not-rewrite' };
+  if (q.some(o => o && o.sessionId === session.id)) return { queue: q, order: null, reason: 'dedup' };
   const order = q.find(o => o && o.orderId === md.orderId);
-  if (!order || order.status !== 'created') return { queue: q, order: null };
+  if (!order) return { queue: q, order: null, reason: 'missing' };
+  if (order.status !== 'created') return { queue: q, order: null, reason: 'bad-status' };
   order.status = 'paid';
   order.paidAt = nowIso;
   order.sessionId = session.id;
   order.email = (session.customer_details && session.customer_details.email) || null;
-  return { queue: q, order };
+  return { queue: q, order, reason: null };
 }
 
 // Self-heal: a crash mid-compose leaves 'processing'; after STALE_PROCESSING_MS
