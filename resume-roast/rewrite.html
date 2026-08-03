@@ -114,6 +114,7 @@
       if (!id || !key) { showError('This link is missing its key. Use the exact link from your email or checkout.'); return; }
 
       var polls = 0;
+      var sawDeliveredNoRewrite = false;
       function poll() {
         polls++;
         fetch('/api/roast-rewrite?id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(key))
@@ -122,9 +123,16 @@
             if (!res.ok) { showError(res.body.error || 'Could not load your order.'); return; }
             var s = res.body.status;
             if (s === 'delivered' && res.body.rewrite) { render(res.body); return; }
+            if (s === 'delivered' && !res.body.rewrite) { sawDeliveredNoRewrite = true; }
             if (s === 'failed') { showError('Your rewrite hit a technical problem. We have been alerted — reply to your receipt email for a fix or an instant refund.'); return; }
-            if (s === 'created') { showError('This order has not been paid yet. If you just paid, wait a few seconds and refresh.'); return; }
-            if (polls >= MAX_POLLS) { showError('This is taking longer than expected. We will email the link when it is ready — you can close this page.'); return; }
+            // Stripe's success redirect can beat the webhook that flips created -> paid,
+            // so give 'created' a grace window before treating it as genuinely unpaid.
+            if (s === 'created' && polls >= 12) { showError('This order has not been paid yet. If you just paid, wait a few seconds and refresh.'); return; }
+            if (polls >= MAX_POLLS) {
+              if (sawDeliveredNoRewrite) { showError('Something went wrong retrieving your rewrite. Reply to your receipt email and we will fix it or refund you.'); return; }
+              showError('This is taking longer than expected. We will email the link when it is ready — you can close this page.');
+              return;
+            }
             setTimeout(poll, POLL_MS);
           })
           .catch(function () {
