@@ -35,6 +35,69 @@ module.exports = async function (context, req) {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
 
+      // Rewrite orders ($9 Deep Roast Rewrite) — flip the pre-created order to
+      // paid; composition happens on the delivery page's first poll (or the
+      // runner backstop). Every side effect is non-fatal: always return 200.
+      if (session.metadata?.rewrite === '1') {
+        const rrComposer = require('../_lib/roastRewrite/composer');
+        let rrOrder = null;
+        try {
+          const nowIso = new Date().toISOString();
+          const res = await storage.mutateState('roast_rewrite_queue', function (fresh) {
+            const result = rrComposer.markPaid(fresh || [], session, nowIso);
+            if (!result.order) return undefined;
+            rrOrder = result.order;
+            return result.queue;
+          });
+          if (!res.ok) {
+            rrOrder = null;
+            context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ': mutateState reported not ok');
+          } else if (rrOrder && res.written) {
+            context.log('[as-webhook] Rewrite order paid: ' + rrOrder.orderId);
+          } else {
+            rrOrder = null;
+            context.log('[as-webhook] Rewrite session already processed, order missing, or write skipped: ' + session.id);
+          }
+        } catch (rrErr) {
+          rrOrder = null;
+          context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ':', rrErr.message);
+        }
+
+        if (rrOrder) {
+          try {
+            const pa = require('../_utils/productAnalytics');
+            await pa.emitEvent('pixelagents', 'rewrite_purchase',
+              { orderId: rrOrder.orderId, agentId: 'resume-roast' },
+              { category: 'conversion', source: 'server' });
+          } catch (paErr) {
+            context.log.warn('[as-webhook] rewrite_purchase event failed (non-fatal):', paErr.message);
+          }
+          try {
+            const { dispatchDiscord } = require('../_utils/fleetAlerts');
+            await dispatchDiscord({
+              title: 'Rewrite order paid: $9',
+              description: 'Deep Roast Rewrite ' + rrOrder.orderId + (rrOrder.email ? (' for ' + rrOrder.email) : ''),
+              color: 0x2E7D32
+            });
+          } catch (alertErr) {
+            context.log.warn('[as-webhook] Rewrite Discord alert failed (non-fatal):', alertErr.message);
+          }
+        }
+
+        await revenueRecorder.recordCheckoutRevenue({
+          event: event,
+          session: session,
+          product: 'pixelagents',
+          type: 'one_time',
+          plan: 'roast_rewrite',
+          fallbackCents: 900,
+          log: context.log
+        });
+
+        context.res = { status: 200, body: JSON.stringify({ received: true }) };
+        return;
+      }
+
       // Teardown orders ($199 done-for-you) — queue for asTeardownRunner and
       // stop here; they carry no reportId so nothing below applies. Every
       // side effect is non-fatal: the webhook must always return 200.
