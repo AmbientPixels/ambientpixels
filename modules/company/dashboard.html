@@ -3304,10 +3304,13 @@
           if (!o) return;
           var validStatuses = ['active', 'on_track', 'at_risk', 'behind', 'complete', 'completed', 'canceled', 'archived'];
           if (validStatuses.indexOf(o.status) === -1) issues.push({ level: 'red', title: 'Objective "' + (o.title || o.id) + '" has unknown status: ' + o.status, detail: 'May not display correctly on Goals page.' });
-          // Active objective with no active campaigns
+          // Active objective with no active campaigns AND no open direct tasks.
+          // Ops-style objectives (e.g. budget enforcement) get work as direct tasks,
+          // never campaigns — only warn when the goal has NO work of either kind.
           if (o.status === 'active' || o.status === 'on_track') {
             var linkedCmps = campaigns.filter(function (c) { return c && c.objective_id === o.id && c.status === 'active' && !c.deletedAt; });
-            if (linkedCmps.length === 0) issues.push({ level: 'yellow', title: 'Objective "' + (o.title || o.id) + '" has no active campaigns', detail: 'No work is being generated for this goal.' });
+            var openObjTasks = tasks.filter(function (t) { return t && t.objective_id === o.id && ['done', 'archived', 'canceled'].indexOf(t.status) === -1; });
+            if (linkedCmps.length === 0 && openObjTasks.length === 0) issues.push({ level: 'yellow', title: 'Objective "' + (o.title || o.id) + '" has no active campaigns or open tasks', detail: 'No work is being generated for this goal.' });
           }
         });
 
