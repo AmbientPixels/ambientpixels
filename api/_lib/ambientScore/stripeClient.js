@@ -108,6 +108,43 @@ async function createTeardownCheckout({ url, email, goal, utmContent, utmSource 
   };
 }
 
+// ── Create Rewrite Checkout ($9 Deep Roast Rewrite) ──────────────
+// Inline price_data like the teardown. The order already exists server-side
+// (resume text is too large for metadata) so metadata carries only the id.
+
+async function createRewriteCheckout({ orderId, token, priceCents, utmContent, utmSource }) {
+  if (!STRIPE_SECRET_KEY) throw new Error('Stripe is not configured');
+  if (!orderId || !token) throw new Error('orderId and token required');
+
+  const params = new URLSearchParams();
+  params.append('mode', 'payment');
+  params.append('allow_promotion_codes', 'true');
+  // Same card+link pinning as createCheckoutSession — see comment there.
+  params.append('payment_method_types[0]', 'card');
+  params.append('payment_method_types[1]', 'link');
+  params.append('line_items[0][price_data][currency]', 'usd');
+  params.append('line_items[0][price_data][unit_amount]', String(priceCents || 900));
+  params.append('line_items[0][price_data][product_data][name]', 'Deep Roast Resume Rewrite');
+  params.append('line_items[0][price_data][product_data][description]', 'Your resume professionally rewritten and ATS-optimized, based on your roast. Ready in minutes.');
+  params.append('line_items[0][quantity]', '1');
+  params.append('success_url', SITE_URL + '/resume-roast/rewrite.html?id=' + orderId + '&key=' + token);
+  params.append('cancel_url', SITE_URL + '/pixel-agents/run.html?agent=resume-roast&cancelled=1');
+  params.append('metadata[rewrite]', '1');
+  params.append('metadata[orderId]', orderId);
+  if (utmContent) params.append('metadata[utm_content]', String(utmContent).slice(0, 120));
+  if (utmSource) params.append('metadata[utm_source]', String(utmSource).slice(0, 50));
+
+  const res = await axios.post(STRIPE_BASE + '/checkout/sessions', params.toString(), {
+    headers: {
+      'Authorization': 'Bearer ' + STRIPE_SECRET_KEY,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    timeout: 15000
+  });
+
+  return { checkoutUrl: res.data.url, sessionId: res.data.id };
+}
+
 // ── Create Offer (coupon + promotion code) ───────────────────────
 // CEO-only path (as-offer-create endpoint). Creates the real pricing artifact:
 // a one-time percent-off coupon plus a customer-facing promotion code with a
@@ -206,4 +243,4 @@ function verifyWebhookSignature(payload, signature) {
   }
 }
 
-module.exports = { createCheckoutSession, createTeardownCheckout, createOffer, verifySession, verifyWebhookSignature };
+module.exports = { createCheckoutSession, createTeardownCheckout, createRewriteCheckout, createOffer, verifySession, verifyWebhookSignature };
