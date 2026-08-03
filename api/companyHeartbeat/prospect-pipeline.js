@@ -364,7 +364,12 @@ async function runProspectPipeline(opts) {
   // ── Pass 1: DISCOVER + QUEUE ──
   var discovered = 0, queued = 0;
   try {
-    var carried = prospects.filter(function (p) { return p && p.status === 'discovered'; });
+    // Lane-scoped: only laneless (AmbientScore) entries. The store is shared —
+    // roast-lane entries (lane:'resumeRoast', siteUrl null) carried here get a
+    // null-URL scan job, and the q.url === p.siteUrl dup check then dismisses
+    // every OTHER null-siteUrl prospect against that job (null === null). This
+    // ate both carried roast candidates on 2026-08-03's first cycle.
+    var carried = prospects.filter(function (p) { return p && p.status === 'discovered' && !p.lane; });
     var fresh = [];
     var maxQueuedProspects = Number.isFinite(cfg.maxQueuedProspects) ? cfg.maxQueuedProspects : 10;
     if (carried.length < maxQueuedProspects) {

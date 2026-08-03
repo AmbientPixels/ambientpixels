@@ -422,6 +422,30 @@ function mockStorage(initial) {
     assert.strictEqual(r5.queued, 1);
   });
 
+  // Lane scoping (regression, 2026-08-03 first-cycle incident): a roast-lane
+  // 'discovered' entry in the shared store must NOT be carried into the AS
+  // lane's queue pass — it has siteUrl null, which minted a null-URL scan job
+  // and then null === null dup-dismissed every other roast candidate.
+  const storageLane = mockStorage({
+    systemConfig: {}, tasks: [], asScanQueue: [], actions: [], governanceLog: [],
+    asProspects: [{
+      id: 'pros_roast_1', lane: 'resumeRoast', uri: 'at://did:plc:x/app.bsky.feed.post/1',
+      cid: 'cid1', author: 'jobseeker.bsky.social', authorDid: 'did:plc:x',
+      postText: 'my resume keeps getting rejected, job hunting is brutal',
+      siteUrl: null, domain: null, status: 'discovered',
+      discoveredAt: new Date(NOW - 3600e3).toISOString()
+    }]
+  });
+  const rLane = await PP.runProspectPipeline({ storage: storageLane, log: function () {}, nowMs: NOW, discover: async function () { return []; } });
+  test('lane scoping: AS pass leaves roast-lane discovered entries alone', () => {
+    const p = storageLane._state.asProspects[0];
+    assert.strictEqual(p.status, 'discovered', 'roast entry must stay discovered for the roast lane to mint');
+    assert.ok(!p.taskId, 'no AS reply task hijack');
+    assert.strictEqual(storageLane._state.tasks.length, 0);
+    assert.strictEqual(storageLane._state.asScanQueue.length, 0, 'no null-URL scan job');
+    assert.strictEqual(rLane.queued, 0);
+  });
+
   // Orphan sweep wiring: a stranded scan_queued prospect (no job, old enough
   // to clear the age guard) should close its task with the HONEST orphan
   // copy, not the promote-path "scan failed" copy — no scan failed here, the
