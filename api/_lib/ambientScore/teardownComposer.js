@@ -196,6 +196,8 @@ module.exports = {
   buildTeardownPrompt,
   composeTeardown,
   validateTeardown,
+  parseJson,
+  callClaudeWithBackoff: _callClaudeWithBackoff,
   QUEUE_CAP,
   MAX_RETRIES
 };
