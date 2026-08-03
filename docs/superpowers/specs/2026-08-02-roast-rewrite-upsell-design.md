@@ -67,7 +67,7 @@ Three events via the existing ProductAnalytics pipeline:
 
 - **Kill switch:** `systemConfig.roastRewrite.enabled` (default false until live-verified). systemConfig is read-modify-write — GET first, always.
 - Upsell card renders only when the kill switch is on (config surfaced to the run page the same way existing tier/credits info is).
-- Webhook rejects orders when disabled (no orphan payments while dark).
+- ~~Webhook rejects orders when disabled (no orphan payments while dark)~~ **Amended at implementation:** the webhook honors payments regardless of the kill switch, and already-paid orders still compose after the switch goes dark. Rationale: while disabled, `create` 503s so no rewrite checkout session can exist; the only reachable case is a buyer paying an existing session (≤24h old) right after the switch flips off — and delivering something a customer paid for is correct. The switch stops NEW checkouts, not paid obligations.
 - CEO test purchase policy: any CEO/test checkout gets refunded and pruned (`prune-test-entries` pattern) — **never counted or narrated as revenue** (07-31 lesson).
 
 ## 7. Success gate
