@@ -3,6 +3,8 @@
 let currentAgent = null;
 let currentResult = null;
 let currentRunId = null;
+let currentInput = null;
+let rewriteCfg = null;
 let _allAgents = []; // all agents for related agent rendering
 
 const LOADING_MESSAGES = {
@@ -358,6 +360,7 @@ async function runAgent() {
 
     currentResult = data;
     currentRunId = data.runId;
+    currentInput = input;
 
     // Funnel: agent_run_completed
     if (window.ProductAnalytics) try { ProductAnalytics.track('agent_run_completed', { agentId: currentAgent.id, runId: data.runId }); } catch (_) {}
@@ -526,6 +529,70 @@ function renderResult(data) {
           '<div class="pa-result-card-value">' + escapeHtml(String(value)) + '</div>';
         body.appendChild(card);
     }
+  }
+
+  maybeRenderRewriteUpsell(body);
+}
+
+// ── $9 Deep Roast Rewrite upsell (resume-roast only, kill-switched) ──
+async function getRewriteConfig() {
+  if (rewriteCfg) return rewriteCfg;
+  try {
+    const res = await fetch(getApiBase() + '/roast-rewrite?config=1');
+    rewriteCfg = res.ok ? await res.json() : { enabled: false };
+  } catch (_) {
+    rewriteCfg = { enabled: false };
+  }
+  return rewriteCfg;
+}
+
+function maybeRenderRewriteUpsell(body) {
+  if (!currentAgent || currentAgent.id !== 'resume-roast' || !currentInput) return;
+  getRewriteConfig().then(cfg => {
+    if (!cfg || !cfg.enabled) return;
+    if (document.getElementById('pa-rewrite-btn')) return;
+    const price = '$' + (Math.round(cfg.priceCents || 900) / 100);
+    const card = document.createElement('div');
+    card.className = 'pa-result-card pa-rewrite-upsell';
+    card.innerHTML =
+      '<div class="pa-result-card-label">Want it fixed, not just roasted?</div>' +
+      '<div class="pa-rewrite-upsell-body">Get your resume professionally rewritten — ATS-optimized, ready to send, based on this exact roast.</div>' +
+      '<button class="pa-rewrite-upsell-btn" id="pa-rewrite-btn">Get the full rewrite — ' + price + '</button>' +
+      '<div class="pa-rewrite-upsell-note">Ready in minutes · Not happy? We refund, no questions.</div>';
+    body.appendChild(card);
+    document.getElementById('pa-rewrite-btn').addEventListener('click', startRewriteCheckout);
+    if (window.ProductAnalytics) try { ProductAnalytics.track('rewrite_upsell_view', { agentId: 'resume-roast' }); } catch (_) {}
+  });
+}
+
+async function startRewriteCheckout() {
+  const btn = document.getElementById('pa-rewrite-btn');
+  if (!btn || !currentInput) return;
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.textContent = 'Opening checkout…';
+  if (window.ProductAnalytics) try { ProductAnalytics.track('rewrite_upsell_click', { agentId: 'resume-roast' }); } catch (_) {}
+  try {
+    const res = await fetch(getApiBase() + '/roast-rewrite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'create',
+        resumeText: currentInput,
+        roastResult: (currentResult && currentResult.result) || null
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = label;
+    alert(data.error || 'Could not start checkout. Please try again.');
+  } catch (_) {
+    btn.disabled = false;
+    btn.textContent = label;
   }
 }
 

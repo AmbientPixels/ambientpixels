@@ -894,3 +894,31 @@ body[data-theme="light"] .pa-run-error { background: rgba(239,68,68,0.06); borde
 body[data-theme="light"] .pa-result-footer { border-top-color: var(--pa-sep); }
 body[data-theme="light"] .pa-result-powered a { color: var(--pa-primary); }
 body[data-theme="light"] .pa-result-browse { color: var(--pa-primary); }
+
+/* ── $9 Deep Roast Rewrite upsell ── */
+.pa-rewrite-upsell {
+  border: 1px solid var(--pa-primary-border);
+  background: linear-gradient(135deg, var(--pa-primary-dim), transparent);
+}
+.pa-rewrite-upsell-body {
+  margin: 0.5rem 0 1rem;
+  line-height: 1.5;
+}
+.pa-rewrite-upsell-btn {
+  display: inline-block;
+  padding: 0.65rem 1.4rem;
+  border: none;
+  border-radius: var(--pa-radius-md);
+  background: var(--pa-primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.pa-rewrite-upsell-btn:hover { background: var(--pa-primary-hover); }
+.pa-rewrite-upsell-btn:disabled { opacity: 0.6; cursor: wait; }
+.pa-rewrite-upsell-note {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
