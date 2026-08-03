@@ -96,8 +96,14 @@
         document.getElementById('rw-kw-present').innerHTML = (kw.present || []).map(function (k) { return '<span>' + esc(k) + '</span>'; }).join('');
         document.getElementById('rw-kw-missing').innerHTML = (kw.missing || []).map(function (k) { return '<span>' + esc(k) + '</span>'; }).join('');
         document.getElementById('rw-copy').onclick = function () {
+          if (!navigator.clipboard) {
+            document.getElementById('rw-copy').textContent = 'Copy failed — select the text above';
+            return;
+          }
           navigator.clipboard.writeText(rw.rewritten_resume).then(function () {
             document.getElementById('rw-copy').textContent = 'Copied!';
+          }).catch(function () {
+            document.getElementById('rw-copy').textContent = 'Copy failed — select the text above';
           });
         };
         document.getElementById('rw-download-md').onclick = function () { download('resume-rewrite.md', rw.rewritten_resume); };
