@@ -55,7 +55,7 @@ const PRODUCTS = {
     stripePrice: process.env.PA_STRIPE_PRICE_PRO_MONTHLY,
     mode: 'subscription',
     name: 'Pixel Agents Pro (Monthly)',
-    description: 'Unlimited daily runs, priority queue, early access to new agents',
+    description: 'Unlimited daily runs, 70% revenue share, 1.5x run weight',
     entitlements: {
       tier: 'pro',
       flags: ['paUnlimitedRuns', 'paPriorityQueue', 'paEarlyAccess']
@@ -65,7 +65,7 @@ const PRODUCTS = {
     stripePrice: process.env.PA_STRIPE_PRICE_PRO_YEARLY,
     mode: 'subscription',
     name: 'Pixel Agents Pro (Yearly)',
-    description: 'Unlimited daily runs, priority queue, early access — save 20%',
+    description: 'Unlimited daily runs, 70% revenue share, 1.5x run weight — save 17%',
     entitlements: {
       tier: 'pro',
       flags: ['paUnlimitedRuns', 'paPriorityQueue', 'paEarlyAccess']
