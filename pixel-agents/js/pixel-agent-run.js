@@ -593,6 +593,7 @@ async function startRewriteCheckout() {
   } catch (_) {
     btn.disabled = false;
     btn.textContent = label;
+    alert('Network error — please check your connection and try again.');
   }
 }
 
