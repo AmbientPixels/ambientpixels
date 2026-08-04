@@ -113,11 +113,18 @@
 
       if (!id || !key) { showError('This link is missing its key. Use the exact link from your email or checkout.'); return; }
 
+      // Same base logic as pixel-agent-run.js getApiBase(): on production the SWA
+      // proxy does NOT route /api/roast-rewrite (it falls back to index.html),
+      // so the API must be called on the function app directly. CSP allows it.
+      var API_BASE = window.location.hostname.includes('ambientpixels.ai')
+        ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+        : '/api';
+
       var polls = 0;
       var sawDeliveredNoRewrite = false;
       function poll() {
         polls++;
-        fetch('/api/roast-rewrite?id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(key))
+        fetch(API_BASE + '/roast-rewrite?id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(key))
           .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
           .then(function (res) {
             if (!res.ok) { showError(res.body.error || 'Could not load your order.'); return; }
