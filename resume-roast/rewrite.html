@@ -14,8 +14,16 @@
     .rw-status { text-align: center; padding: 3rem 1rem; }
     .rw-spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid rgba(127,127,127,.3); border-top-color: currentColor; border-radius: 50%; animation: rw-spin 0.9s linear infinite; }
     @keyframes rw-spin { to { transform: rotate(360deg); } }
-    .rw-doc { white-space: pre-wrap; font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.92rem; line-height: 1.55; background: rgba(127,127,127,.08); border-radius: 8px; padding: 1.5rem; overflow-x: auto; }
+    .rw-doc { background: rgba(127,127,127,.08); border-radius: 8px; padding: 2rem; line-height: 1.6; overflow-x: auto; }
+    .rw-doc h2 { margin: 0 0 0.25rem; font-size: 1.6rem; }
+    .rw-doc h3 { margin: 1.6rem 0 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid rgba(127,127,127,.35); padding-bottom: 0.3rem; }
+    .rw-doc p { margin: 0.5rem 0; }
+    .rw-doc .rw-sub { margin-top: 1rem; }
+    .rw-doc ul { margin: 0.5rem 0 1rem 1.25rem; padding: 0; }
+    .rw-doc li { margin-bottom: 0.35rem; }
     .rw-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0 2rem; }
+    .rw-actions .btn { background: rgba(127,127,127,.12); border: 1px solid rgba(127,127,127,.4); color: inherit; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+    .rw-actions .btn:hover { background: rgba(127,127,127,.22); }
     .rw-section { margin-top: 2rem; }
     .rw-changes li { margin-bottom: 0.5rem; }
     .rw-keywords span { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; background: rgba(127,127,127,.15); margin: 0 0.3rem 0.3rem 0; font-size: 0.85rem; }
@@ -84,11 +92,37 @@
         URL.revokeObjectURL(a.href);
       }
 
+      // Minimal safe Markdown renderer: every line is HTML-escaped FIRST, then
+      // only whitelisted transforms are applied (headings, bullets, **bold**).
+      // Copy/download/print keep the raw Markdown untouched.
+      function inline(s) {
+        return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      }
+      function mdToHtml(md) {
+        var lines = String(md || '').split(/\r?\n/);
+        var out = [];
+        var list = false;
+        function closeList() { if (list) { out.push('</ul>'); list = false; } }
+        for (var i = 0; i < lines.length; i++) {
+          var t = lines[i].trim();
+          if (!t) { closeList(); continue; }
+          if (/^-{3,}$/.test(t)) { closeList(); continue; }
+          if (t.indexOf('### ') === 0) { closeList(); out.push('<p class="rw-sub"><strong>' + inline(t.slice(4)) + '</strong></p>'); continue; }
+          if (t.indexOf('## ') === 0) { closeList(); out.push('<h3>' + inline(t.slice(3)) + '</h3>'); continue; }
+          if (t.indexOf('# ') === 0) { closeList(); out.push('<h2>' + inline(t.slice(2)) + '</h2>'); continue; }
+          if (/^[-*] /.test(t)) { if (!list) { out.push('<ul>'); list = true; } out.push('<li>' + inline(t.slice(2)) + '</li>'); continue; }
+          closeList();
+          out.push('<p>' + inline(t) + '</p>');
+        }
+        closeList();
+        return out.join('');
+      }
+
       function render(data) {
         var rw = data.rewrite;
         document.getElementById('rw-loading').style.display = 'none';
         document.getElementById('rw-ready').style.display = '';
-        document.getElementById('rw-resume').textContent = rw.rewritten_resume;
+        document.getElementById('rw-resume').innerHTML = mdToHtml(rw.rewritten_resume);
         document.getElementById('rw-changes').innerHTML = (rw.changes || [])
           .map(function (c) { return '<li><strong>' + esc(c.section) + ':</strong> ' + esc(c.what) + ' <em>(' + esc(c.why) + ')</em></li>'; })
           .join('');

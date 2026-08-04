@@ -226,7 +226,7 @@ function buildRewritePrompt(resumeText, roastResult) {
     '  "ats_keywords": {"present": ["<keyword>", ...], "missing": ["<keyword worth adding IF the client truly has the experience>", ...]}',
     '}',
     '',
-    'Rules: no em dashes anywhere. No invented statistics. The rewritten_resume must be complete and usable as-is.'
+    'Rules: use standard resume punctuation: no em dashes and no double hyphens anywhere; write date ranges with a single hyphen (March 2022 - Present). No invented statistics. The rewritten_resume must be complete and usable as-is.'
   ].join('\n');
 }
 
