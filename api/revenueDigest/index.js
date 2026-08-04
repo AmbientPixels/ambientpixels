@@ -58,26 +58,43 @@ module.exports = async function (context, req) {
   // Strict secret gate (not principal) — this mutates the append-only ledger.
   if (req.method === 'POST') {
     const body = req.body || {};
-    if (body.action !== 'prune-test-entries') {
-      context.res = { status: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Unknown action. Supported: prune-test-entries' }) };
+    if (body.action !== 'prune-test-entries' && body.action !== 'list-entries') {
+      context.res = { status: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Unknown action. Supported: prune-test-entries, list-entries' }) };
       return;
     }
     if (secret !== 'pixelpusher') {
       context.res = { status: 403, headers: corsHeaders, body: JSON.stringify({ error: 'Forbidden' }) };
       return;
     }
+
+    // CEO-only read: raw ledger entries, so a bad entry's id can be found for a
+    // surgical prune without dumping blobs by hand.
+    if (body.action === 'list-entries') {
+      try {
+        const ledger = await getLedger();
+        context.res = { status: 200, headers: corsHeaders, body: JSON.stringify({ ok: true, count: ledger.entries.length, entries: ledger.entries }) };
+      } catch (err) {
+        context.res = { status: 500, headers: corsHeaders, body: JSON.stringify({ error: 'List failed', details: err && err.message ? err.message : String(err) }) };
+      }
+      return;
+    }
+
     try {
+      // Optional body.ids: explicit entry ids to remove (test checkouts that
+      // recorded a non-zero amount, e.g. the fallback-minted $9 on 2026-08-04).
+      const explicitIds = Array.isArray(body.ids) ? body.ids.map(String) : [];
       const ledger = await getLedger();
       const removed = [];
       const kept = [];
       for (const e of ledger.entries) {
         const isZeroPositive = e && POSITIVE_TYPES.indexOf(e.type) !== -1 && (!Number.isFinite(e.amountCents) || e.amountCents === 0);
-        if (isZeroPositive) removed.push(e); else kept.push(e);
+        const isExplicit = e && explicitIds.indexOf(String(e.id)) !== -1;
+        if (isZeroPositive || isExplicit) removed.push(e); else kept.push(e);
       }
       if (removed.length > 0) {
         ledger.entries = kept;
         ledger.updatedAt = new Date().toISOString();
-        ledger.lastPrune = { at: ledger.updatedAt, removedIds: removed.map(e => e.id), reason: 'zero-amount positive entries (test checkouts)' };
+        ledger.lastPrune = { at: ledger.updatedAt, removedIds: removed.map(e => e.id), reason: explicitIds.length > 0 ? 'zero-amount positives + explicit test entry ids' : 'zero-amount positive entries (test checkouts)' };
         await storage.setState(LEDGER_KEY, ledger);
       }
       context.res = {

@@ -13,8 +13,13 @@
 const { recordRevenue } = require('./revenueLedger');
 
 function _amountFromSession(session, fallbackCents) {
-  const a = session && Number(session.amount_total);
-  if (Number.isFinite(a) && a > 0) return a;
+  const raw = session ? session.amount_total : undefined;
+  const a = Number(raw);
+  // An explicit zero (100%-off promo code, payment_status no_payment_required)
+  // is a REAL zero — substituting the fallback here minted a fake $9 ledger
+  // entry from a test checkout on 2026-08-04. Fallback is only for sessions
+  // where Stripe omitted amount_total entirely.
+  if (raw !== null && raw !== undefined && Number.isFinite(a)) return a > 0 ? a : 0;
   return Number.isFinite(fallbackCents) ? fallbackCents : 0;
 }
 
