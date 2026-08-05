@@ -123,5 +123,5 @@ git grep -n pixelpusher -- . ':!docs' ':!*.md'
 ## Open questions
 
 1. Does the SWA build pipeline permit generated files in the output? Step 0 answers this; everything depends on it.
-2. What is currently in the GitHub `COMPANY_WRITE_SECRET`? Unknowable by design — Step 4 overwrites it, so it does not matter.
+2. ~~What is currently in the GitHub `COMPANY_WRITE_SECRET`?~~ **ANSWERED at Step 1.** It is set, to `pixelpusher` — surfaced by the generated file itself (unknowable from the GitHub UI, but the deploy pipeline reveals it). This de-risks Step 4: CI has been sending `pixelpusher` all along, so the Azure app setting and the GitHub secret must be changed **together**, and CI picks the new value up on the next deploy with no workflow edit.
 3. Should the secret rotate on a schedule afterward? A4 makes rotation cheap (change the GH secret + Azure setting, redeploy). Not automated in v1.
