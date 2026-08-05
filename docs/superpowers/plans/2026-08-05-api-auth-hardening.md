@@ -97,20 +97,47 @@ Each step is independently deployable and reversible. **Order matters:** the sec
 
 ---
 
+## CORRECTION — this plan protects WRITES, not reads
+
+Found during step 3, and it invalidates the verification gate as first written.
+`api/company-state/index.js` calls `validateSecret` **only on POST** (line ~95).
+**GET does not authenticate at all** and never did. So:
+
+- Step 4 closes public **writes** — the destructive vector (wipe or poison `tasks`, `objectives`, `agentMemories`, `approvalQueue`).
+- Step 4 does **not** close public **reads**. Anyone can still read any state key, before and after.
+
+The original gate below expected `GET → 403`, which will never happen. Corrected.
+
+**Locking reads is a separate decision with real cost:** public pages read `company-state` today — `ambientos/index.html`, `agent-forge/js/agent-forge.js`, and `js/agent-engine.js` (which reads `geminiUsage` to render live spend). Gating GET breaks those unless each is reworked onto a public projection endpoint. Given the build-in-public posture much of this data is already published deliberately; `agentMemories`, `approvalQueue`, and revenue detail are the parts worth a second look. **CEO decision, not assumed here.**
+
 ## Verification gate (all must pass before the post publishes)
 
 ```bash
-# 1. THE objective — must be 403
-curl -s -o /dev/null -w "%{http_code}\n" \
-  "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=tasks"
+API=https://ambientpixels-nova-api.azurewebsites.net/api
 
-# 2. wrong secret must also be 403
-curl -s -o /dev/null -w "%{http_code}\n" -H "x-company-secret: pixelpusher" \
-  "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=tasks"
+# 1. THE objective — an unauthenticated WRITE must be rejected (403)
+curl -s -o /dev/null -w "%{http_code}\n" -X POST "$API/company-state" \
+  -H "Content-Type: application/json" -d '{"key":"_ping","value":{"probe":1}}'
 
-# 3. no secret left in shipped code
-git grep -n pixelpusher -- . ':!docs' ':!*.md'
+# 2. the old public secret must also be rejected (403)
+curl -s -o /dev/null -w "%{http_code}\n" -X POST "$API/company-state" \
+  -H "Content-Type: application/json" -H "x-company-secret: pixelpusher" \
+  -d '{"key":"_ping","value":{"probe":1}}'
+
+# 3. the real secret still works (200) — proves we did not lock ourselves out
+curl -s -o /dev/null -w "%{http_code}\n" -X POST "$API/company-state" \
+  -H "Content-Type: application/json" -H "x-company-secret: $NEW_SECRET" \
+  -d '{"key":"_ping","value":{"probe":1}}'
+
+# 4. no secret left in shipped code (hits should only be the CEO handle
+#    used as an identifier: agent.id / assignee / created_by / origin_agent)
+git grep -n pixelpusher -- . ':!docs' ':!*.md' ':!*/tests/*'
+
+# 5. reads are STILL OPEN by design — expect 200, not 403
+curl -s -o /dev/null -w "%{http_code}\n" "$API/company-state?key=tasks"
 ```
+
+`_ping` is the safe probe target: it is a VALID_KEY and holds nothing anyone depends on.
 
 ---
 
