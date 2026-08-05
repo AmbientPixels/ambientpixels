@@ -325,8 +325,12 @@ var AgentEngine = (function () {
     if (!force && _fleetActivity && (Date.now() - _fleetActivityAt) < FLEET_ACTIVITY_TTL_MS) {
       return Promise.resolve(_fleetActivity);
     }
+    // No credential: this is a GET, and company-state does not validate reads.
+    // The old hardcoded 'pixelpusher' fallback was vestigial AND leaked the
+    // secret in publicly served JS (this file ships on public pages, and the
+    // repo is public). CompanyStore supplies headers when it has them.
     var headers = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders)
-      ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+      ? CompanyStore.getWriteHeaders() : {};
     return fetch(_apiRoot() + '/company-state?key=geminiUsage', { headers: headers })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (resp) {

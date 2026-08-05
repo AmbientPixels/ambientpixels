@@ -801,7 +801,7 @@
       try {
         const imgResp = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             topic: 'RPG character portrait: ' + prompt,
             goal: 'Card game character avatar portrait, centered face/bust composition, dark atmospheric background',

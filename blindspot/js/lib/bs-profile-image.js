@@ -213,7 +213,7 @@
       if (style && style !== 'none') body.preset = style;
       var resp = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
       var json = await resp.json();
