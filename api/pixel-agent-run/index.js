@@ -10,6 +10,7 @@ const fs = require('fs');
 const { extractUserInfo } = require('../_utils/cfAuth');
 const { PA_LIMITS } = require('../_lib/stripe/entitlements');
 const gate = require('./entitlementGate');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -144,7 +145,7 @@ module.exports = async function (context, req) {
 
     // Billing + rate limiting — CEO/admin/Pro run unlimited, free tiers get a
     // daily allowance, purchased credits extend past the free allowance.
-    const isCEO = req.headers['x-company-secret'] === 'pixelpusher';
+    const isCEO = isValidCeoSecret(req.headers['x-company-secret']);
     const { userId, isAuthenticated } = extractUserInfo(req, context);
     const clientIP = getClientIP(req);
     const ipHash = hashIP(clientIP);

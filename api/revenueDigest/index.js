@@ -11,6 +11,7 @@
 const storage = require('../_utils/companyStorage');
 const { buildRevenueDigest } = require('../companyHeartbeat/revenue-intel');
 const { getLedger, LEDGER_KEY, POSITIVE_TYPES, resolveInternalEmails } = require('../_lib/stripe/revenueLedger');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -45,7 +46,7 @@ module.exports = async function (context, req) {
   // Auth: require company secret OR SWA principal (CEO dashboard is authed).
   const secret = (req.headers && req.headers['x-company-secret']) || '';
   const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
-  if (!storage.validateSecret(secret) && !principal) {
+  if (!isValidCeoSecret(secret) && !principal) {
     context.res = { status: 403, headers: corsHeaders, body: JSON.stringify({ error: 'Unauthorized' }) };
     return;
   }
@@ -62,7 +63,7 @@ module.exports = async function (context, req) {
       context.res = { status: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Unknown action. Supported: prune-test-entries, list-entries' }) };
       return;
     }
-    if (secret !== 'pixelpusher') {
+    if (!isValidCeoSecret(secret)) {
       context.res = { status: 403, headers: corsHeaders, body: JSON.stringify({ error: 'Forbidden' }) };
       return;
     }

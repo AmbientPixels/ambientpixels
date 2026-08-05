@@ -4,6 +4,7 @@ const { extractUserInfo } = require('../_utils/cfAuth');
 const { getProduct } = require('../_lib/stripe/productCatalog');
 const { createCheckoutSession, findCustomerByEmail, createCustomer, SITE_URL } = require('../_lib/stripe/stripeClient');
 const { loadEntitlements, saveEntitlements, defaultRecord } = require('../_lib/stripe/entitlements');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
@@ -33,7 +34,7 @@ module.exports = async function (context, req) {
     let { userId, email, isAuthenticated } = extractUserInfo(req, context);
 
     // CEO fallback
-    if (!isAuthenticated && req.headers['x-company-secret'] === 'pixelpusher') {
+    if (!isAuthenticated && isValidCeoSecret(req.headers['x-company-secret'])) {
       userId = 'ceo';
       email = 'ceo@ambientpixels.ai';
       isAuthenticated = true;

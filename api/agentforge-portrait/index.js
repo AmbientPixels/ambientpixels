@@ -2,6 +2,7 @@
 // POST /api/agentforge-portrait { archetype, expression, appearance, pose, accent }
 
 const { callImageGeneration } = require('../_lib/contentEngine/imageEngine');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ function extractUserId(req) {
   }
   var devId = req.headers['x-user-id'];
   if (devId) return devId;
-  if (req.headers['x-company-secret'] === 'pixelpusher') return 'ceo';
+  if (isValidCeoSecret(req.headers['x-company-secret'])) return 'ceo';
   return null;
 }
 

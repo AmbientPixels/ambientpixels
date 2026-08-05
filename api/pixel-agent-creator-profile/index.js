@@ -5,6 +5,7 @@
 const { extractUserInfo } = require('../_utils/cfAuth');
 const { loadCreatorProfile, saveCreatorProfile, defaultProfile, toPublicSafe } = require('../_lib/stripe/creatorProfiles');
 const storage = require('../_utils/companyStorage');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -48,7 +49,7 @@ module.exports = async function (context, req) {
     var { userId, email, isAuthenticated } = extractUserInfo(req, context);
 
     // CEO fallback
-    if (!isAuthenticated && req.headers['x-company-secret'] === 'pixelpusher') {
+    if (!isAuthenticated && isValidCeoSecret(req.headers['x-company-secret'])) {
       userId = 'ceo';
       email = 'ceo@ambientpixels.ai';
       isAuthenticated = true;

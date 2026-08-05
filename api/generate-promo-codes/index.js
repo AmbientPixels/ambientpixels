@@ -7,6 +7,7 @@
 
 const crypto = require('crypto');
 const promo = require('../_lib/promo-codes');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -39,7 +40,7 @@ module.exports = async function (context, req) {
     return;
   }
 
-  if (req.headers['x-company-secret'] !== 'pixelpusher') {
+  if (!isValidCeoSecret(req.headers['x-company-secret'])) {
     context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'CEO access required' } };
     return;
   }

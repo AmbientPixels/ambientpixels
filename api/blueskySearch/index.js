@@ -4,6 +4,7 @@
 // CID is required for reply payloads — do not strip it from the response.
 
 const { searchBluesky } = require('../_utils/blueskyDiscovery');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,7 +21,7 @@ module.exports = async function (context, req) {
 
   // Auth: require company secret for consistency with other internal endpoints
   const secret = (req.headers && req.headers['x-company-secret']) || '';
-  if (secret !== 'pixelpusher') {
+  if (!isValidCeoSecret(secret)) {
     context.res = {
       status: 403,
       headers: corsHeaders,

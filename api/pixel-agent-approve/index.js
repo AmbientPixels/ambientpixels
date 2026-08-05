@@ -3,6 +3,7 @@
 // Requires x-company-secret header
 
 const storage = require('../_utils/companyStorage');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -18,7 +19,7 @@ module.exports = async function (context, req) {
   }
 
   // CEO auth check
-  if (req.headers['x-company-secret'] !== 'pixelpusher') {
+  if (!isValidCeoSecret(req.headers['x-company-secret'])) {
     context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Unauthorized' } };
     return;
   }

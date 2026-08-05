@@ -7,6 +7,7 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { loadEntitlements, isProActive } = require('../_lib/stripe/entitlements');
 const { loadCreatorProfile } = require('../_lib/stripe/creatorProfiles');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -25,7 +26,7 @@ module.exports = async function (context, req) {
   var { userId, isAuthenticated } = extractUserInfo(req, context);
 
   // CEO fallback
-  if (!isAuthenticated && req.headers['x-company-secret'] === 'pixelpusher') {
+  if (!isAuthenticated && isValidCeoSecret(req.headers['x-company-secret'])) {
     userId = 'ceo';
     isAuthenticated = true;
   }
@@ -61,7 +62,7 @@ module.exports = async function (context, req) {
     var FREE_RUN_WEIGHT = 1.0;
 
     // Find this creator's live agents
-    var isCEO = req.headers['x-company-secret'] === 'pixelpusher';
+    var isCEO = isValidCeoSecret(req.headers['x-company-secret']);
     var myAgents = community.filter(function (a) {
       if (!a.active) return false;
       // CEO sees all agents

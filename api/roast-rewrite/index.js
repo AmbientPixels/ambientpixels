@@ -15,6 +15,7 @@ const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
 const stripeClient = require('../_lib/ambientScore/stripeClient');
 const composer = require('../_lib/roastRewrite/composer');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -233,7 +234,7 @@ module.exports = async function (context, req) {
     const body = req.body || {};
 
     if (body.action === 'status') {
-      if (req.headers['x-company-secret'] !== 'pixelpusher') {
+      if (!isValidCeoSecret(req.headers['x-company-secret'])) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden.' } };
         return;
       }
@@ -254,7 +255,7 @@ module.exports = async function (context, req) {
     }
 
     if (body.action === 'requeue') {
-      if (req.headers['x-company-secret'] !== 'pixelpusher') {
+      if (!isValidCeoSecret(req.headers['x-company-secret'])) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden.' } };
         return;
       }

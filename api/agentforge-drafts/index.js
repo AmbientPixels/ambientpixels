@@ -5,6 +5,7 @@
 
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
@@ -30,7 +31,7 @@ function extractUserId(req) {
   var devId = req.headers['x-user-id'];
   if (devId) return devId;
   // Company secret fallback (CEO)
-  if (req.headers['x-company-secret'] === 'pixelpusher') return 'ceo';
+  if (isValidCeoSecret(req.headers['x-company-secret'])) return 'ceo';
   return null;
 }
 

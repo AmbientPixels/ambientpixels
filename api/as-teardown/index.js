@@ -10,6 +10,7 @@
 const storage = require('../_utils/companyStorage');
 const stripeClient = require('../_lib/ambientScore/stripeClient');
 const composer = require('../_lib/ambientScore/teardownComposer');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -98,7 +99,7 @@ module.exports = async function (context, req) {
     // CEO-only ops view: the queue is storage-direct (not a company-state
     // key), so this is the one way to inspect order states remotely.
     if (body.action === 'status') {
-      if (req.headers['x-company-secret'] !== 'pixelpusher') {
+      if (!isValidCeoSecret(req.headers['x-company-secret'])) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden.' } };
         return;
       }
@@ -122,7 +123,7 @@ module.exports = async function (context, req) {
     // the remote path to retry one after a transient upstream outage without
     // touching storage by hand. Secret-gated like status.
     if (body.action === 'requeue') {
-      if (req.headers['x-company-secret'] !== 'pixelpusher') {
+      if (!isValidCeoSecret(req.headers['x-company-secret'])) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden.' } };
         return;
       }

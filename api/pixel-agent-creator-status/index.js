@@ -4,6 +4,7 @@
 const { extractUserInfo } = require('../_utils/cfAuth');
 const { retrieveConnectAccount } = require('../_lib/stripe/stripeConnect');
 const { loadCreatorProfile, saveCreatorProfile, toClientSafe } = require('../_lib/stripe/creatorProfiles');
+const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -21,7 +22,7 @@ module.exports = async function (context, req) {
   // Auth required
   var { userId, isAuthenticated } = extractUserInfo(req, context);
 
-  if (!isAuthenticated && req.headers['x-company-secret'] === 'pixelpusher') {
+  if (!isAuthenticated && isValidCeoSecret(req.headers['x-company-secret'])) {
     userId = 'ceo';
     isAuthenticated = true;
   }
