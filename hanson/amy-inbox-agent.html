@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Inbox agent — pre-scope for Amy</title>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}</style>
+</head>
+<body>
+<style>
+  :root {
+    --paper:      #F5F7F8;
+    --panel:      #ECF0F1;
+    --ink:        #16232B;
+    --ink-soft:   #4A5B65;
+    --ink-faint:  #7C8B93;
+    --rule:       #D3DBDE;
+    --accent:     #1F6F6B;
+    --accent-tint:#E2EDEC;
+    --mark:       #8A6520;
+    --mark-tint:  #F3ECDF;
+    --meter-off:  #D3DBDE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:      #10191F;
+      --panel:      #182430;
+      --ink:        #E4ECEF;
+      --ink-soft:   #A8B8C0;
+      --ink-faint:  #798A93;
+      --rule:       #2A3944;
+      --accent:     #5CB8B0;
+      --accent-tint:#172E2E;
+      --mark:       #D6A959;
+      --mark-tint:  #2A2418;
+      --meter-off:  #2A3944;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:      #10191F;
+    --panel:      #182430;
+    --ink:        #E4ECEF;
+    --ink-soft:   #A8B8C0;
+    --ink-faint:  #798A93;
+    --rule:       #2A3944;
+    --accent:     #5CB8B0;
+    --accent-tint:#172E2E;
+    --mark:       #D6A959;
+    --mark-tint:  #2A2418;
+    --meter-off:  #2A3944;
+  }
+  :root[data-theme="light"] {
+    --paper:      #F5F7F8;
+    --panel:      #ECF0F1;
+    --ink:        #16232B;
+    --ink-soft:   #4A5B65;
+    --ink-faint:  #7C8B93;
+    --rule:       #D3DBDE;
+    --accent:     #1F6F6B;
+    --accent-tint:#E2EDEC;
+    --mark:       #8A6520;
+    --mark-tint:  #F3ECDF;
+    --meter-off:  #D3DBDE;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.25rem 5rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 41rem; margin: 0 auto; }
+
+  .masthead {
+    display: flex; flex-direction: column; gap: .5rem;
+    padding: 3.5rem 0 1.5rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .72rem; font-weight: 600; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  h1 {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: clamp(1.85rem, 5vw, 2.5rem); font-weight: 650;
+    letter-spacing: -.022em; line-height: 1.12; margin: 0;
+    text-wrap: balance;
+  }
+  .byline {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .85rem; color: var(--ink-faint); margin: 0;
+  }
+
+  section { padding-top: 2.75rem; }
+  h2 {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1.15rem; font-weight: 620; letter-spacing: -.012em;
+    margin: 0 0 .85rem; text-wrap: balance;
+  }
+  p { margin: 0 0 1.05rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 700; }
+  a { color: var(--accent); }
+
+  .lede {
+    background: var(--accent-tint);
+    border-top: 3px solid var(--accent);
+    padding: 1.4rem 1.5rem;
+    margin-top: 2.5rem;
+    font-size: 1.06rem;
+  }
+  .lede .eyebrow { margin-bottom: .5rem; }
+
+  ul { margin: 0 0 1.05rem; padding-left: 1.15rem; }
+  li { margin-bottom: .55rem; }
+  li:last-child { margin-bottom: 0; }
+
+  .scroll { overflow-x: auto; margin: 1.25rem 0 1rem; }
+  table { border-collapse: collapse; width: 100%; min-width: 34rem; }
+  caption {
+    caption-side: bottom; text-align: left; padding-top: .8rem;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .82rem; color: var(--ink-faint); line-height: 1.5;
+  }
+  th, td {
+    text-align: left; vertical-align: top;
+    padding: .8rem .85rem; border-bottom: 1px solid var(--rule);
+  }
+  thead th {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .74rem; font-weight: 620; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--ink-faint);
+    border-bottom: 1.5px solid var(--ink);
+  }
+  tbody th {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .95rem; font-weight: 620; white-space: nowrap;
+  }
+  td { font-size: .95rem; color: var(--ink-soft); }
+  tr.pick th, tr.pick td { background: var(--mark-tint); }
+  .pick-tag {
+    display: inline-block; margin-top: .35rem;
+    font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--mark);
+  }
+
+  /* exposure meter — three segments, filled to match how much the AI sees */
+  .meter { display: flex; gap: 3px; margin-bottom: .4rem; }
+  .meter i { display: block; width: 15px; height: 5px; background: var(--meter-off); }
+  .meter i.on { background: var(--accent); }
+  tr.pick .meter i.on { background: var(--mark); }
+
+  .guard {
+    border: 1px solid var(--rule);
+    border-left: none; border-right: none;
+    padding: 1.3rem 0; margin-top: .4rem;
+  }
+  .guard dl { margin: 0; display: grid; gap: 1rem; }
+  .guard dt {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-weight: 640; font-size: .97rem; margin-bottom: .2rem;
+  }
+  .guard dd { margin: 0; color: var(--ink-soft); font-size: .97rem; }
+
+  .ask { display: grid; gap: 1.4rem; margin-top: .5rem; }
+  .ask > div { display: grid; grid-template-columns: 1.6rem 1fr; gap: .1rem 0; }
+  .ask .n {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .95rem; font-weight: 700; color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .ask h3 {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .99rem; font-weight: 640; margin: 0 0 .25rem;
+  }
+  .ask p { margin: 0; color: var(--ink-soft); font-size: .97rem; grid-column: 2; }
+
+  .later { background: var(--panel); padding: 1.35rem 1.5rem; margin-top: .5rem; }
+  .later h3 {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: .97rem; font-weight: 640; margin: 0 0 .3rem;
+  }
+  .later > div + div { margin-top: 1.1rem; }
+  .later p { margin: 0; color: var(--ink-soft); font-size: .97rem; }
+
+  .signoff {
+    margin-top: 3rem; padding-top: 1.4rem;
+    border-top: 1px solid var(--rule); color: var(--ink-soft);
+  }
+  .signoff p { margin-bottom: .3rem; }
+
+  @media (max-width: 34rem) {
+    body { font-size: 16px; }
+    .lede, .later { padding: 1.2rem 1.1rem; }
+  }
+  @media print {
+    body { background: #fff; color: #000; }
+    section { break-inside: avoid; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Prepared for Amy · Hanson</p>
+    <h1>An agent for your inbox</h1>
+    <p class="byline">Chad Martin · pre-read for our conversation</p>
+  </header>
+
+  <div class="lede">
+    <p class="eyebrow">The short version</p>
+    <p>I would start with your inbox and nothing else. There are three ways to build it, and they differ mainly in how much of your email an AI is allowed to read, so that part is your call rather than mine. Whichever we choose, it starts in a mode where it cannot touch anything in your mailbox until you have watched it work for a week.</p>
+  </div>
+
+  <section>
+    <h2>What I heard from you</h2>
+    <ul>
+      <li>Email is the thing costing you time and peace of mind. The messages that matter get buried under sales mail and newsletters.</li>
+      <li>You want something like the tool I have been running, but for you, internally at Hanson.</li>
+      <li>You are considering agents that draft social posts and blogs, with you reviewing and approving before anything goes out.</li>
+    </ul>
+    <p>If I have any of that wrong, say so and we will start there.</p>
+  </section>
+
+  <section>
+    <h2>Why the inbox first</h2>
+    <p>It is the thing actually costing you every day, it is the fastest to show a real result, and it is the smallest of the three. The other two are genuinely doable, and I have run the drafting and approval piece in production for months. I would rather build those properly once your mornings are back.</p>
+  </section>
+
+  <section>
+    <h2>Three ways to build it</h2>
+    <p>The real difference between these is how much an AI sees. More access means better judgment; less access means less exposure. There is no wrong answer here, and we can start narrow and widen later.</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Approach</th>
+            <th scope="col">What sorts the mail</th>
+            <th scope="col">How good it is</th>
+            <th scope="col">What an AI sees</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1 · Rules only</th>
+            <td>Sender, domain, subject patterns, newsletter headers</td>
+            <td>Very good at obvious junk. Blind to nuance and urgency.</td>
+            <td>
+              <span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>
+              Nothing. No AI reads your mail.
+            </td>
+          </tr>
+          <tr class="pick">
+            <th scope="row">2 · Rules plus a light read<span class="pick-tag">My recommendation</span></th>
+            <td>Rules do the bulk; AI judges importance from sender, subject and the opening lines</td>
+            <td>Good. Catches most of what matters.</td>
+            <td>
+              <span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+              Sender, subject, first line or two. Not full messages.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">3 · Full read</th>
+            <td>AI reads the message and decides</td>
+            <td>Best. Understands context, urgency, and who is genuinely waiting on you.</td>
+            <td>
+              <span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+              The message body.
+            </td>
+          </tr>
+        </tbody>
+        <caption>Option 2 gets most of the benefit of option 3 with a fraction of the exposure, and we can widen it later with your say-so. Option 1 is a legitimate choice if the answer to “can anything leave our environment” is a firm no.</caption>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>What it will not do</h2>
+    <p>These are not negotiable from my side, and I would say the same if you asked me to skip them.</p>
+    <div class="guard">
+      <dl>
+        <div>
+          <dt>It never deletes anything</dt>
+          <dd>It moves and labels. Nothing is ever destroyed.</dd>
+        </div>
+        <div>
+          <dt>It never sends anything as you</dt>
+          <dd>Not replies, not anything. That is a different project and it needs its own conversation.</dd>
+        </div>
+        <div>
+          <dt>It starts in shadow mode</dt>
+          <dd>For the first week it touches nothing at all. It reads, decides what it <em>would</em> have filed, and sends you one summary a day. You check it against reality and tell me where it is wrong. Only once you trust it do we let it move real mail.</dd>
+        </div>
+      </dl>
+    </div>
+    <p style="margin-top:1.15rem;">That last one matters more than it sounds. These projects do not fail on technology. They fail by burying one important email in the first week and never being trusted again. Shadow mode makes every early mistake free, and your corrections are what make it sharp.</p>
+  </section>
+
+  <section>
+    <h2>What “working” looks like</h2>
+    <p>Worth agreeing on before I build anything. My proposal: <strong>you open your inbox on a Monday, the first handful of things in front of you are the right things, and the sales mail and newsletters are somewhere else — not gone.</strong> If you have a better definition, yours wins.</p>
+  </section>
+
+  <section>
+    <h2>Where it lives, and who owns it</h2>
+    <p>It runs inside Hanson’s own Microsoft environment, not mine. Because your email is already on Microsoft 365, the agent sits right next to it rather than copying your mail somewhere else to work on it. That is the single biggest thing that keeps this simple and keeps your data where it belongs.</p>
+    <p>The company owns what gets built, and it keeps running whether or not I am the person maintaining it.</p>
+  </section>
+
+  <section>
+    <h2>What it costs to run</h2>
+    <p>Small. For scale: I run ten agents on a far heavier workload than this for roughly seventy dollars a month, and an inbox sorter is a fraction of that. Option 1 is close to hosting costs alone. I will bring real numbers to the meeting rather than a guess, and the bill sits with Hanson.</p>
+  </section>
+
+  <section>
+    <h2>How long</h2>
+    <p>The code is the short part. The long pole is getting permission to read your mailbox approved, and that depends on Hanson more than on me.</p>
+    <p>Once access exists, shadow mode is days rather than weeks, followed by a week or so of tuning against your corrections. I would rather give you a real date once I know the answers below than pick a number now to sound confident.</p>
+  </section>
+
+  <section>
+    <h2>What I need from you</h2>
+    <div class="ask">
+      <div>
+        <span class="n">1</span>
+        <h3>Someone with admin rights on your Microsoft account</h3>
+        <p>They need to approve the permissions and give me somewhere to build. If there is a person who handles IT, it is worth having them on this call or a short one right after. This single step usually decides whether we start in days or in weeks.</p>
+      </div>
+      <div>
+        <span class="n">2</span>
+        <h3>One decision only you can make</h3>
+        <p>Are you comfortable with the contents of your email being read by an AI service in order to sort it, or does everything need to stay inside Hanson’s own environment? That answer picks the approach above, so it is worth a moment of thought. There is no wrong answer, and it does not have to be final.</p>
+      </div>
+      <div>
+        <span class="n">3</span>
+        <h3>What makes an email important to you</h3>
+        <p>Names, clients, projects, topics, phrases you always want to see. Five or ten is plenty, and that is most of the sorting rules right there. Nobody can write those except you. If it is easier to talk it through live, we will do that instead — please do not turn this into homework.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What comes after, so you know it is not forgotten</h2>
+    <div class="later">
+      <div>
+        <h3>Next — drafting and approval</h3>
+        <p>An agent drafts a post or a blog, it waits for you, and nothing publishes until you approve it. This is the piece I already run in production, so it is the most proven thing I can offer you. It follows naturally once the inbox is calm.</p>
+      </div>
+      <div>
+        <h3>After that — the overview tool</h3>
+        <p>The thing you called the CEO tool. I would deliberately build you a small version rather than the one I run, which has grown more moving parts than anyone needs. A short daily summary of what happened and what is waiting on you is most of the value.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="signoff">
+    <p>Thirty to forty five minutes is plenty for this first conversation.</p>
+    <p>Talk soon — Chad</p>
+  </div>
+
+</div>
+
+</body>
+</html>
