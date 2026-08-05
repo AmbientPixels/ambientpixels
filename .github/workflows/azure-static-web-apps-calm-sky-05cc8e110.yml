@@ -58,6 +58,21 @@ jobs:
           }
           EOF
 
+      # Dashboard runtime config — API Auth Hardening step 1.
+      # The repo is PUBLIC, so the API secret can never be committed. It is
+      # written here at deploy time into app_build/ (never into the repo;
+      # the path is gitignored) and lands under /modules/company/*, which
+      # staticwebapp.config.json already gates to allowedRoles:[authenticated].
+      # SWA enforces that on static assets at the edge, so there is no
+      # direct-to-origin bypass the way there is on the Function App.
+      # Inert until the dashboard reads window.AP_SECRET (step 2).
+      - name: Generate dashboard runtime config
+        env:
+          COMPANY_WRITE_SECRET: ${{ secrets.COMPANY_WRITE_SECRET }}
+        run: |
+          mkdir -p app_build/modules/company
+          node -e 'const s = process.env.COMPANY_WRITE_SECRET || ""; require("fs").writeFileSync("app_build/modules/company/runtime-config.js", "window.AP_SECRET=" + JSON.stringify(s) + ";\n"); console.log(s ? "runtime-config.js written (" + s.length + " chars)" : "WARNING: COMPANY_WRITE_SECRET is empty - dashboard will use its fallback");'
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
