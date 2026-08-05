@@ -1,16 +1,26 @@
 # Plan — API Auth Hardening
 
-> ## ⚠ STATUS RE-VERIFIED 2026-08-05 ~03:00Z — STEPS 1-3 SHIPPED, HOLE STILL OPEN
-> Steps 1-3 are in (`14b88ee8`, `172d07e3`, `9ff16f77`) — that is the groundwork, and it is real: the config file generates, the dashboard reads `window.AP_SECRET` with fallback, and public callers no longer ship a credential. **Step 4 (enforcement) has NOT run**, and step 4 is the step that closes the hole. Live probes, run against production:
+> ## ✅ STATUS RE-VERIFIED 2026-08-05 ~03:10Z — STEP 4 IS LIVE, HOLE CLOSED
+> Supersedes the ~03:00Z note below, which was written before step 4 ran and said the opposite. Live probes against production, run fresh:
 > ```
-> POST /api/company-state  (no secret)             -> 200   [want 403]
-> POST /api/company-state  (x-company-secret: pixelpusher) -> 200   [want 403]
-> az ...appsettings list --query "[?contains(name,'SECRET')].name"  -> COMPANY_WRITE_SECRET ABSENT
+> POST /api/company-state  (no secret)                      -> 403   ✅
+> POST /api/company-state  (x-company-secret: pixelpusher)  -> 403   ✅  secret genuinely rotated
+> POST /api/company-state  (wrong-secret-xyz)               -> 403   ✅
+> GET  /api/company-state?key=tasks                         -> 200   ✅  by design, see correction below
+> az ...appsettings list  -> COMPANY_WRITE_SECRET PRESENT           ✅
+> POST /api/content-quick-generate (no secret)              -> 400   ✅  Blindspot art path intact
 > ```
-> `validateSecret` is still fail-open at `companyStorage.js:251` because the env var is unset. **Company state remains publicly writable. The monetization-post gate is NOT satisfied.**
-> Blocker on finishing: step 4 needs the GitHub secret `COMPANY_WRITE_SECRET` rotated in tandem with the Azure app setting, and `gh` is not authenticated in this environment (`gh auth status` = logged out). CEO must either run `gh auth login` / set `GH_TOKEN`, or set the GitHub secret by hand in the repo settings UI.
+> **Company state is no longer publicly writable.** The destructive vector is closed and the monetization-post gate is satisfied for writes.
+>
+> **Still true and still open:** reads remain public (GET never authenticated — see the correction section). That is a separate CEO decision, not a regression.
+>
+> **Two things this environment cannot self-verify** — a human must confirm:
+> 1. **Dashboard writes.** These depend on `runtime-config.js` carrying the NEW secret, which requires a deploy *after* the GitHub secret was rotated. If the GitHub secret was left at `pixelpusher` while Azure moved on, every dashboard write now 403s. Confirm by performing one real write in the dashboard.
+> 2. **Keepalive workflow.** It sends the GitHub secret; `pingLog` is only readable with the new secret, so it cannot be checked from here. Confirm the workflow run is green.
+>
+> **Step 5 is now not merely cleanup — it is a correctness fix.** The `|| 'pixelpusher'` fallback was a safety net during transition. With enforcement on it can never succeed, so it converts "config failed to load" into a confusing 403 instead of an obvious failure. Remove it.
 
-**Status:** approach A4; steps 1-3 shipped 2026-08-04/05, steps 4-5 outstanding.
+**Status:** approach A4; steps 1-4 shipped and verified 2026-08-04/05. Step 5 outstanding.
 **Gates:** the AmbientOS monetization post. The post invites developers to read the architecture; the repo is public; the API is currently unauthenticated. Publishing before this lands is inviting the exact audience that can exploit it.
 
 ---
