@@ -67,11 +67,15 @@ var CompanyStore = (function () {
     // Auto-read writeSecret from sessionStorage if not explicitly provided
     _writeSecret = options.writeSecret || '';
     if (!_writeSecret) {
-      try { _writeSecret = sessionStorage.getItem('ap_server_key') || ''; } catch (e) {}
       // Dashboard pages load /modules/company/runtime-config.js, which is
       // generated at deploy time and served only to authenticated users.
       // Public pages never define it, so no secret reaches public surfaces.
-      if (!_writeSecret && typeof window !== 'undefined') _writeSecret = window.AP_SECRET || '';
+      // It is read BEFORE sessionStorage: the cached copy survives a secret
+      // rotation and would otherwise pin the tab to a revoked value.
+      if (typeof window !== 'undefined') _writeSecret = window.AP_SECRET || '';
+      if (!_writeSecret) {
+        try { _writeSecret = sessionStorage.getItem('ap_server_key') || ''; } catch (e) {}
+      }
     }
     _serverBase = options.serverBase || _resolveServerBase();
 

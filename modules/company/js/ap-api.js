@@ -25,7 +25,7 @@
     } catch (e) { /* ignore */ }
     try {
       if (!headers['x-company-secret']) {
-        var key = sessionStorage.getItem('ap_server_key') || '';
+        var key = (typeof window !== 'undefined' && window.AP_SECRET) || sessionStorage.getItem('ap_server_key') || '';
         if (key) headers['x-company-secret'] = key;
       }
     } catch (e2) { /* ignore */ }

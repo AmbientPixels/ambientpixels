@@ -656,7 +656,7 @@
   function saveTrendActions(cfg) {
     var headers = { 'Content-Type': 'application/json' };
     try {
-      var k = sessionStorage.getItem('ap_server_key');
+      var k = (typeof window !== 'undefined' && window.AP_SECRET) || sessionStorage.getItem('ap_server_key');
       if (k) headers['x-company-secret'] = k;
     } catch (e) {}
     return fetch(APApi.base() + '/company-state', {
