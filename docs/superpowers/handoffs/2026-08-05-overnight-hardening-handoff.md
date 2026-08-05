@@ -59,7 +59,9 @@ Budget Lockdown has form: rejected twice, accidentally approved, then canceled o
 
 **`system:aq-reconciliation` is not the culprit — please don't "fix" it.** I checked: `actionsScheduler/index.js:310-357` only heals a lost update, flipping a *pending* queue entry to approved when the entity is already live carrying that `proposalId`. It is evidence an approval happened upstream, not a cause.
 
-**Recommended next build (not started — needs your call).** Canceled campaigns are excluded from semantic dedup *by design*, so re-skins keep coming back and only you catch them. The proposal drawer should surface prior cancel/reject history for a matching target before the approve button is reachable. Three misclicks is a UI problem, not a discipline problem. This is the highest-value small build on the board.
+**✅ The structural fix is now BUILT and deployed (`654985fe`)** — you said go with the recommended, so it shipped. Campaign *and* objective proposals now surface matching prior rejections and cancellations (date plus your original note) in three places: a chip on the card, a red banner above the rationale in the drawer, and a confirm dialog in front of Approve. It reads `approvalQueue` and `campaigns`/`objectives`, which that panel already fetches — no new endpoint, no extra request.
+
+**One calibration note, because it is the difference between working and useless.** Matching uses a 0.6 word-overlap bar, the same one the server's social dedup uses. I tried 0.5 first and the test caught it: two-token names sharing a single word matched, so every new "AmbientScore X" proposal would light up against your ~14 canceled AmbientScore campaigns. A banner that fires on everything is one you learn to click past — which is the exact failure this exists to prevent. At 0.6, an identical re-proposal scores 1.0 and re-skins like "Budget Lockdown Initiative" still land, because filler words are stopworded. **Please don't lower it.** Covered by `modules/company/proposal-history-guard.test.js` (13 cases, built on the real incident history).
 
 ---
 
