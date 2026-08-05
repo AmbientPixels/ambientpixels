@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Virtual Company — AI agents running every department." />
@@ -398,7 +399,7 @@
         if (!el) return;
         var SCORE_COLORS = { high: '#34d399', mid: '#facc15', low: '#f87171' };
         var TREND_ICONS = { improving: '<i class="fas fa-arrow-up" style="color:#34d399;font-size:0.6rem"></i>', declining: '<i class="fas fa-arrow-down" style="color:#f87171;font-size:0.6rem"></i>', stable: '<i class="fas fa-minus" style="color:#888;font-size:0.6rem"></i>' };
-        fetch('/api/company-state?key=runtimeMemory', { headers: { 'x-company-secret': 'pixelpusher' } })
+        fetch('/api/company-state?key=runtimeMemory', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
           .then(function (r) { var ct = r.headers.get('content-type') || ''; if (!r.ok || ct.indexOf('json') === -1) return null; return r.json(); })
           .then(function (data) {
             var runtime = data && data.value !== undefined ? data.value : data;

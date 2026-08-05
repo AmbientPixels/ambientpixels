@@ -14,7 +14,7 @@
   var AH = window.AHShared;
 
   var TELEMETRY_API = 'https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary';
-  var SECRET = 'pixelpusher';
+  var SECRET = (window.AP_SECRET || 'pixelpusher');
   var ZONE_ID = 'ah-zone-product';
 
   // Map URL path prefixes to product identifiers

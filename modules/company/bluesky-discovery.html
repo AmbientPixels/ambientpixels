@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Bluesky Discovery — browse threads Scout found, reply or dismiss." />
@@ -166,8 +167,8 @@
       var API_BASE = window.location.hostname.includes('ambientpixels.ai')
         ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
         : '/api';
-      var HEADERS = { 'x-company-secret': 'pixelpusher' };
-      var WRITE_HEADERS = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+      var HEADERS = { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
+      var WRITE_HEADERS = { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
 
       var _candidates = [];
       var _filter = 'all';

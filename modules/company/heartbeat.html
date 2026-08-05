@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Heartbeat — watch the agent fleet think and act in real time." />
@@ -184,7 +185,7 @@
     var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
-    var SECRET = 'pixelpusher';
+    var SECRET = (window.AP_SECRET || 'pixelpusher');
     var LOCK_TIMEOUT_MS = 6 * 60 * 1000; // a running breadcrumb older than this = stale/timed-out
 
     var _state = { progress: null, history: [] };

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Meetings — On-demand collaborative decision sessions (CEO-triggered)" />
@@ -784,7 +785,7 @@
     (function () {
       if (typeof CompanyStore === 'undefined') return;
       var apiBase = CompanyStore.getServerBase ? CompanyStore.getServerBase() : '/api';
-      function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' }; }
+      function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') }; }
       var btn = document.getElementById('run-agentic-meeting');
       var label = document.getElementById('run-agentic-meeting-label');
       var statusEl = document.getElementById('agentic-meeting-status');

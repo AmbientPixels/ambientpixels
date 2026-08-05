@@ -467,7 +467,7 @@
       var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
         ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
         : '/api';
-      fetch(API + '/awarenessDigest', { headers: { 'x-company-secret': 'pixelpusher' } })
+      fetch(API + '/awarenessDigest', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
         .then(function (r) { if (!r.ok) throw r; return r.json(); })
         .then(function (data) {
           var g = (data && data.digest && data.digest.globals) || {};

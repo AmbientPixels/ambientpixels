@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Content Hub — Manage blog posts, Pixel Agents, CardForge, and StoryForge content" />
@@ -262,8 +263,8 @@
   <script src="/modules/company/js/sidebar.js"></script>
   <script>
     var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-    var HDRS = { 'x-company-secret': 'pixelpusher' };
-    var HDRS_JSON = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+    var HDRS = { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
+    var HDRS_JSON = { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
 
     function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 

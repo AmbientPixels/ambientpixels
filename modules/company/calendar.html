@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Company Calendar — tasks, content, reminders, and activity at a glance." />
@@ -630,7 +631,7 @@
 
       function loadContent() {
         return fetch(API_BASE + '/company-state?key=documents', {
-          headers: { 'x-company-secret': 'pixelpusher' }
+          headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') }
         }).then(function (r) { return r.json(); }).then(function (docs) {
           if (!Array.isArray(docs)) return;
           docs.forEach(function (d) {

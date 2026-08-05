@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Action Audit — execution outcomes, CEO decisions, platform latency, failure signals." />
@@ -268,7 +269,7 @@
   <script>
     (function () {
       var API_BASE = (window.AP_API_BASE || 'https://ambientpixels-nova-api.azurewebsites.net/api');
-      var SECRET_HEADER = { 'x-company-secret': 'pixelpusher' };
+      var SECRET_HEADER = { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
 
       var state = { window: '7d', agent: '', type: '', platform: '', outcome: '', data: null };
 

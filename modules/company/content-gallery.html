@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Content Gallery — Browse generated content packages." />
@@ -76,7 +77,7 @@
 
     function _getAuthHeaders() {
       var headers = { 'Content-Type': 'application/json' };
-      try { var key = sessionStorage.getItem('ap_server_key'); if (key) headers['x-company-secret'] = key; } catch (e) {}
+      try { var key = sessionStorage.getItem('ap_server_key') || window.AP_SECRET; if (key) headers['x-company-secret'] = key; } catch (e) {}
       return headers;
     }
 

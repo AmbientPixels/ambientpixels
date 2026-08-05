@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Agent Performance — fleet health, attention signals, and experiment tracking." />
@@ -105,7 +106,7 @@
     var API_BASE = window.location.hostname.includes('ambientpixels.ai')
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
-    var SECRET = 'pixelpusher';
+    var SECRET = (window.AP_SECRET || 'pixelpusher');
     var ROLES = { nova: 'Prime Operator', cipher: 'Strategic CFO', pixel: 'Design Director', forge: 'Ops Director', echo: 'Strategic CMO', scribe: 'Content Director', quill: 'Editor', scout: 'Research Director', vale: 'Chief of Staff' };
 
     function fetchState(key) {

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Revenue — company income, MRR, paying customers, net vs LLM spend." />
@@ -89,7 +90,7 @@
     var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
-    var SECRET = 'pixelpusher';
+    var SECRET = (window.AP_SECRET || 'pixelpusher');
 
     function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function emptyState(id, msg) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="rev-empty">' + esc(msg) + '</div>'; }

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Emergence Monitor — compound-pattern signals across all 14 systems." />
@@ -183,7 +184,7 @@
     var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
-    var SECRET = 'pixelpusher';
+    var SECRET = (window.AP_SECRET || 'pixelpusher');
 
     // MIRROR of EMERGENCE_BLAST_RADIUS in constants.js. If adding proposal types,
     // update both places. Documented in SKILL.md Section 15.

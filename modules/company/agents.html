@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientOS Agents — roster, progression, awareness and memory for the whole fleet." />
@@ -203,7 +204,7 @@
   var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
     ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
     : '/api';
-  var HEAD = { 'x-company-secret': 'pixelpusher' };
+  var HEAD = { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
 
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) {

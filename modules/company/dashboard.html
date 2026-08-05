@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Dashboard — agent metrics, sessions, tokens, costs, logs, and reports." />
@@ -1281,7 +1282,7 @@
           // Also count Needs Attention items from approvalQueue
           var naTypes = ['convergence_escalation'];
           var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
             .then(function(r) { return r.json(); })
             .then(function(data) {
               var queue = data.value || data || [];
@@ -1307,7 +1308,7 @@
         var cstatApiSub = document.getElementById('cstat-api-sub');
         if (cstatApi) {
           var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-          fetch(apiBase + '/company-state?key=geminiUsage', { headers: { 'x-company-secret': 'pixelpusher' } })
+          fetch(apiBase + '/company-state?key=geminiUsage', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
             .then(function(r) { return r.json(); })
             .then(function(data) {
               var usage = data.value || data || [];
@@ -1324,7 +1325,7 @@
         var cstatBurnSub = document.getElementById('cstat-burn-sub');
         if (cstatBurn) {
           var burnBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-          fetch(burnBase + '/company-state?key=geminiUsage', { headers: { 'x-company-secret': 'pixelpusher' } })
+          fetch(burnBase + '/company-state?key=geminiUsage', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
             .then(function(r) { return r.json(); })
             .then(function(data) {
               var usage = data.value || data || [];
@@ -1386,11 +1387,11 @@
           };
           // Check API
           var healthApiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-          fetch(healthApiBase + '/company-state?key=_ping', { headers: { 'x-company-secret': 'pixelpusher' } })
+          fetch(healthApiBase + '/company-state?key=_ping', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
             .then(function() { healthChecks.api = true; _renderHealth(); })
             .catch(function() { healthChecks.api = false; _renderHealth(); });
           // Check heartbeat recency
-          fetch(healthApiBase + '/company-state?key=heartbeatRuns', { headers: { 'x-company-secret': 'pixelpusher' } })
+          fetch(healthApiBase + '/company-state?key=heartbeatRuns', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
             .then(function(r) { return r.json(); })
             .then(function(data) {
               var runs = data.value || [];
@@ -1413,7 +1414,7 @@
       var cstatPulseSub = document.getElementById('cstat-pulse-sub');
       if (cstatPulse) {
         var pulseApi = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : 'https://ambientpixels-nova-api.azurewebsites.net/api';
-        fetch(pulseApi + '/productAnalyticsQuery?range=7d&product=all&metric=overview', { headers: { 'x-company-secret': 'pixelpusher' } })
+        fetch(pulseApi + '/productAnalyticsQuery?range=7d&product=all&metric=overview', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
           .then(function(r) { return r.json(); })
           .then(function(resp) {
             if (resp && resp.data) {
@@ -1439,7 +1440,7 @@
       function _fetchSystemDigests() {
         var base = (typeof getApiBase === 'function') ? getApiBase() : '/api';
         var headers = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders)
-          ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+          ? CompanyStore.getWriteHeaders() : { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
 
         Promise.all([
           fetch(base + '/allocationDigest', { headers: headers })
@@ -2604,7 +2605,7 @@
         statCostSub.textContent = modelLabel;
 
         fetch(getApiBase() + '/company-state?key=geminiUsage', {
-          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' }
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') }
         }).then(function (r) { return r.ok ? r.json() : null; })
         .then(function (resp) {
           var usage = (resp && resp.value) || [];
@@ -3147,7 +3148,7 @@
         // Always try fetching from server — don't gate on store mode since
         // this panel fetches directly from the API regardless of local store state.
         var _hbApiBase = (typeof getApiBase === 'function') ? getApiBase() : 'https://ambientpixels-nova-api.azurewebsites.net/api';
-        var _hbHeaders = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+        var _hbHeaders = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
 
         fetch(_hbApiBase + '/company-state?key=heartbeatRuns', {
           headers: _hbHeaders
@@ -3316,7 +3317,7 @@
 
         // 5) Heartbeat health — check last run
         var _hbApiBase = (typeof getApiBase === 'function') ? getApiBase() : 'https://ambientpixels-nova-api.azurewebsites.net/api';
-        var _hbHeaders = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+        var _hbHeaders = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') };
         fetch(_hbApiBase + '/company-state?key=heartbeatRuns', { headers: _hbHeaders })
           .then(function (r) { return r.ok ? r.json() : {}; })
           .then(function (resp) {
@@ -4289,7 +4290,7 @@
         if (!listEl) return;
 
         var apiBase = getApiBase();
-        fetch(apiBase + '/company-state?key=trendRadar', { headers: { 'x-company-secret': 'pixelpusher' } })
+        fetch(apiBase + '/company-state?key=trendRadar', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
           .then(function(r) { return r.json(); })
           .then(function(data) {
             var snapshots = data.value || [];
@@ -4356,10 +4357,10 @@
 
         var apiBase = getApiBase();
         Promise.all([
-          fetch(apiBase + '/company-state?key=blogPosts', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return {}; }),
+          fetch(apiBase + '/company-state?key=blogPosts', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } }).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return {}; }),
           fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return []; }),
           fetch(apiBase + '/pixel-agent-community').then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return { agents: [] }; }),
-          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return {}; })
+          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } }).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return {}; })
         ]).then(function(results) {
           var blogData = results[0].value || results[0] || [];
           var blogCount = Array.isArray(blogData) ? blogData.length : 0;
@@ -4398,8 +4399,8 @@
         var apiBase = getApiBase();
         Promise.all([
           fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { return r.json(); }).catch(function() { return []; }),
-          fetch(apiBase + '/pixel-agent-community', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
-          fetch(apiBase + '/pixel-agent-catalog', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return { stats: {} }; })
+          fetch(apiBase + '/pixel-agent-community', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
+          fetch(apiBase + '/pixel-agent-catalog', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } }).then(function(r) { return r.json(); }).catch(function() { return { stats: {} }; })
         ]).then(function(results) {
           var builtIn = results[0].filter(function(a) { return a.active; });
           var community = (results[1].agents || []).filter(function(a) { return a.active; });
@@ -4463,7 +4464,7 @@
               btn.textContent = 'Deleting...';
               fetch(apiBase + '/pixel-agent-remove', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+                headers: { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') },
                 body: JSON.stringify({ agentId: agentId })
               }).then(function(r) { return r.json(); }).then(function(d) {
                 if (d.success) { renderAgentAdmin(); }

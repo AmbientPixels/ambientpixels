@@ -68,6 +68,10 @@ var CompanyStore = (function () {
     _writeSecret = options.writeSecret || '';
     if (!_writeSecret) {
       try { _writeSecret = sessionStorage.getItem('ap_server_key') || ''; } catch (e) {}
+      // Dashboard pages load /modules/company/runtime-config.js, which is
+      // generated at deploy time and served only to authenticated users.
+      // Public pages never define it, so no secret reaches public surfaces.
+      if (!_writeSecret && typeof window !== 'undefined') _writeSecret = window.AP_SECRET || '';
     }
     _serverBase = options.serverBase || _resolveServerBase();
 

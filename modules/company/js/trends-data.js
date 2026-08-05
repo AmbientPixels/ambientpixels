@@ -225,7 +225,7 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-company-secret': 'pixelpusher'
+        'x-company-secret': (window.AP_SECRET || 'pixelpusher')
       }
     })
     .then(function (res) {

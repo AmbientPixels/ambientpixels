@@ -126,7 +126,7 @@
 
   var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
     ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
-  var SECRET = 'pixelpusher';
+  var SECRET = (window.AP_SECRET || 'pixelpusher');
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }

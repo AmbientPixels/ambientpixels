@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Campaigns — AmbientPixels HQ" />
@@ -800,7 +801,7 @@
     (function () {
       if (typeof CompanyStore === 'undefined') return;
       var apiBase = CompanyStore.getServerBase ? CompanyStore.getServerBase() : '/api';
-      function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' }; }
+      function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') }; }
       var enabled = document.getElementById('mh-enabled');
       var platBs = document.getElementById('mh-plat-bluesky');
       var platX = document.getElementById('mh-plat-x');
