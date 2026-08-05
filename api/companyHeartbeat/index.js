@@ -370,6 +370,10 @@ module.exports = async function (context) {
         } catch (_feErr) { /* unconfigured => exclude nothing, never zero real sales */ }
         costIntel.funnel = {
           scans7d: _cc7d.length,
+          // Scans our own prospect lane minted carry tier === 'agent'. They are
+          // NOT demand — 42 of 43 scans the week this landed were agent-minted.
+          // qualified_visitors_week (strategy-intel) resolves off THIS field.
+          publicScans7d: _cc7d.filter(e => e && e.tier !== 'agent').length,
           scansTotal: _cc.length,
           leads7d: (Array.isArray(_asLeads) ? _asLeads : []).filter(e => _leadTs(e) > _7dCutoff).length,
           leadsTotal: Array.isArray(_asLeads) ? _asLeads.length : 0,
@@ -565,7 +569,8 @@ module.exports = async function (context) {
       strategyDigest = buildStrategyDigest(companyStrategy, {
         socialAccountStats: socialAccountStats,
         blogPostViews: _blogPostViewsForDigest,
-        revenueDigest: revenueDigest
+        revenueDigest: revenueDigest,
+        funnel: costIntel && costIntel.funnel
       }, Date.now());
       if (strategyDigest) context.log('[heartbeat] Strategy digest:', strategyDigest.northStar.length, 'north stars, era=' + strategyDigest.era);
       else context.log('[heartbeat] Strategy digest: companyStrategy not seeded — block omitted');
@@ -3858,7 +3863,8 @@ module.exports = async function (context) {
       const _se2 = evaluateObjectives(objectives, {
         socialAccountStats: socialAccountStats,
         blogPostViews: _blogPostViewsForDigest,
-        revenueDigest: revenueDigest
+        revenueDigest: revenueDigest,
+        funnel: costIntel && costIntel.funnel
       }, Date.now());
       if (_se2.changed) objectivesChanged = true;
       for (const _evt of _se2.govEvents) campaignGovEvents.push(_evt);
