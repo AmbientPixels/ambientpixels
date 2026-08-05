@@ -1357,7 +1357,12 @@
         .then(function(results) {
           var queue = results[0].value || results[0] || [];
           if (!Array.isArray(queue)) queue = [];
-          var activeCampaigns = (results[1].value || results[1] || []).filter(function(c) { return c && c.status === 'active'; });
+          var allCampaigns = results[1].value || results[1] || [];
+          var activeCampaigns = allCampaigns.filter(function(c) { return c && c.status === 'active'; });
+          // Prior CEO decisions for the re-skin guard. Uses the full queue and full
+          // campaign list, both already fetched here.
+          _pdSetIndex('queue', _pdRejectedRows(queue));
+          _pdSetIndex('campaigns', _pdKilledRows(allCampaigns));
           // Active objectives feed the routing/goal line on each card and the
           // parent-objective select in the drawer (propose-time linkage, 2026-08-01).
           window._activeObjectivesForProposals = (results[2].value || results[2] || []).filter(function(o) {
@@ -1401,11 +1406,106 @@
             html += '</div>';
             html += _overlapChip(activeHits, 'active campaigns');
             html += _overlapChip(peerHits, 'other pending proposals');
+            html += _pdChip(_pdPriorDecisions(p.name));
             html += '</div>';
           });
           list.innerHTML = html;
         })
         .catch(function() { panel.style.display = 'none'; });
+    }
+
+    // ── Prior-decision guard (2026-08-05) ────────────────────────────────────
+    // "Operation: Budget Lockdown" reached a live campaign three times: rejected
+    // twice, approved by misclick, canceled, then re-proposed and approved again.
+    // The server's semantic dedup deliberately does NOT consider canceled campaigns
+    // (so a genuinely revived idea is not blocked forever), which leaves the CEO as
+    // the only check between a re-skinned proposal and a live campaign. Three
+    // misclicks is a UI problem, so the receipts now appear on the card, at the top
+    // of the drawer, and in a confirm in front of Approve.
+    // Built from data this panel already fetches — no extra request, no new endpoint.
+    var _PD_STOPWORDS = { the: 1, a: 1, an: 1, of: 1, for: 1, to: 1, and: 1, or: 1, in: 1, on: 1, with: 1, via: 1, operation: 1, campaign: 1, initiative: 1, program: 1 };
+    // Same 0.6 word-overlap bar the server's social dedup uses. Tested at 0.5 first:
+    // two-token names sharing one word matched, so every new "AmbientScore X" lit up
+    // against the ~14 canceled AmbientScore campaigns. A banner that fires on
+    // everything gets ignored, which is the failure this is meant to prevent.
+    // At 0.6 the real cases still land: an identical re-proposal scores 1.0, and so
+    // do re-skins like "Budget Lockdown Initiative" (filler words are stopworded).
+    var _PD_MATCH = 0.6;
+    function _pdTokens(s) {
+      return String(s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+        .filter(function (w) { return w.length > 2 && !_PD_STOPWORDS[w]; });
+    }
+    function _pdSimilar(a, b) {
+      var A = _pdTokens(a), B = _pdTokens(b);
+      if (!A.length || !B.length) return 0;
+      var setB = {}; B.forEach(function (w) { setB[w] = 1; });
+      var hits = 0; A.forEach(function (w) { if (setB[w]) hits++; });
+      return hits / Math.max(A.length, B.length);
+    }
+    // The index is written in slices because the campaign panel and the objective
+    // panel load different state keys, and either can render first. Each writes only
+    // the slice it has; the lookup reads whatever is present.
+    function _pdSetIndex(part, rows) {
+      window._proposalDecisionIndex = window._proposalDecisionIndex || {};
+      window._proposalDecisionIndex[part] = rows || [];
+    }
+    function _pdRejectedRows(queue) {
+      return (queue || []).filter(function (e) { return e && e.status === 'rejected'; }).map(function (e) {
+        return { kind: 'rejected', name: e.name || e.title || '', when: e.resolvedAt || e.decidedAt || e.updatedAt || '', note: e.ceoNote || '' };
+      });
+    }
+    function _pdKilledRows(list) {
+      return (list || []).filter(function (c) {
+        return c && (c.status === 'canceled' || c.status === 'cancelled');
+      }).map(function (c) {
+        return { kind: 'canceled', name: c.title || c.name || '', when: c.canceledAt || c.updatedAt || '', note: c.cancelReason || '' };
+      });
+    }
+    function _pdAllRows() {
+      var ix = window._proposalDecisionIndex || {};
+      return (ix.queue || []).concat(ix.campaigns || [], ix.objectives || []);
+    }
+    function _pdPriorDecisions(name) {
+      if (!name) return [];
+      var scored = [];
+      _pdAllRows().forEach(function (h) {
+        var sc = _pdSimilar(name, h.name);
+        if (sc >= _PD_MATCH) scored.push({ h: h, score: sc });
+      });
+      scored.sort(function (a, b) { return (b.score - a.score) || String(b.h.when).localeCompare(String(a.h.when)); });
+      return scored.map(function (x) { return x.h; });
+    }
+    function _pdLabel(k) { return k === 'rejected' ? 'Rejected' : 'Canceled'; }
+    function _pdChip(hits) {
+      if (!hits.length) return '';
+      return '<div style="margin-top:0.35rem;font-size:var(--c-text-xs);color:#f87171;">'
+        + '<i class="fas fa-triangle-exclamation"></i> you decided against this before ('
+        + hits.length + ': ' + esc(hits.slice(0, 2).map(function (x) { return _pdLabel(x.kind).toLowerCase() + ' ' + String(x.when || '').slice(0, 10); }).join(', ')) + ')</div>';
+    }
+    function _pdBanner(hits) {
+      if (!hits.length) return '';
+      var h = '<div style="border:1px solid rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);border-radius:8px;padding:0.7rem;margin-bottom:1rem;">';
+      h += '<div style="color:#f87171;font-weight:600;font-size:var(--c-text-sm);margin-bottom:0.45rem;"><i class="fas fa-triangle-exclamation"></i> You have decided against this before (' + hits.length + ')</div>';
+      hits.slice(0, 5).forEach(function (x) {
+        h += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.75);margin-bottom:0.3rem;">'
+          + '<strong style="color:#fca5a5;">' + _pdLabel(x.kind) + '</strong> ' + esc(String(x.when || '').slice(0, 10))
+          + ' — ' + esc(x.name)
+          + (x.note ? '<br><span style="opacity:0.7;">' + esc(String(x.note).slice(0, 220)) + '</span>' : '')
+          + '</div>';
+      });
+      h += '<div style="font-size:var(--c-text-xs);opacity:0.65;margin-top:0.45rem;">Approving revives work you already killed. Reject unless something has genuinely changed since.</div>';
+      return h + '</div>';
+    }
+    // Returns false when the CEO backs out of the confirm.
+    function _pdConfirm(name, hits) {
+      if (!hits.length) return true;
+      var lines = hits.slice(0, 5).map(function (x) {
+        return '  • ' + _pdLabel(x.kind) + ' ' + String(x.when || '').slice(0, 10) + ': ' + x.name
+          + (x.note ? '\n      ' + String(x.note).slice(0, 140) : '');
+      }).join('\n');
+      return confirm('"' + (name || 'This proposal') + '" matches ' + hits.length
+        + ' proposal(s) you already decided against:\n\n' + lines
+        + '\n\nApproving revives work you previously killed. Approve anyway?');
     }
 
     // Shared edit helpers for proposal drawers. _pinput builds a labeled input;
@@ -1453,6 +1553,9 @@
       if (p.strategyFlag === 'no-north-star-metric') html += '<span class="act-drawer-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> serves no north star</span>';
       html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
       html += '</div>';
+      // Prior rejections/cancellations for this target, above everything else —
+      // the CEO should read the receipts before the rationale argues its case.
+      html += _pdBanner(_pdPriorDecisions(p.name));
       // Rationale + provenance stay read-only.
       if (p.rationale) {
         html += '<div class="act-drawer-section"><h4>Rationale</h4><p style="white-space:pre-wrap;font-size:var(--c-text-base);color:#a78bfa;">' + esc(p.rationale) + '</p></div>';
@@ -1579,6 +1682,10 @@
     }
 
     function approveCampaignProposal(proposalId) {
+      // Last gate before materialize: a proposal matching something already
+      // rejected or canceled needs an explicit second yes. See _pdConfirm.
+      var p = (window._campaignProposals || []).filter(function (x) { return x && x.id === proposalId; })[0];
+      if (p && !_pdConfirm(p.name, _pdPriorDecisions(p.name))) return;
       _decideProposal(proposalId, renderCampaignProposals);
     }
 
@@ -1618,7 +1725,12 @@
         .then(function(results) {
           var queue = results[0].value || results[0] || [];
           if (!Array.isArray(queue)) queue = [];
-          var activeObjectives = (results[1].value || results[1] || []).filter(function(o) { return o && o.status === 'active'; });
+          var allObjectives = results[1].value || results[1] || [];
+          var activeObjectives = allObjectives.filter(function(o) { return o && o.status === 'active'; });
+          // Same re-skin guard as campaign proposals; this panel can render first,
+          // so it writes its own slices of the prior-decision index.
+          _pdSetIndex('queue', _pdRejectedRows(queue));
+          _pdSetIndex('objectives', _pdKilledRows(allObjectives));
           var proposals = queue.filter(function(item) { return item.type === 'objective_proposal' && item.status === 'pending'; });
 
           if (proposals.length === 0) { panel.style.display = 'none'; return; }
@@ -1699,6 +1811,8 @@
       // Server-side materialize via proposalDecide — enforces semantic dedup,
       // the active-objective cap, and adopts any orphan campaigns waiting on
       // this objective. See _decideProposal.
+      var p = (window._objectiveProposals || []).filter(function (x) { return x && x.id === proposalId; })[0];
+      if (p && !_pdConfirm(p.title || p.name, _pdPriorDecisions(p.title || p.name))) return;
       _decideProposal(proposalId, renderObjectiveProposals);
     }
 
