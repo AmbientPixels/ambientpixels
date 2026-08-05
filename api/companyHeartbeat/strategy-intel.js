@@ -43,6 +43,19 @@ const METRIC_RESOLVERS = {
     const r = sources && sources.revenueDigest;
     const n = r && Number(r.payingCustomers);
     return Number.isFinite(n) ? n : null;
+  },
+  // Leading demand metric: humans who reached a free offer and used it, per week.
+  // Deliberately reads publicScans7d and NOT scans7d — scans minted by our own
+  // prospect lane carry tier==='agent' and are self-inflicted traffic. In the
+  // week this landed, 42 of 43 scans were agent-minted; a resolver on the total
+  // would have reported 43 and read as demand. Same failure class as founder
+  // self-purchases scoring as revenue. If the field is absent, resolve to null
+  // (unmeasured) rather than 0 — a missing pipe must never look like real zero.
+  qualified_visitors_week: function (entry, sources) {
+    const f = sources && sources.funnel;
+    if (!f) return null;
+    const n = Number(f.publicScans7d);
+    return Number.isFinite(n) ? n : null;
   }
 };
 
