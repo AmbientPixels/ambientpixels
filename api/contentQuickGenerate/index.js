@@ -9,6 +9,34 @@ const imageEngine = require('../_lib/contentEngine/imageEngine');
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
 
+// Anonymous spend ceiling. This endpoint generates PAID images (~$0.07/call),
+// and 'pixelpusher' is hardcoded in publicly shipped Blindspot JS, so anyone
+// reading that bundle can call it. The pre-existing 5-image guard below only
+// applies when DEMO_MODE is set, which it is not in production — so before this
+// cap the endpoint was effectively unbounded paid generation.
+//
+// Scoped to ANONYMOUS callers only (no SWA clientPrincipal). Authenticated
+// dashboard users (modules/company/content-engine.html — the Image Engine) are
+// deliberately uncapped; throttling the CEO's own tooling is not the goal.
+//
+// 25/day against organic Blindspot usage of roughly one image/day is ~25x
+// headroom, and bounds worst case at ~$1.75/day instead of the monthly budget.
+const ANON_DAILY_IMAGE_CAP = 25;
+const ANON_IMAGE_COUNTER_KEY = 'anonImageGenDaily';
+
+function _utcDay(nowMs) {
+  return new Date(Number.isFinite(nowMs) ? nowMs : Date.now()).toISOString().slice(0, 10);
+}
+
+// Same-day count, or 0 on a new day / unreadable state. Read errors deliberately
+// fail OPEN — a transient blob hiccup must not take down image generation.
+function _anonCountToday(entry, day) {
+  if (!entry || typeof entry !== 'object') return 0;
+  if (entry.date !== day) return 0;
+  const n = Number(entry.count);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
 module.exports = async function (context, req) {
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -44,6 +72,34 @@ module.exports = async function (context, req) {
   if (!storage.validateSecret(secret) && !clientPrincipal) {
     context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
     return;
+  }
+
+  // Anonymous daily spend ceiling (see ANON_DAILY_IMAGE_CAP). Authenticated
+  // users skip this entirely.
+  var isAnon = !clientPrincipal;
+  var anonDay = _utcDay(Date.now());
+  if (isAnon) {
+    var anonUsed = 0;
+    try {
+      anonUsed = _anonCountToday(await storage.getState(ANON_IMAGE_COUNTER_KEY), anonDay);
+    } catch (e) {
+      // Fail open: never block generation because the counter was unreadable.
+      context.log.warn('[quickGenerate] anon cap read failed, allowing:', e.message);
+    }
+    if (anonUsed >= ANON_DAILY_IMAGE_CAP) {
+      context.log.warn('[quickGenerate] anon daily cap reached:', anonUsed + '/' + ANON_DAILY_IMAGE_CAP);
+      context.res = {
+        status: 429,
+        headers: CORS,
+        body: JSON.stringify({
+          ok: false,
+          error: 'Daily image generation limit reached. Sign in for unlimited generation, or try again tomorrow.',
+          remaining: 0,
+          resetsAt: anonDay + 'T24:00:00Z'
+        })
+      };
+      return;
+    }
   }
 
   try {
@@ -235,6 +291,18 @@ module.exports = async function (context, req) {
       } catch (e) { context.log.warn('[quickGenerate] Demo counter update failed:', e.message); }
     }
 
+    // Anonymous daily counter. mutateState (not get+set) so concurrent anonymous
+    // callers cannot lose increments to a read-modify-write race — the whole
+    // point of the cap is that it holds under exactly that load.
+    if (isAnon && successCount > 0) {
+      try {
+        await storage.mutateState(ANON_IMAGE_COUNTER_KEY, function (cur) {
+          var day = _utcDay(Date.now());
+          return { date: day, count: _anonCountToday(cur, day) + successCount };
+        });
+      } catch (e) { context.log.warn('[quickGenerate] anon counter update failed:', e.message); }
+    }
+
     // Update brief
     brief.status = skipApproval ? 'approved' : 'pending_approval';
     brief.packageId = packageId;
@@ -359,3 +427,10 @@ module.exports = async function (context, req) {
     };
   }
 };
+
+// Exposed for tests (api/contentQuickGenerate/anon-cap.test.js). Attaching to the
+// handler function keeps the Azure Functions default export intact.
+module.exports._utcDay = _utcDay;
+module.exports._anonCountToday = _anonCountToday;
+module.exports.ANON_DAILY_IMAGE_CAP = ANON_DAILY_IMAGE_CAP;
+module.exports.ANON_IMAGE_COUNTER_KEY = ANON_IMAGE_COUNTER_KEY;
