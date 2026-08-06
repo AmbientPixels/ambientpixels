@@ -293,10 +293,50 @@ function extractOpenGraph($) {
   return og;
 }
 
-function extractBodyText($) {
+// Attributes that commonly hold the real value of a number a script animates
+// into place. The markup ships a placeholder (usually 0) and JS counts up to
+// the attribute value on scroll.
+const COUNTER_ATTRS = ['data-count', 'data-to', 'data-target', 'data-value',
+  'data-number', 'data-end', 'data-counter', 'data-num', 'data-stop'];
+
+// Text that means "a script has not run yet" rather than a real figure.
+const PLACEHOLDER_TEXT = /^[\s0.,+\-–—%$]*$/;
+
+// Replaces placeholder counter text with the value the page will actually show.
+//
+// Without this, a stat block that renders "95%" to a real visitor is scraped as
+// "0%", and the analysis then reports the site as broken or as claiming zero.
+// That produced four confidently wrong critical findings on a real client audit
+// (2026-08-06) — worse than a missing finding, because it is assertive and false.
+// Returns how many nodes were hydrated so callers can judge JS dependence.
+function hydrateCounters($root) {
+  let hydrated = 0;
+  $root.find(COUNTER_ATTRS.map(a => '[' + a + ']').join(',')).each(function () {
+    const el = $root.find(this).first();
+    const own = (el.text() || '').trim();
+    if (own && !PLACEHOLDER_TEXT.test(own)) return; // already shows a real value
+
+    let value = null;
+    for (const attr of COUNTER_ATTRS) {
+      const v = el.attr(attr);
+      if (v != null && String(v).trim() && /\d/.test(v)) { value = String(v).trim(); break; }
+    }
+    if (value === null) return;
+
+    // Keep any suffix already in the markup (%, +, k) so "0 %" becomes "95 %".
+    const suffix = (own.match(/[%+kKmM]+\s*$/) || [''])[0];
+    el.text(value + suffix);
+    hydrated++;
+  });
+  return hydrated;
+}
+
+function extractBodyText($, stats) {
   // Remove scripts, styles, nav, footer for cleaner text
   const clone = $.root().clone();
   clone.find('script, style, nav, footer, noscript, svg, [aria-hidden="true"]').remove();
+  const hydrated = hydrateCounters(clone);
+  if (stats) stats.hydratedCounters = hydrated;
   let text = clone.find('body').text();
   // Normalize whitespace
   text = text.replace(/\s+/g, ' ').trim();
@@ -410,7 +450,8 @@ async function scrapeUrl(urlStr) {
   }
 
   const $ = cheerio.load(html);
-  const bodyText = extractBodyText($);
+  const scrapeStats = {};
+  const bodyText = extractBodyText($, scrapeStats);
   const links = extractLinks($, parsed.href);
 
   const result = {
@@ -435,9 +476,17 @@ async function scrapeUrl(urlStr) {
     wordCount: bodyText.split(/\s+/).filter(Boolean).length,
     schemaOrg: extractSchemaOrg($),
     openGraph: extractOpenGraph($),
+    hydratedCounters: scrapeStats.hydratedCounters || 0,
+    // Two distinct cases. An almost-empty body means we saw a shell and the
+    // analysis is largely blind. Hydrated counters mean the page renders its
+    // numbers with script: we recovered the real values, so the read is sound,
+    // but anything that does not run JS (some crawlers, link preview bots, AI
+    // readers) sees the placeholders instead.
     jsRenderedWarning: bodyText.length < 200
       ? 'This page may use client-side rendering. Analysis is based on available static content and may be partial.'
-      : null
+      : (scrapeStats.hydratedCounters > 0
+        ? 'Some figures on this page are rendered by JavaScript. Their real values were read from the markup, so scoring is unaffected, but visitors or crawlers without JavaScript see placeholders instead of the numbers.'
+        : null)
   };
 
   return result;

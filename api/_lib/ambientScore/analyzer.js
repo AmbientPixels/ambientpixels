@@ -174,19 +174,33 @@ async function analyze(url) {
   const scoreResult = computeScore(evaluations, siteType);
 
   // Step 5: Synthesis (Stage 3 LLM call)
+  // Synthesis length scales with how much is wrong on the page, so a tight
+  // output cap fails on exactly the sites with the most findings. Truncation
+  // at a given budget is deterministic — the retry must raise the ceiling.
   let synthesis = null;
+  let synthesisRetried = false;
+  const synthPrompt = buildSynthesisPrompt(scoreResult, { _extraction: extraction, ...evaluations }, siteType);
   try {
-    const synthPrompt = buildSynthesisPrompt(scoreResult, { _extraction: extraction, ...evaluations }, siteType);
     const rawSynthesis = await callClaude(synthPrompt, {
       temperature: 0.5,
-      maxOutputTokens: 3000,
+      maxOutputTokens: 8000,
       caller: 'as-synthesis'
     });
     synthesis = parseJsonResponse(rawSynthesis);
   } catch (err) {
-    errors.push('Synthesis failed: ' + err.message);
-    // Fallback: generate templated synthesis from scores
-    synthesis = buildFallbackSynthesis(scoreResult);
+    synthesisRetried = true;
+    try {
+      const rawRetry = await callClaude(synthPrompt, {
+        temperature: 0.5,
+        maxOutputTokens: 16000,
+        caller: 'as-synthesis-retry'
+      });
+      synthesis = parseJsonResponse(rawRetry);
+    } catch (retryErr) {
+      errors.push('Synthesis failed: ' + err.message + ' :: retry: ' + retryErr.message);
+      // Fallback: generate templated synthesis from scores
+      synthesis = buildFallbackSynthesis(scoreResult);
+    }
   }
 
   const totalTimeMs = Date.now() - startTime;
@@ -219,7 +233,7 @@ async function analyze(url) {
         scrapeTimeMs: scrapeTimeMs,
         evalTimeMs: evalTimeMs,
         totalTimeMs: totalTimeMs,
-        claudeCalls: 5 - failedGroups,
+        claudeCalls: 5 - failedGroups + (synthesisRetried ? 1 : 0),
         wordCount: scraped.wordCount,
         analyzedUrl: scraped.finalUrl || url,
         siteTypeReasoning: siteTypeReasoning,
@@ -257,6 +271,7 @@ function buildFallbackSynthesis(scoreResult) {
   }
 
   return {
+    degraded: true,
     executiveSummary: `This site scores ${scoreResult.score}/100 on conversion health. Areas for improvement include ${weakList}. ${strongList.charAt(0).toUpperCase() + strongList.slice(1)} show relative strength. Addressing the findings below could meaningfully improve conversion performance.`,
     conversionHealthAssessment: assessmentCopy,
     topPriorities: scoreResult.findings.slice(0, 3).map((f, i) => ({

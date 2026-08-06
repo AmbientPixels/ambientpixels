@@ -308,6 +308,11 @@
     var synth = report.synthesis || {};
     var dims = report.dimensions || {};
     var findings = report.findings || [];
+    // Fallback synthesis carries degraded:true; reports stored before that
+    // flag existed are detected by their stored synthesis error instead.
+    var synthDegraded = !!synth.degraded || (report.errors || []).some(function (e) {
+      return String(e).indexOf('Synthesis') === 0;
+    });
     var html = '';
 
     // Sample banner
@@ -377,13 +382,22 @@
     html += '<div class="as-score-meta">';
     html += '<span class="as-meta-check">8 dimensions evaluated</span>';
     html += '<span class="as-meta-check">Evidence-backed findings</span>';
-    html += '<span class="as-meta-check">Rewrites included</span>';
+    if (!synthDegraded) {
+      html += '<span class="as-meta-check">Rewrites included</span>';
+    }
     html += '</div>';
     html += '</div>';
 
     // JS warning
     if (report.jsRenderedWarning) {
       html += '<div class="as-warning">' + esc(report.jsRenderedWarning) + '</div>';
+    }
+
+    // Degraded synthesis notice
+    if (synthDegraded) {
+      var regenHref = 'mailto:ambientpixels2022@gmail.com?subject=' + encodeURIComponent('AmbientScore rewrite regeneration . Ref ' + (report.id || reportId || ''))
+        + '&body=' + encodeURIComponent('My report is missing its headline and CTA rewrites.\n\nReport ID: ' + (report.id || reportId || 'N/A') + '\nWebsite: ' + (report.url || 'N/A'));
+      html += '<div class="as-warning">Rewrites could not be generated for this report. Scores and findings are complete. <a href="' + regenHref + '" style="text-decoration:underline;">Email us</a> and we will regenerate it at no charge.</div>';
     }
 
     // Executive summary
