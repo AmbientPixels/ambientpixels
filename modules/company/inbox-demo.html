@@ -107,6 +107,13 @@
   .opts span{font-size:.85rem;color:var(--soft)}
   .opts .here{color:var(--accent);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-left:.4rem}
   .runson .closer{font-size:.85rem;color:var(--faint);margin:0}
+  .scroll{overflow-x:auto}
+  .costs{width:100%;border-collapse:collapse;margin:.25rem 0 .8rem;font-size:.86rem;min-width:19rem}
+  .costs th,.costs td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--rule)}
+  .costs thead th{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .costs td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--soft);white-space:nowrap}
+  .costs tr.mine td{color:var(--ink)}
+  .costs tr.mine td:first-child b{color:var(--accent)}
 
   /* Settings. Not wired to anything — it exists so the client can point at a
      real control and say "no, I'd want that different", which is far better
@@ -281,6 +288,21 @@
       <li><b>An outside model<span class="here">this demo</span></b><span>Best judgment, lowest cost, and the messages are read by a service outside your tenant.</span></li>
     </ul>
     <p class="closer">Same agent either way. This is a decision about where the reading happens, not a different product, and it can be changed later without rebuilding anything.</p>
+
+    <h2 style="margin-top:2rem">What it costs to run</h2>
+    <p>Measured on this demo: 25 messages sorted for about nine tenths of a cent. Scaled up, and compared against the equivalent small model from each provider:</p>
+    <div class="scroll">
+      <table class="costs">
+        <thead><tr><th scope="col">Model</th><th scope="col">Roughly, per 3,000 emails</th></tr></thead>
+        <tbody>
+          <tr><td>Gemini Flash</td><td>10&ndash;40&cent;</td></tr>
+          <tr><td>GPT, small tier</td><td>15&ndash;40&cent;</td></tr>
+          <tr class="mine"><td><b>Claude Haiku</b> &mdash; used here</td><td>about $1</td></tr>
+          <tr><td>The larger models (Sonnet, Gemini Pro, GPT-4 class)</td><td>$3&ndash;4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="closer">Approximate, and published prices move. The useful point is that at your volume every one of these is a rounding error next to an hour of anyone's time. So the model is worth choosing on judgment quality and on where the data goes, not on price.</p>
   </section>
 </div>
 
