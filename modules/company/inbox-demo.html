@@ -147,7 +147,10 @@
     out.innerHTML = '';
     statusEl.innerHTML = '<span class="dot"></span>reading the inbox and classifying…';
 
-    fetch('/api/inbox-demo', {
+    // Direct to the Function App, not a relative /api path. staticwebapp.config.json
+    // only proxies routes it lists explicitly, and anything unlisted falls through to
+    // the homepage — so a relative call here returns HTML and dies on .json().
+    fetch('https://ambientpixels-nova-api.azurewebsites.net/api/inbox-demo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || '') },
       body: JSON.stringify({ count: 25 })
