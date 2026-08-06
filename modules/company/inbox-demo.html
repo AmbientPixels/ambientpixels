@@ -262,9 +262,9 @@
   <div id="err" class="err hide"></div>
   <div id="out"></div>
 
-  <p class="pagefoot"><b>Cost.</b> This demo runs on Claude Haiku at roughly $1 per 3,000 emails.
-  For Hanson it would run on <b>Azure OpenAI</b>, inside your own Microsoft tenant &mdash; similar cost,
-  on billing you already have, and your email never leaves your environment.</p>
+  <p class="pagefoot"><b>Cost.</b> Around $1 per 3,000 emails. For Hanson this would run on
+  <b>Azure OpenAI</b>, inside your own Microsoft tenant &mdash; similar cost, on billing you already
+  have, and your email never leaves your environment.</p>
 
 </div>
 
@@ -357,8 +357,7 @@
     var s = data.stats || {};
     h += '<footer><strong>Nothing was deleted.</strong> Everything above is still in the mailbox, just moved out of the way.' +
       '<br>' + s.count + ' messages in ' + ((s.ms || 0) / 1000).toFixed(1) + 's, about $' + (s.costUsd || 0).toFixed(4) +
-      ' — roughly $' + ((s.costUsd || 0) / Math.max(1, s.count) * 3000).toFixed(2) + ' per 3,000 emails.' +
-      '<br>Running on Claude Haiku here. It can run inside your own Microsoft tenant instead.</footer>';
+      ' — roughly $' + ((s.costUsd || 0) / Math.max(1, s.count) * 3000).toFixed(2) + ' per 3,000 emails.</footer>';
 
     out.innerHTML = h;
   }
