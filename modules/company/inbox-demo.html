@@ -96,6 +96,8 @@
   footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--rule);color:var(--faint);font-size:.83rem}
   footer strong{color:var(--soft);font-weight:640}
   .err{background:var(--card);border:1px solid #b3564a;border-radius:3px;padding:.9rem 1.1rem;color:var(--soft);font-size:.88rem}
+  .stale{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--accent);
+    border-radius:3px;padding:.7rem 1rem;margin-top:1.25rem;font-size:.86rem;color:var(--soft)}
 
   /* Settings. Not wired to anything — it exists so the client can point at a
      real control and say "no, I'd want that different", which is far better
@@ -316,7 +318,12 @@
     var groups = {};
     filed.forEach(function (r) { (groups[r.cat] = groups[r.cat] || []).push(r); });
 
-    var h = '<div style="padding:1.75rem 0 .5rem">' +
+    var h = '';
+    if (data.stale) {
+      h += '<div class="stale">Could not reach the mailbox just now, so this is the last run' +
+        (data.capturedAt ? ', from ' + esc(when(data.capturedAt)) : '') + '. Everything below is real output.</div>';
+    }
+    h += '<div style="padding:1.75rem 0 .5rem">' +
       '<p class="verdict">' + (needs.length === 0 ? 'Nothing needs you.' : needs.length === 1 ? 'One thing needs you.' : needs.length + ' things need you.') + '</p>' +
       '<p class="sub">' + rows.length + ' messages arrived. ' + filed.length + ' were filed out of the way.</p></div>';
 
@@ -356,7 +363,17 @@
     go.disabled = true;
     errEl.classList.add('hide');
     out.innerHTML = '';
-    statusEl.innerHTML = '<span class="dot"></span>reading the inbox and classifying…';
+
+    // Eight seconds of a blank screen reads as a hang. Staged text makes the
+    // wait legible; the timings roughly track what the server is actually doing.
+    var stages = ['connecting to the mailbox…', 'reading the last 25 messages…', 'deciding what needs you…'];
+    var stage = 0;
+    statusEl.innerHTML = '<span class="dot"></span>' + stages[0];
+    var ticker = setInterval(function () {
+      stage = Math.min(stage + 1, stages.length - 1);
+      statusEl.innerHTML = '<span class="dot"></span>' + stages[stage];
+    }, 2600);
+    var stop = function () { clearInterval(ticker); };
 
     // Direct to the Function App, not a relative /api path. staticwebapp.config.json
     // only proxies routes it lists explicitly, and anything unlisted falls through to
@@ -368,11 +385,14 @@
     })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
+        stop();
         if (!res.ok || !res.j.ok) throw new Error(res.j.error || 'request failed');
-        statusEl.textContent = res.j.account ? 'mailbox: ' + res.j.account : 'done';
+        statusEl.textContent = res.j.stale ? 'showing the last run'
+          : (res.j.account ? 'mailbox: ' + res.j.account : 'done');
         render(res.j, redact);
       })
       .catch(function (e) {
+        stop();
         statusEl.textContent = '';
         errEl.textContent = e.message;
         errEl.classList.remove('hide');

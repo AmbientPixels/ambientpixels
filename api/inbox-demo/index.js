@@ -18,6 +18,7 @@ const storage = require('../_utils/companyStorage');
 const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
 const TOKEN_KEY = 'inboxDemoToken';
+const LAST_RUN_KEY = 'inboxDemoLastRun';
 const CLIENT_ID = '894d8c2e-e2ad-40a8-a0a6-5a0b68b9979d';
 const AUTHORITY = 'https://login.microsoftonline.com/consumers/oauth2/v2.0';
 const SCOPES = 'Mail.Read User.Read offline_access';
@@ -159,32 +160,52 @@ module.exports = async function (context, req) {
     const messages = res.value || [];
     const { verdicts, summary, cost } = await classify(messages);
 
-    context.res = {
-      status: 200,
-      headers: CORS,
-      body: {
-        ok: true,
-        account: me.displayName || me.userPrincipalName || '',
-        summary,
-        messages: messages.map(m => {
-          const ea = (m.from && m.from.emailAddress) || {};
-          return {
-            subject: m.subject || '',
-            from: ea.name || ea.address || '',
-            // Address and webLink drive the Open / Reply buttons. Both are plain
-            // navigation into Outlook — the agent never composes or sends.
-            address: ea.address || '',
-            webLink: m.webLink || '',
-            receivedDateTime: m.receivedDateTime,
-            bodyPreview: String(m.bodyPreview || '').replace(/\s+/g, ' ').slice(0, 160)
-          };
-        }),
-        verdicts,
-        stats: { count: messages.length, ms: Date.now() - started, costUsd: Number(cost.toFixed(5)) }
-      }
+    const payload = {
+      ok: true,
+      account: me.displayName || me.userPrincipalName || '',
+      summary,
+      messages: messages.map(m => {
+        const ea = (m.from && m.from.emailAddress) || {};
+        return {
+          subject: m.subject || '',
+          from: ea.name || ea.address || '',
+          // Address and webLink drive the Open / Reply buttons. Both are plain
+          // navigation into Outlook — the agent never composes or sends.
+          address: ea.address || '',
+          webLink: m.webLink || '',
+          receivedDateTime: m.receivedDateTime,
+          bodyPreview: String(m.bodyPreview || '').replace(/\s+/g, ' ').slice(0, 160)
+        };
+      }),
+      verdicts,
+      stats: { count: messages.length, ms: Date.now() - started, costUsd: Number(cost.toFixed(5)) }
     };
+
+    // Keep the last good run so a live failure degrades to real prior output
+    // instead of an error box. Graph 504s on consumer mailboxes and tokens
+    // expire; neither should end a demo. Non-fatal if the write fails.
+    try {
+      await storage.setState(LAST_RUN_KEY, Object.assign({ capturedAt: new Date().toISOString() }, payload));
+    } catch (e) { context.log('[inbox-demo] cache write failed:', e.message); }
+
+    context.res = { status: 200, headers: CORS, body: payload };
   } catch (e) {
     context.log('[inbox-demo]', e.message);
+
+    // Fall back to the last good run, clearly labelled. Honest degradation:
+    // the page says it is showing an earlier result, so nothing is misrepresented.
+    try {
+      const cached = await storage.getState(LAST_RUN_KEY);
+      if (cached && cached.verdicts) {
+        context.res = {
+          status: 200,
+          headers: CORS,
+          body: Object.assign({}, cached, { stale: true, liveError: e.message })
+        };
+        return;
+      }
+    } catch (e2) { context.log('[inbox-demo] cache read failed:', e2.message); }
+
     context.res = { status: e.status || 500, headers: CORS, body: { ok: false, error: e.message } };
   }
 };
