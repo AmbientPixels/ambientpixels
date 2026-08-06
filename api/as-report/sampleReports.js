@@ -6,19 +6,36 @@ const SAMPLE_REPORT_IDS = new Set([
   'ccr_1783742989787_e4366317'
 ]);
 
+// Comped reports: given away deliberately (a prospect, a partner, a favour).
+// Separate from samples on purpose — a sample renders a "Sample audit" banner
+// and a "scan your own site" CTA, which is exactly wrong on a report handed to
+// the person whose site it is. Comped reports unlock silently and read as a
+// normal paid report.
+const COMP_REPORT_IDS = new Set([
+  'ccr_1786049018467_22a38d5a'
+]);
+
 function isSample(id) {
   return SAMPLE_REPORT_IDS.has(id);
 }
 
-// A report is fully viewable if it was unlocked (paid) or it is an allowlisted sample.
+function isComped(id) {
+  return COMP_REPORT_IDS.has(id);
+}
+
+// A report is fully viewable if it was paid for, is an allowlisted sample, or
+// has been comped.
 function isFullyViewable(report, id) {
-  return !!(report && report.unlocked) || isSample(id);
+  return !!(report && report.unlocked) || isSample(id) || isComped(id);
 }
 
-// Builds the response body. For samples, returns a COPY with unlocked/isSample
-// stamped on; for everything else returns the report unchanged. Never mutates input.
+// Builds the response body. Samples get unlocked + isSample so the viewer can
+// badge them; comped reports get unlocked only, so they read as a normal report.
+// Never mutates input.
 function buildFullBody(report, id) {
-  return isSample(id) ? Object.assign({}, report, { unlocked: true, isSample: true }) : report;
+  if (isSample(id)) return Object.assign({}, report, { unlocked: true, isSample: true });
+  if (isComped(id)) return Object.assign({}, report, { unlocked: true });
+  return report;
 }
 
-module.exports = { SAMPLE_REPORT_IDS, isSample, isFullyViewable, buildFullBody };
+module.exports = { SAMPLE_REPORT_IDS, COMP_REPORT_IDS, isSample, isComped, isFullyViewable, buildFullBody };
