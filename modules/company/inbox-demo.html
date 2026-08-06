@@ -98,6 +98,15 @@
   .err{background:var(--card);border:1px solid #b3564a;border-radius:3px;padding:.9rem 1.1rem;color:var(--soft);font-size:.88rem}
   .stale{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--accent);
     border-radius:3px;padding:.7rem 1rem;margin-top:1.25rem;font-size:.86rem;color:var(--soft)}
+  .runson{margin-top:2.75rem;padding-top:1.4rem;border-top:1px solid var(--rule)}
+  .runson h2{margin-top:0}
+  .runson > p{font-size:.9rem;color:var(--soft);margin:0 0 1rem}
+  .opts{display:grid;gap:.55rem;margin:0 0 1rem;padding:0;list-style:none}
+  .opts li{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:.75rem 1rem}
+  .opts b{display:block;font-size:.9rem;color:var(--ink);margin-bottom:.15rem}
+  .opts span{font-size:.85rem;color:var(--soft)}
+  .opts .here{color:var(--accent);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-left:.4rem}
+  .runson .closer{font-size:.85rem;color:var(--faint);margin:0}
 
   /* Settings. Not wired to anything — it exists so the client can point at a
      real control and say "no, I'd want that different", which is far better
@@ -262,6 +271,17 @@
 
   <div id="err" class="err hide"></div>
   <div id="out"></div>
+
+  <section class="runson">
+    <h2>Where the reading happens</h2>
+    <p>To sort a message, this demo sends its sender, subject and first couple of lines to Claude Haiku. Nothing else is sent, and nothing is kept afterwards. That is how this demo is set up, and it is a choice rather than a requirement.</p>
+    <ul class="opts">
+      <li><b>Nothing leaves your environment</b><span>Sorting on sender, domain and patterns alone. No AI reads anything. Good at obvious junk, blind to nuance.</span></li>
+      <li><b>Stays inside your Microsoft tenant</b><span>Azure OpenAI runs in Hanson's own Azure subscription, so message content never crosses your boundary. Nearly the same quality as below.</span></li>
+      <li><b>An outside model<span class="here">this demo</span></b><span>Best judgment, lowest cost, and the messages are read by a service outside your tenant.</span></li>
+    </ul>
+    <p class="closer">Same agent either way. This is a decision about where the reading happens, not a different product, and it can be changed later without rebuilding anything.</p>
+  </section>
 </div>
 
 <script>
