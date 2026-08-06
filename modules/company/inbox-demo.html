@@ -96,6 +96,44 @@
   footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--rule);color:var(--faint);font-size:.83rem}
   footer strong{color:var(--soft);font-weight:640}
   .err{background:var(--card);border:1px solid #b3564a;border-radius:3px;padding:.9rem 1.1rem;color:var(--soft);font-size:.88rem}
+
+  /* Settings. Not wired to anything — it exists so the client can point at a
+     real control and say "no, I'd want that different", which is far better
+     input than asking what matters to them in the abstract. */
+  .settings{border:1px solid var(--rule);border-radius:3px;margin-top:1.25rem;background:var(--card)}
+  .settings > summary{cursor:pointer;padding:.8rem 1.1rem;display:flex;align-items:center;gap:.6rem;
+    font-size:.92rem;font-weight:600;list-style:none}
+  .settings > summary::-webkit-details-marker{display:none}
+  .settings > summary::after{content:"\203A";color:var(--faint);margin-left:auto;transition:transform .15s}
+  .settings[open] > summary::after{transform:rotate(90deg)}
+  .preview{font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:.1rem .5rem}
+  .sbody{padding:0 1.1rem 1.2rem;display:grid;gap:1.5rem}
+  .sgroup h3{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--faint);margin:0 0 .7rem;padding-top:1.1rem;border-top:1px solid var(--rule)}
+  .row{display:flex;align-items:flex-start;gap:.75rem;padding:.45rem 0}
+  .row .txt{flex:1;min-width:0}
+  .row .name{font-size:.92rem}
+  .row .hint{font-size:.8rem;color:var(--faint);margin:.15rem 0 0}
+  .sw{position:relative;width:38px;height:22px;flex-shrink:0;margin-top:.1rem}
+  .sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .sw span{position:absolute;inset:0;border-radius:999px;background:var(--rule);transition:background .15s}
+  .sw span::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;
+    background:#fff;transition:transform .15s}
+  .sw input:checked + span{background:var(--accent)}
+  .sw input:checked + span::after{transform:translateX(16px)}
+  .sw input:disabled + span{opacity:.55}
+  .sw input:disabled{cursor:not-allowed}
+  .sw input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+  .chip{font-size:.82rem;background:var(--tint);color:var(--soft);border:1px solid var(--rule);
+    border-radius:999px;padding:.22rem .7rem}
+  .chip.add{color:var(--accent);border-style:dashed;cursor:pointer;background:transparent}
+  .fld{display:flex;align-items:center;gap:.6rem;padding:.3rem 0;font-size:.9rem}
+  .fld label{color:var(--soft);min-width:11rem}
+  .fld input[type=text],.fld input[type=time],.fld select{font:inherit;font-size:.88rem;padding:.34rem .6rem;
+    border:1px solid var(--rule);border-radius:3px;background:var(--paper);color:var(--ink);max-width:14rem}
+  .locked{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
   .hide{display:none}
 </style>
 </head>
@@ -121,6 +159,104 @@
     <label><input type="checkbox" id="redact" checked> Hide real senders and subjects</label>
     <span class="status" id="status"></span>
   </div>
+
+  <details class="settings">
+    <summary>Settings <span class="preview">Preview</span></summary>
+    <div class="sbody">
+
+      <div class="sgroup">
+        <h3>How it runs</h3>
+        <div class="row">
+          <label class="sw"><input type="checkbox" checked><span></span></label>
+          <div class="txt">
+            <div class="name">Shadow mode</div>
+            <p class="hint">Files nothing. Shows you what it would have done, once a day, so you can check it before it touches anything. Recommended for the first week.</p>
+          </div>
+        </div>
+        <div class="fld">
+          <label for="s-freq">Check the inbox</label>
+          <select id="s-freq">
+            <option>Every 15 minutes</option>
+            <option selected>Every hour</option>
+            <option>Once each morning</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sgroup">
+        <h3>What always reaches you</h3>
+        <div class="row">
+          <div class="txt">
+            <div class="name">People</div>
+            <p class="hint">Mail from these names always stays in front of you, whatever it says.</p>
+            <div class="chips">
+              <span class="chip">Boeing</span><span class="chip">Alaska Airlines</span>
+              <span class="chip">payroll@</span><span class="chip add">+ add</span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="txt">
+            <div class="name">Words</div>
+            <p class="hint">Anything mentioning these is treated as needing you.</p>
+            <div class="chips">
+              <span class="chip">contract</span><span class="chip">invoice</span>
+              <span class="chip">candidate</span><span class="chip">urgent</span><span class="chip add">+ add</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sgroup">
+        <h3>Where the rest goes</h3>
+        <div class="fld"><label for="s-promo">Offers and marketing</label><input id="s-promo" type="text" value="Promotions"></div>
+        <div class="fld"><label for="s-news">Newsletters</label><input id="s-news" type="text" value="Reading"></div>
+        <div class="fld"><label for="s-txn">Receipts and notices</label><input id="s-txn" type="text" value="Records"></div>
+      </div>
+
+      <div class="sgroup">
+        <h3>Your morning brief</h3>
+        <div class="fld"><label for="s-time">Send it at</label><input id="s-time" type="time" value="07:30"></div>
+        <div class="row">
+          <label class="sw"><input type="checkbox" checked><span></span></label>
+          <div class="txt"><div class="name">Email me the brief</div></div>
+        </div>
+        <div class="row">
+          <label class="sw"><input type="checkbox"><span></span></label>
+          <div class="txt">
+            <div class="name">Post it to Teams</div>
+            <p class="hint">Sent to you as a direct message, not to a channel.</p>
+          </div>
+        </div>
+        <div class="row">
+          <label class="sw"><input type="checkbox"><span></span></label>
+          <div class="txt">
+            <div class="name">Nudge me if something urgent arrives</div>
+            <p class="hint">Only for people on your list above.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sgroup">
+        <h3>Always on</h3>
+        <div class="row">
+          <label class="sw"><input type="checkbox" checked disabled><span></span></label>
+          <div class="txt">
+            <div class="name">Never delete anything <span class="locked">locked</span></div>
+            <p class="hint">Mail is moved and labelled, never removed. This cannot be turned off.</p>
+          </div>
+        </div>
+        <div class="row">
+          <label class="sw"><input type="checkbox" checked disabled><span></span></label>
+          <div class="txt">
+            <div class="name">Never send as you <span class="locked">locked</span></div>
+            <p class="hint">It can read and sort. It cannot write, reply, or send. The permission to do so was never granted.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </details>
 
   <div id="err" class="err hide"></div>
   <div id="out"></div>
