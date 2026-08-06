@@ -290,19 +290,25 @@
     <p class="closer">Same agent either way. This is a decision about where the reading happens, not a different product, and it can be changed later without rebuilding anything.</p>
 
     <h2 style="margin-top:2rem">What it costs to run</h2>
-    <p>Measured on this demo: 25 messages sorted for about nine tenths of a cent. Scaled up, and compared against the equivalent small model from each provider:</p>
+    <p>Measured on this demo: 25 messages sorted for about nine tenths of a cent. Sorting email is a comparatively easy job, so tools like this normally run on the small, fast tier rather than the biggest model available.</p>
     <div class="scroll">
       <table class="costs">
-        <thead><tr><th scope="col">Model</th><th scope="col">Roughly, per 3,000 emails</th></tr></thead>
+        <thead><tr><th scope="col">Option</th><th scope="col">How good it is at this</th><th scope="col">Per 3,000 emails</th></tr></thead>
         <tbody>
-          <tr><td>Gemini Flash</td><td>10&ndash;40&cent;</td></tr>
-          <tr><td>GPT, small tier</td><td>15&ndash;40&cent;</td></tr>
-          <tr class="mine"><td><b>Claude Haiku</b> &mdash; used here</td><td>about $1</td></tr>
-          <tr><td>The larger models (Sonnet, Gemini Pro, GPT-4 class)</td><td>$3&ndash;4</td></tr>
+          <tr><td>Rules only, no AI</td><td>Reliable on obvious junk. Blind to nuance and urgency.</td><td>free</td></tr>
+          <tr><td>Gemini Flash</td><td>Well suited. Cheapest of the three.</td><td>10&ndash;40&cent;</td></tr>
+          <tr><td>GPT small tier, incl. Azure OpenAI</td><td>Well suited, and the one that can run inside your own tenant.</td><td>15&ndash;40&cent;</td></tr>
+          <tr class="mine"><td><b>Claude Haiku</b> &mdash; used here</td><td>Well suited. The only one actually measured on your mail so far.</td><td>about $1</td></tr>
+          <tr><td>Larger models (Sonnet, Gemini Pro, GPT-4 class)</td><td>A little better on genuinely ambiguous mail. Rarely worth the difference here.</td><td>$3&ndash;4</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="closer">Approximate, and published prices move. The useful point is that at your volume every one of these is a rounding error next to an hour of anyone's time. So the model is worth choosing on judgment quality and on where the data goes, not on price.</p>
+    <p class="closer" style="margin-bottom:1.1rem">Costs are approximate and published prices move. The three small models are close enough in quality on a task like this that price is not the deciding factor &mdash; at any volume you are likely to see, all of them cost less than an hour of someone's time per year.</p>
+
+    <div class="brief">
+      <p style="font-size:.94rem"><b>What I would recommend for Hanson: Azure OpenAI.</b> Not because it is the sharpest or the cheapest &mdash; on this job the small models are all close. Because Hanson runs on Microsoft. It sits in your own Azure subscription, under billing and compliance you already have, with no new supplier to approve, and your email never leaves your tenant. That answers the privacy question and the procurement question at the same time.</p>
+      <p style="font-size:.88rem;color:var(--soft);margin-top:.6rem">This demo runs on Claude Haiku because it was the quickest way to show you something real. Moving it is a change of endpoint, not a rebuild.</p>
+    </div>
   </section>
 </div>
 
