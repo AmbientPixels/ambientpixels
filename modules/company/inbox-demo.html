@@ -94,6 +94,9 @@
   .err{background:var(--card);border:1px solid #b3564a;border-radius:3px;padding:.9rem 1.1rem;color:var(--soft);font-size:.88rem}
   .stale{background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--accent);
     border-radius:3px;padding:.7rem 1rem;margin-top:1.25rem;font-size:.86rem;color:var(--soft)}
+  .pagefoot{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule);
+    font-size:.83rem;color:var(--faint)}
+  .pagefoot b{color:var(--soft);font-weight:640}
 
   /* Settings. Not wired to anything — it exists so the client can point at a
      real control and say "no, I'd want that different", which is far better
@@ -258,6 +261,10 @@
 
   <div id="err" class="err hide"></div>
   <div id="out"></div>
+
+  <p class="pagefoot"><b>Cost.</b> This demo runs on Claude Haiku at roughly $1 per 3,000 emails.
+  For Hanson it would run on <b>Azure OpenAI</b>, inside your own Microsoft tenant &mdash; similar cost,
+  on billing you already have, and your email never leaves your environment.</p>
 
 </div>
 
