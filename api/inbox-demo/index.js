@@ -96,8 +96,13 @@ asking a question is needs_you even from an unknown address. A company sending a
 discount is promotional even if the reader likes that company. Security alerts are
 transactional unless they report something the reader must act on right now.
 
-Return ONLY a JSON array, one object per message, same order as the input:
-[{"i":0,"category":"promotional","confidence":0.0,"why":"under 12 words"}]
+Return ONLY a JSON object:
+{"summary":"2-3 sentences","items":[{"i":0,"category":"promotional","confidence":0.0,"why":"under 12 words"}]}
+
+The summary is spoken to the mailbox owner, in plain language, the way a good
+assistant would open the day. Lead with what needs them and who it is from. Then
+one line on what the rest was. No preamble, no restating the categories, no
+numbers they can already see on screen. Never invent anything not in the messages.
 
 Messages:
 ${msgs.map((m, i) => {
@@ -115,12 +120,13 @@ ${msgs.map((m, i) => {
   if (!r.ok) { const e = new Error('classify failed: ' + JSON.stringify(j).slice(0, 200)); e.status = 502; throw e; }
 
   const text = (j.content || []).map(c => c.text || '').join('');
-  const m = text.match(/\[[\s\S]*\]/);
-  if (!m) { const e = new Error('classifier returned no JSON array'); e.status = 502; throw e; }
+  const m = text.match(/\{[\s\S]*\}/);
+  if (!m) { const e = new Error('classifier returned no JSON object'); e.status = 502; throw e; }
+  const parsed = JSON.parse(m[0]);
 
   const usage = j.usage || {};
   const cost = ((usage.input_tokens || 0) / 1e6) * 1.00 + ((usage.output_tokens || 0) / 1e6) * 5.00;
-  return { verdicts: JSON.parse(m[0]), cost };
+  return { verdicts: parsed.items || [], summary: String(parsed.summary || ''), cost };
 }
 
 module.exports = async function (context, req) {
@@ -148,10 +154,10 @@ module.exports = async function (context, req) {
     const me = await graph(token, '/me');
     const res = await graph(token,
       '/me/mailFolders/inbox/messages?$top=' + count +
-      '&$orderby=receivedDateTime desc&$select=subject,from,receivedDateTime,bodyPreview,isRead');
+      '&$orderby=receivedDateTime desc&$select=subject,from,receivedDateTime,bodyPreview,isRead,webLink');
 
     const messages = res.value || [];
-    const { verdicts, cost } = await classify(messages);
+    const { verdicts, summary, cost } = await classify(messages);
 
     context.res = {
       status: 200,
@@ -159,12 +165,20 @@ module.exports = async function (context, req) {
       body: {
         ok: true,
         account: me.displayName || me.userPrincipalName || '',
-        messages: messages.map(m => ({
-          subject: m.subject || '',
-          from: (m.from && m.from.emailAddress && (m.from.emailAddress.name || m.from.emailAddress.address)) || '',
-          receivedDateTime: m.receivedDateTime,
-          bodyPreview: String(m.bodyPreview || '').replace(/\s+/g, ' ').slice(0, 160)
-        })),
+        summary,
+        messages: messages.map(m => {
+          const ea = (m.from && m.from.emailAddress) || {};
+          return {
+            subject: m.subject || '',
+            from: ea.name || ea.address || '',
+            // Address and webLink drive the Open / Reply buttons. Both are plain
+            // navigation into Outlook — the agent never composes or sends.
+            address: ea.address || '',
+            webLink: m.webLink || '',
+            receivedDateTime: m.receivedDateTime,
+            bodyPreview: String(m.bodyPreview || '').replace(/\s+/g, ' ').slice(0, 160)
+          };
+        }),
         verdicts,
         stats: { count: messages.length, ms: Date.now() - started, costUsd: Number(cost.toFixed(5)) }
       }

@@ -37,6 +37,13 @@
   .time{color:var(--faint);font-size:.78rem;white-space:nowrap;font-variant-numeric:tabular-nums}
   .subject{font-size:.94rem;margin:0 0 .4rem}
   .why{font-size:.83rem;color:var(--accent);margin:0}
+  .brief{background:var(--tint);border-top:3px solid var(--accent);padding:1.1rem 1.25rem;margin:1.5rem 0 .5rem}
+  .brief p{margin:0;font-size:1rem}
+  .acts{display:flex;gap:.5rem;margin-top:.7rem}
+  .acts a{font-size:.82rem;font-weight:600;text-decoration:none;padding:.32rem .8rem;border-radius:3px;
+    border:1px solid var(--rule);color:var(--soft);background:var(--paper)}
+  .acts a:hover{border-color:var(--accent);color:var(--accent)}
+  .acts a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .grp{background:var(--card);border:1px solid var(--rule);border-radius:3px;margin-bottom:.4rem}
   .grp summary{cursor:pointer;padding:.7rem 1.1rem;display:flex;align-items:center;font-size:.9rem;list-style:none}
   .grp summary::-webkit-details-marker{display:none}
@@ -103,7 +110,14 @@
         cat: v.category, why: v.why || '',
         from: redact ? mask(m.from || 'Unknown', 1) : (m.from || 'Unknown'),
         subject: redact ? mask(m.subject || '', 2) : (m.subject || '(no subject)'),
-        when: m.receivedDateTime
+        when: m.receivedDateTime,
+        webLink: m.webLink || '',
+        // Reply is a mailto: — it opens her own compose window with the fields
+        // filled in. The agent never writes or sends anything.
+        reply: m.address
+          ? 'mailto:' + encodeURIComponent(m.address) +
+            '?subject=' + encodeURIComponent(/^re:/i.test(m.subject || '') ? m.subject : 'Re: ' + (m.subject || ''))
+          : ''
       };
     });
     var needs = rows.filter(function (r) { return r.cat === 'needs_you'; });
@@ -115,12 +129,18 @@
       '<h1>' + (needs.length === 0 ? 'Nothing needs you.' : needs.length === 1 ? 'One thing needs you.' : needs.length + ' things need you.') + '</h1>' +
       '<p class="sub">' + rows.length + ' messages arrived. ' + filed.length + ' were filed out of the way.</p></header>';
 
+    if (data.summary) h += '<div class="brief"><p>' + esc(data.summary) + '</p></div>';
+
     h += '<h2>Needs you</h2>';
     h += needs.length ? needs.map(function (r) {
+      var acts = '';
+      if (r.webLink) acts += '<a href="' + esc(r.webLink) + '" target="_blank" rel="noopener">Open</a>';
+      if (r.reply) acts += '<a href="' + esc(r.reply) + '">Reply</a>';
       return '<div class="item hot"><div class="meta"><span class="from">' + esc(r.from) + '</span>' +
         '<span class="time">' + esc(when(r.when)) + '</span></div>' +
         '<p class="subject">' + esc(r.subject) + '</p>' +
-        '<p class="why">' + esc(r.why) + '</p></div>';
+        '<p class="why">' + esc(r.why) + '</p>' +
+        (acts ? '<div class="acts">' + acts + '</div>' : '') + '</div>';
     }).join('') : '<p class="sub" style="padding:.75rem 0">Nothing today. Everything that arrived was routine.</p>';
 
     h += '<h2>Filed away</h2>';
