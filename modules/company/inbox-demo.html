@@ -8,13 +8,25 @@
 <!-- Deploy-generated, authenticated-only. Supplies window.AP_SECRET. -->
 <script src="/modules/company/runtime-config.js"></script>
 <style>
-  /* Accent is Hanson's brand indigo. The logo asset is white with #13017C
-     detailing, so it needs a dark ground -- hence the solid brand band up top,
-     which stays the same in both themes and gives the mark somewhere to sit. */
-  :root{--brand:#13017C;--paper:#F6F6FA;--card:#FFFFFF;--ink:#1A1A2E;--soft:#4B4B66;--faint:#7C7C94;--rule:#E4E4EE;--accent:#13017C;--tint:#E8E6F5}
-  @media (prefers-color-scheme:dark){:root{--paper:#0F0F1A;--card:#191926;--ink:#E8E8F2;--soft:#ABABC2;--faint:#7C7C94;--rule:#2B2B3D;--accent:#8F84F5;--tint:#1C1930}}
-  :root[data-theme="dark"]{--paper:#0F0F1A;--card:#191926;--ink:#E8E8F2;--soft:#ABABC2;--faint:#7C7C94;--rule:#2B2B3D;--accent:#8F84F5;--tint:#1C1930}
-  :root[data-theme="light"]{--paper:#F6F6FA;--card:#FFFFFF;--ink:#1A1A2E;--soft:#4B4B66;--faint:#7C7C94;--rule:#E4E4EE;--accent:#13017C;--tint:#E8E6F5}
+  /* Hanson's own system, taken from their site: royal indigo for structure,
+     hot pink for anything you act on, white ground. --brand stays fixed across
+     themes because the masthead is a solid brand field in both, and the supplied
+     logotype is white so it always needs a dark ground under it. */
+  /* Hanson's own system, taken from their site: royal indigo for structure, hot
+     pink for anything you act on. Dark is the default and does not follow the OS,
+     so the page looks the same on any machine you demo from. Light is opt-in via
+     the toggle. --brand is fixed in both because the masthead is a solid brand
+     field and the supplied logotype is white, so it always needs a dark ground. */
+  :root{
+    --brand:#2E3192; --accent:#FF3DA6;
+    --paper:#14142A; --card:#1D1D3A; --ink:#EFEFF8; --soft:#B6B6D2; --faint:#8686A3;
+    --rule:#2F2F58; --tint:#212145;
+  }
+  :root[data-theme="light"]{
+    --accent:#EC008C;
+    --paper:#FFFFFF; --card:#FFFFFF; --ink:#2E3192; --soft:#4A4A6A; --faint:#8686A3;
+    --rule:#E4E4F0; --tint:#F5F4FC;
+  }
   /* Masthead: the logo and the title share the brand field, so the colour block
      carries content instead of framing a small mark in empty space. */
   .brandbar{background:var(--brand);margin:0 -1rem 0;padding:2rem 1rem}
@@ -38,10 +50,15 @@
   h1{font-size:1.8rem;font-weight:640;letter-spacing:-.02em;margin:0 0 .35rem}
   .sub{color:var(--faint);font-size:.92rem;margin:0}
   .bar{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;padding:1rem 0 1.15rem;border-bottom:1px solid var(--rule)}
-  button{font:inherit;font-weight:600;font-size:.95rem;padding:.6rem 1.35rem;border-radius:3px;border:1px solid var(--accent);background:var(--accent);color:var(--paper);cursor:pointer}
+  /* Pill, pink, white label — Hanson's own call-to-action shape. */
+  button{font:inherit;font-weight:600;font-size:.95rem;padding:.62rem 1.6rem;border-radius:999px;
+    border:none;background:var(--accent);color:#fff;cursor:pointer}
   button:hover:not(:disabled){filter:brightness(1.08)}
   button:disabled{opacity:.5;cursor:default}
-  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .themetog{margin-left:auto;flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,.35);
+    color:#fff;font-size:.78rem;font-weight:600;padding:.4rem .9rem;border-radius:999px}
+  .themetog:hover{background:rgba(255,255,255,.12);filter:none}
   label{font-size:.88rem;color:var(--soft);display:flex;align-items:center;gap:.4rem;cursor:pointer}
   .status{font-size:.88rem;color:var(--faint)}
   .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:.45rem;animation:p 1.1s infinite}
@@ -90,6 +107,7 @@
       <p class="kicker">Live demo</p>
       <h1>Inbox agent</h1>
     </div>
+    <button class="themetog" id="themetog" type="button">Light</button>
   </div>
 </div>
 <div class="wrap">
@@ -110,6 +128,15 @@
 
 <script>
 (function () {
+  // Dark by default; the toggle opts into light. Deliberately not tied to the OS
+  // preference — the page should look identical on whatever machine it is shown from.
+  var tog = document.getElementById('themetog');
+  tog.addEventListener('click', function () {
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    document.documentElement.setAttribute('data-theme', light ? 'dark' : 'light');
+    tog.textContent = light ? 'Light' : 'Dark';
+  });
+
   var LABEL = { transactional: 'Receipts and account notices', promotional: 'Offers and marketing', newsletter: 'Newsletters' };
   var go = document.getElementById('go'), statusEl = document.getElementById('status');
   var out = document.getElementById('out'), errEl = document.getElementById('err');
