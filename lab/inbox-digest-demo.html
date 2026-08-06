@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Morning brief</title>
+<style>
+  :root{--paper:#F5F7F8;--card:#FFFFFF;--ink:#16232B;--soft:#4A5B65;--faint:#7C8B93;--rule:#E1E7E9;--accent:#1F6F6B;--tint:#E2EDEC;--warm:#8A6520}
+  @media (prefers-color-scheme:dark){:root{--paper:#10191F;--card:#18242C;--ink:#E4ECEF;--soft:#A8B8C0;--faint:#798A93;--rule:#2A3944;--accent:#5CB8B0;--tint:#172E2E;--warm:#D6A959}}
+  :root[data-theme="dark"]{--paper:#10191F;--card:#18242C;--ink:#E4ECEF;--soft:#A8B8C0;--faint:#798A93;--rule:#2A3944;--accent:#5CB8B0;--tint:#172E2E;--warm:#D6A959}
+  :root[data-theme="light"]{--paper:#F5F7F8;--card:#FFFFFF;--ink:#16232B;--soft:#4A5B65;--faint:#7C8B93;--rule:#E1E7E9;--accent:#1F6F6B;--tint:#E2EDEC;--warm:#8A6520}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;padding:0 1rem 4rem}
+  .wrap{max-width:36rem;margin:0 auto}
+  header{padding:3rem 0 1.5rem}
+  .eyebrow{font-size:.72rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin:0 0 .5rem}
+  h1{font-size:1.9rem;font-weight:640;letter-spacing:-.02em;margin:0 0 .4rem;text-wrap:balance}
+  .sub{color:var(--faint);font-size:.9rem;margin:0}
+  h2{font-size:.75rem;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:2.25rem 0 .75rem}
+  .item{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:1rem 1.1rem;margin-bottom:.6rem}
+  .item.hot{border-color:var(--accent);box-shadow:0 1px 0 var(--tint)}
+  .meta{display:flex;justify-content:space-between;gap:1rem;align-items:baseline;margin-bottom:.2rem}
+  .from{font-weight:640;font-size:.95rem}
+  .time{color:var(--faint);font-size:.78rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .subject{font-size:.95rem;margin:0 0 .45rem}
+  .why{font-size:.83rem;color:var(--accent);margin:0}
+  .preview{font-size:.83rem;color:var(--soft);margin:.35rem 0 0}
+  .grp{background:var(--card);border:1px solid var(--rule);border-radius:3px;margin-bottom:.4rem}
+  .grp summary{cursor:pointer;padding:.7rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.9rem;list-style:none}
+  .grp summary::-webkit-details-marker{display:none}
+  .grp summary::after{content:"›";color:var(--faint);transition:transform .15s}
+  .grp[open] summary::after{transform:rotate(90deg)}
+  .gname{color:var(--soft)}
+  .gcount{color:var(--faint);font-variant-numeric:tabular-nums;margin-left:auto;margin-right:.6rem}
+  .glist{list-style:none;margin:0;padding:0 1.1rem .8rem}
+  .glist li{display:flex;gap:.6rem;padding:.35rem 0;border-top:1px solid var(--rule);font-size:.85rem}
+  .gfrom{color:var(--soft);min-width:9rem;flex-shrink:0}
+  .gsub{color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  footer{margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid var(--rule);color:var(--faint);font-size:.83rem}
+  footer strong{color:var(--soft);font-weight:640}
+  .empty{color:var(--faint);font-size:.9rem;padding:1rem 0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Morning brief</p>
+    <h1>2 things need you.</h1>
+    <p class="sub">25 messages arrived. 23 were filed out of the way.</p>
+  </header>
+
+  <h2>Needs you</h2>
+  
+  <div class="item hot">
+    <div class="meta"><span class="from">Microsoft a······ t···</span><span class="time">Wed 7:28 PM</span></div>
+    <p class="subject">New app(s) c······ t·· y··· M······ a······</p>
+    <p class="why">Reports unauthorized app access and explicitly asks to 'remove the app(s)' if not recognized</p>
+    
+  </div>
+  <div class="item hot">
+    <div class="meta"><span class="from">Google</span><span class="time">Mon 9:20 PM</span></div>
+    <p class="subject">Security alert f·· t······</p>
+    <p class="why">Security alert with instruction to 'remove it' if unrecognized account</p>
+    
+  </div>
+
+  <h2>Filed away</h2>
+  
+    <details class="grp">
+      <summary><span class="gname">Offers and marketing</span><span class="gcount">16</span></summary>
+      <ul class="glist">
+        <li><span class="gfrom">Apple M····</span><span class="gsub">Your iPhone c···· w··· 3·· f··· m····· o·· A···· M·····</span></li><li><span class="gfrom">Apple T··</span><span class="gsub">Ted Lasso’s n·· s····· i·· h····</span></li><li><span class="gfrom">Equifax</span><span class="gsub">What can y·· g·· f·· $·· t···· d····</span></li><li><span class="gfrom">Great K·· G····· S······</span><span class="gsub">20% Off E····· K·· S···· f·· w··· C····· C··· &quot;······ a·· C······ &quot;······ M·· O·· D···· C·· &quot;······ O·· S····· C·· &amp;·· M··· b·· T·· G···· K··· G··· U···· A·· 1··</span></li><li><span class="gfrom">Delta A·· L····</span><span class="gsub">Turn Coffee R··· I··· M···· W··· S······ A·· S······ R······</span></li><li><span class="gfrom">Apple</span><span class="gsub">Welcome to y··· n·· i····· 1·· P···</span></li><li><span class="gfrom">END.</span><span class="gsub">20% off s······ f······ |·· L······ t··· o···</span></li><li><span class="gfrom">Equifax</span><span class="gsub">Get your c····· r····· t····</span></li><li><span class="gfrom">Guitar V····· V······ G···· K··</span><span class="gsub">“VIRTUOSO Beethoven M····· B··· V······ P······ G···· K··· N·· 2······ V······ G···· K·· A···· F···· V······ T·· F··· S······ M······ C······ B······ S······ A·· M···· &amp;·· m··· O·· i······</span></li><li><span class="gfrom">Great K·· M···· M·····</span><span class="gsub">&quot;Unhinged&quot; New M···· V···· o·· U······ C······ M···· S······ b·· T·· G···· K·· o·· G····· A·· V······ B······ T······ M······ P······ &amp;·· M···· O·· Y······</span></li><li><span class="gfrom">Apple C···</span><span class="gsub">A new b······ a···· t·· y··· A···· C····</span></li><li><span class="gfrom">Equifax</span><span class="gsub">A whole 3·· d··· f·· j··· $···</span></li><li><span class="gfrom">Delta A·· L····</span><span class="gsub">Chad, Beyond T·· S····· E···· E··· S···</span></li><li><span class="gfrom">Apple C···</span><span class="gsub">Pay friends b··· w···· y·· c····</span></li><li><span class="gfrom">JustFlowers.com</span><span class="gsub">Thank You C···· [···· e···· $·· O·· Y··· n··· o·····</span></li><li><span class="gfrom">Equifax</span><span class="gsub">Your Credit R····· A······ C···</span></li>
+      </ul>
+    </details>
+    <details class="grp">
+      <summary><span class="gname">Receipts and account notices</span><span class="gcount">6</span></summary>
+      <ul class="glist">
+        <li><span class="gfrom">Microsoft a······ t···</span><span class="gsub">New sign-in d······ f·· y··· M······ a······</span></li><li><span class="gfrom">Apple</span><span class="gsub">Your Apple A······ w·· u··· t·· s··· i·· t·· i····· v·· a·· w·· b······</span></li><li><span class="gfrom">Find M··</span><span class="gsub">Find My h·· b··· d······ o·· C····· i····· 1··</span></li><li><span class="gfrom">Apple</span><span class="gsub">Your Apple A······ w·· u··· t·· s··· i·· t·· i····· o·· a·· i····· 1·· P···</span></li><li><span class="gfrom">Apple</span><span class="gsub">Your Apple A······ i······ h·· b··· u······</span></li><li><span class="gfrom">X</span><span class="gsub">Your receipt f··· X·· #······</span></li>
+      </ul>
+    </details>
+    <details class="grp">
+      <summary><span class="gname">Newsletters</span><span class="gcount">1</span></summary>
+      <ul class="glist">
+        <li><span class="gfrom">Apple B··· S······ P······</span><span class="gsub">Try out t·· n·· p····· b····</span></li>
+      </ul>
+    </details>
+
+  <footer>
+    <strong>Nothing was deleted.</strong> Everything above is still in your mailbox, just moved out of the way. Open any folder and it is all there.
+  </footer>
+
+</div>
+</body>
+</html>
