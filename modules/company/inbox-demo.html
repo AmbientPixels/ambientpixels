@@ -15,9 +15,21 @@
   @media (prefers-color-scheme:dark){:root{--paper:#0F0F1A;--card:#191926;--ink:#E8E8F2;--soft:#ABABC2;--faint:#7C7C94;--rule:#2B2B3D;--accent:#8F84F5;--tint:#1C1930}}
   :root[data-theme="dark"]{--paper:#0F0F1A;--card:#191926;--ink:#E8E8F2;--soft:#ABABC2;--faint:#7C7C94;--rule:#2B2B3D;--accent:#8F84F5;--tint:#1C1930}
   :root[data-theme="light"]{--paper:#F6F6FA;--card:#FFFFFF;--ink:#1A1A2E;--soft:#4B4B66;--faint:#7C7C94;--rule:#E4E4EE;--accent:#13017C;--tint:#E8E6F5}
-  .brandbar{background:var(--brand);margin:0 -1rem;padding:1.1rem 1rem}
-  .brandbar .inner{max-width:38rem;margin:0 auto}
-  .brandbar img{height:54px;width:auto;display:block}
+  /* Masthead: the logo and the title share the brand field, so the colour block
+     carries content instead of framing a small mark in empty space. */
+  .brandbar{background:var(--brand);margin:0 -1rem 0;padding:2rem 1rem}
+  .brandbar .inner{max-width:38rem;margin:0 auto;display:flex;align-items:center;gap:1.6rem}
+  .brandbar img{height:96px;width:auto;display:block;flex-shrink:0}
+  .brandbar .titles{min-width:0}
+  .brandbar .kicker{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(255,255,255,.62);margin:0 0 .25rem}
+  .brandbar h1{font-size:1.85rem;font-weight:640;letter-spacing:-.02em;color:#fff;margin:0;text-wrap:balance}
+  @media (max-width:34rem){
+    .brandbar{padding:1.5rem 1rem}
+    .brandbar .inner{gap:1.1rem}
+    .brandbar img{height:68px}
+    .brandbar h1{font-size:1.45rem}
+  }
   *,*::before,*::after{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;padding:0 1rem 4rem}
   .wrap{max-width:38rem;margin:0 auto}
@@ -43,6 +55,9 @@
   .time{color:var(--faint);font-size:.78rem;white-space:nowrap;font-variant-numeric:tabular-nums}
   .subject{font-size:.94rem;margin:0 0 .4rem}
   .why{font-size:.83rem;color:var(--accent);margin:0}
+  /* The run headline. Deliberately not an h1 — the masthead already owns that,
+     and two page-level headings is one too many. */
+  .verdict{font-size:1.55rem;font-weight:640;letter-spacing:-.02em;margin:0 0 .3rem}
   .brief{background:var(--tint);border-top:3px solid var(--accent);padding:1.1rem 1.25rem;margin:1.5rem 0 .5rem}
   .brief p{margin:0;font-size:1rem}
   .acts{display:flex;gap:.5rem;margin-top:.7rem}
@@ -69,13 +84,17 @@
 </head>
 <body>
 <div class="brandbar">
-  <div class="inner"><img src="/modules/img/hanson-consulting-group-light.svg" alt="Hanson Consulting Group"></div>
+  <div class="inner">
+    <img src="/modules/img/hanson-consulting-group-light.svg" alt="Hanson Consulting Group">
+    <div class="titles">
+      <p class="kicker">Live demo</p>
+      <h1>Inbox agent</h1>
+    </div>
+  </div>
 </div>
 <div class="wrap">
 
   <header>
-    <p class="eyebrow">Live demo</p>
-    <h1>Inbox agent</h1>
     <p class="sub">Reads the inbox, decides what actually needs you, files the rest. Nothing is moved or deleted.</p>
   </header>
 
@@ -134,9 +153,9 @@
     var groups = {};
     filed.forEach(function (r) { (groups[r.cat] = groups[r.cat] || []).push(r); });
 
-    var h = '<header style="padding:2rem 0 .5rem">' +
-      '<h1>' + (needs.length === 0 ? 'Nothing needs you.' : needs.length === 1 ? 'One thing needs you.' : needs.length + ' things need you.') + '</h1>' +
-      '<p class="sub">' + rows.length + ' messages arrived. ' + filed.length + ' were filed out of the way.</p></header>';
+    var h = '<div style="padding:1.75rem 0 .5rem">' +
+      '<p class="verdict">' + (needs.length === 0 ? 'Nothing needs you.' : needs.length === 1 ? 'One thing needs you.' : needs.length + ' things need you.') + '</p>' +
+      '<p class="sub">' + rows.length + ' messages arrived. ' + filed.length + ' were filed out of the way.</p></div>';
 
     if (data.summary) h += '<div class="brief"><p>' + esc(data.summary) + '</p></div>';
 
