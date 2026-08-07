@@ -94,6 +94,16 @@ Pick one deliberately. Whatever is chosen, the warning must reach the paywall.
 
 ---
 
+### 8. The free scan blocks the browser for ~222 seconds, 3% under a hard limit
+
+**Found 2026-08-07 while regenerating a client report.** A production scan of a normal site took **222 seconds** against Azure Consumption's **~230 second** HTTP gateway limit. The first attempt returned an HTML error page instead of JSON; the retry succeeded. That is a 3% margin on the path a paying customer uses.
+
+**The deeper problem is the design, not the margin.** `ambientscore/js/ambientscore.js:384` calls `as-analyze` and waits synchronously with no polling and no abort — so every free scan is a four-minute blocking wait on the funnel's front door. When it does time out, the client runs `res.json()` on an HTML body, so `friendlyError()` never receives a usable code and the visitor gets something unhelpful after waiting four minutes.
+
+**The fix already exists in this codebase.** The paid path at `as-analyze:228` is already fire-and-forget: it returns immediately and analyses in the background. Do the same for the free scan — return `{reportId, status:'analyzing'}`, have the client poll `as-report?id=`, and show real progress instead of a spinner. `as-report` is already the right polling target; it may just need an explicit "still working" state rather than a 404.
+
+**Design the orphan case deliberately.** Fire-and-forget on a Consumption plan can be lost if the worker freezes, which means paid-but-no-report. That risk is why this deserves a proper session rather than a quick patch, and it is the one thing to get right.
+
 ## Lower priority, confirmed
 
 - `hydratedCounters` never reaches the assembled report (cosmetic; `jsRenderedWarning` carries the signal).
