@@ -128,7 +128,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       if (window.ProductAnalytics) {
-        ProductAnalytics.init('pixelagents');
+        ProductAnalytics.init('resumeroast');
         document.querySelectorAll('[data-rr-cta]').forEach(function (el) {
           el.addEventListener('click', function () {
             try { ProductAnalytics.track('cta_click', { agentId: 'resume-roast', placement: el.getAttribute('data-rr-cta') }); } catch (_) {}

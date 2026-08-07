@@ -11,7 +11,8 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-const VALID_PRODUCTS = ['all', 'pixelagents', 'agentforge', 'ambientscore', 'blindspot', 'cardforge', 'storyforge', 'tileforge', 'blog', 'nova', 'dashboard'];
+// Must stay a subset of productAnalyticsIngest's VALID_PRODUCTS.
+const VALID_PRODUCTS = ['all', 'pixelagents', 'agentforge', 'resumeroast', 'ambientscore', 'blindspot', 'cardforge', 'storyforge', 'tileforge', 'blog', 'nova', 'dashboard'];
 const VALID_METRICS = ['overview', 'dau', 'funnels', 'events', 'products'];
 
 // In-memory cache: key → { data, ts }
@@ -46,7 +47,12 @@ var FUNNELS = {
   storyforge: ['page_view', 'adventure_started'],
   blog: ['page_view', 'post_viewed'],
   pixelagents: ['page_view', 'agent_run_started', 'agent_run_completed', 'checkout_initiated'],
-  agentforge: ['page_view', 'agent_submitted']
+  agentforge: ['page_view', 'agent_submitted'],
+  // Every stage below is a real event already emitted in code: cta_click from
+  // resume-roast/index.html, the run pair and both rewrite_upsell_* from
+  // pixel-agents/js/pixel-agent-run.js. Purchase completion is NOT yet tracked
+  // (resume-roast/rewrite.html carries no SDK), so the funnel ends at the click.
+  resumeroast: ['page_view', 'cta_click', 'agent_run_started', 'agent_run_completed', 'rewrite_upsell_view', 'rewrite_upsell_click']
 };
 
 // ── Metric Computers ──

@@ -48,7 +48,14 @@
   <script src="/js/product-analytics.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      if (window.ProductAnalytics) ProductAnalytics.init('pixelagents');
+      if (!window.ProductAnalytics) return;
+      // Shared run page for all 24 agents, so it reports as 'pixelagents' —
+      // except Resume Roast, which has its own landing page and its own paid
+      // campaign. Without this its run events land in the catalog average and
+      // the /resume-roast/ funnel breaks in half at the most important step.
+      var _agent = null;
+      try { _agent = new URLSearchParams(window.location.search).get('agent'); } catch (_) {}
+      ProductAnalytics.init(_agent === 'resume-roast' ? 'resumeroast' : 'pixelagents');
     });
   </script>
 </head>

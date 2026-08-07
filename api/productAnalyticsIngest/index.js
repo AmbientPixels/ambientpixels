@@ -6,10 +6,15 @@ const pa = require('../_utils/productAnalytics');
 
 // Must stay a superset of productAnalyticsQuery's VALID_PRODUCTS — events
 // rejected here are dropped silently, which reads as "zero traffic" downstream.
+// 'resumeroast' split out of 'pixelagents' 2026-08-07. Resume Roast has its own
+// landing page and its own paid campaign, but its events were pooled with the
+// whole 24-agent catalog — so there was no way to tell whether traffic to
+// /resume-roast/ was working. Historical roast events stay under 'pixelagents';
+// the split is forward-only.
 const VALID_PRODUCTS = [
   'ambientscore', 'blindspot', 'cardforge', 'storyforge',
   'tileforge', 'blog', 'nova', 'dashboard',
-  'pixelagents', 'agentforge'
+  'pixelagents', 'agentforge', 'resumeroast'
 ];
 const VALID_CATEGORIES = ['funnel', 'engagement', 'conversion', 'error'];
 const MAX_BATCH = 200;
