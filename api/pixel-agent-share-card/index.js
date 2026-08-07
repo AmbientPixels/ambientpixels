@@ -1,9 +1,18 @@
 // pixel-agent-share-card — Generates a branded 1200x630 PNG share card for a run result
 // GET /api/pixel-agent-share-card?run=RUNID
 
-const satori = require('satori');
-const { Resvg } = require('@resvg/resvg-js');
+// satori 0.10 ships an ESM-interop CJS build: `require('satori')` returns
+// { default, init }, NOT the function. Calling it directly threw
+// "satori is not a function" on EVERY request, so this endpoint returned 500
+// for its entire life and no share card has ever rendered. The interop dance
+// below tolerates either shape, so a future version that exports the function
+// directly keeps working.
+const _satoriModule = require('satori');
+const satori = typeof _satoriModule === 'function' ? _satoriModule : _satoriModule.default;
+const _resvgModule = require('@resvg/resvg-js');
+const Resvg = _resvgModule.Resvg || (_resvgModule.default && _resvgModule.default.Resvg);
 const storage = require('../_utils/companyStorage');
+const { extractScore, extractVerdict, agentForRun } = require('../_utils/runScore');
 const fs = require('fs');
 const path = require('path');
 
@@ -45,10 +54,13 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Extract score and verdict from result
+    // Extract score and verdict from result. Resolved through the agent's own
+    // declared outputSections — reading result.score directly worked for exactly
+    // one of the ten scoring agents, so nine of ten cards rendered scoreless.
     const result = run.result || {};
-    const score = result.score ?? result.overall_score ?? null;
-    const verdict = result.verdict ?? result.overall_verdict ?? null;
+    const agent = await agentForRun(run, storage);
+    const score = extractScore(result, agent);
+    const verdict = extractVerdict(result, agent);
     const accent = TIER_COLORS[run.agentTier] || '#8F00FF';
     const tierLabel = (run.agentTier || 'common').toUpperCase();
 

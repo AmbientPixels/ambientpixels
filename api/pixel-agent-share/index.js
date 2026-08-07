@@ -2,6 +2,7 @@
 // GET /api/pixel-agent-share?run=RUNID
 
 const storage = require('../_utils/companyStorage');
+const { extractScore, extractVerdict, agentForRun } = require('../_utils/runScore');
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -30,9 +31,13 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // Resolved through the agent's declared outputSections — see runScore.js.
+    // The OG description is what a link preview shows, so a missing score here
+    // costs the same shared link its most persuasive element.
     const result = run.result || {};
-    const score = result.score ?? result.overall_score ?? null;
-    const verdict = result.verdict ?? result.overall_verdict ?? null;
+    const agent = await agentForRun(run, storage);
+    const score = extractScore(result, agent);
+    const verdict = extractVerdict(result, agent);
 
     const title = (run.agentName || 'Agent') + ' Result \u2014 Pixel Agents';
     let description = 'AI agent result from Pixel Agents';
