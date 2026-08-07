@@ -86,10 +86,12 @@
   background: var(--pa-sep-strong);
   overflow: hidden;
 }
+/* Width tracks the sample score — keep in sync with .rr-score-num in
+   resume-roast/index.html if the sample is ever regenerated. */
 .rr-score-bar span {
   display: block;
   height: 100%;
-  width: 61%;
+  width: 52%;
   border-radius: var(--pa-radius-pill);
   background: linear-gradient(90deg, var(--pa-primary), var(--pa-warning));
 }
@@ -149,6 +151,131 @@
   margin: 0 0 0.75rem;
   font-size: var(--pa-t-sm);
   color: var(--pa-text-faint);
+}
+
+/* "Real output" stamp — this sample is genuine agent output, not written copy.
+   The claim is the point, so it gets the same live-dot treatment as the hero. */
+.rr-sample-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--pa-success);
+}
+.rr-sample-stamp::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pa-success);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+/* Prose-bodied sample sections (rewrite tips). Scoped to .rr-sample-section so
+   it can't leak into .rr-prose, which the page uses elsewhere. */
+.rr-sample-section p {
+  margin: 0 0 0.7rem;
+  font-size: var(--pa-t-sm);
+  line-height: 1.65;
+  color: var(--pa-text-muted);
+}
+.rr-sample-section p:last-child { margin-bottom: 0; }
+.rr-sample-section--tips h4 { color: var(--pa-warning); }
+
+/* Pro tip — the closing beat of a real roast, so it gets a callout. */
+.rr-protip {
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--pa-radius-md);
+  border: 1px solid var(--pa-sep-strong);
+  border-left: 3px solid var(--pa-warning);
+  background: var(--pa-surface-raised);
+}
+.rr-protip h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-warning);
+  margin: 0 0 0.5rem;
+}
+.rr-protip p {
+  margin: 0;
+  font-size: var(--pa-t-sm);
+  line-height: 1.65;
+  color: var(--pa-text-muted);
+}
+
+/* ── Before / after rewrite demo ── */
+.rr-ba {
+  max-width: 720px;
+  margin-top: 1.5rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+}
+.rr-ba-head {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--pa-sep);
+  background: var(--pa-surface-raised);
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-text-faint);
+}
+.rr-ba-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.rr-ba-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.rr-ba-col {
+  padding: 0.85rem 1rem;
+  border-radius: var(--pa-radius-md);
+  border: 1px solid var(--pa-sep-strong);
+  background: var(--pa-neutral, transparent);
+}
+.rr-ba-col--before { border-left: 3px solid var(--pa-primary); }
+.rr-ba-col--after { border-left: 3px solid var(--pa-success); }
+.rr-ba-label {
+  display: block;
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.45rem;
+  color: var(--pa-text-faint);
+}
+.rr-ba-col--before .rr-ba-label { color: var(--pa-primary); }
+.rr-ba-col--after .rr-ba-label { color: var(--pa-success); }
+.rr-ba-text {
+  margin: 0;
+  font-size: var(--pa-t-sm);
+  line-height: 1.6;
+  color: var(--pa-text-muted);
+}
+.rr-ba-col--before .rr-ba-text { font-style: italic; }
+.rr-ba-foot {
+  padding: 1rem 1.25rem 1.5rem;
+  text-align: center;
+  border-top: 1px dashed var(--pa-sep-strong);
+}
+.rr-ba-foot p {
+  margin: 0 0 0.75rem;
+  font-size: var(--pa-t-sm);
+  line-height: 1.6;
+  color: var(--pa-text-faint);
+}
+@media (max-width: 640px) {
+  .rr-ba-pair { grid-template-columns: 1fr; }
 }
 
 /* ── How it works ── */
