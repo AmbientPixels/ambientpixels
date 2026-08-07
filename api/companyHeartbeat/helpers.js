@@ -167,6 +167,29 @@ function shouldRunTier4Agent(tasks, agentId) {
   return { run: false, reason: 'no_assigned_tasks_or_mentions' };
 }
 
+// Idle-agent gating (2026-08-07). Generalises the tier-4 rule above to the whole fleet:
+// an agent only deliberates when it has something to deliberate about.
+//
+// Why: measured 2026-08-07, the heartbeat is ~82% of a ~$90/mo LLM bill, and ~45% of every
+// agent's prompt is the fixed instruction scaffold — so an agent with an empty queue costs
+// close to a full-price call to conclude it has nothing to do. Pixel, Scout and Vale each
+// held zero active tasks while running all six cycles a day.
+//
+// Work is PUSHED to agents (crons, campaign lifecycle, Nova's triage), so a skipped agent
+// wakes automatically the cycle after something lands in its queue. The deliberate trade is
+// that an idle agent no longer invents its own work — which is the intent, not a side effect:
+// self-originated busywork is what the 08-05 freeze was diagnosing (Cipher alone minted 10
+// duplicate budget-overrun tasks in 7 days).
+//
+// Returns the same { run, reason } shape as shouldRunTier4Agent; reasons are logged into
+// heartbeatRuns.skippedAgents, so a wrongly-silent agent is visible rather than mysterious.
+function shouldRunAgent(tasks, agentId) {
+  if (C.ALWAYS_RUN_AGENTS.has(agentId)) return { run: true, reason: 'always_run_agent' };
+  if (_hasAssignedActiveTasks(tasks, agentId)) return { run: true, reason: 'assigned_active_task' };
+  if (_hasRecentMention(tasks, agentId)) return { run: true, reason: 'recent_mention_ping' };
+  return { run: false, reason: 'no_assigned_tasks_or_mentions' };
+}
+
 // ── Social intel ──
 
 function _socialIntelIsoDayUTC(d) {
@@ -791,6 +814,7 @@ module.exports = {
   normalizeExecutionMode,
   evaluateEscalationPath,
   shouldRunTier4Agent,
+  shouldRunAgent,
   _socialIntelIsoDayUTC,
   _socialIntelEventTs,
   _socialIntelResolveMode,

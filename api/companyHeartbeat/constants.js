@@ -138,6 +138,21 @@ const STRATEGY_FATIGUE_MIN_VS_MEDIAN = 0.7; // cluster median must be <70% of ag
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
+
+// ── Idle-agent gating (2026-08-07) ──
+// Agents that run every cycle no matter what their queue looks like. Everyone else is
+// gated on having active work — see shouldRunAgent() in helpers.js.
+// Nova is the only entry, and it is load-bearing in two ways:
+//   1. She is the orchestrator. She triages unassigned/untriaged tasks and hands them
+//      out. Gate her on "has assigned work" and the board deadlocks: an unassigned task
+//      has nobody to assign it, so no agent gets work, so nobody ever runs to notice.
+//   2. She is the ONLY agent who sees 'backlog' tasks (agent-runner.js filters them out
+//      for everyone else), and _isActiveStatus deliberately excludes backlog — so a
+//      backlog-only board reads as "no active work" to the gate while Nova still has
+//      real triage to do.
+// To wake a permanently-idle agent, assign it a task or @mention it; to opt one out of
+// gating entirely, add it here. Both are reversible without a deploy in the first case.
+const ALWAYS_RUN_AGENTS = new Set(['nova']);
 const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance', 'system_directive', 'finance']);
 // Agents authorized to create system_directive tasks (course-correct other agents)
 const DIRECTIVE_AUTHORIZED_AGENTS = new Set(['forge', 'nova']);
@@ -522,6 +537,7 @@ module.exports = {
   L4_TTL_BY_TYPE,
   L4_DEFAULT_TTL_DAYS,
   TIER4_SUB_AGENTS,
+  ALWAYS_RUN_AGENTS,
   OBJECTIVE_EXEMPT_CATEGORIES,
   DIRECTIVE_AUTHORIZED_AGENTS,
   CAPITAL_AUTHORIZED_AGENTS,
