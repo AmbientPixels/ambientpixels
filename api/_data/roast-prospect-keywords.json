@@ -16,6 +16,13 @@
     "no interviews",
     "just got laid off"
   ],
+  "_selfExclusionNote": "Added 2026-08-07. The lane matched our own Resume Roast promo post and queued a reply to ourselves — our marketing copy trips the resume-intent regex by design. The AS lane never had this bug because it requires a non-blocked site URL; the roast lane has no URL requirement, so it needs an explicit author/domain guard.",
+  "ownHandles": [
+    "ambientpixels.bsky.social"
+  ],
+  "ownDomains": [
+    "ambientpixels.ai"
+  ],
   "defaults": {
     "enabled": false,
     "maxDraftsPerDay": 4,

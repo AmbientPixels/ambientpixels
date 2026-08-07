@@ -597,6 +597,49 @@ function mockStorage(initial) {
     assert.strictEqual(out[0].status, 'discovered');
   });
 
+  // 2026-08-07 LIVE regression: the lane rediscovered our OWN outbound reply
+  // (utm_content=act_1786125696989_bsreply_xwpl2) 38 minutes after we posted it
+  // and queued a reply to ourselves. Our promo copy satisfies _hasResumeIntent
+  // by design, so intent matching can never be the thing that catches this.
+  const RCFG_SELF = Object.assign({}, RCFG, {
+    ownHandles: ['ambientpixels.bsky.social'],
+    ownDomains: ['ambientpixels.ai']
+  });
+
+  test('filterRoastProspects: never prospects our own handle', () => {
+    const ours = RC({
+      author: 'ambientpixels.bsky.social',
+      text: '"No incentive for the person screening apps" is so true. It all comes down to getting past the ats first. We built a free tool to check that.'
+    });
+    assert.strictEqual(PP.filterRoastProspects([ours], [], RCFG_SELF, NOW_R).length, 0,
+      'our own post must never become a prospect');
+  });
+
+  test('filterRoastProspects: skips posts linking to our own domain', () => {
+    const reshare = RC({
+      author: 'somebodyelse.bsky.social',
+      text: 'job hunting is brutal, this helped me fix my resume https://ambientpixels.ai/resume-roast/?utm_source=bluesky'
+    });
+    assert.strictEqual(PP.filterRoastProspects([reshare], [], RCFG_SELF, NOW_R).length, 0,
+      'a post already carrying our link is not a cold prospect');
+  });
+
+  test('filterRoastProspects: self-guard does NOT cost us genuine seekers', () => {
+    // The guard must be surgical — these three are real 2026-08-07 prospects.
+    const real = [
+      RC({ author: 'stevilgaming.bsky.social', uri: 'at://x/1', cid: 'c1', text: 'Well it has been 3 weeks since I lost my job and no prospects in sight. Going to possibly rewrite the resume.' }),
+      RC({ author: 'nakedtommy.bsky.social', uri: 'at://x/2', cid: 'c2', text: 'Told we were going into redundancy consultations so I got my CV up to date and started applying for jobs.' }),
+      RC({ author: 'katexas.bsky.social', uri: 'at://x/3', cid: 'c3', text: 'I played myself - I used ChatGPT to help rewrite my resume and cover letter for this job application.' })
+    ];
+    assert.strictEqual(PP.filterRoastProspects(real, [], RCFG_SELF, NOW_R).length, 3,
+      'genuine job seekers must still pass with the guard active');
+  });
+
+  test('filterRoastProspects: missing ownHandles/ownDomains config does not throw', () => {
+    assert.strictEqual(PP.filterRoastProspects([RC()], [], RCFG, NOW_R).length, 1,
+      'lane must still work when the guard config is absent');
+  });
+
   test('filterRoastProspects: one-touch-per-author holds ACROSS lanes', () => {
     const existingAsLane = [{ id: 'p1', author: 'seeker.bsky.social', status: 'sent', discoveredAt: new Date(NOW_R - 5 * 86400e3).toISOString() }];
     const out = PP.filterRoastProspects([RC()], existingAsLane, RCFG, NOW_R);

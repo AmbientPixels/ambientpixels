@@ -607,6 +607,26 @@ function _hasResumeIntent(text) {
   return _RESUME_NOUN_RE.test(t) && _JOB_CONTEXT_RE.test(t);
 }
 
+// Never prospect ourselves. Our own Resume Roast promo copy ("getting past the
+// ATS... we built a free tool") satisfies _hasResumeIntent by design, so on
+// 2026-08-07 the lane discovered our own post and queued a reply to it. The AS
+// lane is immune because it requires a non-blocked site URL and ambientpixels.ai
+// is in its ownDomains; the roast lane has no URL requirement, so it needs this
+// guard explicitly. Also skips posts linking to our domains — our content, or
+// somebody resharing it, is not a cold prospect either way.
+function _isOwnRoastPost(candidate, cfg) {
+  var author = String((candidate && candidate.author) || '').toLowerCase().replace(/^@/, '');
+  var handles = (cfg.ownHandles || []).map(function (h) {
+    return String(h).toLowerCase().replace(/^@/, '');
+  });
+  if (author && handles.indexOf(author) !== -1) return true;
+  var text = String((candidate && candidate.text) || '').toLowerCase();
+  return (cfg.ownDomains || []).some(function (d) {
+    d = String(d).toLowerCase();
+    return d && text.indexOf(d) !== -1;
+  });
+}
+
 // candidates + existing prospects (ALL lanes) + cfg → new lane entries
 // (status 'discovered'), bounded by maxQueuedProspects headroom.
 function filterRoastProspects(candidates, prospects, cfg, nowMs) {
@@ -627,6 +647,7 @@ function filterRoastProspects(candidates, prospects, cfg, nowMs) {
   for (var i = 0; i < (candidates || []).length && out.length < headroom; i++) {
     var c = candidates[i];
     if (!c || !c.uri || !c.cid || !c.author) continue;
+    if (_isOwnRoastPost(c, cfg)) continue;
     var t = Date.parse(c.indexedAt || 0);
     if (!Number.isFinite(t) || nowMs - t > maxAgeMs) continue;
     if (((c.likeCount || 0) + (c.replyCount || 0)) < minEngagement) continue;
@@ -709,6 +730,10 @@ function _loadRoastConfig(systemConfig) {
   var file = _ROAST_FILE || {};
   var cfg = Object.assign({}, file.defaults || {});
   cfg.keywords = (file.keywords || []).slice();
+  // Top-level file keys are not in `defaults`, so they must be copied across
+  // explicitly — same pattern as cfg.ownDomains in the AS loader above.
+  cfg.ownHandles = (file.ownHandles || []).slice();
+  cfg.ownDomains = (file.ownDomains || []).slice();
   var over = (systemConfig && systemConfig.roastProspecting) || {};
   Object.keys(over).forEach(function (k) { cfg[k] = over[k]; });
   return cfg;
