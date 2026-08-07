@@ -12,6 +12,16 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
+// Output ceilings. Group evaluation is the largest generation in the pipeline —
+// measured across 222 production calls: median ~5.2k, p90 ~5.8k, peak 6,998
+// against this 8000 ceiling. The retry ceilings are deliberately far above the
+// first attempt: truncation at a fixed budget is deterministic, so retrying at
+// the same budget re-truncates.
+const EVAL_MAX_TOKENS = 8000;
+const EVAL_RETRY_MAX_TOKENS = 16000;
+const SYNTHESIS_MAX_TOKENS = 8000;
+const SYNTHESIS_RETRY_MAX_TOKENS = 16000;
+
 // ── Claude Call ──────────────────────────────────────────────────
 
 async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
@@ -132,19 +142,37 @@ async function analyze(url) {
   }
 
   // Step 3: Two grouped evaluations (Stage 2, parallel) — now site-type-aware
+  //
+  // A failed group is not a missing quarter of the report. scorer.js fills every
+  // dimension the group owned with a constant 60, so a single transient failure
+  // fabricates up to 55% of the customer's score (Group A's weight) and silently
+  // drops all of that group's findings. Eval output also scales with how much is
+  // wrong on the page, so the sites that most need the audit are the ones that
+  // truncate. Retry once at a raised ceiling before accepting that outcome.
   const evalStartTime = Date.now();
+  let evalRetries = 0;
   const evalPromises = Object.keys(GROUPS).map(async (groupId) => {
+    const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
     try {
-      const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
       const raw = await callClaude(prompt, {
         temperature: 0.1,
-        maxOutputTokens: 8000,
+        maxOutputTokens: EVAL_MAX_TOKENS,
         caller: 'as-eval-group-' + groupId
       });
       return { groupId, status: 'ok', result: parseJsonResponse(raw) };
     } catch (err) {
-      errors.push('Group ' + groupId + ' evaluation failed: ' + err.message);
-      return { groupId, status: 'failed', error: err.message };
+      evalRetries++;
+      try {
+        const rawRetry = await callClaude(prompt, {
+          temperature: 0.1,
+          maxOutputTokens: EVAL_RETRY_MAX_TOKENS,
+          caller: 'as-eval-group-' + groupId + '-retry'
+        });
+        return { groupId, status: 'ok', retried: true, result: parseJsonResponse(rawRetry) };
+      } catch (retryErr) {
+        errors.push('Group ' + groupId + ' evaluation failed: ' + err.message + ' :: retry: ' + retryErr.message);
+        return { groupId, status: 'failed', error: retryErr.message };
+      }
     }
   });
 
@@ -183,7 +211,7 @@ async function analyze(url) {
   try {
     const rawSynthesis = await callClaude(synthPrompt, {
       temperature: 0.5,
-      maxOutputTokens: 8000,
+      maxOutputTokens: SYNTHESIS_MAX_TOKENS,
       caller: 'as-synthesis'
     });
     synthesis = parseJsonResponse(rawSynthesis);
@@ -192,7 +220,7 @@ async function analyze(url) {
     try {
       const rawRetry = await callClaude(synthPrompt, {
         temperature: 0.5,
-        maxOutputTokens: 16000,
+        maxOutputTokens: SYNTHESIS_RETRY_MAX_TOKENS,
         caller: 'as-synthesis-retry'
       });
       synthesis = parseJsonResponse(rawRetry);
@@ -233,7 +261,7 @@ async function analyze(url) {
         scrapeTimeMs: scrapeTimeMs,
         evalTimeMs: evalTimeMs,
         totalTimeMs: totalTimeMs,
-        claudeCalls: 5 - failedGroups + (synthesisRetried ? 1 : 0),
+        claudeCalls: 5 - failedGroups + evalRetries + (synthesisRetried ? 1 : 0),
         wordCount: scraped.wordCount,
         analyzedUrl: scraped.finalUrl || url,
         siteTypeReasoning: siteTypeReasoning,
