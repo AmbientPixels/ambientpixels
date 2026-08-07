@@ -276,6 +276,21 @@ function renderAgentUI(agent) {
 
   document.getElementById('pa-input-label').textContent = agent.inputLabel;
 
+  // Optional second input — only agents that declare secondaryInput show it.
+  const secWrap = document.getElementById('pa-secondary-wrap');
+  if (secWrap) {
+    if (agent.secondaryInput) {
+      document.getElementById('pa-secondary-label').textContent = agent.secondaryInput.label || '';
+      const secTa = document.getElementById('pa-input-secondary');
+      secTa.placeholder = agent.secondaryInput.placeholder || '';
+      secTa.value = '';
+      document.getElementById('pa-secondary-help').textContent = agent.secondaryInput.help || '';
+      secWrap.style.display = '';
+    } else {
+      secWrap.style.display = 'none';
+    }
+  }
+
   // Enter key to submit
   urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') runAgent(); });
   textInput.addEventListener('keydown', e => {
@@ -340,7 +355,12 @@ async function runAgent() {
       headers: hdrs,
       body: JSON.stringify({
         agentId: currentAgent.id,
-        input: input
+        input: input,
+        // Only sent when the agent declares a second input and the user filled
+        // it in. The API ignores it entirely for agents without the declaration.
+        secondaryInput: currentAgent.secondaryInput
+          ? (document.getElementById('pa-input-secondary') || {}).value || ''
+          : undefined
       })
     });
 

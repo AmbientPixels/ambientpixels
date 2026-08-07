@@ -300,8 +300,21 @@ module.exports = async function (context, req) {
       }
     }
 
+    // Optional second input, appended as its own context block exactly like
+    // searchContext/siteContext above. Opt-in per agent: without a
+    // secondaryInput declaration on the config this is a no-op, so the other 23
+    // agents build byte-identical prompts. Trimmed to a hard cap so a pasted
+    // job page can't blow the context window.
+    let secondaryContext = '';
+    if (agent.secondaryInput && typeof body.secondaryInput === 'string') {
+      const secondary = body.secondaryInput.trim().slice(0, 6000);
+      if (secondary) {
+        secondaryContext = '\n\n' + (agent.secondaryInput.promptLabel || 'ADDITIONAL CONTEXT') + ':\n' + secondary;
+      }
+    }
+
     // Build prompt
-    const userMessage = agent.userPromptTemplate.replace('{{input}}', input.trim()) + searchContext + siteContext;
+    const userMessage = agent.userPromptTemplate.replace('{{input}}', input.trim()) + secondaryContext + searchContext + siteContext;
 
     // Call Claude API
     context.log('[PixelAgentRun] Agent:', agentId, 'Input:', input.substring(0, 100));

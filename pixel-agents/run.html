@@ -182,6 +182,15 @@
           <input type="url" id="pa-input-url" class="pa-run-input" placeholder="https://example.com" />
           <textarea id="pa-input-text" class="pa-run-input pa-run-textarea" placeholder="Paste your content here..." rows="6" style="display:none"></textarea>
         </div>
+        <!-- Optional second input. Stays hidden unless the agent config declares
+             a `secondaryInput`, so the 23 agents without one are unaffected. -->
+        <div id="pa-secondary-wrap" style="display:none">
+          <label class="pa-run-label" id="pa-secondary-label" for="pa-input-secondary"></label>
+          <div class="pa-run-input-wrap">
+            <textarea id="pa-input-secondary" class="pa-run-input pa-run-textarea" rows="5"></textarea>
+          </div>
+          <p class="pa-run-help" id="pa-secondary-help"></p>
+        </div>
         <div class="pa-run-actions">
           <button class="pa-run-btn" id="pa-run-btn" onclick="runAgent()">
             <i class="fas fa-play"></i> Deploy Agent
