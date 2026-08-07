@@ -328,6 +328,16 @@
   color: var(--pa-primary);
   margin-bottom: 0.5rem;
 }
+/* Step 04 is the paid branch, not part of the free flow. Spans the grid the
+   same way .rr-benefit--deliverable does, so the page keeps one visual grammar:
+   free tier sits inside the grid, the paid tier spans full width in Signal Red.
+   The ::before counter keeps numbering automatically. */
+.rr-step--deliverable {
+  grid-column: 1 / -1;
+  border-left: 3px solid var(--pa-primary);
+  background: var(--pa-surface-raised);
+}
+.rr-step--deliverable::before { color: var(--pa-primary); }
 .rr-step h3 {
   font-family: var(--pa-font-display);
   font-size: var(--pa-t-base);
