@@ -1,7 +1,7 @@
 // roast-rewrite — GET/POST /api/roast-rewrite
 // The $9 Deep Roast Rewrite surface:
 //   GET  ?config=1                       -> { enabled, priceCents } (public, gates the upsell card)
-//   POST { action:'create', resumeText, roastResult } -> order + Stripe checkout URL
+//   POST { action:'create', resumeText, roastResult, jobDescription? } -> order + Stripe checkout URL
 //   GET  ?id=<orderId>&key=<hmac>        -> order status; composes inline on first poll after payment
 //   POST { action:'status' }             -> queue dump (secret-gated, CEO ops)
 //   POST { action:'requeue', id }        -> failed -> paid (secret-gated, CEO recovery)
@@ -172,7 +172,10 @@ module.exports = async function (context, req) {
       let rewrite;
       try {
         const { callClaude } = require('../_lib/ambientScore/analyzer');
-        rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude);
+        // doc.jobDescription is absent on orders created before targeting
+        // shipped (and null when the buyer pasted no posting) — composeRewrite
+        // treats both as "no posting" and builds the original prompt.
+        rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude, doc.jobDescription);
       } catch (err) {
         context.log.error('[roast-rewrite] compose failed for ' + orderId + ':', err.message);
         const errMsg = String(err.message || err).slice(0, 300);
@@ -314,7 +317,17 @@ module.exports = async function (context, req) {
 
       const nowIso = new Date().toISOString();
       const roastResult = (body.roastResult && typeof body.roastResult === 'object') ? body.roastResult : null;
-      const { entry, doc } = composer.createOrder(resumeText, roastResult, nowIso);
+      // Optional target posting. The free roast's client sends the same text as
+      // `secondaryInput` (its generic second-input field name), so accept that
+      // spelling too rather than silently dropping the posting the buyer pasted
+      // — dropping it is exactly the bug this threading fixes. Over-long input
+      // is trimmed, not rejected, matching the free path (pixel-agent-run
+      // slices the same field to 6000): a buyer who pastes a whole job PAGE
+      // still gets a targeted rewrite instead of a 400.
+      const jobDescription = composer.normalizeJobDescription(
+        typeof body.jobDescription === 'string' ? body.jobDescription : body.secondaryInput
+      );
+      const { entry, doc } = composer.createOrder(resumeText, roastResult, nowIso, jobDescription);
 
       // Durability first: never hand out a Stripe checkout URL for an order
       // that isn't recorded. Doc first (setState returns false on failure

@@ -22,6 +22,11 @@ const RESUME_RETENTION_MS = 30 * 24 * 60 * 60 * 1000; // spec: scrub resume text
 const FULL_PURGE_MS = 2 * RESUME_RETENTION_MS;
 const PRICE_CENTS_DEFAULT = 900;
 const RESUME_MAX_CHARS = 20000;
+// Optional target posting. Same cap the free roast already applies to the same
+// pasted text (pixel-agent-run trims secondaryInput to 6000), so the paid
+// rewrite targets exactly the posting the buyer saw scored — and so a pasted
+// job PAGE can't blow the prompt.
+const JOB_DESCRIPTION_MAX_CHARS = 6000;
 
 // ── Tokens ───────────────────────────────────────────────────────
 
@@ -34,15 +39,30 @@ function buildRewriteToken(orderId) {
 
 // ── Orders (pure) ────────────────────────────────────────────────
 
+// Single definition of "how much posting we keep", shared by the endpoint's
+// validation, the stored order doc and the prompt — so the three can never
+// disagree about the cap. Returns null (not '') for absent/blank/non-string so
+// every downstream check is a plain truthiness test.
+function normalizeJobDescription(value) {
+  if (typeof value !== 'string') return null;
+  return value.trim().slice(0, JOB_DESCRIPTION_MAX_CHARS) || null;
+}
+
 // Resume text is too large for Stripe metadata, so unlike teardowns the order
 // exists BEFORE checkout: queue entry (small, status machine) + doc (payload).
-function createOrder(resumeText, roastResult, nowIso) {
+// `jobDescription` is optional and trails the original signature so existing
+// three-arg callers keep working unchanged.
+function createOrder(resumeText, roastResult, nowIso, jobDescription) {
   const orderId = 'rr_' + Date.parse(nowIso) + '_' + crypto.randomBytes(2).toString('hex');
   return {
     entry: { orderId, status: 'created', createdAt: nowIso, retryCount: 0, email: null },
     doc: {
       orderId,
       resumeText: String(resumeText).slice(0, RESUME_MAX_CHARS),
+      // The posting the buyer is targeting. Buyer-supplied content of the same
+      // sensitivity class as resumeText, so scrubOrderDoc strips it on the
+      // same 30d retention pass — it must never outlive the resume.
+      jobDescription: normalizeJobDescription(jobDescription),
       roastResult: roastResult || null,
       rewrite: null,
       createdAt: nowIso,
@@ -103,9 +123,10 @@ function advanceQueue(queue, nowMs) {
 }
 
 // Retention (runner tick): drop never-paid orders after 48h (delete their docs,
-// which hold resume text), scrub resume text from docs 30d after delivery (or
-// after creation, for orders that failed and were never delivered), and fully
-// purge scrubbed entries once they've also passed the 60d link-lifetime.
+// which hold buyer content), scrub that content from docs 30d after delivery
+// (or after creation, for orders that failed and were never delivered — see
+// scrubOrderDoc for exactly which fields go), and fully purge scrubbed entries
+// once they've also passed the 60d link-lifetime.
 // A missing timestamp coerces to Date.parse(0) (year 2000 UTC) — already so
 // far in the past that every age check below already treats it as expired.
 // A present-but-malformed string (e.g. "garbage") parses to NaN instead,
@@ -169,6 +190,23 @@ function retentionPass(queue, nowMs, allowedIds) {
   return { queue: kept, removeDocIds, scrubDocIds };
 }
 
+// The doc-side half of retentionPass. retentionPass flags the queue ENTRY
+// (resumeScrubbed) and names the doc ids; the runner then calls this on each
+// named doc to actually strip the buyer's content. It lives here, next to the
+// pass that schedules it, so there is ONE list of "fields that must not
+// survive retention" — a new user-supplied field added to the order doc gets
+// scrubbed by editing this function, not by remembering to touch the runner.
+// Mutates and returns the doc so a caller can setState(scrubOrderDoc(doc)).
+// roastResult is nulled rather than deleted, matching the shape createOrder
+// writes for an order that never had one.
+function scrubOrderDoc(doc) {
+  if (!doc || typeof doc !== 'object') return doc;
+  delete doc.resumeText;
+  delete doc.jobDescription;
+  doc.roastResult = null;
+  return doc;
+}
+
 // Queue-cap enforcement (endpoint calls this instead of `queue.shift()`
 // directly) so dropped entries never orphan their `roast_rewrite_<id>` docs —
 // caller must delete removeDocIds.
@@ -199,10 +237,31 @@ function capQueue(queue) {
 
 // ── Composition ──────────────────────────────────────────────────
 
-function buildRewritePrompt(resumeText, roastResult) {
+// The page promises, directly under the job-description box, that "the score,
+// the keyword gap and the rewrite all target that job" — so the posting has to
+// reach the paid prompt, not just the free roast. The targeting block below
+// mirrors the free roast's JOB-DESCRIPTION TARGETING rules (pixel-agents.json,
+// resume-roast.systemPrompt): match the posting's own wording because that is
+// what the parser matches on, and never claim experience the resume doesn't
+// support. The block is spliced in ONLY when a posting is present, so a
+// no-posting prompt stays byte-identical to the pre-targeting version (there
+// is a regression test asserting exactly that).
+function buildRewritePrompt(resumeText, roastResult, jobDescription) {
   const roast = roastResult
     ? JSON.stringify(roastResult).slice(0, 4000)
     : 'none provided';
+  const jd = normalizeJobDescription(jobDescription);
+  const jdBlock = jd ? [
+    'TARGET JOB DESCRIPTION:',
+    jd,
+    '',
+    'JOB-DESCRIPTION TARGETING (this rewrite is for THAT posting):',
+    '- Target the rewrite at this posting. Lead with the experience it asks for, and order bullets so what matters to this job comes first.',
+    '- Mirror the posting\'s own wording for skills, tools and titles the client genuinely has, because that is what the ATS parser matches on.',
+    '- Never claim experience the source resume does not support. Where the posting requires something the resume lacks, leave it out. A real gap is not a keyword to insert.',
+    '- In ats_keywords.missing, list what this posting asks for that the resume does not yet support, in the posting\'s own wording, most important first.',
+    ''
+  ] : [];
   return [
     'You are a senior professional resume writer. A client paid for a full rewrite of their resume after receiving the automated roast below.',
     '',
@@ -217,6 +276,7 @@ function buildRewritePrompt(resumeText, roastResult) {
     'SOURCE RESUME:',
     String(resumeText).slice(0, RESUME_MAX_CHARS),
     '',
+    ...jdBlock,
     'Rewrite the resume: strong action verbs, achievement-first bullets, clean ATS-parseable structure (standard section headers, no tables or columns), tight professional summary.',
     '',
     'Respond with STRICT JSON only, no code fences, no prose outside JSON:',
@@ -244,8 +304,11 @@ function validateRewrite(r) {
 // One composition; malformed output retries once cooler; transient upstream
 // errors retry with backoff inside each attempt (shared teardown helper —
 // a paid $9 order must not die on an Anthropic 500 burst).
-async function composeRewrite(resumeText, roastResult, callClaude) {
-  const prompt = buildRewritePrompt(resumeText, roastResult);
+// `jobDescription` trails callClaude so existing three-arg call sites are
+// unaffected; both compose call sites (the endpoint's compose-on-poll and the
+// runner's backstop) pass doc.jobDescription.
+async function composeRewrite(resumeText, roastResult, callClaude, jobDescription) {
+  const prompt = buildRewritePrompt(resumeText, roastResult, jobDescription);
   const attempts = [{ temperature: 0.4 }, { temperature: 0.2 }];
   let lastErr = null;
   for (const opts of attempts) {
@@ -268,10 +331,12 @@ async function composeRewrite(resumeText, roastResult, callClaude) {
 
 module.exports = {
   buildRewriteToken,
+  normalizeJobDescription,
   createOrder,
   markPaid,
   advanceQueue,
   retentionPass,
+  scrubOrderDoc,
   capQueue,
   buildRewritePrompt,
   validateRewrite,
@@ -282,5 +347,6 @@ module.exports = {
   UNPAID_TTL_MS,
   RESUME_RETENTION_MS,
   PRICE_CENTS_DEFAULT,
-  RESUME_MAX_CHARS
+  RESUME_MAX_CHARS,
+  JOB_DESCRIPTION_MAX_CHARS
 };

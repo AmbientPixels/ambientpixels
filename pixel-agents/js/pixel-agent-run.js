@@ -4,6 +4,8 @@ let currentAgent = null;
 let currentResult = null;
 let currentRunId = null;
 let currentInput = null;
+// The job description the roast was scored against, held for the $9 checkout.
+let currentSecondary = null;
 let rewriteCfg = null;
 let _allAgents = []; // all agents for related agent rendering
 
@@ -358,6 +360,14 @@ async function runAgent() {
   // Funnel: agent_run_started — feeds the pixelagents funnel in productAnalyticsQuery
   if (window.ProductAnalytics) try { ProductAnalytics.track('agent_run_started', { agentId: currentAgent.id }); } catch (_) {}
 
+  // Captured once, here, rather than re-read at checkout. The $9 rewrite is
+  // sold against the posting the resume was actually SCORED against — if the
+  // user edits the box after seeing their roast, the rewrite must not quietly
+  // target a different job than the score they just paid to act on.
+  const sentSecondary = currentAgent.secondaryInput
+    ? (document.getElementById('pa-input-secondary') || {}).value || ''
+    : undefined;
+
   try {
     const hdrs = { 'Content-Type': 'application/json' };
     if (authPrincipalHeader) hdrs['x-cf-auth-principal'] = authPrincipalHeader;
@@ -369,9 +379,7 @@ async function runAgent() {
         input: input,
         // Only sent when the agent declares a second input and the user filled
         // it in. The API ignores it entirely for agents without the declaration.
-        secondaryInput: currentAgent.secondaryInput
-          ? (document.getElementById('pa-input-secondary') || {}).value || ''
-          : undefined
+        secondaryInput: sentSecondary
       })
     });
 
@@ -409,6 +417,7 @@ async function runAgent() {
     currentResult = data;
     currentRunId = data.runId;
     currentInput = input;
+    currentSecondary = sentSecondary || null;
 
     // Funnel: agent_run_completed
     if (window.ProductAnalytics) try { ProductAnalytics.track('agent_run_completed', { agentId: currentAgent.id, runId: data.runId }); } catch (_) {}
@@ -627,7 +636,10 @@ async function startRewriteCheckout() {
       body: JSON.stringify({
         action: 'create',
         resumeText: currentInput,
-        roastResult: (currentResult && currentResult.result) || null
+        roastResult: (currentResult && currentResult.result) || null,
+        // The page promises, right under the box, that the posting shapes the
+        // rewrite too. Until this line existed it shaped only the free score.
+        jobDescription: currentSecondary || undefined
       })
     });
     const data = await res.json();

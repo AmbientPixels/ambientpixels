@@ -5,8 +5,9 @@
 // handles buyers who reach the delivery page; this catches orders whose buyer
 // closed the tab after paying (composes + emails the link) plus:
 //   - advanceQueue self-heal (stale 'processing' -> 'paid' -> 'failed')
-//   - retention: unpaid orders dropped after 48h, resume text scrubbed 30d
-//     after delivery (docs hold resumes = PII), entries + docs fully purged
+//   - retention: unpaid orders dropped after 48h, buyer content scrubbed 30d
+//     after delivery (docs hold resume text + target posting = PII, see
+//     composer.scrubOrderDoc), entries + docs fully purged
 //     after 60d (bounds queue growth; buyer link lifetime = 60 days)
 // One order per tick — a rewrite is a single Claude call.
 //
@@ -89,9 +90,10 @@ module.exports = async function (context) {
         succeededIds.push(orderId);
         continue;
       }
-      const doc = meta.value;
-      delete doc.resumeText;
-      doc.roastResult = null;
+      // composer.scrubOrderDoc owns the field list (resume text, the roast
+      // built from it, the target job posting) so retention can't drift out of
+      // sync with what createOrder stores.
+      const doc = composer.scrubOrderDoc(meta.value);
       const ok = await storage.setState('roast_rewrite_' + orderId, doc);
       if (ok) succeededIds.push(orderId);
       else context.log.warn('[roastRewriteRunner] resume scrub write returned false for ' + orderId + ' — queue entry left unflagged, retried next tick');
@@ -202,7 +204,10 @@ module.exports = async function (context) {
   // mutateState's conflict-retry.
   try {
     const { callClaude } = require('../_lib/ambientScore/analyzer');
-    const rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude);
+    // Must pass doc.jobDescription too: an order delivered by this backstop
+    // (buyer closed the tab after paying) would otherwise silently lose the
+    // job targeting that compose-on-poll applies.
+    const rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude, doc.jobDescription);
 
     const nowIso = new Date().toISOString();
     doc.rewrite = rewrite;
