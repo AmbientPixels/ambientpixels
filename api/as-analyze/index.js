@@ -68,6 +68,132 @@ async function logScan(event) {
   } catch { /* non-critical */ }
 }
 
+// ── Scan-failure classification ──────────────────────────────────
+// One mapping for both the synchronous handler and the background runner.
+// The last near-miss here: an exact 'Blocked' match (capital B) filed real
+// SSRF probes under ANALYSIS_FAILED because the DNS-rebinding refusal reads
+// "blocked" in lowercase. Keep the /blocked/i test case-insensitive.
+
+function classifyScanError(errMsg, blockMeta) {
+  if (errMsg.includes('SITE_BLOCKED')) {
+    const isCf = errMsg.includes('CLOUDFLARE');
+    const provider = isCf ? 'cloudflare' : (blockMeta ? blockMeta.provider : 'unknown');
+    return { errorCode: 'SITE_BLOCKED', provider: provider, resStatus: 403, resBody: { error: 'SITE_BLOCKED', provider: provider } };
+  }
+  if (errMsg.includes('SITE_TIMEOUT') || errMsg.includes('ETIMEDOUT')) {
+    return { errorCode: 'SITE_TIMEOUT', resStatus: 504, resBody: { error: 'SITE_TIMEOUT' } };
+  }
+  if (errMsg.includes('SITE_UNREACHABLE') || errMsg.includes('ENOTFOUND') || errMsg.includes('ECONNREFUSED')) {
+    return { errorCode: 'SITE_UNREACHABLE', resStatus: 502, resBody: { error: 'SITE_TIMEOUT' } };
+  }
+  if (errMsg.includes('SITE_UNREADABLE')) {
+    // We could not see the page. A score built on that is wrong, not partial.
+    return { errorCode: 'SITE_UNREADABLE', resStatus: 422, resBody: { error: 'SITE_UNREADABLE' } };
+  }
+  if (errMsg.includes('SITE_ERROR_STATUS')) {
+    // The URL resolved to an error page. Scoring it would sell an audit of a
+    // "Page not found" as an audit of the customer's site.
+    const statusMatch = errMsg.match(/HTTP (\d{3})/);
+    const httpStatus = statusMatch ? Number(statusMatch[1]) : null;
+    return { errorCode: 'SITE_ERROR_STATUS', httpStatus: httpStatus, resStatus: 422, resBody: { error: 'SITE_ERROR_STATUS', httpStatus: httpStatus } };
+  }
+  if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
+    return { errorCode: 'SITE_BLOCKED', provider: 'unknown', resStatus: 403, resBody: { error: 'SITE_BLOCKED', provider: 'unknown' } };
+  }
+  if (/blocked/i.test(errMsg) || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
+    return { errorCode: 'VALIDATION', resStatus: 400, resBody: { error: errMsg } };
+  }
+  return { errorCode: 'ANALYSIS_FAILED', resStatus: 500, resBody: { error: 'ANALYSIS_FAILED', detail: errMsg.substring(0, 200) } };
+}
+
+// Structured failure telemetry — captures provider, status, body preview for
+// scraper calibration. Shared by the sync catch and the background runner.
+function buildFailureLog(url, errMsg, blockMeta, classified) {
+  return {
+    timestamp: new Date().toISOString(),
+    url: url || '',
+    errorCode: classified.errorCode,
+    provider: classified.provider || (blockMeta ? blockMeta.provider : null),
+    httpStatus: classified.httpStatus != null ? classified.httpStatus : (blockMeta ? blockMeta.status : null),
+    hostname: blockMeta ? blockMeta.hostname : null,
+    cfRay: blockMeta ? blockMeta.cfRay : null,
+    server: blockMeta ? blockMeta.server : null,
+    bodyPreview: blockMeta ? blockMeta.bodyPreview : null,
+    cfSignals: blockMeta ? blockMeta.cfSignals : null,
+    errMsg: errMsg.substring(0, 200)
+  };
+}
+
+// ── Background analysis ──────────────────────────────────────────
+// The synchronous free scan ran ~222s against Azure Consumption's ~230s HTTP
+// gateway limit. Both tiers now answer immediately with an analyzing stub and
+// run the pipeline behind the response; the client polls as-report. The stub
+// is written (and awaited) before the response so there is always something
+// to poll, and every terminal state — success or failure — overwrites it, so
+// a poller always finds out what happened. as-report treats a stub older than
+// its stale window as failed, which covers the orphan case where the worker
+// froze before writing any terminal state.
+
+async function startBackgroundAnalysis(context, url, reportId, tier) {
+  const key = 'cc_report_' + reportId;
+  const startedAt = new Date().toISOString();
+  const stubFor = (stage) => ({
+    id: reportId, url: url, status: 'analyzing', stage: stage,
+    createdAt: startedAt, startedAt: startedAt
+  });
+
+  // Awaited: the client must have something to poll before we answer.
+  await storage.setState(key, stubFor('fetch'));
+
+  // Deliberately not awaited from here on.
+  analyze(url, { onStage: (stage) => storage.setState(key, stubFor(stage)) })
+    .then(async (result) => {
+      result.fullReport.id = reportId;
+      // A payment or refund can land while analysis is still running — the
+      // finished report must not clobber what the money already decided.
+      try {
+        const existing = await storage.getState(key);
+        if (existing && existing.unlocked) {
+          result.fullReport.unlocked = true;
+          result.fullReport.paidAt = existing.paidAt || null;
+          result.fullReport.customerEmail = existing.customerEmail || null;
+          result.fullReport.priceType = existing.priceType || 'single';
+        }
+        if (existing && existing.revokedAt) {
+          result.fullReport.unlocked = false;
+          result.fullReport.revokedAt = existing.revokedAt;
+          result.fullReport.revokedReason = existing.revokedReason || null;
+        }
+      } catch (mergeErr) { /* merge is best-effort */ }
+      await storage.setState(key, result.fullReport);
+      await logScan({ reportId, url, tier: tier, score: result.score, timestamp: new Date().toISOString() });
+    })
+    .catch(async (err) => {
+      const errMsg = (err && err.message) || '';
+      const blockMeta = (err && err.blockMeta) || null;
+      const classified = classifyScanError(errMsg, blockMeta);
+      try {
+        await storage.setState(key, {
+          id: reportId, url: url, status: 'failed',
+          errorCode: classified.errorCode,
+          errorDetail: classified.errorCode === 'VALIDATION' ? errMsg.substring(0, 200) : null,
+          httpStatus: classified.httpStatus != null ? classified.httpStatus : null,
+          createdAt: startedAt, startedAt: startedAt,
+          failedAt: new Date().toISOString()
+        });
+      } catch (writeErr) {
+        context.log.error('[as-analyze] Failed-stub write failed for ' + reportId + ':', writeErr.message);
+      }
+      const failureLog = buildFailureLog(url, errMsg, blockMeta, classified);
+      context.log.warn('[as-analyze] Background scan failure:', JSON.stringify(failureLog));
+      logScan({
+        url: failureLog.url, tier: 'failed', errorCode: failureLog.errorCode,
+        provider: failureLog.provider, httpStatus: failureLog.httpStatus,
+        timestamp: failureLog.timestamp
+      }).catch(function () {});
+    });
+}
+
 // ── Handler ──────────────────────────────────────────────────────
 
 module.exports = async function (context, req) {
@@ -225,13 +351,7 @@ module.exports = async function (context, req) {
 
       // Only run analysis if no existing report (i.e. no reportId was provided)
       if (!body.reportId) {
-        analyze(url).then(async (result) => {
-          result.fullReport.id = reportId;
-          await storage.setState('cc_report_' + reportId, result.fullReport);
-          await logScan({ reportId, url, tier: 'paid-' + priceType, score: result.score, timestamp: new Date().toISOString() });
-        }).catch(err => {
-          context.log.error('[as-analyze] Background analysis failed for ' + reportId + ':', err.message);
-        });
+        await startBackgroundAnalysis(context, url, reportId, 'paid-' + priceType);
       }
 
       context.res = {
@@ -250,13 +370,11 @@ module.exports = async function (context, req) {
     // Generate report ID for free scan
     const reportId = 'ccr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
 
-    // Free scan — run full pipeline, store report (locked)
-    const result = await analyze(url);
-    result.fullReport.id = reportId;
-    await storage.setState('cc_report_' + reportId, result.fullReport);
-
-    // Log analytics
-    await logScan({ reportId, url, tier: 'free', score: result.score, timestamp: new Date().toISOString() });
+    // Free scan — answer immediately, analyze behind the response. The client
+    // polls as-report, which serves the analyzing/failed stub states and, on
+    // completion, the teaser (including the estimated-score disclaimer and
+    // dimension counts the buying decision needs).
+    await startBackgroundAnalysis(context, url, reportId, 'free');
 
     context.res = {
       status: 200,
@@ -264,80 +382,17 @@ module.exports = async function (context, req) {
       body: JSON.stringify({
         ok: true,
         reportId: reportId,
-        score: result.score,
-        grade: result.grade,
-        teaserFindings: result.teaserFindings,
-        blurredCount: result.totalFindings > 3 ? result.totalFindings - 3 : 0,
-        totalFindings: result.totalFindings,
-        isPaid: false,
-        jsRenderedWarning: result.fullReport.jsRenderedWarning || null,
-        contentWarning: result.fullReport.contentWarning || null,
-        // If part of the score was estimated rather than evaluated, the person
-        // deciding whether to pay has to see that here — the full report is the
-        // wrong place to disclose it for the first time.
-        disclaimer: result.fullReport.disclaimer || null,
-        totalDimensions: Object.keys(result.fullReport.dimensions || {}).length,
-        partialDimensions: Object.values(result.fullReport.dimensions || {})
-          .filter(function (d) { return d && d.partial; }).length
+        status: 'analyzing'
       })
     };
 
   } catch (err) {
     const errMsg = err.message || '';
     const blockMeta = err.blockMeta || null;
+    const classified = classifyScanError(errMsg, blockMeta);
+    const failureLog = buildFailureLog((req.body && req.body.url) || '', errMsg, blockMeta, classified);
 
-    // Structured failure logging — captures provider, status, body preview for calibration
-    const failureLog = {
-      timestamp: new Date().toISOString(),
-      url: (req.body && req.body.url) || '',
-      errorCode: '',
-      provider: blockMeta ? blockMeta.provider : null,
-      httpStatus: blockMeta ? blockMeta.status : null,
-      hostname: blockMeta ? blockMeta.hostname : null,
-      cfRay: blockMeta ? blockMeta.cfRay : null,
-      server: blockMeta ? blockMeta.server : null,
-      bodyPreview: blockMeta ? blockMeta.bodyPreview : null,
-      cfSignals: blockMeta ? blockMeta.cfSignals : null,
-      errMsg: errMsg.substring(0, 200)
-    };
-
-    // Client-friendly error codes — order matters (most specific first)
-    if (errMsg.includes('SITE_BLOCKED') || errMsg.includes('SITE_BLOCKED_CLOUDFLARE')) {
-      const isCf = errMsg.includes('CLOUDFLARE');
-      failureLog.errorCode = 'SITE_BLOCKED';
-      failureLog.provider = isCf ? 'cloudflare' : (blockMeta ? blockMeta.provider : 'unknown');
-      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: failureLog.provider }) };
-    } else if (errMsg.includes('SITE_TIMEOUT') || errMsg.includes('ETIMEDOUT')) {
-      failureLog.errorCode = 'SITE_TIMEOUT';
-      context.res = { status: 504, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT' }) };
-    } else if (errMsg.includes('SITE_UNREACHABLE') || errMsg.includes('ENOTFOUND') || errMsg.includes('ECONNREFUSED')) {
-      failureLog.errorCode = 'SITE_UNREACHABLE';
-      context.res = { status: 502, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT' }) };
-    } else if (errMsg.includes('SITE_UNREADABLE')) {
-      // We could not see the page. A score built on that is wrong, not partial.
-      failureLog.errorCode = 'SITE_UNREADABLE';
-      context.res = { status: 422, headers: CORS, body: JSON.stringify({ error: 'SITE_UNREADABLE' }) };
-    } else if (errMsg.includes('SITE_ERROR_STATUS')) {
-      // The URL resolved to an error page. Scoring it would sell an audit of a
-      // "Page not found" as an audit of the customer's site.
-      const statusMatch = errMsg.match(/HTTP (\d{3})/);
-      failureLog.errorCode = 'SITE_ERROR_STATUS';
-      failureLog.httpStatus = statusMatch ? Number(statusMatch[1]) : null;
-      context.res = { status: 422, headers: CORS, body: JSON.stringify({ error: 'SITE_ERROR_STATUS', httpStatus: failureLog.httpStatus }) };
-    } else if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
-      failureLog.errorCode = 'SITE_BLOCKED';
-      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: 'unknown' }) };
-    } else if (/blocked/i.test(errMsg) || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
-      // Case-insensitive on purpose: the DNS-rebinding refusal reads "URL
-      // resolves to a blocked internal IP address" with a lowercase b, so an
-      // exact 'Blocked' match logged real SSRF attempts as ANALYSIS_FAILED 500s
-      // — our-fault telemetry for someone else's probe.
-      failureLog.errorCode = 'VALIDATION';
-      context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: errMsg }) };
-    } else {
-      failureLog.errorCode = 'ANALYSIS_FAILED';
-      context.res = { status: 500, headers: CORS, body: JSON.stringify({ error: 'ANALYSIS_FAILED', detail: errMsg.substring(0, 200) }) };
-    }
+    context.res = { status: classified.resStatus, headers: CORS, body: JSON.stringify(classified.resBody) };
 
     // Log for calibration (non-blocking)
     context.log.warn('[as-analyze] Scan failure:', JSON.stringify(failureLog));

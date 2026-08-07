@@ -62,43 +62,36 @@
   };
 
   // ── Loading Animation ──────────────────────────
+  // Steps track the real pipeline stage reported by as-report polling, not a
+  // timer pretending to know where the analysis is.
 
-  var loadingInterval = null;
+  var STEP_ORDER = ['fetch', 'extract', 'evaluate', 'score'];
+
+  var STAGE_MESSAGES = {
+    fetch: 'Fetching your page. A full audit takes three to four minutes.',
+    extract: 'Extracting conversion elements.',
+    evaluate: 'Evaluating eight dimensions. This is the long stage.',
+    score: 'Computing score and writing rewrites.'
+  };
 
   function setLoadingText(msg) {
     loadingText.innerHTML = '<span class="as-spinner"></span>' + escapeHtml(msg);
   }
 
-  function startLoadingSteps() {
-    var order = ['fetch', 'extract', 'evaluate', 'score'];
-    var current = 0;
-    var messages = [
-      'Fetching your page.',
-      'Extracting conversion elements.',
-      'Evaluating eight dimensions.',
-      'Computing score.'
-    ];
-
-    loadingInterval = setInterval(function () {
-      if (current > 0) {
-        var prev = order[current - 1];
-        steps[prev].classList.remove('active');
-        steps[prev].classList.add('done');
-        steps[prev].textContent = STEP_LABELS[prev];
-      }
-      if (current < order.length) {
-        steps[order[current]].classList.add('active');
-        setLoadingText(messages[current]);
-        current++;
-      } else {
-        clearInterval(loadingInterval);
-      }
-    }, 4000);
+  function setLoadingStage(stage) {
+    var idx = STEP_ORDER.indexOf(stage);
+    if (idx === -1) idx = 0;
+    STEP_ORDER.forEach(function (k, i) {
+      steps[k].classList.remove('active', 'done');
+      if (i < idx) steps[k].classList.add('done');
+      if (i === idx) steps[k].classList.add('active');
+      steps[k].textContent = STEP_LABELS[k];
+    });
+    setLoadingText(STAGE_MESSAGES[STEP_ORDER[idx]]);
   }
 
-  function stopLoadingSteps() {
-    if (loadingInterval) clearInterval(loadingInterval);
-    Object.keys(steps).forEach(function (k) {
+  function resetLoadingSteps() {
+    STEP_ORDER.forEach(function (k) {
       steps[k].classList.remove('active', 'done');
       steps[k].textContent = STEP_LABELS[k];
     });
@@ -112,15 +105,14 @@
     errorSection.style.display = 'none';
     scanBtn.disabled = true;
     scanBtn.textContent = 'Running.';
-    setLoadingText('Fetching your page.');
-    startLoadingSteps();
+    setLoadingStage('fetch');
   }
 
   function hideLoading() {
     loadingSection.style.display = 'none';
     scanBtn.disabled = false;
     scanBtn.textContent = 'Run Audit';
-    stopLoadingSteps();
+    resetLoadingSteps();
   }
 
   var ERROR_MESSAGES = {
@@ -174,7 +166,7 @@
       msg = _pick(ERROR_MESSAGES.SITE_BLOCKED);
     } else if (code.indexOf('SITE_TIMEOUT') !== -1 || code.indexOf('timeout') !== -1) {
       msg = _pick(ERROR_MESSAGES.SITE_TIMEOUT);
-    } else if (code.indexOf('ANALYSIS_FAILED') !== -1 || code.indexOf('Analysis failed') !== -1) {
+    } else if (code.indexOf('ANALYSIS_FAILED') !== -1 || code.indexOf('ANALYSIS_STALLED') !== -1 || code.indexOf('Analysis failed') !== -1) {
       msg = _pick(ERROR_MESSAGES.ANALYSIS_FAILED);
     } else {
       msg = raw || "Something went wrong. Please try again.";
@@ -366,6 +358,74 @@
     return div.innerHTML;
   }
 
+  // ── Poll for background analysis ───────────────
+  // as-analyze answers immediately; the report blob moves through
+  // analyzing → (teaser | failed). Poll as-report until a terminal state.
+
+  var POLL_INTERVAL_MS = 5000;
+  var POLL_MAX_ATTEMPTS = 120; // 10 minutes, matching the server's stale window
+
+  function pollForReport(reportId, url, attempt) {
+    fetch(API + '/as-report?id=' + encodeURIComponent(reportId))
+      .then(function (res) {
+        // Blob may lag the analyze response by a beat — a 404 mid-poll means
+        // keep waiting, not give up.
+        if (res.status === 404) return { status: 'analyzing', stage: 'fetch' };
+        return res.json();
+      })
+      .then(function (data) {
+        if (data && data.status === 'analyzing') {
+          setLoadingStage(data.stage || 'fetch');
+          if (attempt >= POLL_MAX_ATTEMPTS) {
+            if (window.ProductAnalytics) ProductAnalytics.trackError('scan_failed', { error: 'POLL_TIMEOUT' });
+            showError(_pick(ERROR_MESSAGES.ANALYSIS_FAILED));
+            return;
+          }
+          setTimeout(function () { pollForReport(reportId, url, attempt + 1); }, POLL_INTERVAL_MS);
+          return;
+        }
+        if (data && data.status === 'failed') {
+          var code = data.errorCode === 'VALIDATION'
+            ? (data.errorDetail || 'Invalid URL.')
+            : (data.errorCode || 'ANALYSIS_FAILED');
+          if (window.ProductAnalytics) ProductAnalytics.trackError('scan_failed', { error: data.errorCode || '' });
+          showError(friendlyError(code, url));
+          return;
+        }
+        renderResults(adaptTeaser(data));
+      })
+      .catch(function () {
+        // Transient network blip mid-poll — the analysis is running server-side
+        // either way, so keep polling.
+        if (attempt >= POLL_MAX_ATTEMPTS) {
+          showError(_pick(ERROR_MESSAGES.ANALYSIS_FAILED));
+          return;
+        }
+        setTimeout(function () { pollForReport(reportId, url, attempt + 1); }, POLL_INTERVAL_MS);
+      });
+  }
+
+  // as-report's teaser shape → what renderResults expects.
+  function adaptTeaser(d) {
+    var teaser = d.teaserFindings || [];
+    var total = d.totalFindings || 0;
+    return {
+      reportId: d.id,
+      url: d.url,
+      score: d.score,
+      grade: d.grade,
+      teaserFindings: teaser,
+      totalFindings: total,
+      blurredCount: Math.max(total - teaser.length, 0),
+      isPaid: false,
+      jsRenderedWarning: d.jsRenderedWarning || null,
+      contentWarning: d.contentWarning || null,
+      disclaimer: d.disclaimer || null,
+      totalDimensions: d.totalDimensions || null,
+      partialDimensions: d.partialDimensions || 0
+    };
+  }
+
   // ── Scan Handler ───────────────────────────────
 
   form.addEventListener('submit', function (e) {
@@ -393,7 +453,14 @@
           return data;
         });
       })
-      .then(renderResults)
+      .then(function (data) {
+        if (data && data.status === 'analyzing' && data.reportId) {
+          pollForReport(data.reportId, url, 0);
+        } else {
+          // Pre-async API shape (deploy skew): full results came back inline.
+          renderResults(data);
+        }
+      })
       .catch(function (err) {
         if (window.ProductAnalytics) ProductAnalytics.trackError('scan_failed', { error: err.message || '' });
         showError(friendlyError(err.message || '', url));

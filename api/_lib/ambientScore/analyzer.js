@@ -98,13 +98,23 @@ function parseJsonResponse(text) {
 
 // ── Analysis Pipeline ────────────────────────────────────────────
 
-async function analyze(url) {
+async function analyze(url, opts) {
   const startTime = Date.now();
   const errors = [];
+
+  // Progress is advisory: a caller running this in the background can pass
+  // onStage to surface real pipeline position to a polling client. A failed
+  // progress write must never fail the analysis itself.
+  const onStage = opts && typeof opts.onStage === 'function' ? opts.onStage : null;
+  const notify = async (stage) => {
+    if (!onStage) return;
+    try { await onStage(stage); } catch (e) { /* advisory only */ }
+  };
 
   // Step 1: Scrape
   const scraped = await scrapeUrl(url);
   const scrapeTimeMs = Date.now() - startTime;
+  await notify('extract');
 
   // Step 2: Extraction (Stage 1 LLM call)
   const extractionPrompt = buildExtractionPrompt(scraped);
@@ -140,6 +150,8 @@ async function analyze(url) {
   } catch (err) {
     errors.push('Classification failed (using default): ' + err.message);
   }
+
+  await notify('evaluate');
 
   // Step 3: Two grouped evaluations (Stage 2, parallel) — now site-type-aware
   //
@@ -197,6 +209,8 @@ async function analyze(url) {
     const evalErrs = errors.filter(e => e.indexOf('evaluation failed') !== -1);
     throw new Error('Analysis failed: both evaluation groups returned errors' + (evalErrs.length ? ' :: ' + evalErrs.join(' :: ') : ''));
   }
+
+  await notify('score');
 
   // Step 4: Compute deterministic score (site-type-aware weights)
   const scoreResult = computeScore(evaluations, siteType);

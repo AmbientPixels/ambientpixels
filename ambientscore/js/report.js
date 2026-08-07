@@ -78,6 +78,23 @@
   var loadRetries = 0;
   var MAX_RETRIES = 5;
 
+  var GENERATING_MSGS = {
+    fetch: 'Fetching the page.',
+    extract: 'Extracting conversion elements.',
+    evaluate: 'Evaluating eight dimensions.',
+    score: 'Computing the score.'
+  };
+
+  function showGenerating(stage) {
+    loadingEl.style.display = 'block';
+    loadingEl.innerHTML = '<div class="as-container">' +
+      '<div class="as-loading-eyebrow">Audit in progress</div>' +
+      '<p class="as-loading-text"><span class="as-spinner"></span>' +
+      (GENERATING_MSGS[stage] || GENERATING_MSGS.fetch) +
+      ' This page will refresh itself when the report is ready.</p>' +
+      '</div>';
+  }
+
   function loadReport() {
     fetch(API + '/as-report?id=' + reportId)
       .then(function (res) {
@@ -85,6 +102,17 @@
         return res.json();
       })
       .then(function (report) {
+        // Analysis may still be running behind the scenes (async scan). Keep
+        // polling; the server flips a stalled run to failed on its own.
+        if (report && report.status === 'analyzing') {
+          showGenerating(report.stage);
+          setTimeout(loadReport, 5000);
+          return;
+        }
+        if (report && report.status === 'failed') {
+          showMessage('This audit could not be completed. The scan failed before a report was produced. Please run a new scan from the AmbientScore page.', true);
+          return;
+        }
         if (!report.unlocked) {
           renderPaywall(report);
         } else {
