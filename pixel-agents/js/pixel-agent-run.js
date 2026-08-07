@@ -165,6 +165,17 @@ const LOADING_MESSAGES = {
   ]
 };
 
+// Failure classes the user cannot act on. The API answers a dead upstream with
+// "encountered a system fault", and a gateway blip answers with nothing at all —
+// both read like the user broke something. Say it is ours instead, and say the
+// input survived. 429 is deliberately absent: it keeps the API's own message
+// because that copy carries the upgrade CTA.
+const RUN_ERROR_MESSAGES = {
+  502: 'Our agent runner hit a snag on our side — nothing to do with what you pasted. Everything you typed is still here, so give it another go in a moment.',
+  503: 'Pixel Agents is at capacity right now — that one is on us. Your input is still here; try again in a moment.',
+  504: 'That run took too long on our end and timed out. Your input is still here — try again in a moment.'
+};
+
 let isLoggedIn = false;
 
 function getApiBase() {
@@ -364,17 +375,34 @@ async function runAgent() {
       })
     });
 
-    const data = await res.json();
+    // A gateway 502/504 answers with HTML, not JSON. Tolerate the parse failure
+    // so the status check below still runs — otherwise every capacity blip falls
+    // through to the catch and gets blamed on the user's connection.
+    const data = await res.json().catch(() => null);
 
     clearInterval(msgInterval);
 
     if (!res.ok) {
-      showError(data.message || data.error || 'Something went wrong.');
+      const serverMsg = data && (data.message || data.error);
+      // 502/504 are gateway-shaped: either no body at all, or (before
+      // 2026-08-07) the API's own "system fault" copy, which reads like the
+      // user broke it — our map wins there. A 503 now carries the API's own
+      // specific message, which names the agent and says whether this is
+      // capacity or something only we can fix, so that one wins instead.
+      showError((res.status === 502 || res.status === 504)
+        ? RUN_ERROR_MESSAGES[res.status]
+        : (serverMsg || RUN_ERROR_MESSAGES[res.status] || 'Something went wrong.'));
       if (res.status === 429) {
         // Daily limit hit — surface the upgrade path
         const upsell = document.getElementById('pa-error-upsell');
         if (upsell) upsell.classList.add('is-visible');
       }
+      return;
+    }
+
+    // 200 with a body we cannot read is still our fault, not the connection's
+    if (!data) {
+      showError(RUN_ERROR_MESSAGES[502]);
       return;
     }
 
@@ -618,15 +646,21 @@ async function startRewriteCheckout() {
 }
 
 // ── Actions ──
-function resetRun() {
+// keepInput: the error panel reuses this to recover in place. The input section
+// is only display:none while an error shows, so the values are still sitting in
+// the DOM — leaving them alone turns a failed run into one click instead of a
+// re-paste. "Run Again" from a finished result still clears for a fresh run.
+function resetRun(keepInput) {
   document.getElementById('pa-loading').style.display = 'none';
   document.getElementById('pa-error').style.display = 'none';
   document.getElementById('pa-result').style.display = 'none';
   document.getElementById('pa-input-section').style.display = '';
 
   // Clear inputs
-  document.getElementById('pa-input-url').value = '';
-  document.getElementById('pa-input-text').value = '';
+  if (!keepInput) {
+    document.getElementById('pa-input-url').value = '';
+    document.getElementById('pa-input-text').value = '';
+  }
 }
 
 function showError(msg) {
@@ -638,6 +672,10 @@ function showError(msg) {
   document.getElementById('pa-error-text').textContent = msg;
   const upsell = document.getElementById('pa-error-upsell');
   if (upsell) upsell.classList.remove('is-visible');
+  // The panel's Try Again must hand the user back their own text — losing a
+  // pasted resume to a transient blip costs us the whole session
+  const retry = errEl.querySelector('.pa-run-btn');
+  if (retry) retry.onclick = function () { resetRun(true); };
   errEl.style.display = '';
 }
 

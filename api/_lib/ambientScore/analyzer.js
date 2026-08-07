@@ -1,16 +1,14 @@
 // analyzer.js — AmbientScore pipeline orchestrator
 // scrape → extract → 2 parallel grouped evals → score → synthesize → assemble report
 
-const fetch = require('node-fetch');
-const storage = require('../../_utils/companyStorage');
+// node-fetch and companyStorage were required here for the direct Anthropic
+// call and its usage logging; both now live inside _lib/llm.
 const { scrapeUrl } = require('./scraper');
 const { buildClassificationPrompt, buildExtractionPrompt, buildGroupEvalPrompt, buildSynthesisPrompt } = require('./promptBuilder');
 const { computeScore } = require('./scorer');
 const { GROUPS, WEIGHT_PROFILES } = require('./dimensions');
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const { callModel, LlmUnavailableError } = require('../llm');
 
 // Output ceilings. Group evaluation is the largest generation in the pipeline —
 // measured across 222 production calls: median ~5.2k, p90 ~5.8k, peak 6,998
@@ -24,53 +22,51 @@ const SYNTHESIS_RETRY_MAX_TOKENS = 16000;
 
 // ── Claude Call ──────────────────────────────────────────────────
 
+// Routed through _lib/llm (2026-08-07) so the paid paths that depend on this —
+// the $9 Resume Roast rewrite, the $199 teardown, and the free scan — survive an
+// Anthropic outage or an exhausted credit balance. Previously a non-2xx threw
+// here and the caller's retry logic re-threw against the same dead provider, so
+// a customer who had already paid raced through all three order retries and
+// landed in `failed` within a minute.
+//
+// The thrown-error CONTRACT is deliberately unchanged: callers upstream
+// (teardownComposer's TRANSIENT_ERR_RX, composer's retry ladder) match on these
+// message shapes, so the strings still lead with "Claude returned <status>" and
+// truncation still throws rather than returning partial JSON.
 async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
-  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
-
-  const body = {
-    model: CLAUDE_MODEL,
-    max_tokens: maxOutputTokens || 2000,
-    temperature: temperature || 0.3,
-    messages: [{ role: 'user', content: prompt }]
-  };
-
-  const res = await fetch(ANTHROPIC_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify(body),
-    timeout: 200000
-  });
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    throw new Error('Claude returned ' + res.status + ': ' + errText.substring(0, 200));
-  }
-
-  const data = await res.json();
-
-  // Log usage (non-blocking)
-  const usage = data?.usage;
-  if (usage) {
-    storage.logClaudeUsage({
+  let out;
+  try {
+    out = await callModel({
+      model: 'claude-sonnet',
+      prompt,
+      maxTokens: maxOutputTokens || 2000,
+      temperature: temperature || 0.3,
+      json: true,
       caller: caller || 'ambientscore',
-      model: CLAUDE_MODEL,
-      agentId: 'ambientscore',
-      promptTokens: usage.input_tokens || 0,
-      completionTokens: usage.output_tokens || 0,
-      totalTokens: (usage.input_tokens || 0) + (usage.output_tokens || 0)
-    }).catch(() => {});
+      // Was hardcoded to 'ambientscore' for every caller, which filed all of the
+      // $9 rewrite's spend under AmbientScore in the by-agent cost breakdown.
+      agentId: caller || 'ambientscore',
+      // Group evaluation legitimately runs for minutes at a 16k ceiling; the
+      // module's 60s default would abort a healthy call.
+      timeoutMs: 200000
+    });
+  } catch (err) {
+    if (err instanceof LlmUnavailableError) {
+      const first = err.attempts.find(a => a.status) || {};
+      // Keep the "Claude returned <status>" prefix: teardownComposer's
+      // TRANSIENT_ERR_RX greps for it to decide whether to back off and retry.
+      throw new Error('Claude returned ' + (first.status || 503) + ': all models failed ('
+        + err.reason + ') — ' + String(first.detail || '').substring(0, 200));
+    }
+    throw err;
   }
 
-  if (data?.stop_reason === 'max_tokens') {
+  if (out.truncated) {
     throw new Error('Claude truncated output at max_tokens=' + (maxOutputTokens || 2000) + ' (caller: ' + (caller || 'ambientscore') + ')');
   }
 
-  const text = data?.content?.[0]?.text;
-  if (!text) throw new Error('Empty response from Claude (stop_reason: ' + (data?.stop_reason || 'unknown') + ', caller: ' + (caller || 'ambientscore') + ')');
+  const text = out.text;
+  if (!text) throw new Error('Empty response from Claude (caller: ' + (caller || 'ambientscore') + ')');
   return text;
 }
 

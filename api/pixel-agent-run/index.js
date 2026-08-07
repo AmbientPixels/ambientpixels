@@ -12,9 +12,23 @@ const { PA_LIMITS } = require('../_lib/stripe/entitlements');
 const gate = require('./entitlementGate');
 const { isValidCeoSecret } = require('../_utils/ceoSecret');
 
+const { callModel, LlmUnavailableError } = require('../_lib/llm');
+
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet';   // primary; _lib/llm appends the fallback tail
+
+// Input ceilings. These are deliberately the SAME 20,000 the paid rewrite
+// enforces (`_lib/roastRewrite/composer.js` RESUME_MAX_CHARS), because the two
+// used to disagree: the free roast accepted a 50k paste happily, then the $9
+// button rejected it with a raw browser alert. Anything we will roast must be
+// something we can also sell a rewrite for.
+//
+// It is also the cost ceiling. Unbounded input against a 200k context window is
+// ~$0.60 of tokens per request on a free, anonymous, rate-limit-of-5 endpoint —
+// the cheapest possible denial-of-wallet. A cap is better insurance than a
+// fallback chain, because it prevents the bill rather than surviving it.
+const MAX_INPUT_CHARS = 20000;
+const MAX_SECONDARY_CHARS = 6000;
 const RATE_LIMIT_ANON = PA_LIMITS.anonDaily;
 const RATE_LIMIT_AUTH = PA_LIMITS.freeDaily; // free tier; IP and userId are separate buckets — logging in doubles your allowance. Pro/credits enforced below.
 
@@ -125,6 +139,23 @@ module.exports = async function (context, req) {
         status: 400,
         headers: corsHeaders,
         body: { error: 'No input provided.' }
+      };
+      return;
+    }
+
+    // Over-length is rejected, not silently trimmed. Truncation would score a
+    // resume the user never submitted and tell them nothing about it — the
+    // answer looks complete and is quietly wrong, which is worse than an error.
+    if (input.trim().length > MAX_INPUT_CHARS) {
+      context.res = {
+        status: 400,
+        headers: corsHeaders,
+        body: {
+          error: 'That is ' + input.trim().length.toLocaleString() + ' characters — the limit is '
+            + MAX_INPUT_CHARS.toLocaleString() + '. Trim it and try again.',
+          limit: MAX_INPUT_CHARS,
+          actual: input.trim().length
+        }
       };
       return;
     }
@@ -303,11 +334,27 @@ module.exports = async function (context, req) {
     // Optional second input, appended as its own context block exactly like
     // searchContext/siteContext above. Opt-in per agent: without a
     // secondaryInput declaration on the config this is a no-op, so the other 23
-    // agents build byte-identical prompts. Trimmed to a hard cap so a pasted
-    // job page can't blow the context window.
+    // agents build byte-identical prompts.
     let secondaryContext = '';
     if (agent.secondaryInput && typeof body.secondaryInput === 'string') {
-      const secondary = body.secondaryInput.trim().slice(0, 6000);
+      const secondary = body.secondaryInput.trim();
+      // This used to .slice(0, 6000) in silence, so a long posting was cut
+      // mid-sentence and the resume scored against half a job — with the user
+      // told nothing. Same reasoning as the input cap above: say so instead.
+      if (secondary.length > MAX_SECONDARY_CHARS) {
+        context.res = {
+          status: 400,
+          headers: corsHeaders,
+          body: {
+            error: 'That job description is ' + secondary.length.toLocaleString() + ' characters — the limit is '
+              + MAX_SECONDARY_CHARS.toLocaleString() + '. Paste the role and requirements sections and try again.',
+            limit: MAX_SECONDARY_CHARS,
+            actual: secondary.length,
+            field: 'secondaryInput'
+          }
+        };
+        return;
+      }
       if (secondary) {
         secondaryContext = '\n\n' + (agent.secondaryInput.promptLabel || 'ADDITIONAL CONTEXT') + ':\n' + secondary;
       }
@@ -319,39 +366,51 @@ module.exports = async function (context, req) {
     // Call Claude API
     context.log('[PixelAgentRun] Agent:', agentId, 'Input:', input.substring(0, 100));
 
-    const claudeBody = {
-      model: MODEL,
-      max_tokens: agent.generationConfig?.maxOutputTokens || 1500,
-      temperature: agent.generationConfig?.temperature || 0.8,
-      system: agent.systemPrompt,
-      messages: [
-        { role: 'user', content: userMessage }
-      ]
-    };
+    // Minted before the model call so the spend entry can carry it. Without a
+    // shared id, claudeUsage and pixelAgentRuns can only be joined by timestamp
+    // proximity, which makes per-run and per-user cost attribution guesswork.
+    const runId = 'run-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex');
 
-    const apiRes = await fetch(ANTHROPIC_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(claudeBody)
-    });
-
-    const data = await apiRes.json();
-
-    if (!apiRes.ok) {
-      context.log.error('[PixelAgentRun] Claude API error:', apiRes.status, JSON.stringify(data));
+    // Routed through _lib/llm so a single provider cannot take the product
+    // down. Previously this was one unconditional fetch to Anthropic: a 429, a
+    // 529, or an exhausted credit balance returned 502 to every user of all 24
+    // agents at once. The chain reaches Gemini as well, so credit exhaustion
+    // now degrades quality rather than ending the session.
+    let llm;
+    try {
+      llm = await callModel({
+        model: MODEL,
+        runId,
+        system: agent.systemPrompt,
+        prompt: userMessage,
+        maxTokens: agent.generationConfig?.maxOutputTokens || 1500,
+        temperature: agent.generationConfig?.temperature,
+        json: agent.outputFormat === 'structured',
+        caller: 'pixel-agent-run',
+        agentId: agent.id
+      });
+    } catch (err) {
+      if (!(err instanceof LlmUnavailableError)) throw err;
+      context.log.error('[PixelAgentRun] all models failed:', err.reason, err.message);
+      // Say which kind of problem it is. "System fault" reads as "you broke
+      // it"; a capacity problem is ours and is worth waiting out, and a credit
+      // problem is ours and is NOT worth retrying.
+      const message = err.reason === 'capacity'
+        ? agent.name + ' is over capacity right now. Give it a minute and try again — your text is still here.'
+        : agent.name + ' is temporarily unavailable. This is on us, not your input. Try again shortly.';
       context.res = {
-        status: 502,
-        headers: corsHeaders,
-        body: { error: agent.name + ' encountered a system fault. Try again.' }
+        status: 503,
+        headers: { ...corsHeaders, 'Retry-After': '60' },
+        body: { error: message, retryable: true, reason: err.reason }
       };
       return;
     }
 
-    const rawText = data?.content?.[0]?.text || '';
+    if (llm.fellBackFrom) {
+      context.log.warn('[PixelAgentRun] served by fallback model', llm.modelId, 'primary', llm.fellBackFrom);
+    }
+
+    const rawText = llm.text || '';
 
     // Parse structured JSON response
     let result = null;
@@ -392,8 +451,6 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Generate run ID
-    const runId = 'run-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex');
 
     // Post-success accounting — consume a credit or count against the free
     // allowance. Runs only after Claude succeeded so a 502 never costs anyone.
@@ -458,18 +515,11 @@ module.exports = async function (context, req) {
       } catch { /* non-fatal */ }
     }
 
-    // Log token usage to Claude cost tracking
-    const usage = data?.usage;
-    if (usage) {
-      context.log('[PixelAgentRun] Tokens — input:', usage.input_tokens, 'output:', usage.output_tokens);
-      storage.logClaudeUsage({
-        caller: 'pixel-agent-run',
-        model: MODEL,
-        agentId: agent.id,
-        promptTokens: usage.input_tokens || 0,
-        completionTokens: usage.output_tokens || 0,
-        totalTokens: (usage.input_tokens || 0) + (usage.output_tokens || 0)
-      }).catch(() => {});
+    // Token usage is logged inside _lib/llm, against whichever provider
+    // actually answered — logging it a second time here would double-count the
+    // spend, and would file a Gemini fallback under the Claude rail.
+    if (llm.usage) {
+      context.log('[PixelAgentRun] Tokens — input:', llm.usage.promptTokens, 'output:', llm.usage.completionTokens, 'model:', llm.modelId);
     }
 
     context.res = {

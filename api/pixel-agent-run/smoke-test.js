@@ -25,6 +25,10 @@ var _mockFetchResponse = {
   })
 };
 var _mockFetchCalls = [];
+// When non-empty, responses are shifted off this queue instead of using the
+// single _mockFetchResponse — needed to exercise the fallback chain, where the
+// first provider must fail and the second must answer.
+var _mockFetchQueue = [];
 
 // Replace node-fetch globally
 require.cache[require.resolve('node-fetch')] = {
@@ -33,9 +37,31 @@ require.cache[require.resolve('node-fetch')] = {
   loaded: true,
   exports: async function mockFetch(url, opts) {
     _mockFetchCalls.push({ url, method: opts?.method, body: opts?.body });
-    return _mockFetchResponse;
+    var r = _mockFetchQueue.length ? _mockFetchQueue.shift() : _mockFetchResponse;
+    // A real node-fetch Response exposes BOTH json() and text(). _lib/llm reads
+    // text() so it can classify an error body (a credit exhaustion arrives as a
+    // 400 whose *message* is the only signal). Synthesize it here so the
+    // per-test mocks below can stay terse.
+    if (r && typeof r.text !== 'function' && typeof r.json === 'function') {
+      return Object.assign({}, r, { text: async function () { return JSON.stringify(await r.json()); } });
+    }
+    return r;
   }
 };
+
+// Response shapes, by provider.
+function claudeOk(text) {
+  return { ok: true, status: 200, json: async () => ({ content: [{ text: text }], usage: { input_tokens: 100, output_tokens: 200 } }) };
+}
+function geminiOk(text) {
+  return { ok: true, status: 200, json: async () => ({
+    candidates: [{ content: { parts: [{ text: text }] }, finishReason: 'STOP' }],
+    usageMetadata: { promptTokenCount: 100, candidatesTokenCount: 200, totalTokenCount: 300 }
+  }) };
+}
+function providerFail(status, message) {
+  return { ok: false, status: status, json: async () => ({ error: { message: message || 'upstream error' } }) };
+}
 
 // Mock fs.readFileSync for agent registry
 const _origReadFileSync = require('fs').readFileSync;
@@ -120,6 +146,9 @@ mockGateDefaults();
 
 // Set mock API key
 process.env.ANTHROPIC_API_KEY = 'test-key-mock';
+// The fallback leg needs a key present or _lib/llm skips Gemini as unconfigured
+// and the chain-exhaustion tests would pass for the wrong reason.
+process.env.GEMINI_API_KEY = 'test-gemini-mock';
 
 // Now require the module under test
 // Force fresh load by clearing cache
@@ -130,7 +159,7 @@ const handler = require('./index');
 function mockContext() {
   return {
     log: Object.assign(function() {}, {
-      error: function() {},
+      error: process.env.SMOKE_DEBUG ? console.log : function() {},
       warn: function() {},
       info: function() {}
     }),
@@ -178,6 +207,7 @@ async function asyncTest(name, fn) {
 function resetMocks() {
   _mockStorage = {};
   _mockFetchCalls = [];
+  _mockFetchQueue = [];
   _mockEntitlements = {};
   _consumeCalls = [];
   mockGateDefaults();
@@ -489,17 +519,83 @@ async function runSmokeTests() {
     assert.ok(ctx.res.body.result.raw.includes('not JSON'));
   });
 
-  // ── Claude API Error ──
-  await asyncTest('Claude API error returns 502', async function() {
+  // ── Model fallback ──
+  // Before 2026-08-07 this endpoint made one unconditional call to Anthropic,
+  // so a 429/529/credit-exhaustion returned 502 to every user of all 24 agents
+  // at once. These four tests are the guard on that never coming back.
+
+  await asyncTest('Claude failure falls back to Gemini and still serves the user', async function() {
     resetMocks();
-    _mockFetchResponse = {
-      ok: false,
-      status: 500,
-      json: async () => ({ error: { message: 'Internal server error' } })
-    };
+    _mockFetchQueue = [providerFail(529, 'overloaded'), geminiOk('{"score": 64, "verdict": "Served by the backup"}')];
     var ctx = mockContext();
     await handler(ctx, mockReq());
-    assert.strictEqual(ctx.res.status, 502);
+    assert.strictEqual(ctx.res.status, 200);
+    assert.strictEqual(ctx.res.body.result.score, 64);
+    assert.strictEqual(_mockFetchCalls.length, 2, 'expected a second provider to be tried');
+    assert.ok(_mockFetchCalls[1].url.indexOf('generativelanguage.googleapis.com') !== -1, 'fallback did not reach Gemini');
+  });
+
+  await asyncTest('exhausted Anthropic credits do not take the product down', async function() {
+    // Anthropic reports this as a 400 whose MESSAGE is the only signal, so a
+    // status-code-only check would misread it as a bad request and give up.
+    resetMocks();
+    _mockFetchQueue = [
+      providerFail(400, 'Your credit balance is too low to access the Anthropic API.'),
+      geminiOk('{"score": 51, "verdict": "Still open for business"}')
+    ];
+    var ctx = mockContext();
+    await handler(ctx, mockReq());
+    assert.strictEqual(ctx.res.status, 200);
+    assert.strictEqual(ctx.res.body.result.score, 51);
+  });
+
+  await asyncTest('every model failing returns a retryable 503, not a generic fault', async function() {
+    resetMocks();
+    _mockFetchQueue = [providerFail(500, 'anthropic down'), providerFail(500, 'gemini down')];
+    var ctx = mockContext();
+    await handler(ctx, mockReq());
+    assert.strictEqual(ctx.res.status, 503);
+    assert.strictEqual(ctx.res.body.retryable, true);
+    assert.strictEqual(ctx.res.headers['Retry-After'], '60');
+    // The old copy said "encountered a system fault", which reads as user error.
+    assert.ok(!/system fault/i.test(ctx.res.body.error), 'copy still blames the user: ' + ctx.res.body.error);
+  });
+
+  await asyncTest('a total outage still costs the user nothing', async function() {
+    // Billing accounting must stay after the model call: a failed run may not
+    // consume a free run or a paid credit.
+    resetMocks();
+    _mockFetchQueue = [providerFail(500, 'down'), providerFail(500, 'down')];
+    var ctx = mockContext();
+    await handler(ctx, mockReq());
+    assert.strictEqual(ctx.res.status, 503);
+    var limits = _mockStorage.pixelAgentRateLimits;
+    assert.ok(!limits || Object.keys(limits).length === 0, 'a failed run consumed the free allowance');
+  });
+
+  // ── Input ceilings ──
+  // The free path used to accept a 50k paste and then the $9 button rejected
+  // it with a raw browser alert. Both limits now match the paid path.
+
+  await asyncTest('an over-length resume is rejected with the limit named, not truncated', async function() {
+    resetMocks();
+    var req = mockReq();
+    req.body.input = 'x'.repeat(20001);
+    var ctx = mockContext();
+    await handler(ctx, req);
+    assert.strictEqual(ctx.res.status, 400);
+    assert.strictEqual(ctx.res.body.limit, 20000);
+    assert.strictEqual(ctx.res.body.actual, 20001);
+    assert.strictEqual(_mockFetchCalls.length, 0, 'an over-length input must not reach a paid model call');
+  });
+
+  await asyncTest('a resume exactly at the limit is accepted', async function() {
+    resetMocks();
+    var req = mockReq();
+    req.body.input = 'x'.repeat(20000);
+    var ctx = mockContext();
+    await handler(ctx, req);
+    assert.strictEqual(ctx.res.status, 200);
   });
 
   // ── Markdown fence stripping ──
