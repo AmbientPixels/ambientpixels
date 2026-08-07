@@ -327,7 +327,11 @@ module.exports = async function (context, req) {
     } else if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
       failureLog.errorCode = 'SITE_BLOCKED';
       context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: 'unknown' }) };
-    } else if (errMsg.includes('Blocked') || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
+    } else if (/blocked/i.test(errMsg) || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
+      // Case-insensitive on purpose: the DNS-rebinding refusal reads "URL
+      // resolves to a blocked internal IP address" with a lowercase b, so an
+      // exact 'Blocked' match logged real SSRF attempts as ANALYSIS_FAILED 500s
+      // — our-fault telemetry for someone else's probe.
       failureLog.errorCode = 'VALIDATION';
       context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: errMsg }) };
     } else {
