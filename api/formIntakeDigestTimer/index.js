@@ -39,7 +39,7 @@ module.exports = async function (context) {
 
     context.log('[formIntakeDigestTimer] Done — date:', dateStr,
       'total:', digestResult.stats.total,
-      'taskId:', taskId || 'failed',
+      'taskId:', taskId || (digestResult.stats.total === 0 ? 'skipped (0 submissions)' : 'failed'),
       'memKey:', memKey || 'failed');
 
   } catch (err) {

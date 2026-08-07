@@ -264,6 +264,17 @@ async function _createDigestTask(digest) {
   var s = digest.stats;
   var datePretty = digest.date;
 
+  // Zero-submission days do not get a task (2026-08-07). The digest still lands in L4
+  // runtime memory via _appendRuntimeMemory, so the record is complete either way — this
+  // only suppresses a board item whose entire content is "Total submissions: 0".
+  // Nobody ever closes those: six had stacked up on Nova unread, one per day since 08-01,
+  // and they would have kept accruing forever. A day with real inbound still mints a task
+  // exactly as before. Guarded here rather than at the call sites because BOTH the HTTP
+  // handler and formIntakeDigestTimer (the one that actually runs daily) call this.
+  if (!s || !s.total) {
+    return null;
+  }
+
   var descParts = [
     '## Inbound Intake Digest — ' + datePretty,
     '',
