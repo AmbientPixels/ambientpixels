@@ -189,6 +189,7 @@
         <select id="ce-preset">
           <option value="none">None (Prompt Only)</option>
           <option value="ap-quiet-editorial" selected>Quiet Editorial (AP brand)</option>
+          <option value="ap-arcane">Arcane (character art)</option>
           <option value="ap-neon-glass">Neon Glass</option>
           <option value="ap-2d-flat">2D Flat</option>
           <option value="ap-ornate-frame">Ornate Frame</option>
@@ -298,6 +299,7 @@
     var PRESET_DESC = {
       'none': 'No style preset — the model decides based on your prompt.',
       'ap-quiet-editorial': 'Matte black canvas, warm cream light, single amber accent, editorial restraint.',
+      'ap-arcane': 'Painterly Arcane character art — visible brushwork, rim light, dark bg. The one preset that allows faces.',
       'ap-2d-flat': 'Bold flat colors, minimal shadows, geometric vector-art.',
       'ap-neon-glass': 'Dark bg, neon glow, glass-morphism, cyberpunk palette.',
       'ap-ornate-frame': 'Art Nouveau borders, gold & jewel tones, vintage feel.',
@@ -309,6 +311,10 @@
       'ap-retro-pixel': 'Chunky pixel grid, 16-bit palette, nostalgic game aesthetic.',
       'ap-dark-cinematic': 'Dramatic lighting, film grain, moody teal-and-orange.'
     };
+
+    // Presets that carry allowFaces server-side (imageEngine.PRESETS). Used only to
+    // keep the prompt preview honest — the server is the authority at generation time.
+    var PRESETS_ALLOW_FACES = { 'ap-arcane': true };
 
     // ── Helpers ──
     async function _safeJson(res) {
@@ -414,7 +420,11 @@
         '- No text or watermarks in the image.',
         '- Professional quality, suitable for brand use.',
         '- High contrast and visual clarity.',
-        '- Do NOT include any human faces or identifiable people.'
+        // Mirrors the allowFaces branch in imageEngine.buildPrompt — keep in sync,
+        // otherwise this preview lies about what the server will actually send.
+        (PRESETS_ALLOW_FACES[preset]
+          ? '- Stylized illustrated characters are welcome, but every character must be wholly invented. Do NOT depict any real, recognizable, or identifiable person.'
+          : '- Do NOT include any human faces or identifiable people.')
       ];
       if (audience) lines.push('- Target audience: ' + audience);
       if (tone) lines.push('- Tone: ' + tone);

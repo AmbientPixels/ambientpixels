@@ -148,6 +148,19 @@ var PRESETS = {
     author: 'Pixel',
     visibility: 'internal',
     style: 'Quiet editorial scene on a matte near-black canvas (#0a0a0a). Single warm cream light source from upper-right casting a soft ambient glow (RGB 255,220,170) with gentle falloff into deep preserved shadow — like one practical light in a large darkened studio. Fine warm paper-grain texture across the frame, subtle not dominant. Monochromatic warm-neutral palette: bone, cream, smoke, shadow. At most one small amber accent element (#f59e0b range) — never a rainbow, never teal-and-orange grading, never neon. Editorial restraint, generous negative space, confident brutalist minimalism. Matte finish throughout, no glass sheen, no glossy highlights. Reads as premium AI-studio press photography: dimensional but never loud.'
+  },
+  // The only preset that sets allowFaces. Arcane is a character-portrait style —
+  // under the default face rule it can only produce architecture and props, which
+  // is not what anyone picking "Arcane" is asking for. allowFaces relaxes that one
+  // requirement line to permit INVENTED characters; the ban on real, recognizable
+  // people still stands. See buildPrompt().
+  'ap-arcane': {
+    label: 'Arcane',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    allowFaces: true,
+    style: 'Painterly stylized character art in the style of the Arcane League of Legends animated series: hand-painted 2D-over-3D rendering with visible brushwork and textured, tactile surfaces. Strong graphic shapes and expressive angular features. Dramatic rim lighting and a single warm key light against a dark near-black background, deep preserved shadow. Desaturated base palette with rich saturated accent colors used sparingly. Cinematic, moody, illustrative. Always a painted illustration — never photorealistic, never glossy 3D-plastic render.'
   }
 };
 
@@ -283,7 +296,11 @@ function buildPrompt(opts) {
     '- No text or watermarks in the image.',
     '- Professional quality, suitable for brand use.',
     '- High contrast and visual clarity.',
-    '- Do NOT include any human faces or identifiable people.'
+    // Character-portrait presets (allowFaces) still may not depict real people —
+    // only invented ones. Presets without the flag keep the blanket ban unchanged.
+    preset.allowFaces
+      ? '- Stylized illustrated characters are welcome, but every character must be wholly invented. Do NOT depict any real, recognizable, or identifiable person.'
+      : '- Do NOT include any human faces or identifiable people.'
   ];
 
   if (opts.audience) parts.push('- Target audience: ' + opts.audience);
