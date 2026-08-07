@@ -53,7 +53,7 @@ const {
   _sanitizeSingleComment, generateConversationalEntityComment,
   _normalizeCategory, _isStartWorkStatus, _isTerminalTaskStatus,
   _isObjectiveExemptCategory,
-  normalizeExecutionMode, evaluateEscalationPath, shouldRunTier4Agent,
+  normalizeExecutionMode, evaluateEscalationPath, shouldRunTier4Agent, shouldRunAgent,
   logEvent
 } = H;
 
@@ -2110,7 +2110,7 @@ module.exports = async function (context) {
         if (geminiCalls >= GUARDRAILS.maxGeminiCallsPerCycle) return false;
         var _cfg = configs[aid] || {};
         if ((_cfg.heartbeat || { enabled: true }).enabled === false) return false;
-        if (TIER4_SUB_AGENTS.has(aid) && !shouldRunTier4Agent(tasks, aid).run) return false;
+        if (!shouldRunAgent(tasks, aid).run) return false;
         return true;
       });
       if (_parallelAgents.length > 1) {
@@ -2175,15 +2175,17 @@ module.exports = async function (context) {
         continue;
       }
 
-      // Tier 4 sub-agent gating: only run if they have active tasks or recent @mentions
-      if (TIER4_SUB_AGENTS.has(agentId)) {
-        const gate = shouldRunTier4Agent(tasks, agentId);
-        if (!gate.run) {
-          context.log('[Heartbeat] Skipping Tier4 sub-agent', agentId + ':', gate.reason);
-          skippedAgents.push({ agentId: agentId, reason: gate.reason });
-          continue;
-        }
-        context.log('[Heartbeat] Tier4 sub-agent', agentId, 'triggered:', gate.reason);
+      // Idle-agent gating (2026-08-07): an agent only deliberates when it has something to
+      // deliberate about — active assigned work or a recent @mention. Generalises the old
+      // tier-4-only rule to the whole fleet; see shouldRunAgent() in helpers.js for why.
+      // Nova is exempt via ALWAYS_RUN_AGENTS and that exemption is load-bearing: she is the
+      // orchestrator and the only agent who can see 'backlog', so gating her would strand
+      // unassigned and backlogged work with nobody left to triage it.
+      const gate = shouldRunAgent(tasks, agentId);
+      if (!gate.run) {
+        context.log('[Heartbeat] Skipping idle agent', agentId + ':', gate.reason);
+        skippedAgents.push({ agentId: agentId, reason: gate.reason });
+        continue;
       }
 
       agentActions[agentId] = 0;
