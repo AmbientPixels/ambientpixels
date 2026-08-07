@@ -270,7 +270,14 @@ module.exports = async function (context, req) {
         blurredCount: result.totalFindings > 3 ? result.totalFindings - 3 : 0,
         totalFindings: result.totalFindings,
         isPaid: false,
-        jsRenderedWarning: result.fullReport.jsRenderedWarning || null
+        jsRenderedWarning: result.fullReport.jsRenderedWarning || null,
+        // If part of the score was estimated rather than evaluated, the person
+        // deciding whether to pay has to see that here — the full report is the
+        // wrong place to disclose it for the first time.
+        disclaimer: result.fullReport.disclaimer || null,
+        totalDimensions: Object.keys(result.fullReport.dimensions || {}).length,
+        partialDimensions: Object.values(result.fullReport.dimensions || {})
+          .filter(function (d) { return d && d.partial; }).length
       })
     };
 

@@ -178,7 +178,7 @@
         </div>
 
         <div class="as-score-meta">
-          <span class="as-meta-check">8 conversion dimensions evaluated</span>
+          <span class="as-meta-check" id="as-dims-evaluated">8 conversion dimensions evaluated</span>
           <span class="as-meta-check">Evidence-backed scoring</span>
           <span class="as-meta-check">Actionable rewrites included</span>
         </div>
@@ -186,6 +186,9 @@
 
       <!-- JS Warning -->
       <div id="as-js-warning" class="as-warning" style="display:none;"></div>
+
+      <!-- Estimated-score disclaimer. Hidden while empty via .as-warning:empty -->
+      <div id="as-partial-warning" class="as-warning"></div>
 
       <!-- Visible Findings -->
       <div class="as-findings" id="as-findings-visible"></div>

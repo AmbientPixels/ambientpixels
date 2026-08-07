@@ -1068,6 +1068,10 @@ footer.as-footer {
   opacity: 1 !important;
 }
 
+/* Same convention as .as-form-status: a warning with nothing to say collapses,
+   so the script only has to set textContent. */
+.as-warning:empty { display: none; }
+
 .as-warning {
   font-family: var(--mono);
   font-size: 11px;

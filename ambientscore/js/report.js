@@ -138,9 +138,21 @@
     html += '<div class="as-paywall-score">' + (report.score != null ? report.score : 0) + '<sub>/100</sub></div>';
     html += '<div class="as-score-label">Conversion score</div>';
     html += '</div>';
-    html += '<p>Your report has been generated. Unlock the full 8-dimension analysis with detailed findings, headline rewrites, and CTA improvements.</p>';
+    // Do not sell "8 dimensions" on a report where some of them were estimated.
+    html += '<p>Your report has been generated. Unlock the full ' + (report.disclaimer ? '' : '8-dimension ')
+      + 'analysis with detailed findings, headline rewrites, and CTA improvements.</p>';
     html += '</div>';
     html += '</div>';
+
+    // Both of these are already in the locked API response and were being
+    // dropped here, so a caveated score read as a clean one right up until the
+    // moment someone paid for it.
+    if (report.jsRenderedWarning) {
+      html += '<div class="as-warning">' + esc(report.jsRenderedWarning) + '</div>';
+    }
+    if (report.disclaimer) {
+      html += '<div class="as-warning">' + esc(report.disclaimer) + '</div>';
+    }
 
     // Teaser findings — the locked API response already includes them; showing
     // real, specific findings is what earns the unlock click on shared links.
@@ -379,8 +391,16 @@
     html += '</div>';
     html += '</div>';
 
+    // Counted, not asserted. A dimension whose evaluation failed carries a
+    // constant score, and claiming it was evaluated contradicts the disclaimer
+    // printed further down the same page.
+    var totalDims = Object.keys(dims).length || 8;
+    var partialDims = Object.keys(dims).filter(function (id) { return dims[id].partial; }).length;
+
     html += '<div class="as-score-meta">';
-    html += '<span class="as-meta-check">8 dimensions evaluated</span>';
+    html += '<span class="as-meta-check">' + (partialDims
+      ? (totalDims - partialDims) + ' of ' + totalDims + ' dimensions evaluated'
+      : totalDims + ' dimensions evaluated') + '</span>';
     html += '<span class="as-meta-check">Evidence-backed findings</span>';
     if (!synthDegraded) {
       html += '<span class="as-meta-check">Rewrites included</span>';

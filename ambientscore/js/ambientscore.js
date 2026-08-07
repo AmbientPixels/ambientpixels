@@ -36,6 +36,8 @@
   var refIdEl = document.getElementById('as-ref-id');
   var refDateEl = document.getElementById('as-ref-date');
   var jsWarning = document.getElementById('as-js-warning');
+  var partialWarning = document.getElementById('as-partial-warning');
+  var dimsEvaluated = document.getElementById('as-dims-evaluated');
   var findingsVisible = document.getElementById('as-findings-visible');
   var findingsBlurred = document.getElementById('as-findings-blurred');
   var blurredCount = document.getElementById('as-blurred-count');
@@ -249,6 +251,18 @@
       jsWarning.textContent = data.jsRenderedWarning;
     } else {
       jsWarning.style.display = 'none';
+    }
+
+    // Estimated-score disclaimer. The score above is partly a constant when this
+    // is set, so it belongs next to the number, not only in the paid report.
+    if (partialWarning) partialWarning.textContent = data.disclaimer || '';
+
+    // Same correction as the report scorecard: count what was evaluated rather
+    // than asserting all eight.
+    if (dimsEvaluated && data.totalDimensions) {
+      dimsEvaluated.textContent = data.partialDimensions
+        ? (data.totalDimensions - data.partialDimensions) + ' of ' + data.totalDimensions + ' conversion dimensions evaluated'
+        : data.totalDimensions + ' conversion dimensions evaluated';
     }
 
     // Visible findings (first 3)
