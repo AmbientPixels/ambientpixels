@@ -37,6 +37,7 @@
   var refDateEl = document.getElementById('as-ref-date');
   var jsWarning = document.getElementById('as-js-warning');
   var partialWarning = document.getElementById('as-partial-warning');
+  var contentWarning = document.getElementById('as-content-warning');
   var dimsEvaluated = document.getElementById('as-dims-evaluated');
   var findingsVisible = document.getElementById('as-findings-visible');
   var findingsBlurred = document.getElementById('as-findings-blurred');
@@ -134,6 +135,11 @@
       "We couldn't get a response in time. The site may be slow or temporarily unavailable.",
       "Timed out waiting for the site to respond. Try again in a minute."
     ],
+    SITE_ERROR_STATUS: [
+      "That URL returned an error page, not a real page, so there was nothing to audit. Check the address and try again.",
+      "The site answered with an error for that address. Try the homepage URL, or check the link for a typo.",
+      "We reached the site but that page does not exist. Scoring an error page would tell you nothing useful, so we stopped."
+    ],
     ANALYSIS_FAILED: [
       "Something tripped up our analysis engine. Please try again.",
       "We hit an error while scoring this page. Try again. If it repeats, try a different URL.",
@@ -155,7 +161,9 @@
     } catch (e) { code = raw; }
 
     var msg = '';
-    if (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1) {
+    if (code.indexOf('SITE_ERROR_STATUS') !== -1) {
+      msg = _pick(ERROR_MESSAGES.SITE_ERROR_STATUS);
+    } else if (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1) {
       msg = _pick(ERROR_MESSAGES.SITE_BLOCKED);
     } else if (code.indexOf('SITE_TIMEOUT') !== -1 || code.indexOf('timeout') !== -1) {
       msg = _pick(ERROR_MESSAGES.SITE_TIMEOUT);
@@ -165,7 +173,7 @@
       msg = raw || "Something went wrong. Please try again.";
     }
 
-    if (scannedUrl && (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1)) {
+    if (scannedUrl && (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1 || code.indexOf('SITE_ERROR_STATUS') !== -1)) {
       var base = _baseUrl(scannedUrl);
       if (base && base !== scannedUrl && base !== scannedUrl + '/') {
         msg += '\n\nTry scanning: ' + base;
@@ -252,6 +260,9 @@
     } else {
       jsWarning.style.display = 'none';
     }
+
+    // We audited a different page than the URL says.
+    if (contentWarning) contentWarning.textContent = data.contentWarning || '';
 
     // Estimated-score disclaimer. The score above is partly a constant when this
     // is set, so it belongs next to the number, not only in the paid report.

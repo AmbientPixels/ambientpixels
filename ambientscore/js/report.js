@@ -147,6 +147,9 @@
     // Both of these are already in the locked API response and were being
     // dropped here, so a caveated score read as a clean one right up until the
     // moment someone paid for it.
+    if (report.contentWarning) {
+      html += '<div class="as-warning">' + esc(report.contentWarning) + '</div>';
+    }
     if (report.jsRenderedWarning) {
       html += '<div class="as-warning">' + esc(report.jsRenderedWarning) + '</div>';
     }
@@ -408,7 +411,10 @@
     html += '</div>';
     html += '</div>';
 
-    // JS warning
+    // We-read-the-wrong-page warning, then how-much-we-could-read warning
+    if (report.contentWarning) {
+      html += '<div class="as-warning">' + esc(report.contentWarning) + '</div>';
+    }
     if (report.jsRenderedWarning) {
       html += '<div class="as-warning">' + esc(report.jsRenderedWarning) + '</div>';
     }

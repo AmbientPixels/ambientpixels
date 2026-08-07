@@ -256,6 +256,8 @@ async function analyze(url) {
       extraction: extraction,
       disclaimer: scoreResult.disclaimer,
       jsRenderedWarning: scraped.jsRenderedWarning,
+      contentWarning: scraped.contentWarning || null,
+      hydratedCounters: scraped.hydratedCounters || 0,
       errors: errors.length > 0 ? errors : null,
       metadata: {
         scrapeTimeMs: scrapeTimeMs,

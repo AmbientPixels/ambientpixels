@@ -48,6 +48,7 @@ module.exports = async function (context, req) {
           teaserFindings: report.teaserFindings || [],
           totalFindings: (report.findings || []).length,
           jsRenderedWarning: report.jsRenderedWarning || null,
+          contentWarning: report.contentWarning || null,
           disclaimer: report.disclaimer || null
         })
       };

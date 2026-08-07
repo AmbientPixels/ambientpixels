@@ -271,6 +271,7 @@ module.exports = async function (context, req) {
         totalFindings: result.totalFindings,
         isPaid: false,
         jsRenderedWarning: result.fullReport.jsRenderedWarning || null,
+        contentWarning: result.fullReport.contentWarning || null,
         // If part of the score was estimated rather than evaluated, the person
         // deciding whether to pay has to see that here — the full report is the
         // wrong place to disclose it for the first time.
@@ -312,6 +313,13 @@ module.exports = async function (context, req) {
     } else if (errMsg.includes('SITE_UNREACHABLE') || errMsg.includes('ENOTFOUND') || errMsg.includes('ECONNREFUSED')) {
       failureLog.errorCode = 'SITE_UNREACHABLE';
       context.res = { status: 502, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT' }) };
+    } else if (errMsg.includes('SITE_ERROR_STATUS')) {
+      // The URL resolved to an error page. Scoring it would sell an audit of a
+      // "Page not found" as an audit of the customer's site.
+      const statusMatch = errMsg.match(/HTTP (\d{3})/);
+      failureLog.errorCode = 'SITE_ERROR_STATUS';
+      failureLog.httpStatus = statusMatch ? Number(statusMatch[1]) : null;
+      context.res = { status: 422, headers: CORS, body: JSON.stringify({ error: 'SITE_ERROR_STATUS', httpStatus: failureLog.httpStatus }) };
     } else if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
       failureLog.errorCode = 'SITE_BLOCKED';
       context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: 'unknown' }) };

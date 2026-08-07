@@ -5,6 +5,50 @@ const storage = require('../_utils/companyStorage');
 const stripeClient = require('../_lib/ambientScore/stripeClient');
 const revenueRecorder = require('../_lib/stripe/recordWebhookRevenue');
 
+// Withdraw report access when the money goes back. The revenue ledger already
+// recorded these events; nothing ever re-locked the report, so a refunded or
+// charged-back customer kept the thing they paid for indefinitely.
+// Non-fatal throughout: the webhook must always return 200.
+async function revokeReportAccess(context, obj, kind) {
+  try {
+    let paymentIntent = obj.payment_intent || null;
+    if (!paymentIntent && obj.charge) {
+      const charge = await stripeClient.retrieveCharge(obj.charge);
+      paymentIntent = charge && charge.payment_intent;
+    }
+    if (!paymentIntent) {
+      context.log.warn('[as-webhook] ' + kind + ' with no payment_intent, cannot match a report');
+      return;
+    }
+
+    const session = await stripeClient.findCheckoutSessionByPaymentIntent(paymentIntent);
+    const reportId = session && session.metadata && session.metadata.reportId;
+    if (!reportId) {
+      // Teardown and rewrite orders have no reportId — nothing to revoke here.
+      context.log('[as-webhook] ' + kind + ' had no reportId in session metadata, nothing to revoke');
+      return;
+    }
+
+    const report = await storage.getState('cc_report_' + reportId);
+    if (!report) {
+      context.log.warn('[as-webhook] ' + kind + ' for missing report ' + reportId);
+      return;
+    }
+    if (!report.unlocked) {
+      context.log('[as-webhook] ' + kind + ' for already-locked report ' + reportId);
+      return;
+    }
+
+    report.unlocked = false;
+    report.revokedAt = new Date().toISOString();
+    report.revokedReason = kind;
+    await storage.setState('cc_report_' + reportId, report);
+    context.log('[as-webhook] Report access revoked after ' + kind + ': ' + reportId);
+  } catch (err) {
+    context.log.error('[as-webhook] Access revoke failed after ' + kind + ' (manual recovery may be needed):', err.message);
+  }
+}
+
 module.exports = async function (context, req) {
   try {
     const signature = req.headers['stripe-signature'];
@@ -219,8 +263,10 @@ module.exports = async function (context, req) {
       });
     } else if (event.type === 'charge.refunded') {
       await revenueRecorder.recordRefundFromEvent({ event: event, product: 'ambientscore', kind: 'refund', log: context.log });
+      await revokeReportAccess(context, event.data.object || {}, 'refund');
     } else if (event.type === 'charge.dispute.created') {
       await revenueRecorder.recordRefundFromEvent({ event: event, product: 'ambientscore', kind: 'dispute', log: context.log });
+      await revokeReportAccess(context, event.data.object || {}, 'dispute');
     }
 
     // Always return 200 to Stripe

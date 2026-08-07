@@ -345,6 +345,59 @@ function extractBodyText($, stats) {
 
 // ── Main Scraper ─────────────────────────────────────────────────
 
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Cache-Control': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1'
+};
+
+function fetchPage(href) {
+  return axios.get(href, {
+    timeout: 15000,
+    maxRedirects: 5,
+    headers: FETCH_HEADERS,
+    responseType: 'text',
+    // Limit response size to 5MB
+    maxContentLength: 5 * 1024 * 1024,
+    // Don't throw on 4xx so we can inspect the body for Cloudflare signatures
+    validateStatus: function (s) { return s < 500; }
+  });
+}
+
+// A deep path that serves what the site root serves is either a soft 404 that
+// falls back to the homepage or a client-side-routed page whose real content
+// never reached us. Either way the audit describes the root document while the
+// report is labelled with the requested URL, and nothing in the output says so.
+// Advisory only: returns a warning string, or null. Never throws — the probe
+// costs one extra request and must not be able to fail a scan.
+async function detectRootEcho(parsed, title, bodyText) {
+  if (!parsed.pathname || parsed.pathname === '/') return null;
+  if (!bodyText || bodyText.length < 40) return null;
+
+  let rootRes;
+  try {
+    rootRes = await fetchPage(parsed.origin + '/');
+  } catch {
+    return null;
+  }
+  if (rootRes.status >= 400) return null;
+  const rootHtml = typeof rootRes.data === 'string' ? rootRes.data : '';
+  if (!rootHtml) return null;
+
+  const $root = cheerio.load(rootHtml);
+  if ($root('title').text().trim() !== title) return null;
+  if (extractBodyText($root, {}).substring(0, 2000) !== bodyText.substring(0, 2000)) return null;
+
+  return 'This URL returned the same page as the site root. Either the link is broken and the site falls back to its homepage, or this page is rendered by JavaScript after load. Either way the analysis below describes the homepage, not the specific URL requested.';
+}
+
 async function scrapeUrl(urlStr) {
   // Validate URL (SSRF protection)
   const parsed = await validateUrl(urlStr);
@@ -354,27 +407,7 @@ async function scrapeUrl(urlStr) {
   // Fetch HTML
   let response;
   try {
-    response = await axios.get(parsed.href, {
-      timeout: 15000,
-      maxRedirects: 5,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Cache-Control': 'no-cache',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1'
-      },
-      responseType: 'text',
-      // Limit response size to 5MB
-      maxContentLength: 5 * 1024 * 1024,
-      // Don't throw on 4xx so we can inspect the body for Cloudflare signatures
-      validateStatus: function (s) { return s < 500; }
-    });
+    response = await fetchPage(parsed.href);
   } catch (fetchErr) {
     // Network-level errors (timeout, DNS, connection refused)
     const msg = fetchErr.message || '';
@@ -444,6 +477,16 @@ async function scrapeUrl(urlStr) {
     }
   }
 
+  // An error page is not the customer's landing page. statusCode was captured
+  // here for months and read by nothing, so 404s were scraped, scored and sold
+  // as real audits — verified live on a 404 that came back 22/100 with rewrites
+  // for "Page not found". 401/403 already threw above as SITE_BLOCKED.
+  if (response.status >= 400) {
+    const err = new Error('SITE_ERROR_STATUS: ' + parsed.hostname + ' returned HTTP ' + response.status);
+    err.blockMeta = blockMeta;
+    throw err;
+  }
+
   // Check content type (contentType already extracted above for WAF detection)
   if (!contentType.includes('html') && !contentType.includes('text')) {
     throw new Error('URL did not return HTML content (got: ' + contentType.split(';')[0] + ')');
@@ -453,13 +496,15 @@ async function scrapeUrl(urlStr) {
   const scrapeStats = {};
   const bodyText = extractBodyText($, scrapeStats);
   const links = extractLinks($, parsed.href);
+  const pageTitleText = $('title').text().trim();
+  const rootEchoWarning = await detectRootEcho(parsed, pageTitleText, bodyText);
 
   const result = {
     url: urlStr,
     finalUrl: response.request?.res?.responseUrl || parsed.href,
     statusCode: response.status,
     fetchTimeMs: fetchTimeMs,
-    title: $('title').text().trim(),
+    title: pageTitleText,
     metaDescription: $('meta[name="description"]').attr('content') || '',
     h1: $('h1').map(function () { return $(this).text().trim(); }).get().filter(Boolean),
     h2: $('h2').map(function () { return $(this).text().trim(); }).get().filter(Boolean),
@@ -477,6 +522,9 @@ async function scrapeUrl(urlStr) {
     schemaOrg: extractSchemaOrg($),
     openGraph: extractOpenGraph($),
     hydratedCounters: scrapeStats.hydratedCounters || 0,
+    // Separate from jsRenderedWarning on purpose: that one is about how much of
+    // the page we could read, this one is about whether we read the right page.
+    contentWarning: rootEchoWarning,
     // Two distinct cases. An almost-empty body means we saw a shell and the
     // analysis is largely blind. Hydrated counters mean the page renders its
     // numbers with script: we recovered the real values, so the read is sound,

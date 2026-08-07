@@ -213,6 +213,45 @@ async function verifySession(sessionId) {
   }
 }
 
+// ── Look Up a Session From a Refund/Dispute ──────────────────────
+// Refunds and disputes arrive as charge objects, which carry no reportId — only
+// the checkout session does. Walk back through the payment intent to find it so
+// access can be withdrawn from the right report and only that one.
+
+function _idOf(v) {
+  if (!v) return null;
+  return typeof v === 'string' ? v : (v.id || null);
+}
+
+async function retrieveCharge(chargeId) {
+  const id = _idOf(chargeId);
+  if (!STRIPE_SECRET_KEY || !id) return null;
+  try {
+    const res = await axios.get(STRIPE_BASE + '/charges/' + id, {
+      headers: { 'Authorization': 'Bearer ' + STRIPE_SECRET_KEY },
+      timeout: 10000
+    });
+    return res.data || null;
+  } catch {
+    return null;
+  }
+}
+
+async function findCheckoutSessionByPaymentIntent(paymentIntent) {
+  const id = _idOf(paymentIntent);
+  if (!STRIPE_SECRET_KEY || !id) return null;
+  try {
+    const res = await axios.get(STRIPE_BASE + '/checkout/sessions', {
+      params: { payment_intent: id, limit: 1 },
+      headers: { 'Authorization': 'Bearer ' + STRIPE_SECRET_KEY },
+      timeout: 10000
+    });
+    return (res.data && res.data.data && res.data.data[0]) || null;
+  } catch {
+    return null;
+  }
+}
+
 // ── Verify Webhook Signature ─────────────────────────────────────
 
 function verifyWebhookSignature(payload, signature) {
@@ -243,4 +282,4 @@ function verifyWebhookSignature(payload, signature) {
   }
 }
 
-module.exports = { createCheckoutSession, createTeardownCheckout, createRewriteCheckout, createOffer, verifySession, verifyWebhookSignature };
+module.exports = { createCheckoutSession, createTeardownCheckout, createRewriteCheckout, createOffer, verifySession, verifyWebhookSignature, retrieveCharge, findCheckoutSessionByPaymentIntent };
