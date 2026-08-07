@@ -678,7 +678,12 @@ function buildRoastReplyTask(prospect, cfg, nowMs) {
     taskType: 'bluesky_reply',
     category: 'maintenance',
     status: 'todo',
-    priority: 'medium',
+    // High, not medium: MANDATORY PEER REVIEW claims Scribe's first action slot every
+    // cycle unless she holds a high/critical task, and the cap is 3 actions. At medium
+    // these replies never surfaced — 8 qualified prospects sat undrafted for up to four
+    // days (2026-08-07 harvest: 0 replies sent since the lane opened 08-02). Outbound
+    // replies are also time-sensitive; a four-day-old reply is a different, worse thing.
+    priority: 'high',
     assignee: 'scribe',
     source: 'roastProspectCron',
     created_by: 'roastProspectCron',

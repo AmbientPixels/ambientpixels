@@ -649,6 +649,16 @@ function mockStorage(initial) {
     assert.ok(t.threadContext && t.threadContext.uri === p.uri && t.threadContext.cid === p.cid);
   });
 
+  // Regression, 2026-08-07: minted at 'medium' these never won one of Scribe's three
+  // action slots — MANDATORY PEER REVIEW takes slot 1 unless she holds a high/critical
+  // task. Eight qualified prospects sat undrafted for up to four days and the lane sent
+  // zero replies, so the demand test the lane existed to run never actually ran.
+  test('buildRoastReplyTask: minted HIGH so it outranks the peer-review-first rule', () => {
+    const p = PP.filterRoastProspects([RC()], [], RCFG, NOW_R)[0];
+    const t = PP.buildRoastReplyTask(p, RCFG, NOW_R);
+    assert.strictEqual(t.priority, 'high');
+  });
+
   test('repairReplyLinkTo: appends missing link with label, strips hedge', () => {
     const dest = RCFG.destinationUrl;
     const out = PP.repairReplyLinkTo('Rough market. We built a free resume roast, happy to share it if you want.', dest, 'Try it free:');
