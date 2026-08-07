@@ -65,6 +65,61 @@
   white-space: nowrap;
 }
 
+/* ── Competitive comparison ──
+   Sits high on the page because a cross-shopping visitor needs the difference
+   in seconds, not inferred from prose four sections down. Grid rather than a
+   <table> so it restacks cleanly on mobile without horizontal scroll.
+   RULE: every claim in the "them" column must be verifiable from competitor
+   marketing copy, and phrased as "most" — 9+ competitors exist and only 4 were
+   checked (2026-08-07), so universal claims are not defensible. Never name a
+   competitor or quote their price: they change, and a stale table is a false one. */
+.rr-vs {
+  max-width: 860px;
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+}
+.rr-vs-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--pa-sep);
+}
+.rr-vs-row > * {
+  background: var(--pa-surface);
+  padding: 0.85rem 1rem;
+  font-size: var(--pa-t-sm);
+  line-height: 1.5;
+  color: var(--pa-text-muted);
+}
+.rr-vs-row--head > * {
+  background: var(--pa-surface-raised);
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-text-faint);
+}
+.rr-vs-label { color: var(--pa-text); font-weight: 600; }
+.rr-vs-us { border-left: 2px solid var(--pa-primary); }
+.rr-vs-row--head .rr-vs-us { color: var(--pa-primary); }
+.rr-vs-us strong { color: var(--pa-ink, var(--pa-text)); }
+.rr-vs-note {
+  padding: 0.9rem 1rem;
+  background: var(--pa-surface-raised);
+  border-top: 1px solid var(--pa-sep);
+  font-size: var(--pa-t-xs);
+  line-height: 1.6;
+  color: var(--pa-text-faint);
+}
+@media (max-width: 640px) {
+  /* Label becomes a full-width caption above the two compared cells so the
+     three columns never squeeze into unreadable slivers. */
+  .rr-vs-row { grid-template-columns: 1fr 1fr; }
+  .rr-vs-label { grid-column: 1 / -1; }
+  .rr-vs-row--head .rr-vs-label { display: none; }
+}
+
 /* ── Sample roast output ── */
 .rr-sample {
   max-width: 720px;
