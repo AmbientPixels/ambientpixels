@@ -111,6 +111,37 @@ The date is load-bearing. Send rate is ~0.4/day, so 30 replies alone would not t
 
 ---
 
+## 🔴 RESUME HERE — state at context handoff (2026-08-07, end of session)
+
+**Read this section first, then the mandate below it. Everything is committed and pushed; working tree clean.**
+
+### 1. Permissions were the blocker — fixed, may need a session restart
+`c:\Dev\Ambientpixels\.claude\settings.json` had `WebSearch` allowed but **not `WebFetch`** — which is why autonomous work kept stopping to prompt. Added `WebFetch`, `Agent`, `Task`, `Skill`, `TodoWrite`, `TaskOutput`, `TaskStop`, `SendMessage`, `Monitor`, `ToolSearch`. All 21 `deny` rules untouched. **If prompts still appear, restart the session** — settings load at session start.
+
+### 2. IN-FLIGHT WORK — a real bug, fix written but NOT yet wired in
+**Both share endpoints are broken for 9 of the 10 scoring agents.**
+
+`api/pixel-agent-share-card/index.js:50` and `api/pixel-agent-share/index.js:34` both do:
+```js
+const score = result.score ?? result.overall_score ?? null;
+```
+But only `roast-my-site` uses the key `score`. The other nine use their own: `ats_score` (resume-roast), `quality_score`, `viability_score`, `persuasion_score`, `design_score`, `standout_score`, `original_score`, `productivity_score`, `their_score`. **So every share card renders with NO SCORE** — and the score is the most shareable element of a roast ("I got 41/100"). This has been silently breaking the viral loop.
+
+**`api/_utils/runScore.js` is already written and committed** — `extractScore()` / `extractVerdict()`, schema-free so new agents work with no registration. **NEXT STEP: require it in both endpoints, replace those two lines, write a test, verify, ship.** Roughly 20 minutes.
+
+### 3. Three research agents were dispatched and may not have reported before the context ended
+If their results were lost, re-run them. Their briefs, verbatim enough to recreate:
+
+- **Bug bash** — end-to-end on the roast funnel (landing → run → $9 → delivery). Error paths, 50k pastes, injection, rate-limit UX, the new JD field's 6000-char cap, `roast-rewrite` order states a customer could get stuck in, mobile 390px, console errors, whether `resumeroast` analytics actually fire. Report-only, no edits. Existing suites to run: `api/pixel-agent-run/smoke-test.js`, `api/_lib/roastRewrite/composer.test.js`, `api/companyHeartbeat/prospect-pipeline.test.js`.
+- **Claude spend + fallback** — *the key question:* does `api/pixel-agent-run/index.js` have ANY fallback? It appears to call Anthropic directly (`MODEL = 'claude-sonnet-4-6'`). If not, exhausted credits = the public product errors for real users, which **blocks sending paid traffic**. Same question for the $9 path. Plus: worst-case daily spend at 100 / 1,000 / 10,000 roasts.
+- **Growth, wide** — programmatic SEO (likely the biggest lever), GEO/AI-search citation, AI-tool directories, Product Hunt / Show HN, comparison pages, non-Reddit job-seeker communities, institutional channels (university career centres, bootcamps, outplacement, veteran transition), Chrome extension / widget / API, honest paid unit economics at $9 AOV, affiliate viability.
+
+### 4. Also outstanding
+- **The JD feature needs one real run through the deployed UI** once CI/CD lands (see the section below).
+- Optional, not defects: mobile hero is 1.57 viewports (`.pa-hero-v3__portrait-frame { max-height: 34vh }` at 640px fixes it); manifesto CTA leaves 307px to its right.
+
+---
+
 ## ⚡ ACTIVE MANDATE — read this first if you are a fresh context window
 
 **Given by the CEO 2026-08-07, late session, before walking away:**
