@@ -54,8 +54,16 @@ const PORTRAITS = [
     prompt: 'warm confident chef in their 30s, leaning back relaxed confident posture, slight knowing smirk, casual open jacket over dark shirt, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
+    // Regenerated 2026-08-07. The original prompt ("stern... skeptical raised eyebrow")
+    // produced a scowl that read as "go away" rather than "let's see what you've got" —
+    // wrong signal for a landing page whose whole job is getting a resume pasted. The
+    // snobbery is the gag; the hostility was not. Rewritten to a knowing half-smile, and
+    // switched to crimson accents so the portrait stops fighting the Signal Red palette.
+    // This string is the exact prompt agentforge-portrait assembles for
+    // scholar/feminine/mature/confident/three_quarter/red, so the endpoint and this batch
+    // script produce the same character.
     id: 'resume-roast',
-    prompt: 'stern professional woman in her 40s, slight 3/4 angle body turned right face toward camera, rectangular glasses, skeptical raised eyebrow, sharp blazer, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'woman in their 40s, analytical figure with rectangular glasses, neat structured clothing, intellectual bearing, slight 3/4 angle body turned, face toward camera, relaxed posture, knowing half-smile, slight lean back, with deep crimson accents on clothing, modern corporate blazer and blouse, no ornament, warm key light, smirk, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'signal',
