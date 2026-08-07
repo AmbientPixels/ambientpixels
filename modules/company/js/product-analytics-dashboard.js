@@ -17,10 +17,21 @@
   var SECRET = (window.AP_SECRET || 'pixelpusher');
   var ZONE_ID = 'ah-zone-product';
 
-  // Map URL path prefixes to product identifiers
+  // Map URL path prefixes to product identifiers. Anything that returns 'other'
+  // is discarded, so a product missing from this map renders a hard zero on every
+  // tab no matter how much traffic it has — a missing key here is invisible, not
+  // loud. Keep it in step with the pa-product-filter options in analytics-hub.html.
+  //
+  // /resume-roast maps to 'resumeroast' (its own landing page + paid campaign,
+  // split out of pixelagents 2026-08-07). /pixel-agents/run.html deliberately does
+  // NOT: telemetry paths are query-stripped, so it is one path shared by all 24
+  // agents and pointing it at resumeroast would hand the whole catalog's run
+  // traffic to Resume Roast. Splitting the run page by agent needs the query
+  // string, which only the event pipeline (productAnalyticsQuery) has.
   var PATH_TO_PRODUCT = {
     '/pixel-agents': 'pixelagents',
     '/pixelagents': 'pixelagents',
+    '/resume-roast': 'resumeroast',
     '/agent-forge': 'agentforge',
     '/blindspot': 'blindspot',
     '/cardforge': 'cardforge',
@@ -173,6 +184,7 @@
 
   var PRODUCT_COLORS = {
     pixelagents: '#8F00FF',
+    resumeroast: '#ef4f2a',
     agentforge: '#00F0FF',
     ambientscore: '#a3e635',
     blindspot: '#EF9F27',
@@ -186,6 +198,7 @@
 
   var PRODUCT_ICONS = {
     pixelagents: 'fa-robot',
+    resumeroast: 'fa-fire',
     agentforge: 'fa-hammer',
     ambientscore: 'fa-chart-line',
     blindspot: 'fa-crosshairs',

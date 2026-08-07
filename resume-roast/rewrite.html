@@ -9,6 +9,11 @@
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
+
+  <!-- Product analytics only — deliberately NOT telemetry-appinsights.js. App
+       Insights records the full URL, and this page's query string carries the
+       delivery HMAC; product-analytics.js sends location.pathname only. -->
+  <script src="/js/product-analytics.js" defer></script>
   <style>
     .rw-wrap { max-width: 820px; margin: 0 auto; padding: 2rem 1rem 4rem; }
     .rw-status { text-align: center; padding: 3rem 1rem; }
@@ -77,11 +82,27 @@
         return d.innerHTML;
       }
 
-      function showError(msg) {
+      // ── Delivery telemetry ──
+      // paid -> delivered was the one transition in the funnel with no signal at
+      // all, so a delivery that broke and a delivery nobody opened looked the
+      // same from the outside. product-analytics.js is deferred and this IIFE
+      // runs during parse, so a failure that happens before DOMContentLoaded is
+      // stashed and emitted by the init block at the bottom. Every call is
+      // guarded — telemetry must never break a delivery someone paid for.
+      var _pendingError = null;
+      function _pa() { return window.ProductAnalytics || null; }
+      function trackDeliveryFailure(reason) {
+        var pa = _pa();
+        if (!pa) { _pendingError = reason; return; }
+        try { pa.trackError('rewrite_delivery_failed', { orderId: id || null, reason: reason }); } catch (_) {}
+      }
+
+      function showError(msg, reason) {
         document.getElementById('rw-loading').style.display = 'none';
         document.getElementById('rw-ready').style.display = 'none';
         document.getElementById('rw-error').style.display = '';
         document.getElementById('rw-error-msg').textContent = msg;
+        trackDeliveryFailure(reason || 'unknown');
       }
 
       function download(filename, text) {
@@ -143,9 +164,34 @@
         document.getElementById('rw-download-md').onclick = function () { download('resume-rewrite.md', rw.rewritten_resume); };
         document.getElementById('rw-download-txt').onclick = function () { download('resume-rewrite.txt', rw.rewritten_resume); };
         document.getElementById('rw-print').onclick = function () { window.print(); };
+
+        // The buyer got the thing they paid for. Last step of the resumeroast
+        // funnel in productAnalyticsQuery.
+        var pa = _pa();
+        if (pa) { try { pa.trackConversion('rewrite_delivered', { orderId: id || null, polls: polls }); } catch (_) {} }
       }
 
-      if (!id || !key) { showError('This link is missing its key. Use the exact link from your email or checkout.'); return; }
+      // Registered before the missing-key guard below, which returns early — a
+      // link that arrives broken is exactly the delivery we most need to hear
+      // about. The SDK is deferred, so init has to wait for DOMContentLoaded.
+      // identify() uses the orderId because as-webhook emits rewrite_purchase
+      // with the same value as its userId, which makes paid -> delivered a
+      // like-for-like count instead of two unrelated identity spaces. The auto
+      // page_view from init() keeps the browser's anon id and is page-scoped out
+      // of the landing step in productAnalyticsQuery, so it cannot inflate the
+      // top of the funnel.
+      document.addEventListener('DOMContentLoaded', function () {
+        var pa = _pa();
+        if (!pa) return;
+        try {
+          pa.init('resumeroast');
+          if (id) pa.identify(id);
+          pa.trackFunnel('rewrite_delivery_view', { orderId: id || null });
+          if (_pendingError) { var r = _pendingError; _pendingError = null; trackDeliveryFailure(r); }
+        } catch (_) { /* silent — never break a paid delivery */ }
+      });
+
+      if (!id || !key) { showError('This link is missing its key. Use the exact link from your email or checkout.', 'missing-key'); return; }
 
       // Same base logic as pixel-agent-run.js getApiBase(): on production the SWA
       // proxy does NOT route /api/roast-rewrite (it falls back to index.html),
@@ -161,23 +207,23 @@
         fetch(API_BASE + '/roast-rewrite?id=' + encodeURIComponent(id) + '&key=' + encodeURIComponent(key))
           .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
           .then(function (res) {
-            if (!res.ok) { showError(res.body.error || 'Could not load your order.'); return; }
+            if (!res.ok) { showError(res.body.error || 'Could not load your order.', 'lookup-failed'); return; }
             var s = res.body.status;
             if (s === 'delivered' && res.body.rewrite) { render(res.body); return; }
             if (s === 'delivered' && !res.body.rewrite) { sawDeliveredNoRewrite = true; }
-            if (s === 'failed') { showError('Your rewrite hit a technical problem. We have been alerted — reply to your receipt email for a fix or an instant refund.'); return; }
+            if (s === 'failed') { showError('Your rewrite hit a technical problem. We have been alerted — reply to your receipt email for a fix or an instant refund.', 'order-failed'); return; }
             // Stripe's success redirect can beat the webhook that flips created -> paid,
             // so give 'created' a grace window before treating it as genuinely unpaid.
-            if (s === 'created' && polls >= 12) { showError('This order has not been paid yet. If you just paid, wait a few seconds and refresh.'); return; }
+            if (s === 'created' && polls >= 12) { showError('This order has not been paid yet. If you just paid, wait a few seconds and refresh.', 'never-paid'); return; }
             if (polls >= MAX_POLLS) {
-              if (sawDeliveredNoRewrite) { showError('Something went wrong retrieving your rewrite. Reply to your receipt email and we will fix it or refund you.'); return; }
-              showError('This is taking longer than expected. We will email the link when it is ready — you can close this page.');
+              if (sawDeliveredNoRewrite) { showError('Something went wrong retrieving your rewrite. Reply to your receipt email and we will fix it or refund you.', 'delivered-no-rewrite'); return; }
+              showError('This is taking longer than expected. We will email the link when it is ready — you can close this page.', 'compose-timeout');
               return;
             }
             setTimeout(poll, POLL_MS);
           })
           .catch(function () {
-            if (polls >= MAX_POLLS) { showError('Network trouble. We will email the link when the rewrite is ready.'); return; }
+            if (polls >= MAX_POLLS) { showError('Network trouble. We will email the link when the rewrite is ready.', 'network'); return; }
             setTimeout(poll, POLL_MS);
           });
       }

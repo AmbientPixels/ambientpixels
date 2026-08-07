@@ -39,7 +39,9 @@ function dateRange(days) {
   };
 }
 
-// Funnel definitions per product
+// Funnel definitions per product. A step is normally just the event name; use
+// { step, event, pages } when the raw event name is ambiguous and has to be
+// scoped to the page that emitted it (see resumeroast below).
 var FUNNELS = {
   ambientscore: ['page_view', 'scan_started', 'scan_completed', 'checkout_started', 'report_unlocked'],
   blindspot: ['page_view', 'card_created', 'battle_end', 'boss_defeated'],
@@ -50,9 +52,31 @@ var FUNNELS = {
   agentforge: ['page_view', 'agent_submitted'],
   // Every stage below is a real event already emitted in code: cta_click from
   // resume-roast/index.html, the run pair and both rewrite_upsell_* from
-  // pixel-agents/js/pixel-agent-run.js. Purchase completion is NOT yet tracked
-  // (resume-roast/rewrite.html carries no SDK), so the funnel ends at the click.
-  resumeroast: ['page_view', 'cta_click', 'agent_run_started', 'agent_run_completed', 'rewrite_upsell_view', 'rewrite_upsell_click']
+  // pixel-agents/js/pixel-agent-run.js, rewrite_purchase from api/as-webhook
+  // (server-side, keyed on orderId), and the delivery pair from
+  // resume-roast/rewrite.html.
+  //
+  // page_view appears twice and is page-scoped both times. THREE pages init as
+  // 'resumeroast' — the landing page, the shared run page when agent=resume-roast,
+  // and the paid delivery page — so an unscoped page_view step pools all three
+  // into one number and cta_click below it reads as a collapse that never
+  // happened. Scoping keeps "read the landing page" and "reached the run page"
+  // as two honest numbers instead of one inflated one, and a visitor who arrives
+  // straight on the run page still shows up rather than vanishing. Ingest strips
+  // query strings, so the run page matches on pathname alone — safe here because
+  // only agent=resume-roast ever reports under this product.
+  resumeroast: [
+    { step: 'landing_view', event: 'page_view', pages: ['/resume-roast', '/resume-roast/', '/resume-roast/index.html'] },
+    'cta_click',
+    { step: 'run_page_view', event: 'page_view', pages: ['/pixel-agents/run.html'] },
+    'agent_run_started',
+    'agent_run_completed',
+    'rewrite_upsell_view',
+    'rewrite_upsell_click',
+    'rewrite_purchase',
+    'rewrite_delivery_view',
+    'rewrite_delivered'
+  ]
 };
 
 // ── Metric Computers ──
@@ -112,12 +136,15 @@ function computeFunnels(events, product) {
     if (!steps) return;
 
     var prodEvents = events.filter(function (e) { return e.product === p; });
-    var funnelData = steps.map(function (step) {
+    var funnelData = steps.map(function (stepDef) {
+      var def = typeof stepDef === 'string' ? { step: stepDef, event: stepDef } : stepDef;
       var usersAtStep = new Set();
       prodEvents.forEach(function (e) {
-        if (e.event === step && e.userId) usersAtStep.add(e.userId);
+        if (e.event !== def.event || !e.userId) return;
+        if (def.pages && def.pages.indexOf(e.page || '') === -1) return;
+        usersAtStep.add(e.userId);
       });
-      return { step: step, users: usersAtStep.size };
+      return { step: def.step, users: usersAtStep.size };
     });
 
     result[p] = funnelData;
@@ -165,6 +192,11 @@ module.exports = async function (context, req) {
     var range = req.query.range || '7d';
     var product = req.query.product || 'all';
     var metric = req.query.metric || 'overview';
+
+    // The pre-committed roast kill gate (api/_data/roast-prospect-keywords.json)
+    // documents its query as metric=funnel, which would 400 on the one day it is
+    // read. A gate that errors out gets guessed at — accept the singular too.
+    if (metric === 'funnel') metric = 'funnels';
 
     if (VALID_PRODUCTS.indexOf(product) === -1) {
       context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid product. Valid: ' + VALID_PRODUCTS.join(', ') } };

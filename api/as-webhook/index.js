@@ -104,6 +104,20 @@ module.exports = async function (context, req) {
           } else if (rrReason === 'missing' || rrReason === 'bad-status') {
             rrOrder = null;
             context.log.error('[as-webhook] Rewrite payment with NO matching order (manual recovery needed): session ' + session.id + ' orderId=' + rrOrderIdMeta + ' reason=' + rrReason);
+            // Money moved and there is nothing to attach it to. A log.error alone
+            // is invisible until someone opens App Insights, and the customer
+            // finds out before we do. Same Discord path the success case uses.
+            try {
+              const { dispatchDiscord } = require('../_utils/fleetAlerts');
+              await dispatchDiscord({
+                title: 'Rewrite payment with NO matching order',
+                description: 'Session ' + session.id + ' orderId=' + rrOrderIdMeta + ' reason=' + rrReason +
+                  '\n$9 taken, nothing queued. Check roast_rewrite_queue. $9 refund may be owed.',
+                color: 0xC62828
+              });
+            } catch (alertErr) {
+              context.log.warn('[as-webhook] Rewrite no-order Discord alert failed (non-fatal):', alertErr.message);
+            }
           } else {
             rrOrder = null;
             context.log('[as-webhook] Rewrite session already processed, order missing, or write skipped: ' + session.id + ' reason=' + rrReason);
@@ -116,9 +130,17 @@ module.exports = async function (context, req) {
         if (rrOrder) {
           try {
             const pa = require('../_utils/productAnalytics');
-            await pa.emitEvent('pixelagents', 'rewrite_purchase',
+            // 'resumeroast', not 'pixelagents': the 2026-08-07 product split only
+            // retagged client-side init() calls, leaving the ONE purchase signal in
+            // the system filed under the 24-agent catalog. userId is not optional
+            // either — computeFunnels counts distinct userIds per step and drops
+            // events without one, so an unattributed purchase reads as zero sales.
+            // orderId is the only non-PII identity available here (nothing carries
+            // the browser's anon id through Stripe); resume-roast/rewrite.html
+            // identifies as the same value so paid -> delivered compares like for like.
+            await pa.emitEvent('resumeroast', 'rewrite_purchase',
               { orderId: rrOrder.orderId, agentId: 'resume-roast' },
-              { category: 'conversion', source: 'server' });
+              { category: 'conversion', source: 'server', userId: rrOrder.orderId });
           } catch (paErr) {
             context.log.warn('[as-webhook] rewrite_purchase event failed (non-fatal):', paErr.message);
           }
@@ -134,10 +156,16 @@ module.exports = async function (context, req) {
           }
         }
 
+        // product matches the analytics split above so a $9 sale and the funnel
+        // step that produced it name the same product. revenueLedger keys
+        // byProduct off whatever string it is handed (no whitelist), and both
+        // revenue.html and revenue-intel group dynamically, so the new key shows
+        // up on its own. Historical rows stay under 'pixelagents' — forward-only,
+        // same as the analytics split.
         await revenueRecorder.recordCheckoutRevenue({
           event: event,
           session: session,
-          product: 'pixelagents',
+          product: 'resumeroast',
           type: 'one_time',
           plan: 'roast_rewrite',
           fallbackCents: 900,
