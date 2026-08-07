@@ -313,6 +313,10 @@ module.exports = async function (context, req) {
     } else if (errMsg.includes('SITE_UNREACHABLE') || errMsg.includes('ENOTFOUND') || errMsg.includes('ECONNREFUSED')) {
       failureLog.errorCode = 'SITE_UNREACHABLE';
       context.res = { status: 502, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT' }) };
+    } else if (errMsg.includes('SITE_UNREADABLE')) {
+      // We could not see the page. A score built on that is wrong, not partial.
+      failureLog.errorCode = 'SITE_UNREADABLE';
+      context.res = { status: 422, headers: CORS, body: JSON.stringify({ error: 'SITE_UNREADABLE' }) };
     } else if (errMsg.includes('SITE_ERROR_STATUS')) {
       // The URL resolved to an error page. Scoring it would sell an audit of a
       // "Page not found" as an audit of the customer's site.

@@ -135,6 +135,11 @@
       "We couldn't get a response in time. The site may be slow or temporarily unavailable.",
       "Timed out waiting for the site to respond. Try again in a minute."
     ],
+    SITE_UNREADABLE: [
+      "We could not read enough of this page to score it. Its content is rendered by JavaScript after load, which our scanner does not execute yet. Scoring what we could see would tell you about our scanner, not your site.",
+      "This page delivered almost no readable content to us, so there was nothing to audit. That usually means the content is drawn by JavaScript after the page loads. Try a page that renders its text server-side.",
+      "Not enough readable content reached us to produce an honest score. Pages built as single-page apps often look empty to scanners. Try the homepage, or a page with server-rendered text."
+    ],
     SITE_ERROR_STATUS: [
       "That URL returned an error page, not a real page, so there was nothing to audit. Check the address and try again.",
       "The site answered with an error for that address. Try the homepage URL, or check the link for a typo.",
@@ -161,7 +166,9 @@
     } catch (e) { code = raw; }
 
     var msg = '';
-    if (code.indexOf('SITE_ERROR_STATUS') !== -1) {
+    if (code.indexOf('SITE_UNREADABLE') !== -1) {
+      msg = _pick(ERROR_MESSAGES.SITE_UNREADABLE);
+    } else if (code.indexOf('SITE_ERROR_STATUS') !== -1) {
       msg = _pick(ERROR_MESSAGES.SITE_ERROR_STATUS);
     } else if (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1) {
       msg = _pick(ERROR_MESSAGES.SITE_BLOCKED);

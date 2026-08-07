@@ -8,6 +8,12 @@ const dns = require('dns');
 const { promisify } = require('util');
 
 const dnsResolve = promisify(dns.resolve4);
+const dnsLookup = promisify(dns.lookup);
+
+// Below this much readable body text we have not seen the page. Scoring it
+// anyway produced 7-24/100 for sites that may be excellent, because absent
+// sub-criteria are scored 3 and the total collapses.
+const MIN_READABLE_CHARS = 200;
 
 // ── SSRF Protection ──────────────────────────────────────────────
 
@@ -22,9 +28,23 @@ const BLOCKED_HOSTNAMES = new Set([
 
 function isBlockedIP(ip) {
   if (!ip) return true;
-  if (ip === '127.0.0.1' || ip === '0.0.0.0' || ip === '::1') return true;
-  const parts = ip.split('.');
-  if (parts.length !== 4) return false; // let IPv6 through for now, block specific
+  // Normalise: strip brackets, an IPv6 zone id, and the IPv4-mapped prefix so
+  // ::ffff:127.0.0.1 is judged as the IPv4 address it actually reaches.
+  let addr = String(ip).trim().toLowerCase().replace(/^\[|\]$/g, '').split('%')[0];
+  const mapped = addr.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+  if (mapped) addr = mapped[1];
+
+  if (addr === '127.0.0.1' || addr === '0.0.0.0' || addr === '::1' || addr === '::') return true;
+
+  if (addr.indexOf(':') !== -1) {
+    // IPv6: unique-local (fc00::/7) and link-local (fe80::/10) are internal.
+    if (/^f[cd]/.test(addr)) return true;
+    if (/^fe[89ab]/.test(addr)) return true;
+    return false;
+  }
+
+  const parts = addr.split('.');
+  if (parts.length !== 4) return false; // not an IP literal — hostname checks handle it
   const a = parseInt(parts[0], 10);
   const b = parseInt(parts[1], 10);
   // 10.0.0.0/8
@@ -67,20 +87,39 @@ async function validateUrl(urlStr) {
     throw new Error('Internal/private IP addresses are not allowed');
   }
 
-  // DNS resolution check (prevents DNS rebinding)
+  // DNS resolution check (prevents DNS rebinding).
+  //
+  // Check every address we might actually connect to, using BOTH resolvers.
+  // dnsResolve queries the configured nameserver directly; dnsLookup goes
+  // through getaddrinfo, which is what the HTTP client itself uses — and the
+  // two can disagree. 127.0.0.1.nip.io resolves to 127.0.0.1 via lookup, so
+  // checking resolve4 alone (and falling back to testing the hostname string
+  // as an IP literal, which a five-part name is not) let it through whenever
+  // resolve4 happened to fail.
+  const resolved = [];
   try {
-    const addresses = await dnsResolve(hostname);
-    for (const addr of addresses) {
-      if (isBlockedIP(addr)) {
-        throw new Error('URL resolves to a blocked internal IP address');
-      }
+    const addrs = await dnsResolve(hostname);
+    if (Array.isArray(addrs)) resolved.push.apply(resolved, addrs);
+  } catch { /* try the other resolver before giving up */ }
+  try {
+    const looked = await dnsLookup(hostname, { all: true });
+    if (Array.isArray(looked)) resolved.push.apply(resolved, looked.map(a => a.address));
+  } catch { /* handled below */ }
+
+  for (const addr of resolved) {
+    if (isBlockedIP(addr)) {
+      throw new Error('URL resolves to a blocked internal IP address');
     }
-  } catch (err) {
-    if (err.message.includes('blocked')) throw err;
-    // DNS resolution failure — could be IP literal or unreachable
+  }
+
+  // A name neither resolver can answer is refused rather than allowed through
+  // to the fetch. Reuses the existing unreachable code so the client message
+  // stays accurate.
+  if (!resolved.length) {
     if (isBlockedIP(hostname)) {
       throw new Error('Internal/private IP addresses are not allowed');
     }
+    throw new Error('SITE_UNREACHABLE: ' + hostname);
   }
 
   return parsed;
@@ -495,6 +534,19 @@ async function scrapeUrl(urlStr) {
   const $ = cheerio.load(html);
   const scrapeStats = {};
   const bodyText = extractBodyText($, scrapeStats);
+
+  // A page we could not read is not a page that scores badly. promptBuilder
+  // tells the model to score absent sub-criteria 3, which collapses the total,
+  // so 19 stored reports handed out 7-24/100 to pages whose content simply
+  // never reached us (bsky, gumroad, support.xbox, seattletimes — all rendered
+  // client-side). Refuse before spending the analysis rather than publish a
+  // number we already know is wrong.
+  if (bodyText.length < MIN_READABLE_CHARS) {
+    const err = new Error('SITE_UNREADABLE: ' + parsed.hostname + ' returned only ' + bodyText.length + ' characters of readable text');
+    err.blockMeta = blockMeta;
+    throw err;
+  }
+
   const links = extractLinks($, parsed.href);
   const pageTitleText = $('title').text().trim();
   const rootEchoWarning = await detectRootEcho(parsed, pageTitleText, bodyText);
@@ -525,16 +577,13 @@ async function scrapeUrl(urlStr) {
     // Separate from jsRenderedWarning on purpose: that one is about how much of
     // the page we could read, this one is about whether we read the right page.
     contentWarning: rootEchoWarning,
-    // Two distinct cases. An almost-empty body means we saw a shell and the
-    // analysis is largely blind. Hydrated counters mean the page renders its
-    // numbers with script: we recovered the real values, so the read is sound,
-    // but anything that does not run JS (some crawlers, link preview bots, AI
-    // readers) sees the placeholders instead.
-    jsRenderedWarning: bodyText.length < 200
-      ? 'This page may use client-side rendering. Analysis is based on available static content and may be partial.'
-      : (scrapeStats.hydratedCounters > 0
-        ? 'Some figures on this page are rendered by JavaScript. Their real values were read from the markup, so scoring is unaffected, but visitors or crawlers without JavaScript see placeholders instead of the numbers.'
-        : null)
+    // The almost-empty-body case now refuses above, so this is only about
+    // hydrated counters: the page renders its numbers with script, we recovered
+    // the real values so the read is sound, but anything that does not run JS
+    // (some crawlers, link preview bots, AI readers) sees placeholders instead.
+    jsRenderedWarning: scrapeStats.hydratedCounters > 0
+      ? 'Some figures on this page are rendered by JavaScript. Their real values were read from the markup, so scoring is unaffected, but visitors or crawlers without JavaScript see placeholders instead of the numbers.'
+      : null
   };
 
   return result;
