@@ -67,7 +67,7 @@
       {
         "@type": "Question",
         "name": "What does the $9 rewrite actually give me?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A complete rewritten resume — every section, rewritten to lead with achievements and to parse cleanly through an ATS — plus a list of what changed and why, and the keywords you are missing. You download it as Markdown or plain text and send it. It is a finished document, not a list of suggestions to apply yourself. One payment of $9, no subscription. Not happy with it? Reply to your receipt and we refund you, no questions asked." }
+        "acceptedAnswer": { "@type": "Answer", "text": "A complete rewritten resume — every section, rewritten to lead with achievements and to parse cleanly through an ATS — plus a list of what changed and why, and the keywords you are missing. You download it as Markdown or plain text. It is a finished document, not a list of suggestions to apply yourself. One payment of $9, no subscription. Not happy with it? Reply to your receipt and we refund you, no questions asked." }
       },
       {
         "@type": "Question",
@@ -222,7 +222,7 @@
             Paste your resume and get the whole roast free — an <strong>ATS score out of 100</strong>,
             a section-by-section teardown, and concrete fixes. No paywall on the diagnosis.
             Want it done for you? We rewrite the entire resume and hand back a
-            <strong>finished document, ready to send</strong> — $9, once.
+            <strong>finished document</strong>, not a list of fixes to apply yourself — $9, once.
           </p>
           <div class="pa-hero-v3__ctas">
             <a href="/pixel-agents/run.html?agent=resume-roast" class="pa-btn-primary" data-rr-cta="hero">
@@ -295,7 +295,8 @@
           <p>
             Not a list of suggestions — the finished document. Every section rewritten to lead with
             achievements and parse cleanly through an ATS, plus what changed and why, and the keywords
-            you are missing. Download as .md or .txt and send it. No subscription.
+            you are missing. Download as .md or .txt. We never invent numbers for you — the handful of
+            spots only you can fill get marked. No subscription.
           </p>
         </div>
       </div>
@@ -386,10 +387,78 @@
         </div>
       </div>
 
-      <!-- Before/after pairs are genuine: "before" is verbatim from the sample
-           resume fed to the agent, "after" is verbatim from the same run's
-           rewrite_tips. Do not swap in invented copy here — the whole point of
-           this section is that it is real. -->
+      <!-- Full-document proof. Both columns are verbatim: "before" from the
+           synthetic resume fed to the agent, "after" from a real composeRewrite()
+           run against it that PASSED composer.validateRewrite() — i.e. output
+           that would have shipped to a paying customer. Do not hand-polish
+           either column; the [add metric] markers in particular are real and are
+           explained below rather than hidden. -->
+      <div class="rr-doc">
+        <div class="rr-doc-head">
+          <span class="rr-sample-stamp">Real output</span>
+          <span>excerpt · full document is 3,317 characters, every section</span>
+        </div>
+        <div class="rr-doc-cols">
+          <div class="rr-doc-col rr-doc-col--before">
+            <span class="rr-ba-label">Before — what was pasted in</span>
+            <pre class="rr-doc-text">PROFESSIONAL SUMMARY
+Results-oriented and detail-oriented
+professional with a proven track record of
+success in fast-paced environments.
+Passionate about leveraging cutting-edge
+solutions to drive business outcomes. Team
+player with excellent communication skills.
+
+Senior Product Manager | Northwind Digital
+2022 - Present
+- Responsible for managing cross-functional
+  synergies across multiple stakeholder groups
+- Spearheaded various strategic initiatives to
+  optimize the product roadmap
+- Utilized data-driven methodologies to inform
+  key decisions
+- Helped drive significant improvements to the
+  customer experience</pre>
+          </div>
+          <div class="rr-doc-col rr-doc-col--after">
+            <span class="rr-ba-label">After — what the $9 returns</span>
+            <pre class="rr-doc-text">## PROFESSIONAL SUMMARY
+
+Senior Product Manager with 7 years of
+progressive experience building B2B SaaS and
+enterprise software products. Proven track
+record of leading cross-functional teams from
+discovery through launch at Northwind Digital
+and Cascade Software Group. Translates
+ambiguous business problems into shipped
+product with measurable customer impact.
+
+## PROFESSIONAL EXPERIENCE
+
+**Senior Product Manager | Northwind Digital
+| 2022 - Present**
+
+- Define and own the product roadmap, aligning
+  [add metric] cross-functional stakeholders
+  across engineering, design, and marketing to
+  deliver against quarterly business objectives
+- Lead data-driven prioritization using A/B
+  testing and SQL-based analysis to identify
+  highest-impact opportunities</pre>
+          </div>
+        </div>
+        <div class="rr-doc-note">
+          <strong>Why the [add metric] markers?</strong> Because we will not invent achievements for you.
+          This resume arrived with no numbers in it, so the rewrite restructures every section, fixes the
+          verbs and the summary, and then marks the handful of spots where only you know the figure. A tool
+          that fills those in for you is making up your career — and that is the kind of thing that falls
+          apart in an interview. Everything that can be fixed without inventing facts, is fixed.
+        </div>
+      </div>
+
+      <!-- Line-level pairs, kept as supporting detail beneath the document proof.
+           "before" is verbatim from the sample resume, "after" verbatim from the
+           same run's rewrite_tips. Do not swap in invented copy. -->
       <div class="rr-ba">
         <div class="rr-ba-head">Rewrite · before and after</div>
         <div class="rr-ba-body">
@@ -415,7 +484,7 @@
           </div>
         </div>
         <div class="rr-ba-foot">
-          <p>The free roast shows you fixes like these. The <strong>$9 rewrite</strong> applies them to every line of your resume and hands back the finished document, ready to send — download as .md or .txt.</p>
+          <p>The free roast shows you fixes like these. The <strong>$9 rewrite</strong> applies them to every line of your resume and hands back the finished document — download as .md or .txt.</p>
           <a href="/pixel-agents/run.html?agent=resume-roast" class="pa-btn-secondary" data-rr-cta="rewrite-demo">
             Start with the free roast <i class="fas fa-arrow-right"></i>
           </a>
@@ -452,7 +521,7 @@
           <h3>Or skip the loop — have it rewritten for you</h3>
           <p>
             Don't want to do the editing? For <strong>$9</strong> the agent applies every fix itself and
-            returns the finished resume — every section rewritten, ready to send, downloadable as .md or
+            returns the finished resume — every section rewritten, downloadable as .md or
             .txt. One-time, no subscription.
           </p>
         </div>
@@ -504,7 +573,7 @@
           <div class="pa-faq-answer">
             A complete rewritten resume — every section, rewritten to lead with achievements and to parse
             cleanly through an ATS — plus a list of what changed and why, and the keywords you are missing.
-            You download it as Markdown or plain text and send it. It is a finished document, not a list of
+            You download it as Markdown or plain text. It is a finished document, not a list of
             suggestions to apply yourself. One payment of $9, no subscription. Not happy with it? Reply to
             your receipt and we refund you, no questions asked.
           </div>

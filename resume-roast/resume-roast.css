@@ -235,6 +235,68 @@
   color: var(--pa-text-muted);
 }
 
+/* ── Full-document before/after ──
+   The line-level pairs below prove a sentence improves. This proves a DOCUMENT
+   comes back, which is the actual differentiator. Monospace so it reads as a
+   file rather than marketing copy. */
+.rr-doc {
+  max-width: 980px;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+}
+.rr-doc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--pa-sep);
+  background: var(--pa-surface-raised);
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-text-faint);
+}
+.rr-doc-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--pa-sep);
+}
+.rr-doc-col {
+  padding: 1.1rem 1.25rem;
+  background: var(--pa-surface);
+  min-width: 0;              /* lets <pre> shrink instead of forcing overflow */
+}
+.rr-doc-col--before { border-top: 3px solid var(--pa-primary); }
+.rr-doc-col--after { border-top: 3px solid var(--pa-success); }
+.rr-doc-text {
+  margin: 0;
+  font-family: var(--pa-font-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--pa-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+.rr-doc-col--before .rr-doc-text { color: var(--pa-text-faint); }
+.rr-doc-note {
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px dashed var(--pa-sep-strong);
+  font-size: var(--pa-t-sm);
+  line-height: 1.6;
+  color: var(--pa-text-muted);
+}
+.rr-doc-note strong { color: var(--pa-text); }
+@media (max-width: 768px) {
+  .rr-doc-cols { grid-template-columns: 1fr; }
+}
+
 /* ── Before / after rewrite demo ── */
 .rr-ba {
   max-width: 720px;
