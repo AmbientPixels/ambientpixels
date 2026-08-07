@@ -62,7 +62,12 @@
       {
         "@type": "Question",
         "name": "Is Resume Roast really free?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. You get 5 roasts a day with no account at all — no email, no credit card. Signing in with a free account raises that to 10 a day." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, and the whole roast is free — score, teardown, strengths, rewrite tips and all. We do not paywall the diagnosis. You get 5 roasts a day with no account at all — no email, no credit card. Signing in with a free account raises that to 10 a day." }
+      },
+      {
+        "@type": "Question",
+        "name": "What does the $9 rewrite actually give me?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A complete rewritten resume — every section, rewritten to lead with achievements and to parse cleanly through an ATS — plus a list of what changed and why, and the keywords you are missing. You download it as Markdown or plain text and send it. It is a finished document, not a list of suggestions to apply yourself. One payment of $9, no subscription. Not happy with it? Reply to your receipt and we refund you, no questions asked." }
       },
       {
         "@type": "Question",
@@ -214,9 +219,10 @@
           </div>
           <h1 class="pa-hero-v3__title">Get your resume roasted before a recruiter does.</h1>
           <p class="pa-hero-v3__sub">
-            Paste your resume, get a brutally honest review in under a minute: an
-            <strong>ATS score out of 100</strong>, a section-by-section roast, and
-            concrete rewrite tips that land interviews.
+            Paste your resume and get the whole roast free — an <strong>ATS score out of 100</strong>,
+            a section-by-section teardown, and concrete fixes. No paywall on the diagnosis.
+            Want it done for you? We rewrite the entire resume and hand back a
+            <strong>finished document, ready to send</strong> — $9, once.
           </p>
           <div class="pa-hero-v3__ctas">
             <a href="/pixel-agents/run.html?agent=resume-roast" class="pa-btn-primary" data-rr-cta="hero">
@@ -224,10 +230,14 @@
             </a>
             <a href="#sample-roast" class="pa-btn-secondary">See a sample roast</a>
           </div>
+          <!-- Trust chips are positioning, not decoration. Competitors paywall the
+               diagnosis (RoastTheResume's free tier is a score plus one sentence) and
+               sell subscriptions (RoastCV is $7/mo). These two chips answer both. -->
           <div class="pa-hero-v3__pills">
-            <span class="pa-hero-pill"><i class="fas fa-bolt"></i> Results in under a minute</span>
+            <span class="pa-hero-pill"><i class="fas fa-unlock"></i> Whole roast free — no paywall</span>
             <span class="pa-hero-pill"><i class="fas fa-user-slash"></i> No signup, no email</span>
-            <span class="pa-hero-pill"><i class="fas fa-rotate"></i> 5 free roasts a day</span>
+            <span class="pa-hero-pill"><i class="fas fa-tag"></i> $9 once — no subscription</span>
+            <span class="pa-hero-pill"><i class="fas fa-bolt"></i> Results in under a minute</span>
           </div>
         </div>
         <div class="pa-hero-v3__portrait">
@@ -335,8 +345,30 @@
         </div>
       </div>
 
-      <!-- ── What the $9 rewrite buys ──
-           Before/after pairs are genuine: "before" is verbatim from the sample
+    </section>
+
+    <!-- ── The rewrite (the paid product, and the only real differentiator) ──
+         Competitor research 2026-08-07: RoastTheResume ($9 one-time) sells "every
+         issue, every fix, bullet rewrites" — a report. RoastCV ($7/MONTH) sells a
+         "Glow-Up report". Resumly states outright it is "not a completed
+         deliverable... copy-paste". Ours returns `rewritten_resume` — "the complete
+         rewritten resume... every section", "usable as-is" (_lib/roastRewrite/
+         composer.js). Handing back the finished document is the one thing on this
+         page nobody else does, so it gets its own section instead of a footnote.
+         Claims here say "most tools" deliberately — 9+ competitors exist and only
+         4 were checked, so a universal claim is not defensible. Keep it that way. -->
+    <section class="pa-section" id="rewrite">
+      <div class="pa-section-header">
+        <div>
+          <h2>You get the rewritten resume, not a list of fixes</h2>
+          <p class="pa-section-sub">
+            Most tools hand back suggestions and leave the work to you. The $9 rewrite applies
+            them to every line and returns the finished document — one-time, no subscription.
+          </p>
+        </div>
+      </div>
+
+      <!-- Before/after pairs are genuine: "before" is verbatim from the sample
            resume fed to the agent, "after" is verbatim from the same run's
            rewrite_tips. Do not swap in invented copy here — the whole point of
            this section is that it is real. -->
@@ -430,8 +462,21 @@
         <details>
           <summary>Is Resume Roast really free?</summary>
           <div class="pa-faq-answer">
-            Yes. You get 5 roasts a day with no account at all — no email, no credit card. Signing in with a
-            free account raises that to 10 a day.
+            Yes, and the whole roast is free — score, teardown, strengths, rewrite tips and all. We do not
+            paywall the diagnosis. You get 5 roasts a day with no account at all — no email, no credit card.
+            Signing in with a free account raises that to 10 a day.
+          </div>
+        </details>
+        <!-- The paid product had no FAQ entry at all until 2026-08-07, which was a
+             gap given it is the only thing on this page competitors do not also do. -->
+        <details>
+          <summary>What does the $9 rewrite actually give me?</summary>
+          <div class="pa-faq-answer">
+            A complete rewritten resume — every section, rewritten to lead with achievements and to parse
+            cleanly through an ATS — plus a list of what changed and why, and the keywords you are missing.
+            You download it as Markdown or plain text and send it. It is a finished document, not a list of
+            suggestions to apply yourself. One payment of $9, no subscription. Not happy with it? Reply to
+            your receipt and we refund you, no questions asked.
           </div>
         </details>
         <details>
