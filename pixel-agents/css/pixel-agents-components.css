@@ -338,7 +338,11 @@
    ══════════════════════════════════════ */
 .pa-manifesto {
   position: relative;
-  width: 100%;
+  /* No explicit width — same rule as .pa-hero-v3 above. `width: 100%` resolved
+     against the parent CONTENT box, so the negative right margin had nothing to
+     expand into: the band bled left but stopped 64px short on the right, on all
+     9 pages that use it. At 640px it was worse — hanging 16px off the left edge
+     and leaving a 54px strip of page background down the right. */
   padding: 80px 56px 96px;
   margin: 48px -2rem 0;
   background:
@@ -869,6 +873,12 @@ button.pa-btn-editorial:hover,
 }
 @media (max-width: 640px) {
   .pa-spotlight-widgets { grid-template-columns: 1fr; }
+  /* Mirrors the hero's mobile gutter — .pa-main drops to 1rem padding at this
+     breakpoint, so the base -2rem overshoots the left edge by 16px. MUST live
+     after the base .pa-manifesto rule: the 640px block higher up this file sits
+     BEFORE it, and at equal specificity the later declaration wins regardless
+     of the media query. */
+  .pa-manifesto { margin: 48px -1rem 0; }
 }
 
 .pa-spotlight-widget-header {

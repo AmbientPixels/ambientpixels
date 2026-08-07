@@ -5,6 +5,41 @@
    rr-* ; shared pa-* classes come from the DS files.
    ═══════════════════════════════════════════════════════════ */
 
+/* ── Page rhythm ──
+   Design audit 2026-08-07 measured SIX different right edges going down this
+   page (1434 / 1132 / 1402 / 992 / 1252 / 1402 / 992 / 992 / 1370) while the
+   left edge never moved off 272. That swing is what read as "unbalanced" — not
+   the empty space itself.
+
+   Two tiers now, deliberately:
+     - grids (.rr-benefits, .rr-steps) span the full content column
+     - every self-contained card block shares --rr-card-w
+
+   The audit proposed capping ALL sections at 980px instead. Not taken: that
+   also narrows the 4-up benefit grid, and .rr-benefit p is already the
+   narrowest measure on the page at 36ch — 980 would push it to ~31ch and trade
+   a rhythm problem for a readability one. Capping the card tier alone gets the
+   edge count from six to three at zero cost in height. */
+:root {
+  --rr-card-w: 980px;
+  --rr-measure: 74ch;   /* comfortable reading measure; audit found lines up to 170ch */
+}
+
+/* Measure caps. The audit measured line lengths from 36ch to 170ch on this one
+   page — .pa-section-sub in #rewrite rendered as a SINGLE 167-character line
+   because .pa-section-header has no max-width. Cards can be wide; the text
+   inside them cannot. */
+.pa-section-sub,
+.rr-sample-section li,
+.rr-sample-section p,
+.rr-benefit--deliverable p,
+.rr-doc-note,
+.rr-protip p { max-width: var(--rr-measure); }
+
+/* The hero band carries 64px of padding INSIDE its tinted area, so the first
+   h2 after it sat flush at a 0px gap where every other section join is 48px. */
+.pa-hero-v3 + .pa-section { margin-top: 48px; }
+
 /* ── Benefit cards ── */
 .rr-benefits {
   display: grid;
@@ -74,14 +109,16 @@
    checked (2026-08-07), so universal claims are not defensible. Never name a
    competitor or quote their price: they change, and a stale table is a false one. */
 .rr-vs {
-  max-width: 860px;
+  max-width: var(--rr-card-w);
   border: 1px solid var(--pa-sep-strong);
   border-radius: var(--pa-radius-md);
   overflow: hidden;
 }
+/* Label column was 1.1fr — the WIDEST column held the SHORTEST text ("To try
+   it" is 50px in a 304px cell) while the actual comparison got squeezed. */
 .rr-vs-row {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1fr;
+  grid-template-columns: 0.62fr 1fr 1fr;
   gap: 1px;
   background: var(--pa-sep);
 }
@@ -122,7 +159,7 @@
 
 /* ── Sample roast output ── */
 .rr-sample {
-  max-width: 720px;
+  max-width: var(--rr-card-w);
   background: var(--pa-surface);
   border: 1px solid var(--pa-sep-strong);
   border-radius: var(--pa-radius-md);
@@ -295,7 +332,7 @@
    comes back, which is the actual differentiator. Monospace so it reads as a
    file rather than marketing copy. */
 .rr-doc {
-  max-width: 980px;
+  max-width: var(--rr-card-w);
   background: var(--pa-surface);
   border: 1px solid var(--pa-sep-strong);
   border-radius: var(--pa-radius-md);
@@ -352,44 +389,11 @@
   .rr-doc-cols { grid-template-columns: 1fr; }
 }
 
-/* ── Before / after rewrite demo ── */
-.rr-ba {
-  max-width: 720px;
-  margin-top: 1.5rem;
-  background: var(--pa-surface);
-  border: 1px solid var(--pa-sep-strong);
-  border-radius: var(--pa-radius-md);
-  overflow: hidden;
-}
-.rr-ba-head {
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid var(--pa-sep);
-  background: var(--pa-surface-raised);
-  font-family: var(--pa-font-mono);
-  font-size: var(--pa-t-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--pa-text-faint);
-}
-.rr-ba-body {
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-.rr-ba-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-.rr-ba-col {
-  padding: 0.85rem 1rem;
-  border-radius: var(--pa-radius-md);
-  border: 1px solid var(--pa-sep-strong);
-  background: var(--pa-neutral, transparent);
-}
-.rr-ba-col--before { border-left: 3px solid var(--pa-primary); }
-.rr-ba-col--after { border-left: 3px solid var(--pa-success); }
+/* ── Rewrite section furniture ──
+   The line-level before/after component that used to live here was removed once
+   the full-document comparison superseded it; ~70 lines of its CSS were left
+   behind matching nothing. Only these two survive, reused inside .rr-doc.
+   .rr-ba-label is also used by the document columns. */
 .rr-ba-label {
   display: block;
   font-family: var(--pa-font-mono);
@@ -399,15 +403,8 @@
   margin-bottom: 0.45rem;
   color: var(--pa-text-faint);
 }
-.rr-ba-col--before .rr-ba-label { color: var(--pa-primary); }
-.rr-ba-col--after .rr-ba-label { color: var(--pa-success); }
-.rr-ba-text {
-  margin: 0;
-  font-size: var(--pa-t-sm);
-  line-height: 1.6;
-  color: var(--pa-text-muted);
-}
-.rr-ba-col--before .rr-ba-text { font-style: italic; }
+.rr-doc-col--before .rr-ba-label { color: var(--pa-primary); }
+.rr-doc-col--after .rr-ba-label { color: var(--pa-success); }
 .rr-ba-foot {
   padding: 1rem 1.25rem 1.5rem;
   text-align: center;
