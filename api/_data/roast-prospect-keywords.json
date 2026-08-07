@@ -16,6 +16,7 @@
     "no interviews",
     "just got laid off"
   ],
+  "_killGateNote": "2026-08-07 CEO gate, mirrored in systemConfig.roastProspecting.killGate (runtime copy can be clobbered — this one is the durable record). Pre-committed test: once 30 further replies have been SENT past the baseline of 2, query productAnalyticsQuery?product=resumeroast&range=30d&metric=funnel. Fewer than 3 agent_run_started attributable to Bluesky => set enabled=false and move the capacity to camp-seo-search-intent. Do NOT measure across 2026-08-07 — resumeroast was split out of pixelagents that day, so earlier roast events are pooled with the 24-agent catalog and cannot answer this. Precedent: the AmbientScore cold-reply lane was disabled 2026-08-05 at 40 replies / 0 clicks; this gate exists so the roast lane gets a fair test decided in advance rather than an argument after the fact.",
   "_selfExclusionNote": "Added 2026-08-07. The lane matched our own Resume Roast promo post and queued a reply to ourselves — our marketing copy trips the resume-intent regex by design. The AS lane never had this bug because it requires a non-blocked site URL; the roast lane has no URL requirement, so it needs an explicit author/domain guard.",
   "ownHandles": [
     "ambientpixels.bsky.social"
