@@ -37,6 +37,34 @@
   margin: 0;
 }
 
+/* The deliverable. Spans the full grid (1 / -1 works at all three breakpoints:
+   4-col, 2-col, 1-col) rather than taking a fifth cell — a fifth equal card
+   would wrap the 4-col grid to an ugly 4+1 AND imply it is free like the other
+   four. It is the only paid item on the page, so it reads as its own tier. */
+.rr-benefit--deliverable {
+  grid-column: 1 / -1;
+  border-left: 3px solid var(--pa-primary);
+  background: var(--pa-surface-raised);
+}
+.rr-deliverable-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rr-deliverable-price {
+  margin-left: auto;
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-primary);
+  border: 1px solid var(--pa-primary);
+  border-radius: var(--pa-radius-pill);
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
 /* ── Sample roast output ── */
 .rr-sample {
   max-width: 720px;
