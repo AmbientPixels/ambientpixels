@@ -3083,7 +3083,11 @@ Write the full deliverable first, then the structured JSON block.`;
       // Posts must link to a blog article or include https://ambientpixels.ai
       // Exception: posts with {{ARTICLE_URL}} tokens (resolved at execute time)
       const hasUrl = /https?:\/\//.test(postText) || /\{\{ARTICLE_URL[^}]*\}\}/.test(postText);
-      if (!hasUrl) {
+      // Engagement-shape posts (task.post_shape, 2026-08-08) carry no link BY
+      // DESIGN — for them, "no URL" is correct, not a dropped link.
+      const _shapeTask = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+      const _isEngagementPost = !!(_shapeTask && _shapeTask.post_shape && _shapeTask.post_shape.kind === 'engagement');
+      if (!hasUrl && !_isEngagementPost) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — no URL found in post text. Must include a blog link or https://ambientpixels.ai');
         continue;
       }
