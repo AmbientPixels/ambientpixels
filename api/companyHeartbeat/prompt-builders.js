@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, _agentPersonalityData, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES, MAX_ACTIVE_OBJECTIVES } = require("./constants");
+const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, _agentPersonalityData, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES, MAX_ACTIVE_OBJECTIVES, STALE_REVIEW_THRESHOLD_MS } = require("./constants");
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
@@ -451,20 +451,28 @@ DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
   _reviewableRaw.sort((a, b) => new Date(a.updatedAt || a.createdAt || 0).getTime() - new Date(b.updatedAt || b.createdAt || 0).getTime());
   const reviewableTasks = _reviewableRaw
     .map(t => {
-      const _ageMin = Math.round((_nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime()) / 60000);
-      const _urgent = _ageMin >= 60 ? ' ⚠️ STALE ' + _ageMin + 'min — REVIEW NOW' : _ageMin >= 30 ? ' (waiting ' + _ageMin + 'min)' : '';
+      const _ageMs = _nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime();
+      const _ageMin = Math.round(_ageMs / 60000);
+      // Thresholds scale with the heartbeat cadence — see STALE_REVIEW_THRESHOLD_MS.
+      const _ageLabel = _ageMin >= 120 ? Math.round(_ageMin / 60) + 'h' : _ageMin + 'min';
+      const _urgent = _ageMs >= STALE_REVIEW_THRESHOLD_MS ? ' ⚠️ STALE ' + _ageLabel + ' — REVIEW NOW'
+        : _ageMs >= STALE_REVIEW_THRESHOLD_MS / 2 ? ' (waiting ' + _ageLabel + ')' : '';
       const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
       const _convergence = _delCount >= 3 ? ' 🔴 CONVERGENCE LOOP (' + _delCount + ' drafts — CEO needs to break the cycle)' : '';
       const _delTag = _delCount > 0 ? ', deliverables: ' + _delCount : ', no deliverable yet';
       return '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', type: ' + (t.taskType || 'general') + _delTag + ', id: ' + t.id + ')' + _urgent + _convergence;
     })
     .join('\n') || '(none)';
-  // Review urgency override: if 2+ tasks stale 60+ min, inject priority instruction
-  const _staleReviewCount = _reviewableRaw.filter(t => (_nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime()) >= 60 * 60000).length;
+  // Review urgency override: if 2+ tasks are stale past the cadence-derived grace window,
+  // inject a priority instruction. The window is deliberately 2 full heartbeat cycles — at
+  // 1 cycle every review item qualifies on the very next run, which fired this mandate at
+  // every agent on every cycle and burned ~a third of fleet capacity on a queue that never drained.
+  const _staleWindowH = Math.round(STALE_REVIEW_THRESHOLD_MS / 3600000);
+  const _staleReviewCount = _reviewableRaw.filter(t => (_nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime()) >= STALE_REVIEW_THRESHOLD_MS).length;
   const _reviewUrgencyNudge = _staleReviewCount >= 2
-    ? '\n\n🚨 REVIEW BOTTLENECK: ' + _staleReviewCount + ' tasks have been waiting for review 60+ minutes. YOUR FIRST ACTION THIS CYCLE MUST BE review-task on one of the stale tasks above. Do NOT execute your own tasks until you have reviewed at least one stale task.\n'
+    ? '\n\n🚨 REVIEW BOTTLENECK: ' + _staleReviewCount + ' tasks have been waiting for review ' + _staleWindowH + 'h+. YOUR FIRST ACTION THIS CYCLE MUST BE review-task on one of the stale tasks above. Do NOT execute your own tasks until you have reviewed at least one stale task.\n'
     : _staleReviewCount === 1
-    ? '\n\n⚠️ REVIEW NEEDED: 1 task has been waiting for review 60+ minutes. Prioritize reviewing it before executing your own work.\n'
+    ? '\n\n⚠️ REVIEW NEEDED: 1 task has been waiting for review ' + _staleWindowH + 'h+. Prioritize reviewing it before executing your own work.\n'
     : '';
 
   // Nova-only: surface untriaged tasks — ANY task without a Nova/system comment needs triage

@@ -23,7 +23,8 @@ const {
   FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
   PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY, PROPOSAL_REJECT_COOLDOWN_DAYS,
   MAX_ACTIVE_OBJECTIVES,
-  MAX_GOVERNANCE_LOG_ENTRIES
+  MAX_GOVERNANCE_LOG_ENTRIES,
+  STALE_REVIEW_THRESHOLD_MS
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
 const { repairReplyLink: _repairReplyLink, repairReplyLinkTo: _repairReplyLinkTo, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
@@ -1189,9 +1190,11 @@ Write the full deliverable first, then the structured JSON block.`;
       const _hasReviewAction = actions.some(a => a.type === 'review-task');
       if (!_hasReviewAction) {
         const _ownIdleTasks = agentTasks.filter(t => t.status === 'todo' || t.status === 'in-progress');
-        // Check for stale reviews: tasks in review 60+ min should trigger review injection
-        // even when agent has some idle work, to prevent review bottlenecks
-        const _staleReviewThreshold = 60 * 60 * 1000;
+        // Check for stale reviews: tasks in review past the cadence-derived grace window
+        // should trigger review injection even when the agent has some idle work, to prevent
+        // review bottlenecks. Derived from the heartbeat interval — a fixed 60min made every
+        // review item qualify on the next cycle regardless of cadence.
+        const _staleReviewThreshold = STALE_REVIEW_THRESHOLD_MS;
         const _hasStaleReviews = allActiveTasks.some(t =>
           t.status === 'review' && t.assignee !== agentId &&
           t.comments && t.comments.some(c => c.type === 'deliverable') &&

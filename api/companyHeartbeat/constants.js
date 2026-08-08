@@ -4,6 +4,37 @@
 const fs = require('fs');
 const path = require('path');
 
+// ── Heartbeat cadence (self-syncing) ──
+// The schedule lives in function.json (NCRONTAB: "sec min hour dom mon dow").
+// Anything expressed in "cycles" MUST derive from it rather than hardcode minutes:
+// the stale-review threshold was pinned at 60 minutes back when the heartbeat ran
+// hourly, then survived 1h -> 2h -> 4h -> 6h unchanged. At any cadence past 1h that
+// makes EVERY task still in review at the end of a cycle "stale" by the next one,
+// which pinned a fleet-wide "review before you do your own work" mandate on every
+// agent, every cycle, permanently. Derive, don't hardcode.
+function _readHeartbeatIntervalMs() {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'function.json'), 'utf8'));
+    const timer = (cfg.bindings || []).find(function (b) { return b && b.type === 'timerTrigger'; });
+    const schedule = timer && timer.schedule;
+    if (schedule) {
+      const stepped = /^\S+\s+\S+\s+\*\/(\d+)\s/.exec(schedule);
+      if (stepped) return parseInt(stepped[1], 10) * 60 * 60 * 1000;
+      if (/^\S+\s+\S+\s+\*\s/.test(schedule)) return 60 * 60 * 1000; // every hour
+    }
+  } catch (e) { /* fall through to the conservative default */ }
+  return 6 * 60 * 60 * 1000;
+}
+const HEARTBEAT_INTERVAL_MS = _readHeartbeatIntervalMs();
+
+// A task entering review must survive this long before it counts as STALE and earns
+// the fleet-wide review mandate. Two full cycles gives the natural reviewer a real
+// chance to pick it up voluntarily before every other agent is ordered to drop its
+// own work. One cycle is not enough: a task queued at cycle N is unavoidably one
+// full interval old at cycle N+1, so a 1-cycle grace fires the mandate every time.
+const STALE_REVIEW_GRACE_CYCLES = 2;
+const STALE_REVIEW_THRESHOLD_MS = HEARTBEAT_INTERVAL_MS * STALE_REVIEW_GRACE_CYCLES;
+
 // Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
 const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout', 'vale'];
 
@@ -624,5 +655,8 @@ module.exports = {
   REFLECTION_INTEL_FRESHNESS_MS,
   REFLECTION_DIGEST_HISTORY_SIZE,
   STRATEGY_FATIGUE_MIN_ATTEMPTS,
-  STRATEGY_FATIGUE_MIN_VS_MEDIAN
+  STRATEGY_FATIGUE_MIN_VS_MEDIAN,
+  HEARTBEAT_INTERVAL_MS,
+  STALE_REVIEW_GRACE_CYCLES,
+  STALE_REVIEW_THRESHOLD_MS
 };
