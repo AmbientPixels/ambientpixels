@@ -29,6 +29,7 @@ const {
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
 const { repairReplyLink: _repairReplyLink, repairReplyLinkTo: _repairReplyLinkTo, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
 const { normalizeReplyDraft: _normalizeReplyDraft } = require('./reply-normalize');
+const { filterActionableTasks: _filterActionableTasks, summarise: _summariseHidden } = require('./task-visibility');
 const SUTM = require('../_utils/socialUtm');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
@@ -386,10 +387,22 @@ async function runAgentHeartbeat(ctx) {
   const _echoParked = t =>
     agentId === 'echo' &&
     (t._social_action_created === true || (t._social_action_attempts || 0) >= QGV.SOCIAL_ATTEMPTS_CAP);
-  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived
+  const _agentTasksRaw = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived
     && !(agentId !== 'nova' && t.status === 'backlog')
     && !(agentId === 'pixel' && t.status === 'review')
     && !_echoParked(t));
+  // Hide work frozen behind a non-active campaign. Measured 2026-08-08: 30 of 51
+  // policy violations in 24h were ONE task blocked 31 times on a campaign paused
+  // since 08-05. index.js filters the campaign LIST to active, so agents never
+  // see a paused campaign — but its TASKS stayed on the board looking ordinary,
+  // with prompt-builders silently skipping the context block it could not
+  // resolve. Same rule as the idle gate: an agent should not pay to deliberate
+  // about work it is forbidden to do. Fails open if the campaign list is empty.
+  const _visibility = _filterActionableTasks(_agentTasksRaw, activeDirectives);
+  const agentTasks = _visibility.visible;
+  if (_visibility.hidden.length > 0) {
+    context.log('[Heartbeat]', agentId, _summariseHidden(_visibility.hidden));
+  }
   const _parkedPendingCount = agentId === 'echo'
     ? tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived && _echoParked(t)).length
     : 0;
