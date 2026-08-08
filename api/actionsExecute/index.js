@@ -423,6 +423,34 @@ module.exports = async function (context, req) {
         error: action.execution.last_error.message
       });
 
+      // A post the CEO approved did not go out. Until now the only traces were a
+      // comment on the parent task and a governance row — so when the one
+      // approved X post of the week died on an HTTP 401 (2026-08-07), the
+      // channel simply went quiet for another day and the silence was read as
+      // "the pipeline isn't producing". Failures that need a human decision
+      // (retry, re-auth, rewrite) have to reach the human the same way approvals
+      // and purchases do.
+      if (isSocialAction) {
+        try {
+          const { dispatchDiscord } = require('../_utils/fleetAlerts');
+          const err = action.execution.last_error || {};
+          const attempt = action.execution.attempts || 1;
+          const exhausted = attempt >= 3;
+          await dispatchDiscord({
+            title: 'Approved ' + platform + ' post failed to send',
+            description: 'Action ' + action.id + ' did not post.\n'
+              + '`' + (err.code || 'EXEC_ERROR') + '` ' + String(err.message || 'Unknown error').substring(0, 200) + '\n'
+              + 'Attempt ' + attempt + '/3 — '
+              + (exhausted
+                ? 'retries exhausted, the parent task is blocked.'
+                : 'retryable from the Actions page.'),
+            color: 0xC62828
+          });
+        } catch (alertErr) {
+          context.log.warn('[ActionsExecute] execution-failure Discord alert failed (non-fatal):', alertErr.message);
+        }
+      }
+
       context.res = {
         status: 502,
         headers: corsHeaders,
