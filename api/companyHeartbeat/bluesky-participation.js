@@ -32,7 +32,16 @@ var DEFAULTS = {
   maxPerDay: 2,               // deliberately small: this talks to strangers as the brand
   perAuthorCooldownDays: 14,
   maxAgeHours: 12,            // beyond this the thread has moved on and a reply is shouting
-  minScore: 55,               // discovery keeps >= 40; drafting is pickier
+  // Discovery keeps >= 40. This was 55 when the score was the ONLY quality gate.
+  // It is not any more: bluesky-relevance.js now decides fit deterministically,
+  // and the score only measures popularity — recency + engagement + keyword hit.
+  // Holding 55 re-introduced exactly the popularity bias relevance exists to
+  // remove. Measured on the first live run with retargeted keywords: three
+  // candidates, one PASSED relevance (a real first-person thread about agent
+  // reliability) and was dropped solely for scoring 42. Lowered to keep a floor
+  // of freshness and audience-size — a thread nobody reads is still worthless —
+  // while letting relevance make the quality call.
+  minScore: 45,
   minTextLength: 40           // a three-word post gives nothing specific to answer
 };
 
