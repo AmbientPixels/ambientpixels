@@ -2488,7 +2488,12 @@
       // Call server
       fetch(API_BASE + '/actions/execute', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // actionsExecute requires x-company-secret OR an SWA principal. On prod API_BASE is the
+        // Function App host directly, so SWA never injects the principal — without CompanyStore's
+        // write headers every manual execute returns 401 and the action is marked failed.
+        headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders)
+          ? CompanyStore.getWriteHeaders()
+          : { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action_id: id })
       }).then(function (res) {
         return res.text().then(function (text) {
