@@ -30,6 +30,7 @@ const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalA
 const { repairReplyLink: _repairReplyLink, repairReplyLinkTo: _repairReplyLinkTo, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
 const { normalizeReplyDraft: _normalizeReplyDraft } = require('./reply-normalize');
 const { filterActionableTasks: _filterActionableTasks, summarise: _summariseHidden } = require('./task-visibility');
+const { repairBareHomepageUrl: _repairBareHomepageUrl } = require('../_utils/productUrl');
 const SUTM = require('../_utils/socialUtm');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
@@ -3119,6 +3120,24 @@ Write the full deliverable first, then the structured JSON block.`;
       // Enforce proper sentence-case on the final post copy. The founder-voice doctrine writes
       // sentences lowercase; humans expect sentence case. Tone (short lines, no hype) is kept.
       socialPayload.text = capitalizeSentences(socialPayload.text || '');
+
+      // Send the post to the page it is actually about. Echo creates
+      // social_post.schedule actions with NO taskId and NO campaign_id, so the
+      // campaign-URL resolution earlier in this file never runs for them — Echo
+      // writes the bare domain and the post ships pointing at the front page.
+      // Happened twice on 2026-08-08 AFTER the www campaign-URL fix, including a
+      // post about resumes carrying #jobsearch #resume #careers straight to the
+      // homepage, against an objective measured in Resume Roast runs.
+      //
+      // Only a BARE homepage link is touched: a link that already carries a path
+      // is correct, and copy whose product cannot be resolved keeps the homepage
+      // rather than being sent somewhere invented. Runs before UTM injection
+      // (~3307) so the corrected URL is what gets tracked.
+      const _repairedUrlText = _repairBareHomepageUrl(socialPayload.text);
+      if (_repairedUrlText !== socialPayload.text) {
+        context.log('[Heartbeat]', agentId, 'social post pointed at the homepage — repaired to the product page it is about');
+        socialPayload.text = _repairedUrlText;
+      }
 
       // ── SEMANTIC DEDUP (Phase 1): block near-duplicate copy vs recent posts ──
       // The same-task guards above stop one task spawning two actions; they miss campaign
