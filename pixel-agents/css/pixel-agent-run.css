@@ -966,3 +966,22 @@ body[data-theme="light"] .pa-result-browse { color: var(--pa-primary); }
   color: var(--pa-primary);
   flex-shrink: 0;
 }
+
+/* Share card preview. The card endpoint existed since launch and the frontend
+   never once referenced it — people were handed a URL to paste and never shown
+   the image it pointed at. Nobody shares an artifact they have not seen. */
+.pa-share-card-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.75rem 0 1rem;
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-md);
+  background: var(--pa-neutral);
+}
+
+.pa-share-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}

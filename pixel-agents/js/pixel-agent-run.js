@@ -602,7 +602,56 @@ function renderResult(data) {
   }
 
   maybeRenderRewriteUpsell(body);
+  renderShareCard(body);
   revealResult();
+}
+
+// Show people the card that has their score on it.
+//
+// The card endpoint has existed all along and the frontend never referenced it
+// once — we rendered a branded image of someone's result and only ever handed
+// them a URL to paste. Nobody shares an artifact they have not seen. This is the
+// only growth mechanic that needs no permission from anyone, so it is worth
+// making tangible: the image, and a download, because on LinkedIn and X an image
+// outperforms a link and neither lets you paste a URL and get this.
+function renderShareCard(body) {
+  if (!currentRunId || resultScore() === null) return;   // no number, nothing worth sharing
+
+  const url = getApiBase() + '/pixel-agent-share-card?run=' + encodeURIComponent(currentRunId);
+  const card = document.createElement('div');
+  card.className = 'pa-result-card pa-share-card';
+  card.innerHTML =
+    '<div class="pa-result-card-label">Your card</div>' +
+    '<img class="pa-share-card-img" alt="Your score card" loading="lazy" src="' + escapeAttr(url) + '">' +
+    '<div class="pa-share-card-actions">' +
+      '<button class="pa-run-btn" id="pa-share-dl"><i class="fas fa-download"></i> Save image</button>' +
+      '<button class="pa-run-btn pa-run-btn--secondary" id="pa-share-link"><i class="fas fa-link"></i> Copy link</button>' +
+    '</div>';
+  body.appendChild(card);
+
+  // The card renders server-side through satori, so the first request is not
+  // instant. If it fails, drop the whole block rather than leaving a broken
+  // image where someone's result should be.
+  const img = card.querySelector('.pa-share-card-img');
+  img.addEventListener('error', () => card.remove());
+
+  card.querySelector('#pa-share-dl').addEventListener('click', async () => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('card unavailable');
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'resume-roast-' + resultScore() + '.png';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      if (window.ProductAnalytics) try { ProductAnalytics.track('share_card_downloaded', { agentId: currentAgent.id, runId: currentRunId }); } catch (_) {}
+    } catch (_) {
+      showToast('Could not save the image — try the link instead.');
+    }
+  });
+
+  card.querySelector('#pa-share-link').addEventListener('click', shareResult);
 }
 
 // The run button sits below the fold on a phone, so the user is NECESSARILY
