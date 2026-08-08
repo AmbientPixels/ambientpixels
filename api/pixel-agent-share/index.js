@@ -50,7 +50,7 @@ module.exports = async function (context, req) {
     }
 
     const imageUrl = 'https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-share-card?run=' + encodeURIComponent(runId);
-    const agentUrl = 'https://ambientpixels.ai/pixel-agents/run.html?agent=' + encodeURIComponent(run.agentId);
+    const agentUrl = 'https://www.ambientpixels.ai/pixel-agents/run.html?agent=' + encodeURIComponent(run.agentId);
 
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
