@@ -289,6 +289,12 @@ module.exports = async function (context, req) {
             orderId: o.orderId, status: o.status, email: o.email || null,
             createdAt: o.createdAt, paidAt: o.paidAt || null, deliveredAt: o.deliveredAt || null,
             retryCount: o.retryCount || 0, error: o.error || null,
+            // The double-charge alert names two order ids and says they cover
+            // the same resume. Without this the operator has no way to check
+            // that claim before issuing a refund — and no way to see that
+            // pre-2026-08-07 orders carry no fingerprint at all, so they can
+            // never dedup against anything.
+            fingerprint: o.fingerprint || null,
             key: composer.buildRewriteToken(o.orderId)
           }))
         }
