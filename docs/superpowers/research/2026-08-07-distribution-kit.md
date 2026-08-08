@@ -1,5 +1,30 @@
 # Resume Roast — Distribution Kit
 
+---
+
+## ⚠️ PORTFOLIO CONSTRAINT — launch slots are shared, and mostly already spent
+
+**Found 2026-08-07 by the CEO, and it invalidates part of the ranking below.** Five products live on
+one root domain, and the launch surfaces are gated per-domain or per-queue. So every slot spent on one
+product is denied to the other four. This is not a Resume Roast question, it is a portfolio question.
+
+| Surface | The gate | Status |
+|---|---|---|
+| **Product Hunt** | *"Products that share the same root domain must adhere to a six-month submission gap."* | Launching Resume Roast costs AmbientScore, CardForge, StoryForge and Blindspot their slot for six months |
+| **Uneed** | Free tier is *"Join the line"* — next available slot | **AmbientScore is already queued, launching in ~110 days.** Resume Roast on the free tier lands behind it |
+
+**Uneed pricing, verified against their own pricing page 2026-08-07:** free = join the line;
+**"Fast-track" $14.99** (~2 weeks out); **"Skip the line" $29.99** (choose the date); relaunch $15;
+Uneed Pro $99/year. All tiers give a do-follow backlink from a 75DR site.
+
+So Uneed is **not** the ~30-minute free win it is ranked as below. It is either a four-month wait or a
+spend decision, and the near-term slot is already AmbientScore’s.
+
+**The real question this raises:** with a shared domain and five products, which product deserves the
+one Product Hunt slot and the one near-term Uneed slot? Resume Roast is the newest and the most
+saturated category (17 resume tools on Show HN this year, none above 5 points). AmbientScore already
+holds the Uneed slot. That ordering may already be the right one.
+
 > 🔒 **DO NOT COMMIT THIS FILE AS-IS — it will be publicly readable the moment it deploys.**
 > Verified 2026-08-07: markdown under `docs/superpowers/` is served as **raw public content**, e.g.
 > `https://www.ambientpixels.ai/docs/superpowers/handoffs/2026-08-07-resume-roast-traffic-readiness.md`
@@ -27,7 +52,7 @@ Ranked by expected value per unit of your time, not by list position.
 | # | Action | Cost | Time | Why it ranks here |
 |---|---|---|---|---|
 | 1 | **Clear the pre-flight blockers** — top up Anthropic, decide the PH domain question, accept that the HN post must be hand-typed | $0 + a top-up | ~30 min | Every row below is unsafe, wasted, or actively harmful until these are settled |
-| 2 | **SaaSHub + Uneed + PitchWall** — §1.1 A/B/C | **$0** | ~30 min total | Three genuinely free listings, two with do-follow backlinks. **Uneed has a free tier — the July "payment required" note was wrong.** Lowest effort per unit of value on the page |
+| 2 | **SaaSHub + PitchWall** (Uneed now blocked — see portfolio constraint above) — §1.1 A/B/C | **$0** | ~30 min total | Three genuinely free listings, two with do-follow backlinks. **Uneed has a free tier — the July "payment required" note was wrong.** Lowest effort per unit of value on the page |
 | 3 | **Show HN** — brief in §2.1 | **$0** | 1 h (must be **hand-written**) | Our no-signup model is literally what the Show HN guidelines ask for. But measured base rate for this category is **2-5 points**. Do it because it is cheap, not because it will work |
 | 4 | **Indie Hackers** — post written, §2.3 | **$0** | 30 min | Verified alive. The one surface where being in a saturated category is *material for the post* rather than a handicap |
 | 5 | **Product Hunt** — post written, §2.2 | $0 | 2-3 h | Free, but needs 2 gallery images at 1270×760 that do not exist, **and burns the PH slot for every ambientpixels.ai product for six months.** Approve the trade deliberately |
