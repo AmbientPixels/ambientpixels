@@ -5,6 +5,7 @@
 const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('../actionsExecute/executors');
 const outcomeBaseline = require('../actionsExecute/executors/_utils/outcomeBaseline');
+const { resolveStuckExecution } = require('./stuck-execution');
 
 module.exports = async function (context) {
   var demoGuard = require('../_utils/demoGuard');
@@ -43,26 +44,42 @@ module.exports = async function (context) {
       // Already succeeded — skip
       if (a.execution && a.execution.status === 'success') continue;
 
-      // Stuck-running escape hatch: if running for >15 min, check receipt then mark
-      if (a.execution && a.execution.status === 'running' && a.execution.started_at) {
-        const runningFor = now - new Date(a.execution.started_at).getTime();
-        if (runningFor > STUCK_THRESHOLD_MS) {
-          // If action has a valid receipt, it actually succeeded — promote to success
-          if (a.execution.receipt && (a.execution.receipt.post_id || a.execution.receipt.post_url || a.execution.receipt.public_url)) {
-            context.log('[Scheduler] Action', a.id, 'was stuck but has valid receipt — marking success');
-            a.execution.status = 'success';
-            a.execution.finished_at = a.execution.receipt.published_at || new Date().toISOString();
-            a.execution_status = 'success';
-          } else {
-            context.log.warn('[Scheduler] Action', a.id, 'stuck running for', Math.round(runningFor / 60000), 'min — marking failed');
-            a.execution.status = 'failed';
-            a.execution.finished_at = new Date().toISOString();
-            a.execution.last_error = { code: 'RUN_STUCK', message: 'Execution stuck running for ' + Math.round(runningFor / 60000) + ' minutes' };
-            a.execution_status = 'failed';
-          }
+      // Parked for a human after an unverifiable dispatch. NEVER auto-retry
+      // these: the whole point is that we do not know whether they already
+      // posted. See stuck-execution.js for the double-post this prevents.
+      if (a.execution && a.execution.requires_manual_review) continue;
+
+      // Stuck-running escape hatch. The decision lives in stuck-execution.js
+      // because the old inline version double-posted three Bluesky replies on
+      // 2026-08-08: it decided "did this already post?" by reading
+      // execution.receipt, which is written by the very write-back whose
+      // failure is what leaves an action stuck. Absent by construction, so it
+      // always concluded 'failed', and 'failed' is eligible.
+      if (a.execution && a.execution.status === 'running') {
+        const _stuck = resolveStuckExecution(a, now, STUCK_THRESHOLD_MS);
+        if (_stuck.verdict === 'success') {
+          context.log('[Scheduler] Action', a.id, 'was stuck but has valid receipt — marking success');
+          a.execution.status = 'success';
+          a.execution.finished_at = a.execution.receipt.published_at || new Date().toISOString();
+          a.execution_status = 'success';
+          actions[i] = a;
+        } else if (_stuck.verdict === 'needs_review') {
+          context.log.warn('[Scheduler] Action', a.id, 'dispatched but never confirmed — parking for manual review, NOT retrying (it may already be live)');
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = _stuck.error;
+          a.execution.requires_manual_review = true;
+          a.execution_status = 'failed';
+          actions[i] = a;
+        } else if (_stuck.verdict === 'failed') {
+          context.log.warn('[Scheduler] Action', a.id, 'stuck running —', _stuck.error.message);
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = _stuck.error;
+          a.execution_status = 'failed';
           actions[i] = a;
         }
-        continue; // either just resolved or still within threshold — skip
+        continue; // resolved, parked, or still within threshold — never dispatch this pass
       }
 
       // Max attempts cap
