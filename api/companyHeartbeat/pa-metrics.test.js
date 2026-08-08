@@ -30,6 +30,53 @@ t('internal (our own) runs never count as demand — the publicScans7d rule', fu
   assert.strictEqual(countRunsInEvents(events), 1);
 });
 
+t('one run reported by BOTH the browser and the server counts once', function () {
+  // The client emits agent_run_completed and api/pixel-agent-run emits
+  // run_delivered for the same roast. Counting both would inflate the kill-gate
+  // metric by ~2x for every run that finished on screen.
+  const events = [
+    { product: 'resumeroast', event: 'run_delivered', props: { runId: 'run-1' } },
+    { product: 'resumeroast', event: 'agent_run_completed', props: { runId: 'run-1' } }
+  ];
+  assert.strictEqual(countRunsInEvents(events), 1);
+});
+
+t('a run delivered to a closed tab still counts — server-only is a real run', function () {
+  const events = [
+    { product: 'resumeroast', event: 'run_delivered', props: { runId: 'run-a' } },
+    { product: 'resumeroast', event: 'run_delivered', props: { runId: 'run-b' } },
+    { product: 'resumeroast', event: 'agent_run_completed', props: { runId: 'run-b' } }
+  ];
+  assert.strictEqual(countRunsInEvents(events), 2);
+});
+
+t('history predating run_delivered is not lost', function () {
+  // Client events from before the server emitter shipped carry a runId and no
+  // server twin. Dropping them would read the kill gate near zero on 08-22 for
+  // a lane that was working.
+  const events = [
+    { product: 'resumeroast', event: 'agent_run_completed', props: { runId: 'old-1' } },
+    { product: 'resumeroast', event: 'agent_run_completed', props: { runId: 'old-2' } }
+  ];
+  assert.strictEqual(countRunsInEvents(events), 2);
+});
+
+t('a failed run is not a delivered run', function () {
+  const events = [
+    { product: 'resumeroast', event: 'run_failed', props: { runId: 'x', reason: 'rate_limited' } },
+    { product: 'resumeroast', event: 'agent_run_started' }
+  ];
+  assert.strictEqual(countRunsInEvents(events), 0);
+});
+
+t('an internal server-side delivery is excluded too', function () {
+  const events = [
+    { product: 'resumeroast', event: 'run_delivered', props: { runId: 'mine' }, internal: true },
+    { product: 'resumeroast', event: 'run_delivered', props: { runId: 'theirs' } }
+  ];
+  assert.strictEqual(countRunsInEvents(events), 1);
+});
+
 t('empty or malformed input counts 0 without throwing', function () {
   assert.strictEqual(countRunsInEvents([]), 0);
   assert.strictEqual(countRunsInEvents(null), 0);

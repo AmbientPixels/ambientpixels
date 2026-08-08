@@ -68,6 +68,100 @@ function todayKey() {
   return new Date().toISOString().split('T')[0];
 }
 
+// ── Server-side run truth ────────────────────────────────────────────────────
+//
+// The browser emits agent_run_started before this request and agent_run_completed
+// only after the answer renders, so from the outside every other outcome looks
+// identical: a start with no completion. Production read 25 starts against 5
+// completions with no way to tell a 429 from a 503 from a closed tab.
+//
+// These two events are emitted by the process that actually did the work:
+//
+//   started - delivered  = OUR failure rate (rate limits, capacity, bugs)
+//   delivered - completed = THEIR abandonment rate (tab closed before the render)
+//
+// Different numbers, different fixes. run_failed carries props.reason so the
+// first number splits further; "failed" means the run did not deliver, which
+// includes refusals we issued on purpose (a rate-limited user is still someone
+// who wanted a roast and did not get one).
+const pa = require('../_utils/productAnalytics');
+
+// Only these two ever reach this endpoint from an instrumented page, and an
+// event filed under a product the query API does not know is a silent drop.
+const PA_PRODUCTS = ['resumeroast', 'pixelagents'];
+
+function paIdentity(req, context) {
+  const body = req.body || {};
+  const client = (body._pa && typeof body._pa === 'object') ? body._pa : null;
+
+  // Prefer the browser's own id. Funnel steps count distinct userIds, so any
+  // other id makes the server's events describe a different person than the
+  // client's events about the same run.
+  let userId = (client && typeof client.userId === 'string') ? client.userId.substring(0, 100) : '';
+  let identitySource = 'client';
+  let isAuth = false;
+
+  if (!userId) {
+    try {
+      const info = extractUserInfo(req, context);
+      if (info && info.isAuthenticated && info.userId) {
+        userId = String(info.userId).substring(0, 100);
+        identitySource = 'auth';
+        isAuth = true;
+      }
+    } catch { /* identity is best-effort; analytics must never break a run */ }
+  }
+  if (!userId) {
+    // Last resort so the event is countable at all — an event without a userId
+    // is dropped by computeFunnels entirely. It will not join to any client
+    // event, which is why identity_source rides along: a run of these means
+    // stale cached JS, not a run of anonymous strangers.
+    userId = 'ip_' + hashIP(getClientIP(req));
+    identitySource = 'ip';
+  }
+
+  const clientProduct = client && client.product;
+  return {
+    product: PA_PRODUCTS.indexOf(clientProduct) !== -1
+      ? clientProduct
+      : (body.agentId === 'resume-roast' ? 'resumeroast' : 'pixelagents'),
+    userId,
+    identitySource,
+    isAuth,
+    sessionId: (client && typeof client.sessionId === 'string') ? client.sessionId.substring(0, 60) : '',
+    internal: !!(client && client.internal === true)
+  };
+}
+
+// Awaited by callers, never fire-and-forget: Azure ends the invocation when the
+// handler returns and does not guarantee pending IO afterwards — the same reason
+// the rate-limit write was losing counts. Silent on failure; analytics must
+// never turn a delivered roast into an error.
+async function emitRunEvent(context, req, event, props) {
+  try {
+    const id = paIdentity(req, context);
+    await pa.emitEvent(
+      id.product,
+      event,
+      Object.assign({
+        agentId: (req.body || {}).agentId || '',
+        identity_source: id.identitySource
+      }, props || {}),
+      {
+        category: event === 'run_delivered' ? 'funnel' : 'error',
+        source: 'server',
+        userId: id.userId,
+        isAuth: id.isAuth,
+        sessionId: id.sessionId,
+        page: '/api/pixel-agent-run',
+        internal: id.internal
+      }
+    );
+  } catch (paErr) {
+    context.log.warn('[PixelAgentRun] ' + event + ' event failed (non-fatal):', paErr.message);
+  }
+}
+
 module.exports = async function (context, req) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -81,7 +175,10 @@ module.exports = async function (context, req) {
     return;
   }
 
+  const runStartedMs = Date.now();
+
   if (!ANTHROPIC_API_KEY) {
+    await emitRunEvent(context, req, 'run_failed', { reason: 'offline', http: 500 });
     context.res = {
       status: 500,
       headers: corsHeaders,
@@ -120,6 +217,7 @@ module.exports = async function (context, req) {
 
     if (!agent) {
       const agents = loadAgentRegistry();
+      await emitRunEvent(context, req, 'run_failed', { reason: 'unknown_agent', http: 400 });
       context.res = {
         status: 400,
         headers: corsHeaders,
@@ -133,6 +231,7 @@ module.exports = async function (context, req) {
 
     // Validate input
     if (!input || !input.trim()) {
+      await emitRunEvent(context, req, 'run_failed', { reason: 'empty_input', http: 400 });
       context.res = {
         status: 400,
         headers: corsHeaders,
@@ -145,6 +244,9 @@ module.exports = async function (context, req) {
     // resume the user never submitted and tell them nothing about it — the
     // answer looks complete and is quietly wrong, which is worse than an error.
     if (input.trim().length > MAX_INPUT_CHARS) {
+      await emitRunEvent(context, req, 'run_failed', {
+        reason: 'input_too_long', http: 400, chars: input.trim().length
+      });
       context.res = {
         status: 400,
         headers: corsHeaders,
@@ -160,9 +262,10 @@ module.exports = async function (context, req) {
 
     // URL validation for url-type agents
     if (agent.inputValidation === 'url') {
-      try {
-        new URL(input.trim());
-      } catch {
+      let urlOk = true;
+      try { new URL(input.trim()); } catch { urlOk = false; }
+      if (!urlOk) {
+        await emitRunEvent(context, req, 'run_failed', { reason: 'invalid_url', http: 400 });
         context.res = {
           status: 400,
           headers: corsHeaders,
@@ -238,6 +341,14 @@ module.exports = async function (context, req) {
           } else {
             message = 'You\'ve used all ' + dailyLimit + ' free runs for today. Buy a run pack or go Pro for unlimited runs.';
           }
+          // The likeliest single explanation for a start with no completion,
+          // and the one the client cannot distinguish from a crash: the anon
+          // bucket is 5/day per IP HASH, so shared wifi and mobile CGNAT spend
+          // it on someone else's runs.
+          await emitRunEvent(context, req, 'run_failed', {
+            reason: 'rate_limited', http: 429,
+            authenticated: isAuthenticated, limit: dailyLimit, credits
+          });
           context.res = {
             status: 429,
             headers: corsHeaders,
@@ -352,6 +463,9 @@ module.exports = async function (context, req) {
       // mid-sentence and the resume scored against half a job — with the user
       // told nothing. Same reasoning as the input cap above: say so instead.
       if (secondary.length > MAX_SECONDARY_CHARS) {
+        await emitRunEvent(context, req, 'run_failed', {
+          reason: 'secondary_too_long', http: 400, chars: secondary.length
+        });
         context.res = {
           status: 400,
           headers: corsHeaders,
@@ -408,6 +522,10 @@ module.exports = async function (context, req) {
       const message = err.reason === 'capacity'
         ? agent.name + ' is over capacity right now. Give it a minute and try again — your text is still here.'
         : agent.name + ' is temporarily unavailable. This is on us, not your input. Try again shortly.';
+      await emitRunEvent(context, req, 'run_failed', {
+        reason: 'llm_unavailable', http: 503, llm_reason: err.reason || '',
+        duration_ms: Date.now() - runStartedMs
+      });
       context.res = {
         status: 503,
         headers: { ...corsHeaders, 'Retry-After': '60' },
@@ -570,6 +688,18 @@ module.exports = async function (context, req) {
       context.log('[PixelAgentRun] Tokens — input:', llm.usage.promptTokens, 'output:', llm.usage.completionTokens, 'model:', llm.modelId);
     }
 
+    // The answer exists and is about to be returned. Anything that happens after
+    // this — the tab closing, the render failing — is abandonment, not failure,
+    // and that is exactly the line this event draws. duration_ms rides along
+    // because "how long did they wait" is the first question abandonment asks.
+    await emitRunEvent(context, req, 'run_delivered', {
+      runId,
+      duration_ms: Date.now() - runStartedMs,
+      model: llm.modelId || '',
+      fell_back_from: llm.fellBackFrom || undefined,
+      tier: unlimited ? 'pro' : 'free'
+    });
+
     context.res = {
       status: 200,
       headers: corsHeaders,
@@ -591,6 +721,11 @@ module.exports = async function (context, req) {
 
   } catch (err) {
     context.log.error('[PixelAgentRun] Unexpected error:', err.message, err.stack);
+    await emitRunEvent(context, req, 'run_failed', {
+      reason: 'server_error', http: 500,
+      message: String((err && err.message) || err).substring(0, 200),
+      duration_ms: Date.now() - runStartedMs
+    });
     context.res = {
       status: 500,
       headers: corsHeaders,

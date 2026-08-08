@@ -292,6 +292,29 @@
     },
 
     /**
+     * The identity this SDK stamps on its events.
+     *
+     * Exists so a SERVER can emit an event about the same visitor. Funnel steps
+     * are counted as distinct userIds, and the browser's id is a localStorage
+     * value the server has no way to know — so a server event minted under any
+     * other id reads as a different person, and "delivered" can never be
+     * compared against "started". The internal flag is the same story: it lives
+     * on the device, so only the device can tell the server that this run is
+     * ours and must not count as demand.
+     *
+     * Send it with the request; do not persist it anywhere else.
+     * @returns {{product: string, userId: string, sessionId: string, internal: boolean}}
+     */
+    getIdentity: function () {
+      return {
+        product: _product,
+        userId: _userId,
+        sessionId: _sessionId,
+        internal: _internal
+      };
+    },
+
+    /**
      * First-touch campaign attribution captured from the landing URL.
      * Attach to a checkout POST body so revenue can be traced to the campaign.
      * @returns {{utm_content: string, utm_source: string}}

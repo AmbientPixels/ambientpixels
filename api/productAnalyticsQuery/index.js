@@ -48,7 +48,12 @@ var FUNNELS = {
   cardforge: ['page_view', 'quickbuild_completed', 'arena_battle_end'],
   storyforge: ['page_view', 'adventure_started'],
   blog: ['page_view', 'post_viewed'],
-  pixelagents: ['page_view', 'agent_run_started', 'agent_run_completed', 'checkout_initiated'],
+  // run_delivered sits between the two client events on purpose. agent_run_started
+  // fires before the request and agent_run_completed only if the tab is still open
+  // when the answer renders, so the drop between them pooled our failures with
+  // their impatience. The server event splits it: started→delivered is what we
+  // broke, delivered→completed is who left.
+  pixelagents: ['page_view', 'agent_run_started', 'run_delivered', 'agent_run_completed', 'checkout_initiated'],
   agentforge: ['page_view', 'agent_submitted'],
   // Every stage below is a real event already emitted in code: cta_click from
   // resume-roast/index.html, the run pair and both rewrite_upsell_* from
@@ -70,6 +75,9 @@ var FUNNELS = {
     'cta_click',
     { step: 'run_page_view', event: 'page_view', pages: ['/pixel-agents/run.html'] },
     'agent_run_started',
+    // Server-side truth (api/pixel-agent-run). See the pixelagents funnel above
+    // for why it belongs between the two client events.
+    'run_delivered',
     'agent_run_completed',
     'rewrite_upsell_view',
     'rewrite_upsell_click',
@@ -160,6 +168,15 @@ function computeEvents(events, product) {
     var key = e.product + ':' + e.event;
     if (!counts[key]) counts[key] = { product: e.product, event: e.event, count: 0 };
     counts[key].count++;
+    // A bare run_failed count says a run died but not what killed it, and the
+    // whole point of emitting it is to tell a rate limit apart from a capacity
+    // outage. Additive: events without a reason are unchanged, and the field is
+    // simply absent for them.
+    var reason = e.props && e.props.reason;
+    if (typeof reason === 'string' && reason) {
+      if (!counts[key].reasons) counts[key].reasons = {};
+      counts[key].reasons[reason] = (counts[key].reasons[reason] || 0) + 1;
+    }
   });
 
   var sorted = Object.values(counts).sort(function (a, b) { return b.count - a.count; });

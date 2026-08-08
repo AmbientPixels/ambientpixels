@@ -58,6 +58,7 @@ test('the full funnel reports every stage, purchase and delivery included', asyn
     ev('cta_click', 'anon1', '/resume-roast/'),
     ev('page_view', 'anon1', '/pixel-agents/run.html'),
     ev('agent_run_started', 'anon1', '/pixel-agents/run.html'),
+    ev('run_delivered', 'anon1', '/api/pixel-agent-run'),   // server-side
     ev('agent_run_completed', 'anon1', '/pixel-agents/run.html'),
     ev('rewrite_upsell_view', 'anon1', '/pixel-agents/run.html'),
     ev('rewrite_upsell_click', 'anon1', '/pixel-agents/run.html'),
@@ -67,10 +68,44 @@ test('the full funnel reports every stage, purchase and delivery included', asyn
   ]);
   assert.deepStrictEqual(f, {
     landing_view: 1, cta_click: 1, run_page_view: 1,
-    agent_run_started: 1, agent_run_completed: 1,
+    agent_run_started: 1, run_delivered: 1, agent_run_completed: 1,
     rewrite_upsell_view: 1, rewrite_upsell_click: 1,
     rewrite_purchase: 1, rewrite_delivery_view: 1, rewrite_delivered: 1
   });
+});
+
+test('run_delivered splits our failure rate from their abandonment rate', async () => {
+  // Three visitors start. One never reaches the model (rate limited, no
+  // run_delivered). One is served and closes the tab before it renders (no
+  // agent_run_completed). One sees the roast. Before the server event all three
+  // looked the same from outside — a start with no completion for two of them.
+  const f = await funnel([
+    ev('agent_run_started', 'blocked', '/pixel-agents/run.html'),
+
+    ev('agent_run_started', 'left', '/pixel-agents/run.html'),
+    ev('run_delivered', 'left', '/api/pixel-agent-run'),
+
+    ev('agent_run_started', 'stayed', '/pixel-agents/run.html'),
+    ev('run_delivered', 'stayed', '/api/pixel-agent-run'),
+    ev('agent_run_completed', 'stayed', '/pixel-agents/run.html')
+  ]);
+  assert.strictEqual(f.agent_run_started, 3);
+  assert.strictEqual(f.run_delivered, 2, 'our failure rate is 1 of 3');
+  assert.strictEqual(f.agent_run_completed, 1, 'their abandonment rate is 1 of 2 delivered');
+});
+
+test('a server event minted under its own id would break the comparison', async () => {
+  // The whole reason the browser forwards its pa_anon_id: steps count DISTINCT
+  // userIds, so a server event under any other identity reads as a second
+  // person and delivered can exceed started.
+  const f = await funnel([
+    ev('agent_run_started', 'anon_abc', '/pixel-agents/run.html'),
+    ev('run_delivered', 'ip_deadbeef', '/api/pixel-agent-run')
+  ]);
+  assert.strictEqual(f.agent_run_started, 1);
+  assert.strictEqual(f.run_delivered, 1);
+  // Same run, two identities — the funnel now describes two people. Asserted so
+  // the failure mode is documented, not so it is acceptable.
 });
 
 test('the three page_view sources do not pool into one inflated first step', async () => {

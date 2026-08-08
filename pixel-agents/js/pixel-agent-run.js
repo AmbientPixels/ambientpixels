@@ -371,6 +371,15 @@ async function runAgent() {
     ? (document.getElementById('pa-input-secondary') || {}).value || ''
     : undefined;
 
+  // Analytics identity, forwarded so the API can emit run_delivered / run_failed
+  // under the SAME visitor this page just filed agent_run_started under.
+  // Without it the server's events land on a stranger's id and the two halves of
+  // the funnel cannot be compared at all — and the pa_internal device flag,
+  // which only this browser knows, would stop excluding our own runs the moment
+  // the truth moved server-side.
+  let paIdentity = null;
+  try { if (window.ProductAnalytics) paIdentity = ProductAnalytics.getIdentity(); } catch (_) {}
+
   try {
     const hdrs = { 'Content-Type': 'application/json' };
     if (authPrincipalHeader) hdrs['x-cf-auth-principal'] = authPrincipalHeader;
@@ -382,7 +391,8 @@ async function runAgent() {
         input: input,
         // Only sent when the agent declares a second input and the user filled
         // it in. The API ignores it entirely for agents without the declaration.
-        secondaryInput: sentSecondary
+        secondaryInput: sentSecondary,
+        _pa: paIdentity
       })
     });
 

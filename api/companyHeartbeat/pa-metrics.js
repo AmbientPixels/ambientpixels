@@ -9,13 +9,38 @@
 
 const pa = require('../_utils/productAnalytics');
 
-// Pure. "Runs" = COMPLETED roasts. Started-but-abandoned runs are a product
-// problem to fix, not demand to count.
+// Two events now report the same finished roast, and the choice between them
+// was made explicitly:
+//
+//   agent_run_completed — the browser, only if the tab stayed open to render it
+//   run_delivered       — api/pixel-agent-run, always, right before it answers
+//
+// Counting both double-counts every run that finished on screen. Counting only
+// the client keeps the blind spot the server event exists to close. Counting
+// only the server silently drops every roast delivered before it shipped and
+// would read the kill gate near zero on 2026-08-22 for a lane that was working.
+//
+// So: DISTINCT runIds across both. One delivered roast, one count, whichever
+// side reported it — and the number stays continuous across the change.
+var DELIVERED_EVENTS = { agent_run_completed: true, run_delivered: true };
+
+// Pure. "Runs" = DELIVERED roasts. Started-but-never-delivered runs are a
+// product problem to fix, not demand to count.
 function countRunsInEvents(events) {
-  return (Array.isArray(events) ? events : []).filter(function (e) {
+  var seen = new Set();
+  var unkeyed = 0;
+  (Array.isArray(events) ? events : []).forEach(function (e) {
     // internal === our own devices (pa_internal flag) — never demand.
-    return e && e.product === 'resumeroast' && e.event === 'agent_run_completed' && e.internal !== true;
-  }).length;
+    if (!e || e.product !== 'resumeroast' || e.internal === true) return;
+    if (!DELIVERED_EVENTS[e.event]) return;
+    var runId = e.props && e.props.runId;
+    // No runId means nothing to dedup against — count it rather than drop a
+    // real roast. Only the client ever emits one of these (the server always
+    // has the id it minted), so this cannot double-count a delivered pair.
+    if (typeof runId === 'string' && runId) seen.add(runId);
+    else unkeyed++;
+  });
+  return seen.size + unkeyed;
 }
 
 function _utcDate(ms) {

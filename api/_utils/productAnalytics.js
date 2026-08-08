@@ -36,9 +36,19 @@ function buildEvent(product, event, props, meta) {
     ts: new Date().toISOString(),
     sessionId: meta.sessionId || '',
     userId: meta.userId || '',
-    isAuth: !!meta.userId,
+    // A server emitter often knows an anonymous id (the browser's pa_anon_id,
+    // forwarded on the request) — that is an identity, not a login. Deriving
+    // isAuth from "we have a userId" reported every anonymous run as an
+    // authenticated user. Callers who know may say so; the old default stands
+    // for callers who don't.
+    isAuth: meta.isAuth !== undefined ? !!meta.isAuth : !!meta.userId,
     page: meta.page || '',
     source: meta.source || 'server',
+    // Our own devices, flagged via ?pa_internal=1. Only the browser knows, so a
+    // server emitter can only carry the flag the client sent it — but carry it
+    // it must, or server-side truth becomes the one place our own testing still
+    // reads as demand. Matches the ingest's shape: absent, never false.
+    internal: meta.internal === true || undefined,
     props: props || {}
   };
 }
@@ -53,14 +63,32 @@ function buildEvent(product, event, props, meta) {
  */
 async function emitEvent(product, event, props, meta) {
   var evt = buildEvent(product, event, props, meta);
-  var key = _blobKey();
-  var current = (await storage.getState(key)) || [];
-  current.push(evt);
-  if (current.length > MAX_EVENTS_PER_DAY) {
-    current = current.slice(-MAX_EVENTS_PER_DAY);
-  }
-  await storage.setState(key, current);
+  await _appendToDay([evt]);
   return evt;
+}
+
+/**
+ * Append events to today's shard under optimistic concurrency.
+ *
+ * Was getState → push → setState, which has two failure modes that both read as
+ * "the traffic wasn't there". A concurrent writer (the batched client beacon and
+ * a server emitter land on the SAME daily blob) loses whichever write finishes
+ * first. And a transient read error resolved to `|| []`, so the next write
+ * replaced a whole day of events with one — the loudest possible version of the
+ * bug this file exists to prevent. mutateState re-runs the append against fresh
+ * state on conflict and refuses to write at all when the read failed.
+ *
+ * The mutator may run more than once, so it must only touch its arguments — the
+ * caller's accepted-event list is computed before we get here.
+ */
+async function _appendToDay(events) {
+  var key = _blobKey();
+  await storage.mutateState(key, function (current) {
+    var next = Array.isArray(current) ? current.slice() : [];
+    for (var i = 0; i < events.length; i++) next.push(events[i]);
+    if (next.length > MAX_EVENTS_PER_DAY) next = next.slice(-MAX_EVENTS_PER_DAY);
+    return next;
+  });
 }
 
 /**
@@ -69,23 +97,21 @@ async function emitEvent(product, event, props, meta) {
  */
 async function emitBatch(events) {
   if (!Array.isArray(events) || events.length === 0) return { appended: 0 };
-  var key = _blobKey();
-  var current = (await storage.getState(key)) || [];
-  var count = 0;
+  // Accepted set is built HERE, not inside the mutator — _appendToDay may re-run
+  // its callback after a write conflict, and a counter incremented in there
+  // would report one batch as several.
+  var accepted = [];
   for (var i = 0; i < events.length; i++) {
     var e = events[i];
     if (!e || !e.product || !e.event) continue;
     if (!e.id) e.id = _id();
     if (!e.ts) e.ts = new Date().toISOString();
-    if (!e.source) e.source = e.source || 'client';
-    current.push(e);
-    count++;
+    if (!e.source) e.source = 'client';
+    accepted.push(e);
   }
-  if (current.length > MAX_EVENTS_PER_DAY) {
-    current = current.slice(-MAX_EVENTS_PER_DAY);
-  }
-  await storage.setState(key, current);
-  return { appended: count };
+  if (accepted.length === 0) return { appended: 0 };
+  await _appendToDay(accepted);
+  return { appended: accepted.length };
 }
 
 /**
