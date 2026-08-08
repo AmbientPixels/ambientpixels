@@ -401,117 +401,22 @@ async function runAgentHeartbeat(ctx) {
 
   // siteIntel is passed directly to buildHeartbeatPrompt below (used by Echo social traffic + Pixel visual perf sections)
 
-  // ── Scout Bluesky Discovery: autonomous system capability ──
-  // Runs on a cooldown (default 2h). No task required — Scout discovers threads
-  // as a built-in sensor, writes candidates to the blueskyCandidates state key.
-  // CEO picks which to engage with from the dashboard. No tasks are created here.
+  // ── Scout Bluesky Discovery ──
+  // The sensor itself now lives in bluesky-sensor.js and ALSO runs from
+  // asProspectCron. It has to: the idle-agent gate (2026-08-07) skips Scout on
+  // every cycle where it holds no assigned tasks, and it is skipped before
+  // runAgentHeartbeat is called -- so this call site silently stopped firing the
+  // day the gate shipped and blueskyCandidates went 25.7h stale against a 2h
+  // cooldown. Kept here so discovery is prompt on cycles where Scout IS running;
+  // the module cooldown makes the second call a no-op.
   if (agentId === 'scout') {
-    try {
-      var _bsDiscoveryCooldownMs = 2 * 60 * 60 * 1000; // 2 hours default
-      var _bsCandidates = (await storage.getState('blueskyCandidates')) || [];
-      if (!Array.isArray(_bsCandidates)) _bsCandidates = [];
-
-      // Check cooldown — last scan timestamp stored in the candidates array metadata
-      var _bsLastScan = 0;
-      for (var _bsi = _bsCandidates.length - 1; _bsi >= 0; _bsi--) {
-        if (_bsCandidates[_bsi] && _bsCandidates[_bsi].discoveredAt) {
-          _bsLastScan = new Date(_bsCandidates[_bsi].discoveredAt).getTime();
-          break;
-        }
-      }
-      var _bsNow = Date.now();
-      if (_bsNow - _bsLastScan >= _bsDiscoveryCooldownMs) {
-        var _blueskyDiscovery = require('../_utils/blueskyDiscovery');
-
-        // Keywords: prefer systemConfig.blueskyKeywords (dashboard-editable), fall back to JSON file
-        var _bsKwConfig = null;
-        try {
-          var _bsSysConfig = (await storage.getState('systemConfig')) || {};
-          if (_bsSysConfig.blueskyKeywords && Array.isArray(_bsSysConfig.blueskyKeywords.keywords)) {
-            _bsKwConfig = _bsSysConfig.blueskyKeywords;
-          }
-        } catch (_e) { /* fall through */ }
-        if (!_bsKwConfig) {
-          try { _bsKwConfig = require('../_data/bluesky-discovery-keywords.json'); } catch (_e) { /* use defaults */ }
-        }
-        if (!_bsKwConfig) _bsKwConfig = { keywords: ['AI agents', 'indie hacker', 'solo founder', 'build in public'], filters: {} };
-        var _bsFilters = _bsKwConfig.filters || {};
-
-        var _bsRawCandidates = await _blueskyDiscovery.discoverAcrossKeywords(_bsKwConfig.keywords, {
-          maxAgeMinutes: _bsFilters.maxAgeMinutes || 120,
-          minReplies: _bsFilters.minReplies || 1,
-          limitPerKeyword: 25
-        });
-        context.log('[Heartbeat] scout: bluesky discovery found', _bsRawCandidates.length, 'raw candidates');
-
-        // Dedup against already-stored candidates (by URI)
-        var _bsExistingUris = {};
-        _bsCandidates.forEach(function (c) { if (c.uri) _bsExistingUris[c.uri] = true; });
-
-        // Also dedup against existing reply tasks (active or completed within 7 days)
-        var _bsSevenDaysAgo = _bsNow - 7 * 24 * 60 * 60 * 1000;
-        tasks.filter(function (t) { return t.tags && t.tags.indexOf('bluesky-reply') !== -1; })
-          .forEach(function (t) {
-            if (t.threadContext && t.threadContext.uri) _bsExistingUris[t.threadContext.uri] = true;
-          });
-
-        // Score and add new candidates
-        var _bsNewCount = 0;
-        var _bsSkipped = 0;
-        for (var _bsci = 0; _bsci < _bsRawCandidates.length; _bsci++) {
-          var _c = _bsRawCandidates[_bsci];
-          if (_bsExistingUris[_c.uri]) continue;
-
-          // Relevance score (0-100)
-          var _ageMs = _bsNow - new Date(_c.indexedAt).getTime();
-          var _ageMinutes = _ageMs / 60000;
-          var _recencyScore = Math.max(0, 30 - Math.floor(_ageMinutes / 4)); // 30 at 0min, 0 at 2h
-          var _engagementScore = Math.min(30, (_c.replyCount * 3) + _c.likeCount);
-          var _velocityScore = Math.min(20, Math.floor((_c._velocity || 0) * 100));
-          var _keywordScore = _blueskyDiscovery.intentScore(_c.text);
-          var _score = _recencyScore + _engagementScore + _velocityScore + _keywordScore;
-
-          // Buyer-intent threshold: off-topic threads (no intent language) fall below this
-          // and are dropped instead of filling the 200-slot store with noise. Tunable via
-          // systemConfig.blueskyKeywords.filters.minScore (default 40).
-          if (_score < (_bsFilters.minScore || 40)) { _bsSkipped++; continue; }
-
-          _bsCandidates.push({
-            id: 'bsc-' + _bsNow + '-' + Math.random().toString(36).substr(2, 6),
-            uri: _c.uri,
-            cid: _c.cid,
-            author: _c.author,
-            authorDid: _c.authorDid,
-            text: (_c.text || '').substring(0, 500),
-            indexedAt: _c.indexedAt,
-            replyCount: _c.replyCount,
-            repostCount: _c.repostCount,
-            likeCount: _c.likeCount,
-            matchedKeyword: _c._matchedKeyword || null,
-            score: _score,
-            status: 'new', // new | dismissed | replied
-            discoveredAt: new Date(_bsNow).toISOString()
-          });
-          _bsNewCount++;
-        }
-
-        // Prune: keep last 200 candidates, drop dismissed older than 7 days
-        _bsCandidates = _bsCandidates.filter(function (c) {
-          if (c.status === 'dismissed') {
-            var dAt = new Date(c.discoveredAt || 0).getTime();
-            return (_bsNow - dAt) < 7 * 24 * 60 * 60 * 1000;
-          }
-          return true;
-        });
-        if (_bsCandidates.length > 200) {
-          _bsCandidates = _bsCandidates.slice(_bsCandidates.length - 200);
-        }
-
-        await storage.setState('blueskyCandidates', _bsCandidates);
-        context.log('[Heartbeat] scout: bluesky discovery complete.', _bsNewCount, 'new candidates added,', _bsSkipped, 'below intent threshold,', _bsCandidates.length, 'total stored');
-      }
-    } catch (_bsOuterErr) {
-      context.log('[Heartbeat] scout: bluesky discovery failed:', String(_bsOuterErr).substring(0, 200));
+    var _bsResult = await require('./bluesky-sensor').runBlueskyDiscovery({
+      storage: storage,
+      tasks: tasks,
+      log: function (m) { context.log('[Heartbeat] scout: ' + m); }
+    });
+    if (_bsResult && _bsResult.ran) {
+      context.log('[Heartbeat] scout: bluesky discovery added', _bsResult.added, 'candidates');
     }
   }
 
