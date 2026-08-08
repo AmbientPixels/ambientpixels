@@ -236,6 +236,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderAgentUI(currentAgent);
     renderRelatedAgents(currentAgent);
+    // After the UI exists, so a restored roast has somewhere to render and the
+    // textareas are there to refill.
+    handleCancelledCheckout(params);
   } catch (err) {
     console.error('Failed to load agent:', err);
     showError('Failed to load agent configuration.');
@@ -455,10 +458,20 @@ function renderResult(data) {
   body.innerHTML = '';
 
   if (!data.result || data.result.raw) {
-    // Fallback: raw text
-    body.innerHTML = '<div class="pa-result-card"><div class="pa-result-card-value">' +
-      escapeHtml(data.raw || JSON.stringify(data.result)).replace(/\n/g, '<br>') +
+    // Fallback: the model returned something that would not parse as JSON.
+    // Two bugs used to compound here. The raw text lives at data.result.raw,
+    // not data.raw, so this fell through to JSON.stringify and showed the user
+    // a literal {"raw":"..."} envelope. And it returned early, BEFORE the $9
+    // upsell at the end of this function — so a malformed response cost both
+    // the experience and the sale, silently.
+    const raw = (data.result && data.result.raw) || data.raw || '';
+    body.innerHTML = '<div class="pa-result-card">' +
+      '<div class="pa-result-card-label">The roast</div>' +
+      '<div class="pa-result-card-value">' +
+      escapeHtml(String(raw) || 'The agent replied in an unexpected format. Try running it again.').replace(/\n/g, '<br>') +
       '</div></div>';
+    maybeRenderRewriteUpsell(body);
+    revealResult();
     return;
   }
 
@@ -589,6 +602,24 @@ function renderResult(data) {
   }
 
   maybeRenderRewriteUpsell(body);
+  revealResult();
+}
+
+// The run button sits below the fold on a phone, so the user is NECESSARILY
+// scrolled down when they press it — measured at 390x844, #pa-result lands at
+// y = -49 once the roast renders, putting the "Results" heading and the score
+// card itself off the top of the screen. The score is the payoff; they should
+// be looking at it. Scrolls the result container into view rather than jumping
+// to the top of the document, so the page does not feel reset.
+function revealResult() {
+  const el = document.getElementById('pa-result');
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const motionOk = !window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try {
+    el.scrollIntoView({ behavior: motionOk ? 'smooth' : 'auto', block: 'start' });
+  } catch (_) {
+    el.scrollIntoView();   // older Safari takes no options object
+  }
 }
 
 // ── $9 Deep Roast Rewrite upsell (resume-roast only, kill-switched) ──
@@ -596,16 +627,30 @@ async function getRewriteConfig() {
   if (rewriteCfg) return rewriteCfg;
   try {
     const res = await fetch(getApiBase() + '/roast-rewrite?config=1');
-    rewriteCfg = res.ok ? await res.json() : { enabled: false };
+    // Only a real answer is cached. A cold-start blip used to be stored as
+    // { enabled: false } for the life of the page — identical, from the outside,
+    // to the kill switch being off: no button, and no rewrite_upsell_view to
+    // say otherwise. One flaky fetch must not cost every later sale.
+    if (!res.ok) return { unavailable: true };
+    rewriteCfg = await res.json();
   } catch (_) {
-    rewriteCfg = { enabled: false };
+    return { unavailable: true };
   }
   return rewriteCfg;
 }
 
-function maybeRenderRewriteUpsell(body) {
+function maybeRenderRewriteUpsell(body, attempt) {
   if (!currentAgent || currentAgent.id !== 'resume-roast' || !currentInput) return;
   getRewriteConfig().then(cfg => {
+    // The config call is the only thing standing between a finished roast and
+    // the paid button, so a failure gets a second and third look rather than
+    // silently ending the funnel.
+    if (cfg && cfg.unavailable) {
+      if ((attempt || 0) < 2) {
+        setTimeout(function () { maybeRenderRewriteUpsell(body, (attempt || 0) + 1); }, 2000);
+      }
+      return;
+    }
     if (!cfg || !cfg.enabled) return;
     if (document.getElementById('pa-rewrite-btn')) return;
     const price = '$' + (Math.round(cfg.priceCents || 900) / 100);
@@ -613,10 +658,17 @@ function maybeRenderRewriteUpsell(body) {
     card.className = 'pa-result-card pa-rewrite-upsell';
     card.innerHTML =
       '<div class="pa-result-card-label">Want it fixed, not just roasted?</div>' +
-      '<div class="pa-rewrite-upsell-body">Get your resume professionally rewritten — ATS-optimized, ready to send, based on this exact roast.</div>' +
+      '<div class="pa-rewrite-upsell-body">Your full roast is free and stays right here. For ' + price + ' we rewrite the resume itself — ATS-optimized, ready to send, built from this exact roast.</div>' +
       '<button class="pa-rewrite-upsell-btn" id="pa-rewrite-btn">Get the full rewrite — ' + price + '</button>' +
       '<div class="pa-rewrite-upsell-note">Ready in minutes · Not happy? We refund, no questions.</div>';
-    body.appendChild(card);
+    // Directly under the score, not at the bottom. Measured at 390px the old
+    // append put the button at y≈1604 inside an 1838px result — about two
+    // screens past where most people stop reading. The score is the moment the
+    // offer means anything, and every roast card still sits below it, free and
+    // uncut, so this reads as an add-on rather than a gate. With no score card
+    // (the raw-text fallback) it appends, so the offer never leads the page.
+    const score = body.querySelector('.pa-result-score');
+    body.insertBefore(card, score ? score.nextSibling : null);
     document.getElementById('pa-rewrite-btn').addEventListener('click', startRewriteCheckout);
     if (window.ProductAnalytics) try { ProductAnalytics.track('rewrite_upsell_view', { agentId: 'resume-roast' }); } catch (_) {}
   });
@@ -644,6 +696,7 @@ async function startRewriteCheckout() {
     });
     const data = await res.json();
     if (res.ok && data.checkoutUrl) {
+      stashForCancelledCheckout();
       window.location.href = data.checkoutUrl;
       return;
     }
@@ -655,6 +708,90 @@ async function startRewriteCheckout() {
     btn.textContent = label;
     alert('Network error — please check your connection and try again.');
   }
+}
+
+// ── Cancelled checkout recovery ──
+// Stripe's cancel_url lands back here as ?cancelled=1 and nothing else, so
+// backing out at the card form — the most ordinary thing a buyer does — used to
+// mean a blank page: resume gone, roast gone, button gone, and a re-run costs
+// one of five free runs a day. Stash enough to put the screen back untouched.
+// sessionStorage rather than local: this is a same-tab round trip, and a pasted
+// resume has no business outliving the tab.
+const REWRITE_PENDING_KEY = 'pa_rewrite_pending';
+const REWRITE_PENDING_TTL = 60 * 60 * 1000;
+
+function stashForCancelledCheckout() {
+  try {
+    sessionStorage.setItem(REWRITE_PENDING_KEY, JSON.stringify({
+      agentId: currentAgent && currentAgent.id,
+      input: currentInput,
+      secondary: currentSecondary,
+      runId: currentRunId,
+      result: currentResult,
+      ts: Date.now()
+    }));
+  } catch (_) { /* private mode or quota — the notice below still fires */ }
+}
+
+function handleCancelledCheckout(params) {
+  // Read-and-clear on every load, cancelled or not, so a resume never lingers
+  // in the tab after the trip it was stashed for.
+  let stash = null;
+  try {
+    const raw = sessionStorage.getItem(REWRITE_PENDING_KEY);
+    sessionStorage.removeItem(REWRITE_PENDING_KEY);
+    if (raw) stash = JSON.parse(raw);
+  } catch (_) { /* nothing to restore */ }
+
+  if (!params.get('cancelled')) return;
+
+  const usable = stash && stash.result && stash.agentId === currentAgent.id &&
+    (Date.now() - (stash.ts || 0)) < REWRITE_PENDING_TTL;
+
+  if (window.ProductAnalytics) try {
+    ProductAnalytics.track('rewrite_checkout_cancelled', { agentId: currentAgent.id, restored: !!usable });
+  } catch (_) {}
+
+  // Drop the flag so a refresh, a bookmark, or a shared link is a clean page
+  try {
+    window.history.replaceState({}, '', window.location.pathname + '?agent=' + encodeURIComponent(currentAgent.id));
+  } catch (_) {}
+
+  if (!usable) {
+    showRunNotice('No charge was made — you backed out of checkout. Your free runs are untouched; paste your resume to pick up where you left off.');
+    return;
+  }
+
+  currentResult = stash.result;
+  currentRunId = stash.runId || null;
+  currentInput = stash.input || null;
+  currentSecondary = stash.secondary || null;
+
+  const textEl = document.getElementById('pa-input-text');
+  if (textEl && currentInput) textEl.value = currentInput;
+  const secEl = document.getElementById('pa-input-secondary');
+  if (secEl && currentSecondary) secEl.value = currentSecondary;
+
+  renderResult(currentResult);
+  showRunNotice('No charge was made — you backed out of checkout. Your roast is exactly where you left it, and this run did not count against your free five.',
+    document.getElementById('pa-result'));
+}
+
+// A calm, persistent line above whatever it is explaining. The error panel
+// cannot do this job: it hides the result and the input, and a cancelled
+// checkout is not an error.
+function showRunNotice(msg, host) {
+  const parent = host || document.querySelector('.pa-run-shell');
+  if (!parent) return;
+  let el = document.getElementById('pa-run-notice');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'pa-run-notice';
+    el.className = 'pa-run-notice';
+    el.innerHTML = '<i class="fas fa-circle-info"></i><span></span>';
+  }
+  el.querySelector('span').textContent = msg;
+  parent.insertBefore(el, parent.firstChild);
 }
 
 // ── Actions ──

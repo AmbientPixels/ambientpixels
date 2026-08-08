@@ -222,7 +222,15 @@ module.exports = async function (context, req) {
         } else {
           let message;
           if (!isAuthenticated) {
-            message = 'You\'ve used all ' + dailyLimit + ' free runs for today. Sign in to get ' + RATE_LIMIT_AUTH + ' free runs a day.';
+            // NOT "you've used all 5" — the anonymous bucket is keyed on a hash
+            // of the IP, so on carrier CGNAT, office NAT, campus or cafe wifi
+            // this fires for someone on their FIRST visit, and tells them a
+            // flat lie about their own usage. Say where the limit actually
+            // applies, and make signing in read as the fix rather than a
+            // penalty. Only bites now that traffic is arriving — especially
+            // mobile and social traffic, which is the most NAT-shared there is.
+            message = 'That\'s ' + dailyLimit + ' free runs from this network today — shared wifi and mobile networks hit this sooner. '
+              + 'Sign in for ' + RATE_LIMIT_AUTH + ' a day counted to you alone.';
           } else if (credits > 0) {
             message = 'This agent costs ' + cost + ' runs and you have ' + credits + ' credit' + (credits !== 1 ? 's' : '') + ' left. Top up a run pack or go Pro for unlimited runs.';
           } else {

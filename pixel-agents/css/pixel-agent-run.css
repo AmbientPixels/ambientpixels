@@ -206,7 +206,12 @@
 .pa-run-input {
   width: 100%;
   padding: 0.85rem 1rem;
-  font-size: 0.95rem;
+  /* 16px, not 0.95rem. iOS Safari force-zooms the page whenever a focused
+     input is under 16px, and run.html sets no maximum-scale, so tapping the
+     resume box zoomed in and never zoomed back out — on the one interaction
+     this entire funnel depends on. Fixed at the input rather than by locking
+     the viewport, because maximum-scale=1 would break pinch-zoom for everyone. */
+  font-size: 1rem;
   font-family: var(--pa-font-body);
   border-radius: var(--pa-radius-md);
   border: 1px solid var(--pa-sep-strong);
@@ -242,7 +247,12 @@
 .pa-run-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
+  /* Measured 38.9px tall, under the 44px touch target — and this class covers
+     Deploy Agent, Share Card, Copy, Run Again and Try Again, i.e. every action
+     in the funnel except the $9 button (which already measures 44.8px). */
+  min-height: 44px;
   padding: 0.6rem 1.25rem;
   font-size: 0.82rem;
   font-weight: 600;
@@ -930,4 +940,29 @@ body[data-theme="light"] .pa-result-browse { color: var(--pa-primary); }
   margin-top: 0.6rem;
   font-size: 0.85rem;
   opacity: 0.7;
+}
+
+/* Cancelled-checkout / recovery notice. Deliberately NOT the error panel: that
+   hides the result and the input section, and backing out of a card form is
+   not an error — it is the most ordinary thing a buyer does. Calm, informative,
+   sits above whatever it explains. */
+.pa-run-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--pa-sep-strong);
+  border-left: 3px solid var(--pa-primary);
+  border-radius: var(--pa-radius-md);
+  background: var(--pa-surface-2, rgba(143, 0, 255, 0.06));
+  color: var(--pa-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.pa-run-notice i {
+  margin-top: 0.15rem;
+  color: var(--pa-primary);
+  flex-shrink: 0;
 }
