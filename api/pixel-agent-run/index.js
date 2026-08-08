@@ -472,12 +472,27 @@ module.exports = async function (context, req) {
         }
       } else {
         const userKey = isAuthenticated ? userId + '_' + today : ipHash + '_' + today;
-        rateLimits[userKey] = userRuns + cost;
-        // Clean old entries (keep only today's)
-        for (const key of Object.keys(rateLimits)) {
-          if (!key.endsWith('_' + today)) delete rateLimits[key];
-        }
-        storage.setState('pixelAgentRateLimits', rateLimits).catch(() => {});
+        // Read-modify-write through mutateState, not a fire-and-forget setState.
+        // The old version read the whole blob near the top of the request, held
+        // it across the ~26s model call, then wrote it back — so two concurrent
+        // runs both wrote a count based on the same stale read and one of them
+        // vanished. Every lost count is a free run someone gets twice, which is
+        // a cost leak that scales precisely with the traffic we are chasing.
+        // Increments off FRESH state inside the mutator rather than reusing
+        // userRuns from before the model call.
+        storage.mutateState('pixelAgentRateLimits', (current) => {
+          const next = current || {};
+          next[userKey] = (next[userKey] || 0) + cost;
+          // Keep only today's entries so the blob cannot grow without bound.
+          for (const key of Object.keys(next)) {
+            if (!key.endsWith('_' + today)) delete next[key];
+          }
+          return next;
+        }).catch((err) => {
+          // Non-fatal: the run already succeeded and the user has their result.
+          // Losing the count costs us one free run, not their answer.
+          context.log.warn('[PixelAgentRun] rate-limit write failed:', err.message);
+        });
       }
     }
 

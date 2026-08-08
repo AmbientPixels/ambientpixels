@@ -14,6 +14,15 @@ const storageModule = require('../_utils/companyStorage');
 storageModule.getState = async (key) => _mockStorage[key] || null;
 storageModule.setState = async (key, value) => { _mockStorage[key] = value; return true; };
 storageModule.logClaudeUsage = async () => {};
+// Mirrors the real mutateState contract: read → mutate → write, with the
+// mutator seeing FRESH state. The rate-limit counter goes through this so a
+// concurrent run cannot overwrite another's count with a stale read.
+storageModule.mutateState = async (key, mutator) => {
+  const next = await mutator(_mockStorage[key] || null, { attempt: 1, exists: _mockStorage[key] !== undefined });
+  if (next === undefined) return { ok: true, written: false };
+  _mockStorage[key] = next;
+  return { ok: true, written: true };
+};
 
 // Mock node-fetch (Claude API responses)
 var _mockFetchResponse = {
@@ -571,6 +580,42 @@ async function runSmokeTests() {
     assert.strictEqual(ctx.res.status, 503);
     var limits = _mockStorage.pixelAgentRateLimits;
     assert.ok(!limits || Object.keys(limits).length === 0, 'a failed run consumed the free allowance');
+  });
+
+  // ── Rate-limit accounting under concurrency ──
+
+  await asyncTest('a concurrent run cannot erase another run\'s count', async function() {
+    // The old code read the whole blob BEFORE the ~26s model call and wrote it
+    // back after, so two overlapping runs both wrote a count based on the same
+    // stale read and one simply vanished — a free run handed out twice.
+    // Simulate the interleaving: another request bumps the counter while this
+    // one is mid-flight, i.e. after its initial read but before its write.
+    resetMocks();
+    var realMutate = storageModule.mutateState;
+    storageModule.mutateState = async function (key, mutator) {
+      var otherKey = 'other-user_' + new Date().toISOString().split('T')[0];
+      _mockStorage[key] = {};
+      _mockStorage[key][otherKey] = 3;
+      return realMutate(key, mutator);
+    };
+    var ctx = mockContext();
+    await handler(ctx, mockReq());
+    storageModule.mutateState = realMutate;
+
+    assert.strictEqual(ctx.res.status, 200);
+    var today = new Date().toISOString().split('T')[0];
+    var limits = _mockStorage.pixelAgentRateLimits;
+    assert.strictEqual(limits['other-user_' + today], 3, 'the concurrent write was clobbered');
+    var mine = Object.keys(limits).filter(function (k) { return k !== 'other-user_' + today; });
+    assert.strictEqual(limits[mine[0]], 1, 'this run did not record its own count');
+  });
+
+  await asyncTest('repeat runs increment rather than overwrite', async function() {
+    resetMocks();
+    for (var i = 0; i < 3; i++) await handler(mockContext(), mockReq());
+    var limits = _mockStorage.pixelAgentRateLimits;
+    var total = Object.keys(limits).reduce(function (t, k) { return t + limits[k]; }, 0);
+    assert.strictEqual(total, 3, 'expected 3 runs counted, got ' + total);
   });
 
   // ── Input ceilings ──
