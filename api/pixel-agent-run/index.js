@@ -205,6 +205,10 @@ module.exports = async function (context, req) {
 
     let rateLimits = {};
     let userRuns = 0;
+    // Count INCLUDING this run, set from whatever actually persisted below.
+    // `userRuns` is read before the ~25s model call and is stale by the time the
+    // response is built, so it must not be what we quote back to the user.
+    let runsUsed = 0;
     let usingCredits = false;
 
     if (!unlimited) {
@@ -480,19 +484,42 @@ module.exports = async function (context, req) {
         // a cost leak that scales precisely with the traffic we are chasing.
         // Increments off FRESH state inside the mutator rather than reusing
         // userRuns from before the model call.
-        storage.mutateState('pixelAgentRateLimits', (current) => {
-          const next = current || {};
-          next[userKey] = (next[userKey] || 0) + cost;
-          // Keep only today's entries so the blob cannot grow without bound.
-          for (const key of Object.keys(next)) {
-            if (!key.endsWith('_' + today)) delete next[key];
-          }
-          return next;
-        }).catch((err) => {
+        //
+        // Fallback if the write below fails outright — still better than the
+        // pre-model-call read, which cannot know about this run at all.
+        runsUsed = userRuns + cost;
+        // AWAITED (2026-08-08). This was fire-and-forget, and in production the
+        // write essentially never landed: three consecutive free runs from one
+        // IP each reported `remaining: 4`, i.e. the cap did not hold at all.
+        // Azure Functions ends the invocation when the handler returns and does
+        // not guarantee pending IO afterwards, so an un-awaited blob write is a
+        // coin flip. The comment above was right about the cost leak and the
+        // mutateState fix was right; not awaiting it undid both.
+        //
+        // Awaiting costs ~100-300ms on a request that already spends ~25s in the
+        // model, and "the user still has their result" stays true because this
+        // runs after the answer is produced and the catch is still non-fatal.
+        try {
+          const rlRes = await storage.mutateState('pixelAgentRateLimits', (current) => {
+            const next = current || {};
+            next[userKey] = (next[userKey] || 0) + cost;
+            // Keep only today's entries so the blob cannot grow without bound.
+            for (const key of Object.keys(next)) {
+              if (!key.endsWith('_' + today)) delete next[key];
+            }
+            return next;
+          });
+          // Report the count that actually PERSISTED, not the one read before
+          // the model call. Those differ whenever a concurrent run also counted,
+          // and the pre-call number is what told three separate runs that four
+          // were still free.
+          const persisted = rlRes && rlRes.value && rlRes.value[userKey];
+          if (Number.isFinite(persisted)) runsUsed = persisted;
+        } catch (err) {
           // Non-fatal: the run already succeeded and the user has their result.
           // Losing the count costs us one free run, not their answer.
           context.log.warn('[PixelAgentRun] rate-limit write failed:', err.message);
-        });
+        }
       }
     }
 
@@ -557,7 +584,7 @@ module.exports = async function (context, req) {
         raw: rawText,
         runId,
         timestamp: runRecord.timestamp,
-        remaining: unlimited ? 999 : (usingCredits ? 0 : Math.max(0, dailyLimit - userRuns - cost)),
+        remaining: unlimited ? 999 : (usingCredits ? 0 : Math.max(0, dailyLimit - runsUsed)),
         credits: isAuthenticated ? credits : null,
         tier: unlimited ? 'pro' : 'free',
         shareUrl: '/api/pixel-agent-share?run=' + runId
