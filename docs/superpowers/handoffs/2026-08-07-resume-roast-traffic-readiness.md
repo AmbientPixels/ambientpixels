@@ -191,11 +191,35 @@ StoryForge and Blindspot rank on.
 1. **Comparison pages** (5-9, not thousands). High commercial intent, genuinely differentiated, and our
    claim is unusual and verifiable: they sell advice, we return the artifact. Small enough that no
    scaled-content risk applies. Every competitor claim must stay traceable to their own copy.
+   **I started building these and stopped — see below.**
 2. **A per-job-title page only once the tool is the value** — the page pre-fills job-description
    targeting and runs the real product. The utility is the content. Still worth waiting until there is
    run data to make each one non-thin.
 3. Fix the canonical split first. There is no point ranking pages on a domain that splits its own
    signals.
+
+### 🔴 The competitive table is stale — re-verify before quoting it anywhere
+
+I went to build the comparison pages and re-checked each competitor against their own live site first.
+Two of the four rows did not survive, so the pages were **not** shipped: publishing them would have
+meant asserting things I cannot substantiate, and every competitor claim is supposed to be traceable
+to their own copy.
+
+| | prior handoff said | verified 2026-08-07 |
+|---|---|---|
+| RoastTheResume | score + one sentence; $9 once; "a report" | **Holds.** Free is *"Instant AI score and one brutal sentence about your biggest problem."* Paid is *"$9 one-time"* for *"Every issue, every fix, ATS analysis, bullet rewrites — instantly."* |
+| RoastCV | Burn/Reality/Fix/ATS; **$7 per MONTH** | **DEAD.** `roastcv.com` 307-redirects to a GoDaddy "for sale" parking page. The one competitor described as running our exact model no longer exists. |
+| Resumly | *"not a completed deliverable"* | **UNVERIFIABLE.** The cited URL 404s and the wording does not surface in search. Do not repeat this quote until someone finds it live. |
+| us | the entire roast; $9 once; the finished document | Holds — `composeRewrite()` returns every section, validated, served as .md/.txt. |
+
+Note the nuance the re-check surfaced: RoastTheResume *does* advertise **"bullet rewrites"**. Our
+difference is real but narrower than "advice vs artifact" — it is *rewritten bullets inside a report*
+versus *the complete rewritten resume as a document you can send*. Any comparison page has to say it
+that precisely or it is overclaiming.
+
+**Recommendation:** one comparison page against RoastTheResume is defensible today on verified copy.
+Anything broader needs a fresh competitor sweep first — this category churns fast enough that a
+four-competitor table went stale in about a day.
 
 **Not researched, because the agents doing it were lost to a session limit:** AI-tool directories,
 Product Hunt / Show HN specifics, non-Reddit communities, institutional channels, real CPC data and
