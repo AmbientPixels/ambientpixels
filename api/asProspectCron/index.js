@@ -6,6 +6,7 @@ const storage = require('../_utils/companyStorage');
 const demoGuard = require('../_utils/demoGuard');
 const { runProspectPipeline, runRoastLane } = require('../companyHeartbeat/prospect-pipeline');
 const { runBlueskyDiscovery } = require('../companyHeartbeat/bluesky-sensor');
+const { runParticipationLane } = require('../companyHeartbeat/bluesky-participation');
 
 module.exports = async function (context) {
   if (demoGuard.timerSkip(context)) return;
@@ -36,5 +37,15 @@ module.exports = async function (context) {
     context.log('[asProspectCron] bluesky discovery:', JSON.stringify(bsky));
   } catch (err) {
     context.log.error('[asProspectCron] bluesky discovery failed (non-fatal):', (err && err.message) || String(err));
+  }
+  // Participation lane runs AFTER discovery so it can draft from threads found
+  // moments ago rather than from the previous pass. Default OFF via
+  // systemConfig.blueskyParticipation.enabled — a lane that talks to strangers
+  // as the brand does not self-start.
+  try {
+    const part = await runParticipationLane({ storage: storage, log: context.log });
+    context.log('[asProspectCron] participation lane:', JSON.stringify(part));
+  } catch (err) {
+    context.log.error('[asProspectCron] participation lane failed (non-fatal):', (err && err.message) || String(err));
   }
 };
