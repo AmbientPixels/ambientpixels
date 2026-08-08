@@ -8,6 +8,7 @@ const { getClientIp } = require('../_utils/clientIp');
 const { executeAction, isExecutable } = require('./executors');
 const socialTelemetry = require('../socialMetrics/telemetry');
 const outcomeBaseline = require('./executors/_utils/outcomeBaseline');
+const { syncExecutionState } = require('./action-persist');
 
 // Simple in-memory rate limiter (per minute)
 const _rateBucket = {};
@@ -17,29 +18,16 @@ const RATE_LIMIT_PER_MIN = 5;
 // (api/actionsArchiver/) captures entries 30d+ into company-archive so the live
 // trim is safe — there's a 60-day buffer between archive capture and live trim.
 // Safety cap prevents a retention-bug-driven runaway.
-const LIVE_ACTIONS_RETENTION_DAYS = 90;
-const LIVE_ACTIONS_MAX_COUNT = 2000;
+// Retention constants moved to ./action-persist (trimActions) with the writes.
 
-async function persistActionsWithTrim(actions) {
-  if (!Array.isArray(actions)) {
-    // Defensive fallback: preserve whatever was passed (shouldn't happen in practice,
-    // but avoids accidental data loss if a caller passes something unexpected)
-    await storage.setState('actions', actions);
-    return;
-  }
-  const cutoff = Date.now() - (LIVE_ACTIONS_RETENTION_DAYS * 24 * 60 * 60 * 1000);
-  let trimmed = actions.filter(function (a) {
-    if (!a) return false;
-    const tsStr = (a.execution && a.execution.finished_at) || a.created_at || a.timestamp || a.createdAt || '';
-    const ts = Date.parse(tsStr);
-    // Preserve entries with no parseable timestamp (ambiguous — don't silently drop)
-    return !Number.isFinite(ts) || ts >= cutoff;
-  });
-  if (trimmed.length > LIVE_ACTIONS_MAX_COUNT) {
-    trimmed = trimmed.slice(-LIVE_ACTIONS_MAX_COUNT);
-  }
-  await storage.setState('actions', trimmed);
-}
+// persistActionsWithTrim is GONE on purpose (2026-08-08). It wrote a stale
+// whole-array snapshot back to the store — held across a 15-60s public
+// platform call, it clobbered concurrent writers and stranded successful
+// posts at 'running' with no receipt (the duplicate-post incident). All
+// execution-state writes now go through ./action-persist syncExecutionState,
+// which patches ONE action's execution fields onto the fresh store under
+// mutateState. Retention lives there too (trimActions). Do not reintroduce a
+// whole-array write in this file.
 
 function checkRateLimit(ip) {
   const now = Date.now();
@@ -152,7 +140,7 @@ module.exports = async function (context, req) {
       action.execution.status = 'success';
       action.execution.finished_at = new Date().toISOString();
       action.execution.attempts = (action.execution.attempts || 0) + 1;
-      await persistActionsWithTrim(actions);
+      await syncExecutionState(storage, action);
       context.res = {
         status: 200,
         headers: corsHeaders,
@@ -187,7 +175,7 @@ module.exports = async function (context, req) {
           context.log('[ActionsExecute] Research intel stored:', action.payload.id || actionId);
         }
       }
-      await persistActionsWithTrim(actions);
+      await syncExecutionState(storage, action);
       context.res = {
         status: 200,
         headers: corsHeaders,
@@ -332,7 +320,21 @@ module.exports = async function (context, req) {
     // Sync legacy field
     action.execution_status = 'running';
     actions[actionIndex] = action;
-    await persistActionsWithTrim(actions);
+    const _runSync = await syncExecutionState(storage, action);
+    if (!_runSync.ok || !_runSync.applied) {
+      // 2026-08-08 duplicate-post rule: if 'running' cannot be recorded BEFORE
+      // a public post, posting anyway risks an unrecorded success, and an
+      // unrecorded success is what the scheduler re-dispatches. "Outcome
+      // unknown must never mean do it again" starts with refusing to create
+      // an untrackable outcome in the first place.
+      context.log.error('[ActionsExecute] could not persist running state for', action.id, '—', _runSync.error || 'action missing from store', '— refusing to execute');
+      context.res = {
+        status: 503,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'STATE_WRITE_FAILED', message: 'Could not persist execution state; not executing to avoid an untracked public post. Retry shortly.' })
+      };
+      return;
+    }
 
     // ── EXECUTE ──
     let result;
@@ -371,7 +373,10 @@ module.exports = async function (context, req) {
       }
 
       actions[actionIndex] = action;
-      await persistActionsWithTrim(actions);
+      const _failSync = await syncExecutionState(storage, action);
+      if (!_failSync.ok) {
+        context.log.error('[ActionsExecute] could not persist failed state for', action.id, '—', _failSync.error, '— the stuck-run parker will surface it');
+      }
 
       // Add failure comment to parent task so CEO can see what went wrong
       if (action._parentTaskId && actionType.indexOf('social_post') === 0) {
@@ -451,7 +456,28 @@ module.exports = async function (context, req) {
     }
 
     actions[actionIndex] = action;
-    await persistActionsWithTrim(actions);
+    const _okSync = await syncExecutionState(storage, action);
+    if (!_okSync.ok || !_okSync.applied) {
+      // The post IS live but its receipt exists only in this process's memory.
+      // The stuck-run parker will keep it from re-posting; a human still needs
+      // to know, because "posted but unrecorded" is invisible on every
+      // dashboard. Same loud path the double-charge alert uses.
+      context.log.error('[ActionsExecute] POSTED but could not persist success for', action.id, '—', _okSync.error || 'action missing from store');
+      if (isSocialAction) {
+        try {
+          const { dispatchDiscord } = require('../_utils/fleetAlerts');
+          await dispatchDiscord({
+            title: 'Posted publicly but the receipt did not persist',
+            description: 'Action ' + action.id + ' on ' + platform + ' posted successfully' +
+              ((result.receipt && result.receipt.post_url) ? ('\n' + result.receipt.post_url) : '') +
+              '\nIts success state could not be written, so it will park as stuck-unverified. Do NOT re-execute it — the post is live.',
+            color: 0xC62828
+          });
+        } catch (alertErr) {
+          context.log.warn('[ActionsExecute] receipt-loss Discord alert failed (non-fatal):', alertErr.message);
+        }
+      }
+    }
 
     // Auto-complete parent task when social post publishes successfully
     if (action._parentTaskId && actionType.indexOf('social_post') === 0) {
