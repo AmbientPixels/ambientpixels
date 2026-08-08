@@ -1,5 +1,8 @@
 # Handoff — Resume Roast: made ready for traffic
 
+> **SUPERSEDED — start at `2026-08-07-resume-roast-session-close.md`.** That covers all 22 commits
+> of the session and the current state. This file remains the deeper write-up of the first seven.
+
 > **Committed markdown under `docs/` is served publicly as raw text** — verified, this file returns
 > HTTP 200 to anyone. Remaining-credit balances are kept OUT of it and live behind `GET /api/llm-spend`,
 > which is secret-gated. A remaining balance tells an anonymous reader exactly what it costs to
