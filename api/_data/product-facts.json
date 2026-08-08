@@ -69,6 +69,24 @@
         "it is NOT a benchmark, leaderboard, or competitor comparison",
         "specific numbers from /pulse/ (AI calls, dispatch count, heartbeat timing) should ONLY be cited if currently visible on the page — never invent values"
       ]
+    },
+    "ResumeRoast": {
+      "launchedAt": "2026-08-04",
+      "status": "active",
+      "description": "Free AI resume review with an ATS score, plus a $9 paid rewrite that returns the rewritten resume. Standalone product at /resume-roast/, branded under Pixel Agents.",
+      "features": [
+        "free AI resume roast with an ATS score — no signup required",
+        "5 roasts per day free; a free account raises the limit to 10 per day",
+        "paste resume text directly — no file upload needed",
+        "$9 Roast Rewrite: returns the full rewritten resume, what changed and why, and ATS keywords",
+        "shareable result card"
+      ],
+      "notThis": [
+        "it is NOT AmbientScore — AmbientScore audits WEBSITE conversion, not resumes. The two are separate products and an 'ATS score' belongs to Resume Roast, never to AmbientScore",
+        "it does NOT review LinkedIn profiles — that is the separate 'Roast My LinkedIn' agent inside PixelAgents",
+        "the $9 rewrite is NOT a subscription — it is a one-time purchase",
+        "it is NOT only a PixelAgents built-in agent — 'Resume Roast' appears in the PixelAgents 24-agent list, but it ALSO ships as this standalone product with its own page, daily free limits, and paid rewrite. Copy describing it as a free standalone resume tool is CORRECT and must not be flagged as a hallucinated feature"
+      ]
     }
   },
   "company": {
