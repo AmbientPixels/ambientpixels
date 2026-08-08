@@ -2664,12 +2664,19 @@ Write the full deliverable first, then the structured JSON block.`;
                   try { const _cmps = (await storage.getState('campaigns')) || []; const _fc = _cmps.find(c => c.id === socialTask.campaign_id); if (_fc) { _cmpContext = _fc.description || ''; } } catch (_e) {}
                 } else { _cmpContext = _cmp.description || ''; }
               }
-              const _cmpUrlMatch = _cmpContext.match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
+              // SUTM.extractProductUrl, not a local regex: the local copy here
+              // lacked (?:www\.)? and so never matched
+              // camp-resume-roast-launch's https://www.ambientpixels.ai/resume-roast/.
+              // Every post from the one active revenue campaign fell through to
+              // the bare homepage below (found 2026-08-08).
+              const _cmpUrlMatch = SUTM.extractProductUrl(_cmpContext);
               // For individual tasks (no campaign), scan task description + Echo's strategy brief for a specific URL
               const _descUrlMatch = !_cmpUrlMatch
-                ? ((socialTask.description || '') + ' ' + ((socialTask.comments || []).filter(c => c.type === 'deliverable').map(c => c.text).join(' '))).match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i)
+                ? SUTM.extractProductUrl((socialTask.description || '') + ' ' + ((socialTask.comments || []).filter(c => c.type === 'deliverable').map(c => c.text).join(' ')))
                 : null;
-              const _cmpUrl = _cmpUrlMatch ? _cmpUrlMatch[0] : (_descUrlMatch ? _descUrlMatch[0] : 'https://ambientpixels.ai');
+              // Both are now STRINGS (extractProductUrl) rather than match arrays.
+              // Indexing [0] here would yield "h".
+              const _cmpUrl = _cmpUrlMatch || _descUrlMatch || 'https://ambientpixels.ai';
               const _cmpRules = _cmpContext ? '\n\nCAMPAIGN POSTING RULES:\n' + _cmpContext.substring(0, 600) : '';
               // Check if parent task has quality gate feedback to include
               var _qgFeedback = '';

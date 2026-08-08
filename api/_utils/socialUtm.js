@@ -26,6 +26,33 @@
 // Own-domain URLs only. Third-party links in copy must never be rewritten.
 const OWN_URL_RE = /https?:\/\/(?:www\.)?ambientpixels\.ai(?:\/[^\s)]*)?/gi;
 
+// A PRODUCT PAGE on our domain: own domain AND a real path. Deliberately does
+// not match the bare homepage, because callers use the homepage as their
+// "found nothing" fallback — returning it here would make "found the product
+// page" indistinguishable from "gave up".
+//
+// The (?:www\.)? is the whole point. agent-runner and prompt-builders each
+// carried their own copy of this pattern WITHOUT it, so
+// camp-resume-roast-launch — which stores https://www.ambientpixels.ai/resume-roast/
+// — never matched, and every post from the one active revenue campaign linked to
+// the company root instead of the product (found 2026-08-08). Half the codebase
+// already allowed www and half did not; this is the shared definition so the two
+// halves cannot drift again.
+const OWN_PRODUCT_URL_RE = /https?:\/\/(?:www\.)?ambientpixels\.ai\/[a-z0-9/-]+/i;
+
+/**
+ * First product-page URL on our domain, or null.
+ * @param {string} text
+ * @returns {?string}
+ */
+function extractProductUrl(text) {
+  if (typeof text !== 'string' || !text) return null;
+  // Fresh non-global match: a /g regex reused via .test()/.exec() carries
+  // lastIndex and returns alternating results across calls.
+  const m = text.match(OWN_PRODUCT_URL_RE);
+  return m ? m[0] : null;
+}
+
 // The reply pipeline's working cap — mirrors BSKY_REPLY_MAX in prospect-pipeline.js
 // (Bluesky's hard cap is 300; 296 leaves headroom for trailing edges).
 //
@@ -93,4 +120,4 @@ function trimPreservingTrailingUrl(text, limit) {
   return src.substring(0, limit - 1).trim() + '…';
 }
 
-module.exports = { injectUtm, utmReserve, trimPreservingTrailingUrl, OWN_URL_RE, BSKY_LIMIT };
+module.exports = { injectUtm, utmReserve, trimPreservingTrailingUrl, extractProductUrl, OWN_URL_RE, OWN_PRODUCT_URL_RE, BSKY_LIMIT };

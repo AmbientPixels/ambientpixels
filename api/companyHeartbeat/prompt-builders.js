@@ -360,9 +360,12 @@ function buildHeartbeatPrompt(ctx) {
       // Inject campaign context so agent sees URL, rules, and posting guidelines inline
       const _cmp = activeDirectives.find(c => c.id === t.campaign_id);
       if (_cmp) {
-        // Extract URL from campaign description
-        const _urlMatch = (_cmp.description || '').match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
-        if (_urlMatch) line += ', campaign_url: ' + _urlMatch[0];
+        // Extract URL from campaign description. Shared matcher, because the
+        // local copy lacked (?:www\.)? and so never matched
+        // camp-resume-roast-launch's https://www.ambientpixels.ai/resume-roast/ —
+        // agents were told the active revenue campaign had no URL at all.
+        const _urlMatch = require('../_utils/socialUtm').extractProductUrl(_cmp.description || '');
+        if (_urlMatch) line += ', campaign_url: ' + _urlMatch;
         // Surface allowed task types
         const _allowed = Array.isArray(_cmp.allowedTaskTypes) && _cmp.allowedTaskTypes.length > 0 ? _cmp.allowedTaskTypes : [];
         if (_allowed.length > 0) line += ', allowed_types: ' + _allowed.join('+');

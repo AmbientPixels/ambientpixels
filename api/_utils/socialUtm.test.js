@@ -134,5 +134,59 @@ test('BSKY_LIMIT matches the working cap used by the reply pipeline', () => {
   assert.strictEqual(u.BSKY_LIMIT, 296);
 });
 
+// ── extractProductUrl ──
+//
+// THE BUG (live, found 2026-08-08): camp-resume-roast-launch — the one active
+// revenue campaign — carries "https://www.ambientpixels.ai/resume-roast/" in its
+// description. agent-runner matched campaign URLs with
+// /https?:\/\/ambientpixels\.ai\/[a-z0-9\/-]+/i, which does NOT allow "www.", so
+// it missed, fell back to the bare homepage, and every scheduled post from that
+// campaign sent clicks to the company root instead of the product page — against
+// an objective measured in Resume Roast runs.
+
+test('a www URL is found — this is the live bug', () => {
+  assert.strictEqual(
+    u.extractProductUrl('Post about the roast. Link: https://www.ambientpixels.ai/resume-roast/'),
+    'https://www.ambientpixels.ai/resume-roast/');
+});
+
+test('a non-www URL still works — no regression', () => {
+  assert.strictEqual(
+    u.extractProductUrl('see https://ambientpixels.ai/resume-roast/'),
+    'https://ambientpixels.ai/resume-roast/');
+});
+
+test('the bare homepage is NOT a product URL', () => {
+  // It is the fallback the caller applies when nothing is found. Returning it
+  // here would make "found the product page" and "gave up" indistinguishable.
+  assert.strictEqual(u.extractProductUrl('go to https://ambientpixels.ai'), null);
+  assert.strictEqual(u.extractProductUrl('go to https://www.ambientpixels.ai'), null);
+});
+
+test('third-party domains are never returned', () => {
+  assert.strictEqual(u.extractProductUrl('read https://example.com/resume-roast/'), null);
+  assert.strictEqual(u.extractProductUrl('read https://notambientpixels.ai/x/'), null);
+});
+
+test('the first product URL wins when several are present', () => {
+  assert.strictEqual(
+    u.extractProductUrl('https://www.ambientpixels.ai/resume-roast/ and https://ambientpixels.ai/blog/x'),
+    'https://www.ambientpixels.ai/resume-roast/');
+});
+
+test('empty and malformed input returns null rather than throwing', () => {
+  [null, undefined, '', '   ', 42, {}, []].forEach(v => {
+    assert.doesNotThrow(() => u.extractProductUrl(v), JSON.stringify(v));
+    assert.strictEqual(u.extractProductUrl(v), null);
+  });
+});
+
+test('OWN_PRODUCT_URL_RE is not left stateful between calls', () => {
+  // A /g regex reused via .test() carries lastIndex and returns alternating
+  // results. extractProductUrl must not expose that.
+  const s = 'https://www.ambientpixels.ai/resume-roast/';
+  assert.strictEqual(u.extractProductUrl(s), u.extractProductUrl(s));
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
