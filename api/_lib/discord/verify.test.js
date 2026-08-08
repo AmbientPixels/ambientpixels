@@ -112,6 +112,42 @@ test('embed fields stay inside Discord limits even with hostile input', () => {
   for (const f of e.fields) assert.ok(f.value.length <= 1024, f.name + ' = ' + f.value.length);
 });
 
+test('a realistic roast line is not truncated at all', () => {
+  // Regression: the first live run clipped BOTH lines mid-word ("somehow
+  // avoided every pa…") because the cap was 220 of an available 1024.
+  const line = 'Payments posting asks for ledger design, settlement, reconciliation, and chargeback flows and this resume mentions exactly zero of those things. You worked at a FINTECH company for 5 years and somehow avoided every payments primitive the role is built on.';
+  const e = d.resultEmbed({ ats_score: 34, verdict: 'v', roast_points: [line, line] }, 'A', 'u');
+  const value = e.fields.find(f => f.name === 'The roast').value;
+  assert.ok(value.includes('the role is built on.'), 'a realistic line should survive whole');
+  assert.ok(!/[a-z]…/.test(value), 'cut mid-word: ' + value.slice(-60));
+  assert.ok(value.length <= 1024);
+});
+
+test('an over-long line breaks at a word, never mid-word', () => {
+  // Distinct words, so "did it cut mid-word" is actually checkable: the kept
+  // text must be a prefix of the original that ends exactly at a word boundary.
+  const words = [];
+  for (let i = 0; i < 300; i++) words.push('alpha' + i);
+  const line = words.join(' ');
+  const e = d.resultEmbed({ ats_score: 1, verdict: 'v', roast_points: [line] }, 'A', 'u');
+  const value = e.fields.find(f => f.name === 'The roast').value;
+  assert.ok(value.endsWith('…'), value.slice(-20));
+
+  const kept = value.replace(/^• /, '').replace(/…$/, '');
+  assert.ok(line.startsWith(kept), 'kept text is not a prefix of the original');
+  const next = line.charAt(kept.length);
+  assert.ok(next === '' || next === ' ', 'cut mid-word — next char was "' + next + '" after: ' + kept.slice(-25));
+  assert.ok(value.length <= 1024, value.length);
+});
+
+test('one enormous unbroken token still gets cut rather than collapsing', () => {
+  // No space to break on — must fall back to a hard cut, not return almost nothing.
+  const e = d.resultEmbed({ ats_score: 1, verdict: 'v', roast_points: ['x'.repeat(900)] }, 'A', 'u');
+  const value = e.fields.find(f => f.name === 'The roast').value;
+  assert.ok(value.length > 400, 'collapsed to ' + value.length);
+  assert.ok(value.length <= 1024);
+});
+
 test('a scoreless result still produces a valid embed', () => {
   const e = d.resultEmbed({ verdict: 'Hard to say.' }, 'Resume Roast', 'https://example.com');
   assert.strictEqual(e.title, 'Resume Roast');

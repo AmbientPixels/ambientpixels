@@ -145,7 +145,11 @@ function resultEmbed(result, agentName, siteUrl) {
 
   const fields = [];
   if (roast.length) {
-    fields.push({ name: 'The roast', value: roast.map(r => '• ' + truncate(String(r), 220)).join('\n').slice(0, 1024) });
+    // 460, not 220. Discord allows 1024 per field; the first cut of this used
+    // 220 and clipped both lines mid-word ("somehow avoided every pa…"), which
+    // reads as broken rather than abbreviated — and threw away 579 characters
+    // of headroom to do it. Two lines at 460 plus bullets and a newline is 923.
+    fields.push({ name: 'The roast', value: roast.map(r => '• ' + truncate(String(r), 460)).join('\n').slice(0, 1024) });
   }
   if (gap.length) {
     fields.push({ name: 'Missing for this job', value: gap.map(k => '`' + String(k).slice(0, 40) + '`').join(' ').slice(0, 1024) });
@@ -160,7 +164,17 @@ function resultEmbed(result, agentName, siteUrl) {
   };
 }
 
-function truncate(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+// Cut at a word boundary. Slicing mid-word looks like a rendering fault rather
+// than an editorial choice, and this text is the product's voice — a roast that
+// stops mid-insult lands worse than a shorter one that finishes its thought.
+function truncate(s, n) {
+  if (s.length <= n) return s;
+  const cut = s.slice(0, n - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  // Only honour the boundary if it is reasonably near the end, otherwise a
+  // long unbroken token would collapse the line to almost nothing.
+  return (lastSpace > n * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:—-]+$/, '') + '…';
+}
 
 // Resolved through the agent's own contract key, same as the share card. Reading
 // result.score directly would work for exactly one of the ten scoring agents.
