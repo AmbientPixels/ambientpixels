@@ -11,6 +11,7 @@
 // 60s in-memory cache. Anonymous. 30 req/min/IP rate limit.
 
 const storage = require('../_utils/companyStorage');
+const { getClientIp } = require('../_utils/clientIp');
 
 const ALLOWLIST = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout'];
 const CACHE_MS = 60 * 1000;
@@ -28,8 +29,9 @@ function hashIp(ip) {
 }
 
 function rateLimitOk(req) {
-  const ip = (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || 'unknown';
-  const key = hashIp(String(ip).split(',')[0].trim());
+  // Was the first x-forwarded-for entry, which on Azure includes the caller's
+  // ephemeral port, so every request got its own bucket. See _utils/clientIp.js.
+  const key = hashIp(getClientIp(req));
   const now = Date.now();
   const bucket = rateBuckets.get(key);
   if (!bucket || now > bucket.resetAt) {

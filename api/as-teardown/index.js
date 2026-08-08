@@ -21,11 +21,10 @@ const CORS_HEADERS = {
 
 const MAX_CHECKOUTS_PER_HOUR = 5;
 
-function getClientIP(req) {
-  return req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-    || req.headers['x-real-ip']
-    || 'unknown';
-}
+// Was an inline read of the first x-forwarded-for entry, which on Azure carries
+// the caller's ephemeral port — a new bucket per connection, so this limiter
+// never bound either. See _utils/clientIp.js.
+const { getClientIp: getClientIP } = require('../_utils/clientIp');
 
 function isValidUrl(value) {
   try {

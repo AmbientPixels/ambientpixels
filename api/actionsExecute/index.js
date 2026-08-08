@@ -4,6 +4,7 @@
 
 const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
+const { getClientIp } = require('../_utils/clientIp');
 const { executeAction, isExecutable } = require('./executors');
 const socialTelemetry = require('../socialMetrics/telemetry');
 const outcomeBaseline = require('./executors/_utils/outcomeBaseline');
@@ -93,7 +94,7 @@ module.exports = async function (context, req) {
   }
 
   // Rate limit
-  const clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0] || 'unknown';
+  const clientIp = getClientIp(req);
   if (!checkRateLimit(clientIp)) {
     context.res = { status: 429, headers: corsHeaders, body: JSON.stringify({ error: 'Rate limit exceeded. Max ' + RATE_LIMIT_PER_MIN + ' executions per minute.' }) };
     return;

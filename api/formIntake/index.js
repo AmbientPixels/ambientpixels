@@ -25,6 +25,7 @@
 
 const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
+const { getClientIp } = require('../_utils/clientIp');
 
 // ══════════════════════════════════════════════════════
 // ── CORS ──
@@ -1026,8 +1027,7 @@ module.exports = async function (context, req) {
       }
 
       // Rate limit
-      var clientIp = (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || 'unknown';
-      if (clientIp.indexOf(',') !== -1) clientIp = clientIp.split(',')[0].trim();
+      var clientIp = getClientIp(req);
       var ipHash = _hashIp(clientIp);
 
       var currentCount = await _checkRateLimit(ipHash);

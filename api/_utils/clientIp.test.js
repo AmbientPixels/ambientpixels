@@ -83,8 +83,10 @@ t('a single-entry x-forwarded-for still works', function () {
   assert.strictEqual(getClientIp({ headers: { 'x-forwarded-for': '203.0.113.5:41001' } }), '203.0.113.5');
 });
 
-t('falls back to x-real-ip / client-ip for local dev', function () {
+t('falls back to x-real-ip / x-client-ip / client-ip for local dev', function () {
   assert.strictEqual(getClientIp({ headers: { 'x-real-ip': '10.0.0.4' } }), '10.0.0.4');
+  // x-client-ip was as-analyze's fallback before it moved onto this helper.
+  assert.strictEqual(getClientIp({ headers: { 'x-client-ip': '10.0.0.6' } }), '10.0.0.6');
   assert.strictEqual(getClientIp({ headers: { 'client-ip': '10.0.0.5:993' } }), '10.0.0.5');
 });
 
@@ -92,6 +94,42 @@ t('never returns empty — an empty bucket key would pool every caller together'
   assert.strictEqual(getClientIp({ headers: {} }), 'unknown');
   assert.strictEqual(getClientIp({}), 'unknown');
   assert.strictEqual(getClientIp({ headers: { 'x-forwarded-for': '   ,  ' } }), 'unknown');
+});
+
+console.log('\nno endpoint may read the header directly');
+
+t('clientIp.js is the only place that touches x-forwarded-for', function () {
+  // Structural, because the bug is not a wrong value — it is the wrong SOURCE,
+  // and every wrong version looked reasonable in review. Nine endpoints
+  // independently wrote `split(',')[0]` and all nine were wrong the same way.
+  const fs = require('fs');
+  const path = require('path');
+  const root = path.join(__dirname, '..');
+  const offenders = [];
+
+  (function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) { walk(full); continue; }
+      if (!entry.name.endsWith('.js')) continue;
+      // Any test file: harnesses legitimately SET this header on mock requests.
+      // Matches smoke-test.js too, which the narrower `.test.js` check missed.
+      if (/test/i.test(entry.name)) continue;
+      if (full === path.join(root, '_utils', 'clientIp.js')) continue;
+
+      const code = fs.readFileSync(full, 'utf8')
+        .split(/\r?\n/)
+        .filter(l => !l.trim().startsWith('//') && !l.trim().startsWith('*'))
+        .join('\n');
+      if (code.indexOf('x-forwarded-for') !== -1) {
+        offenders.push(path.relative(root, full));
+      }
+    }
+  })(root);
+
+  assert.deepStrictEqual(offenders, [],
+    'these read x-forwarded-for directly instead of using getClientIp: ' + offenders.join(', '));
 });
 
 console.log('\nclientIp tests: ' + pass + ' passed, ' + fail + ' failed');

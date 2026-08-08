@@ -1,5 +1,6 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 const crypto = require('crypto');
+const { getClientIp } = require('../_utils/clientIp');
 
 const STORAGE_ACCOUNT_NAME = "cardforgeblobdata";
 const CONTAINER_NAME = "cardforge";
@@ -28,8 +29,11 @@ const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX_PER_WINDOW = 30;
 
 function checkRateLimit(req, context) {
-  const fwd = (req.headers['x-forwarded-for'] || '').toString();
-  const ip = fwd.split(',')[0].trim() || req.headers['x-azure-clientip'] || 'unknown';
+  // This file already knew about x-azure-clientip, but only as a fallback AFTER
+  // the first x-forwarded-for entry — which on Azure is never empty and carries
+  // the caller's ephemeral port, so the better header was never reached and
+  // every request got its own bucket. The helper puts them in the right order.
+  const ip = getClientIp(req);
   const ipHash = crypto.createHash('sha1').update(ip).digest('hex').slice(0, 16);
   const now = Date.now();
   const prev = RATE_BUCKETS.get(ipHash) || [];

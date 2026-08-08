@@ -5,6 +5,7 @@
 
 const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
+const { getClientIp } = require('../_utils/clientIp');
 const { analyze } = require('../_lib/ambientScore/analyzer');
 const stripeClient = require('../_lib/ambientScore/stripeClient');
 
@@ -276,7 +277,7 @@ module.exports = async function (context, req) {
         context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: 'Valid report ID required.' }) };
         return;
       }
-      const emailIp = (req.headers['x-forwarded-for'] || req.headers['x-client-ip'] || 'unknown').split(',')[0].trim();
+      const emailIp = getClientIp(req);
       if (await checkRateLimit(emailIp)) {
         context.res = { status: 429, headers: CORS, body: JSON.stringify({ error: 'Rate limit exceeded. Try again in an hour.' }) };
         return;
@@ -327,7 +328,10 @@ module.exports = async function (context, req) {
 
     // Rate limit check
     if (!sessionId) {
-      const clientIp = (req.headers['x-forwarded-for'] || req.headers['x-client-ip'] || 'unknown').split(',')[0].trim();
+      // Was the first x-forwarded-for entry, which on Azure carries the caller's
+      // ephemeral port — a fresh bucket per connection, so this limiter never
+      // bound. It is the only spend control on a public scan.
+      const clientIp = getClientIp(req);
       const limited = await checkRateLimit(clientIp);
       if (limited) {
         context.res = { status: 429, headers: CORS, body: JSON.stringify({ error: 'Rate limit exceeded. Maximum ' + MAX_FREE_PER_HOUR + ' free scans per hour. Upgrade for unlimited access.' }) };

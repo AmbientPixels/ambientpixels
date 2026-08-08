@@ -79,8 +79,12 @@ function getClientIp(req) {
     if (parts.length) return parts[parts.length - 1];
   }
 
-  // 3. Local dev / other hosts.
-  const real = stripPort(headers['x-real-ip']) || stripPort(headers['client-ip']);
+  // 3. Local dev / other hosts. `x-client-ip` is here because as-analyze read it
+  //    as its fallback; keeping it means swapping that endpoint onto this helper
+  //    changes only the broken part, not which callers it can still identify.
+  const real = stripPort(headers['x-real-ip'])
+    || stripPort(headers['x-client-ip'])
+    || stripPort(headers['client-ip']);
   if (real) return real;
 
   return 'unknown';
