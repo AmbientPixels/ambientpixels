@@ -56,6 +56,19 @@ const METRIC_RESOLVERS = {
     if (!f) return null;
     const n = Number(f.publicScans7d);
     return Number.isFinite(n) ? n : null;
+  },
+  // obj-resume-roast-demand's north star (kill gate: <15 by 2026-08-22).
+  // Pre-counted by companyHeartbeat/pa-metrics.js from product-analytics
+  // agent_run_completed events (product 'resumeroast') — COMPLETED roasts,
+  // not started ones: 25 starts produced 5 completions in the first two days,
+  // and a started-but-failed run is not a delivered roast. Discovered
+  // 2026-08-08: this metric had NO resolver for its first week and the
+  // objective read a phantom 0 the whole time. Null when the pipe is absent —
+  // a kill gate must never fire on a zero nobody measured.
+  resume_roast_runs_14d: function (entry, sources) {
+    if (!sources || sources.resumeRoastRuns14d === null || sources.resumeRoastRuns14d === undefined) return null;
+    const n = Number(sources.resumeRoastRuns14d);
+    return Number.isFinite(n) ? n : null;
   }
 };
 

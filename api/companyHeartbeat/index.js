@@ -3864,11 +3864,16 @@ module.exports = async function (context) {
     // live metric sources — not task counts. Auto-complete at target,
     // deadline-miss flagged once. Gov events ride campaignGovEvents → governanceLog.
     try {
+      // resume_roast_runs_14d had no pipe for its first week (phantom 0 on a
+      // kill-gated objective). Pre-counted here; null = unmeasured, never 0.
+      let _rrRuns14d = null;
+      try { _rrRuns14d = await require('./pa-metrics').countResumeRoastRuns14d(Date.now()); } catch (_pm) { /* unmeasured */ }
       const _se2 = evaluateObjectives(objectives, {
         socialAccountStats: socialAccountStats,
         blogPostViews: _blogPostViewsForDigest,
         revenueDigest: revenueDigest,
-        funnel: costIntel && costIntel.funnel
+        funnel: costIntel && costIntel.funnel,
+        resumeRoastRuns14d: _rrRuns14d
       }, Date.now());
       if (_se2.changed) objectivesChanged = true;
       for (const _evt of _se2.govEvents) campaignGovEvents.push(_evt);

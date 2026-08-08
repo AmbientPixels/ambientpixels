@@ -69,5 +69,23 @@ t('unmeasured source does not fabricate progress', function () {
   assert.strictEqual(objs[0].progress, before);
 });
 
+console.log('\nresume_roast_runs_14d');
+
+const rrr = METRIC_RESOLVERS.resume_roast_runs_14d;
+
+t('reads the pre-counted number from sources', function () {
+  assert.strictEqual(rrr({}, { resumeRoastRuns14d: 5 }), 5);
+  assert.strictEqual(rrr({}, { resumeRoastRuns14d: 0 }), 0, 'a real measured zero is a valid value');
+});
+
+t('missing pipe resolves unmeasured (null), not 0 — the kill gate must never fire on a phantom zero', function () {
+  // This metric was the objective's north star for a WEEK while no resolver
+  // existed; current read 0 the whole time. obj-resume-roast-demand kills the
+  // lane below 15 on 2026-08-22 — a false zero here shuts down a working lane.
+  assert.strictEqual(rrr({}, {}), null);
+  assert.strictEqual(rrr({}, { resumeRoastRuns14d: null }), null);
+  assert.strictEqual(rrr({}, { resumeRoastRuns14d: 'not-a-number' }), null);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail === 0 ? 0 : 1);
