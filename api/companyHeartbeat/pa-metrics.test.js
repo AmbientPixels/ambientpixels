@@ -22,6 +22,14 @@ t('counts only resumeroast agent_run_completed events', function () {
   assert.strictEqual(countRunsInEvents(events), 2);
 });
 
+t('internal (our own) runs never count as demand — the publicScans7d rule', function () {
+  const events = [
+    { product: 'resumeroast', event: 'agent_run_completed' },
+    { product: 'resumeroast', event: 'agent_run_completed', internal: true }
+  ];
+  assert.strictEqual(countRunsInEvents(events), 1);
+});
+
 t('empty or malformed input counts 0 without throwing', function () {
   assert.strictEqual(countRunsInEvents([]), 0);
   assert.strictEqual(countRunsInEvents(null), 0);

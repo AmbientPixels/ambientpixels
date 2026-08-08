@@ -50,6 +50,10 @@ function validateEvent(evt) {
     isAuth: !!evt.isAuth,
     page: stripPII(typeof evt.page === 'string' ? evt.page.substring(0, 200) : ''),
     source: 'client',
+    // Set by the SDK on devices flagged via ?pa_internal=1 (the CEO's own
+    // browsers). Queries exclude these by default so our own testing can never
+    // read as demand — the publicScans7d rule, applied to product analytics.
+    internal: evt.internal === true || undefined,
     props: typeof evt.props === 'object' && evt.props !== null ? evt.props : {}
   };
 }

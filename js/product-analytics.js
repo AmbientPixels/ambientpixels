@@ -17,6 +17,18 @@
   var _buffer = [];
   var _flushTimer = null;
 
+  // Internal-traffic flag: visit any page once with ?pa_internal=1 to mark
+  // THIS device as ours (0 to unmark). Flagged devices' events carry
+  // internal:true and are excluded from analytics by default, so our own
+  // testing can never read as demand.
+  var _internal = false;
+  try {
+    var _paiParam = new URLSearchParams(location.search).get('pa_internal');
+    if (_paiParam === '1') localStorage.setItem('pa_internal', '1');
+    else if (_paiParam === '0') localStorage.removeItem('pa_internal');
+    _internal = localStorage.getItem('pa_internal') === '1';
+  } catch (e) { /* private mode — never break tracking */ }
+
   // ── Helpers ──
 
   function _genId(prefix) {
@@ -120,6 +132,7 @@
       sessionId: _sessionId,
       userId: _userId,
       isAuth: _isAuth,
+      internal: _internal || undefined,
       page: location.pathname,
       props: p
     };

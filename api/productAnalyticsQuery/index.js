@@ -220,6 +220,12 @@ module.exports = async function (context, req) {
     var dr = dateRange(days);
     var events = await pa.readEventRange(dr.startDate, dr.endDate);
 
+    // Our own devices (pa_internal flag) are excluded by default — internal
+    // testing must never read as demand. ?include_internal=1 shows everything.
+    if (req.query.include_internal !== '1') {
+      events = events.filter(function (e) { return !e || e.internal !== true; });
+    }
+
     var result;
     switch (metric) {
       case 'overview': result = computeOverview(events, product); break;

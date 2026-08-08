@@ -13,7 +13,8 @@ const pa = require('../_utils/productAnalytics');
 // problem to fix, not demand to count.
 function countRunsInEvents(events) {
   return (Array.isArray(events) ? events : []).filter(function (e) {
-    return e && e.product === 'resumeroast' && e.event === 'agent_run_completed';
+    // internal === our own devices (pa_internal flag) — never demand.
+    return e && e.product === 'resumeroast' && e.event === 'agent_run_completed' && e.internal !== true;
   }).length;
 }
 
