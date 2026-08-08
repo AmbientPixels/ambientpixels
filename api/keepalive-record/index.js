@@ -51,6 +51,15 @@ module.exports = async function (context, req) {
       if (context.log && context.log.error) context.log.error('[keepalive-record] fleet-health check failed:', _fa && _fa.message);
     }
 
+    // Approval watch: ping the CEO's Discord when NEW items wait for approval.
+    // Same cadence, same non-fatal contract as the fleet-health check.
+    try {
+      const { checkAndAlertPendingApprovals } = require('../_utils/approvalAlerts');
+      await checkAndAlertPendingApprovals(storage);
+    } catch (_aa) {
+      if (context.log && context.log.error) context.log.error('[keepalive-record] approval check failed:', _aa && _aa.message);
+    }
+
     context.res = {
       status: 200,
       headers: corsHeaders,
