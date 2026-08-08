@@ -64,6 +64,16 @@ var QUESTION_RE = /[?？]/;
 var NEWS_RE = /\b(zuckerberg|musk|altman|bezos|pichai|nadella|meta|openai|anthropic|google|microsoft|apple|amazon|nvidia|tesla)\b/i;
 var REPORTED_RE = /\b(admitted|announced|reported|according to|internal meeting|in a statement|sources say|the latest|forecast|analysts?)\b/i;
 
+// Whole-word matchers, built once. Substring matching (lower.indexOf(term)) was
+// the original implementation and it was badly wrong: "ats" matched inside
+// "cats", so the lane's first live draft was a reply to an International Cat Day
+// photo thread. "ui" matched inside "build", which would have re-admitted the
+// entire politics-and-architecture problem the domain list exists to stop.
+// \b on both ends, and multi-word phrases like "job search" work unchanged.
+const _DOMAIN_MATCHERS = DOMAIN_TERMS.map(function (term) {
+  return { term: term, re: new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i') };
+});
+
 function _words(s) {
   return String(s || '').replace(/https?:\/\/\S+/g, ' ').replace(/[#@]\S+/g, ' ')
     .split(/\s+/).filter(function (w) { return /[a-z]/i.test(w); });
@@ -95,7 +105,7 @@ function relevanceVerdict(text) {
 
   if (AI_TERM_RE.test(s) && HOSTILE_RE.test(s)) return { ok: false, reason: 'hostile', matched: [] };
 
-  var matched = DOMAIN_TERMS.filter(function (term) { return lower.indexOf(term) !== -1; });
+  var matched = _DOMAIN_MATCHERS.filter(function (m) { return m.re.test(s); }).map(function (m) { return m.term; });
   if (!matched.length) return { ok: false, reason: 'no_domain_fit', matched: [] };
 
   if (NEWS_RE.test(s) && REPORTED_RE.test(s)) return { ok: false, reason: 'third_party_news', matched: matched };
