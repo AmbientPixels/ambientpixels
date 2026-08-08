@@ -1,14 +1,17 @@
 {
   "keywords": [
+    "resume",
+    "job search",
+    "job hunting",
+    "applicant tracking",
+    "cover letter",
+    "job interview",
+    "laid off",
+    "hiring manager",
     "AI agents",
-    "indie hacker",
-    "solo founder",
-    "vibe coding",
-    "build in public",
-    "AI orchestration",
-    "agent framework"
+    "build in public"
   ],
-  "description": "Keywords Scout queries via /api/blueskySearch to discover active threads for Scribe reply drafting. Edit this file to tune discovery targeting — no code deploy needed.",
+  "description": "Keywords Scout queries to discover active Bluesky threads for reply drafting. systemConfig.blueskyKeywords overrides this file entirely (it REPLACES the array, so include everything you want). Retargeted 2026-08-08: the previous set was 100% builder topics (AI agents, indie hacker, solo founder, vibe coding, build in public, AI orchestration, agent framework) while the live revenue objective is obj-resume-roast-demand, whose audience is job seekers. Discovery was hunting an audience the relevance filter then rejected, so only ~1 candidate per run survived and the top of the queue was memes and politics matching the bare word 'build'. The job-seeker terms lead because they map to the objective; the two builder terms stay for camp-agent-build-log and PixelAgents. Keep this set in agreement with DOMAIN_TERMS in companyHeartbeat/bluesky-relevance.js — bluesky-keywords.test.js fails if they drift apart.",
   "filters": {
     "maxAgeMinutes": 120,
     "minReplies": 1,

@@ -631,6 +631,21 @@ function campaignDailyPostCapStatus(opts) {
 // slug is never altered. Decimals/versions ("v2.5", "$1.15") aren't treated as sentence ends
 // because the boundary requires whitespace after the punctuation.
 
+// Acronyms that appear in our copy and are never ordinary English words, so a
+// whole-word match cannot produce a false positive. Deliberately excludes things
+// like "us" and "it". SaaS is here for its conventional mixed case.
+const _ACRONYMS = {
+  ai: 'AI', ats: 'ATS', api: 'API', seo: 'SEO', ceo: 'CEO', cto: 'CTO', cv: 'CV',
+  ui: 'UI', ux: 'UX', llm: 'LLM', llms: 'LLMs', saas: 'SaaS', roi: 'ROI',
+  kpi: 'KPI', cta: 'CTA', mvp: 'MVP', b2b: 'B2B', b2c: 'B2C', sdk: 'SDK',
+  url: 'URL', html: 'HTML', css: 'CSS', pdf: 'PDF', faq: 'FAQ'
+};
+// Longest first so "llms" is tried before "llm".
+const _ACRONYM_RE = new RegExp(
+  '\\b(' + Object.keys(_ACRONYMS).sort(function (a, b) { return b.length - a.length; }).join('|') + ')\\b',
+  'gi'
+);
+
 function capitalizeSentences(text) {
   if (!text || typeof text !== 'string') return text;
 
@@ -652,6 +667,16 @@ function capitalizeSentences(text) {
 
   // 3. Standalone pronoun "i" -> "I" (apostrophe boundary also covers i'm/i've/i'll/i'd).
   out = out.replace(/\bi\b/g, 'I');
+
+  // 3b. Canonicalise the acronyms we actually use. Step 2 only fixes SENTENCE
+  //     STARTS, and founder voice writes lowercase, so a live Bluesky post read
+  //     "writing for an ai and a human" and "to get an ats score" — mid-sentence,
+  //     lowercase, on the brand account (2026-08-08).
+  //     Safe because step 1 already froze URLs, bare domains, hashtags and
+  //     @mentions: ambientpixels.ai and #ai are placeholders by now and cannot be
+  //     turned into ambientpixels.AI or #AI. Word boundaries keep "said", "cats"
+  //     and "curl" intact.
+  out = out.replace(_ACRONYM_RE, function (m) { return _ACRONYMS[m.toLowerCase()] || m; });
 
   // 4. Restore frozen tokens verbatim.
   return out.replace(/\{\{FRZ:(\d+)\}\}/g, function (_m, n) { return _frozen[Number(n)]; });
