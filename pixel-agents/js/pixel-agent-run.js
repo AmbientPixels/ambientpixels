@@ -622,36 +622,39 @@ function renderShareCard(body) {
   card.className = 'pa-result-card pa-share-card';
   card.innerHTML =
     '<div class="pa-result-card-label">Your card</div>' +
-    '<img class="pa-share-card-img" alt="Your score card" loading="lazy" src="' + escapeAttr(url) + '">' +
+    '<img class="pa-share-card-img" alt="Your score card">' +
     '<div class="pa-share-card-actions">' +
       '<button class="pa-run-btn" id="pa-share-dl"><i class="fas fa-download"></i> Save image</button>' +
       '<button class="pa-run-btn pa-run-btn--secondary" id="pa-share-link"><i class="fas fa-link"></i> Copy link</button>' +
     '</div>';
   body.appendChild(card);
-
-  // The card renders server-side through satori, so the first request is not
-  // instant. If it fails, drop the whole block rather than leaving a broken
-  // image where someone's result should be.
-  const img = card.querySelector('.pa-share-card-img');
-  img.addEventListener('error', () => card.remove());
-
-  card.querySelector('#pa-share-dl').addEventListener('click', async () => {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('card unavailable');
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'resume-roast-' + resultScore() + '.png';
-      a.click();
-      URL.revokeObjectURL(a.href);
-      if (window.ProductAnalytics) try { ProductAnalytics.track('share_card_downloaded', { agentId: currentAgent.id, runId: currentRunId }); } catch (_) {}
-    } catch (_) {
-      showToast('Could not save the image — try the link instead.');
-    }
-  });
-
   card.querySelector('#pa-share-link').addEventListener('click', shareResult);
+
+  // Fetched and shown as a blob, NOT set as a direct src. The site's CSP allows
+  // the API host in connect-src but NOT in img-src, so <img src="{api}/..."> is
+  // blocked by the browser and never loads — verified against production, where
+  // this silently removed itself. img-src does allow blob:, so fetching the PNG
+  // (permitted) and handing the browser an object URL (permitted) works inside
+  // the existing policy, with no change to staticwebapp.config.json.
+  //
+  // The same blob feeds the download, so the image is only fetched once.
+  let blobUrl = null;
+  fetch(url)
+    .then(res => { if (!res.ok) throw new Error('card unavailable'); return res.blob(); })
+    .then(blob => {
+      blobUrl = URL.createObjectURL(blob);
+      card.querySelector('.pa-share-card-img').src = blobUrl;
+    })
+    .catch(() => card.remove());   // no card is better than a broken image
+
+  card.querySelector('#pa-share-dl').addEventListener('click', () => {
+    if (!blobUrl) { showToast('The card is still rendering — try again in a second.'); return; }
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'resume-roast-' + resultScore() + '.png';
+    a.click();
+    if (window.ProductAnalytics) try { ProductAnalytics.track('share_card_downloaded', { agentId: currentAgent.id, runId: currentRunId }); } catch (_) {}
+  });
 }
 
 // The run button sits below the fold on a phone, so the user is NECESSARILY
