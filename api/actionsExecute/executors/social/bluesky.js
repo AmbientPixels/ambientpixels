@@ -116,7 +116,8 @@ async function createSession(creds) {
 }
 
 /**
- * Detect facets (links, mentions) in post text for rich text
+ * Detect facets (links, mentions, hashtags) in post text for rich text.
+ * Offsets are UTF-8 BYTE offsets, not string indices.
  */
 function detectFacets(text) {
   const facets = [];
@@ -137,6 +138,45 @@ function detectFacets(text) {
     facets.push({
       index: { byteStart: Buffer.byteLength(text.substring(0, match.index)), byteEnd: Buffer.byteLength(text.substring(0, match.index + match[0].length)) },
       features: [{ $type: 'app.bsky.richtext.facet#mention', did: match[1] }] // resolved later in production
+    });
+  }
+
+  // Hashtag detection (#tag → app.bsky.richtext.facet#tag)
+  //
+  // Without this facet a "#thing" is plain text: not clickable, not indexed,
+  // and absent from every tag-driven custom feed. That matters more here than
+  // on other platforms — Bluesky's Following feed is reverse-chronological, so
+  // custom feeds are the only route to anyone who does not already follow us.
+  // Every post published through 2026-08-08 went out unfaceted.
+  //
+  // Rules mirror @atproto/api's RichText so we tag exactly what Bluesky would:
+  //   - must open the string or follow whitespace, so URL fragments
+  //     (/resume-roast/#how-it-works) and mid-word hashes (C#) never match.
+  //     Every post we publish carries a URL, so that first case is not
+  //     hypothetical.
+  //   - trailing punctuation belongs to the sentence, not the tag
+  //   - an all-digit tag is prose ("ranked #1"), not a tag
+  //   - the lexicon caps a tag at 64 graphemes / 640 bytes. An over-long tag
+  //     fails the whole createRecord, so drop the facet rather than lose the
+  //     post — a missing tag costs reach, a rejected record costs everything.
+  // Excluded alongside \s are the zero-width and invisible separators that
+  // would otherwise be swallowed into a tag: soft hyphen, word joiner, hair
+  // space, ZWSP, ZWNJ, ZWJ, combining enclosing keycap. Written as escapes on
+  // purpose: as literal characters they are invisible in the source.
+  const tagRegex = /(?:^|\s)(#[^\s\u00AD\u2060\u200A\u200B\u200C\u200D\u20E2]+)/g;
+  while ((match = tagRegex.exec(text)) !== null) {
+    const hashStart = match.index + match[0].indexOf('#');
+    const trimmed = match[1].replace(/\p{P}+$/gu, '');
+    const tag = trimmed.slice(1);
+    if (!tag) continue;
+    if (!/[^\d\p{P}]/u.test(tag)) continue;
+    if (Array.from(tag).length > 64 || Buffer.byteLength(tag) > 640) continue;
+    facets.push({
+      index: {
+        byteStart: Buffer.byteLength(text.substring(0, hashStart)),
+        byteEnd: Buffer.byteLength(text.substring(0, hashStart + trimmed.length))
+      },
+      features: [{ $type: 'app.bsky.richtext.facet#tag', tag: tag }]
     });
   }
 
@@ -361,5 +401,6 @@ module.exports = {
   getCredentials,
   validateCredentials,
   createSession,
-  contentHash
+  contentHash,
+  detectFacets // exported for bluesky.facets.test.js — byte offsets need direct assertion
 };
