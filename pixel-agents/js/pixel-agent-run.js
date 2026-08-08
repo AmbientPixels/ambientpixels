@@ -839,15 +839,44 @@ async function copyResult() {
   }
 }
 
+// The agent's own declared score key, same resolution the share card uses
+// server-side. Reading result.score directly would work for exactly one of the
+// ten scoring agents.
+function resultScore() {
+  const sections = (currentAgent && currentAgent.outputSections) || [];
+  const result = (currentResult && currentResult.result) || {};
+  for (const s of sections) {
+    if (s.type !== 'score') continue;
+    const n = parseFloat(result[s.key]);
+    if (Number.isFinite(n) && n >= 0 && n <= 100) return Math.round(n);
+  }
+  return null;
+}
+
 async function shareResult() {
   if (!currentResult) return;
 
-  // Use the OG-enabled share URL for proper social unfurling
-  var shareUrl = window.location.origin + '/api/pixel-agent-share?run=' + currentRunId;
+  // getApiBase(), NOT window.location.origin. This was the only call in the
+  // file building its own URL, and on production the SWA proxy does not route
+  // /api/pixel-agent-share — it fell through to navigationFallback and served
+  // the AmbientPixels homepage. Verified: that URL returned 20KB of homepage
+  // titled "Creative systems. Quiet operations." So every roast anyone shared
+  // unfurled as the generic company homepage, with the homepage's own image,
+  // and clicking it landed on the homepage rather than the roast.
+  var shareUrl = getApiBase() + '/pixel-agent-share?run=' + currentRunId;
+
+  // Lead with the number. "Check out my result" is a link nobody clicks;
+  // "I scored 41/100" is the whole reason a roast gets shared at all.
+  const score = resultScore();
+  const text = score !== null
+    ? 'I scored ' + score + '/100 on ' + currentAgent.name + '. Roast yours free:'
+    : 'My ' + currentAgent.name + ' result:';
 
   const shareData = {
-    title: currentAgent.name + ' Result — Pixel Agents',
-    text: 'Check out my ' + currentAgent.name + ' result on Pixel Agents!',
+    title: score !== null
+      ? currentAgent.name + ': ' + score + '/100'
+      : currentAgent.name + ' Result — Pixel Agents',
+    text: text,
     url: shareUrl
   };
 
