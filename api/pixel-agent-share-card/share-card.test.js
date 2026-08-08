@@ -158,6 +158,41 @@ test('missing run param → 400; unknown run → 404', async () => {
   assert.strictEqual(b.res.status, 404);
 });
 
+// ── the printed CTA (2026-08-08) ──
+// The card is the artifact designed to spread, and its footer URL is the only
+// call to action on it — people read it off a screenshot and type it. It was
+// hardcoded to the 24-agent catalog for every agent, so sharing a Resume Roast
+// score sent the reader to a list instead of the tool they had just seen a
+// number from.
+
+test('an agent with its own product page prints that page, not the catalog', async () => {
+  RUNS = [roastRun()];   // resume-roast, which declares shareLanding
+  await handler(ctx(), { method: 'GET', query: { run: 'run-test-001' }, headers: {} });
+  const text = renderedText(lastMarkup).join(' | ');
+  assert.ok(text.includes('ambientpixels.ai/resume-roast'),
+    'card must point at the product page it came from. Rendered: ' + text);
+  assert.ok(!text.includes('ambientpixels.ai/pixel-agents'),
+    'the catalog URL must not also appear, or the card shows two destinations');
+});
+
+test('the declaration is what drives it, and it comes from the real registry', async () => {
+  // Guards the wiring, not just the fallback: if the field is dropped from
+  // pixel-agents.json the card silently reverts to the catalog.
+  const agents = require('../_data/pixel-agents.json');
+  const list = Array.isArray(agents) ? agents : agents.agents;
+  const rr = list.find(a => a.id === 'resume-roast');
+  assert.strictEqual(rr.shareLanding, 'ambientpixels.ai/resume-roast',
+    'resume-roast lost its shareLanding declaration');
+});
+
+test('agents without their own page still print the catalog', async () => {
+  RUNS = [roastRun({ runId: 'run-catalog', agentId: 'code-roast', agentName: 'Code Roast', result: { quality_score: 44, verdict: 'Nested.' } })];
+  await handler(ctx(), { method: 'GET', query: { run: 'run-catalog' }, headers: {} });
+  const text = renderedText(lastMarkup).join(' | ');
+  assert.ok(text.includes('ambientpixels.ai/pixel-agents'),
+    'the catalog is genuinely where these agents live. Rendered: ' + text);
+});
+
 (async function () {
   for (const [name, fn] of queue) {
     try { await fn(); pass++; console.log('  PASS ', name); }

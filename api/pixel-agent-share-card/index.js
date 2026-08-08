@@ -120,7 +120,14 @@ module.exports = async function (context, req) {
         style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #1A1A2E', paddingTop: 20 },
         children: [
           { type: 'span', props: { style: { fontSize: 20, color: '#4A4A60', fontWeight: 700 }, children: 'Pixel Agents' } },
-          { type: 'span', props: { style: { fontSize: 16, color: '#3A3A50' }, children: 'ambientpixels.ai/pixel-agents' } }
+          // This is the CTA on the artifact designed to spread. People read it
+          // off a screenshot and type it, so it has to land on the thing they
+          // just saw a score from. Hardcoding the catalog sent everyone who
+          // shared a Resume Roast card to a list of 24 agents instead — one
+          // extra decision at the exact moment of intent. Agents with their own
+          // product page declare `shareLanding`; the rest keep the catalog,
+          // which is genuinely where they live.
+          { type: 'span', props: { style: { fontSize: 16, color: '#3A3A50' }, children: (agent && agent.shareLanding) || 'ambientpixels.ai/pixel-agents' } }
         ]
       }
     });

@@ -538,6 +538,7 @@
     "id": "resume-roast",
     "name": "Resume Roast",
     "tagline": "Get your resume brutally scored and improved",
+    "shareLanding": "ambientpixels.ai/resume-roast",
     "description": "Paste your resume text and get an ATS compatibility score, section-by-section roast, and actionable rewrite tips to land more interviews.",
     "category": "career",
     "tier": "epic",
