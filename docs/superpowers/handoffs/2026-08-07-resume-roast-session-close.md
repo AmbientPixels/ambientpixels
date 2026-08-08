@@ -171,3 +171,52 @@ the only thing that found it was walking the funnel in production rather than tr
 The distribution problem is now the whole problem, and it is not a tactics shortage. The two channels
 that need nobody's permission — the share loop and the Discord bot — are live. Everything else is
 either gated, queued, or competing with your own other products for the same slot.
+
+---
+
+## Kickoff prompt for the next context
+
+Paste this into a fresh session, editing the one marked line.
+
+```
+Read `ambientpixels/docs/superpowers/handoffs/2026-08-07-resume-roast-session-close.md` first.
+That is the full context for where Resume Roast stands — 23 commits shipped and verified live on
+2026-08-07. Don't re-derive it, and don't re-investigate anything it marks as verified.
+
+Short version so you can sanity-check the doc against reality: the product was broken in ways that
+produced no visible error (share card 500 since launch, share link resolving to the homepage, no
+model fallback on any public path, the $9 rewrite never receiving the job description it advertises,
+analytics that would have justified killing a working channel). All fixed. 201 tests green. The
+Discord bot is live. Distribution is now the whole problem.
+
+WHAT I WANT FROM THIS SESSION:
+[EDIT THIS LINE — options below, pick one or write your own]
+  (a) Keep going on the ranked unblocked work in the handoff, autonomously.
+  (b) Close the two remaining bug-bash items on the $9 money path, then stop.
+  (c) Step back: given the saturation evidence, tell me whether Resume Roast deserves more
+      investment at all, or whether the slot and the effort belong to another product.
+
+DO NOT DO WITHOUT ASKING ME:
+- Spend money, create external accounts, or sign up for anything.
+- Post publicly as the brand anywhere.
+- Launch on Product Hunt. It locks the whole ambientpixels.ai domain for six months and costs
+  AmbientScore, CardForge, StoryForge and Blindspot their slot. That is my call, not a session's.
+- Touch staticwebapp.config.json, companyHeartbeat/index.js, company-state, or company-actions.json.
+- Build programmatic SEO. The handoff explains why that is a considered no, not an oversight.
+
+RULES THAT EARNED THEIR PLACE TODAY — these cost real time, so start with them:
+- Verify in PRODUCTION, not just locally. Almost every bug found today was invisible to local tests:
+  a 500 behind a generic catch, a CSP rule that only exists on the live host, a link that resolved
+  to the wrong page. Walk the funnel as a user before believing anything works.
+- When you check whether a deploy landed, grep for a string that exists ONLY in the new code. I
+  waited on one the old code also contained, "verified" a fix that wasn't live, and misdiagnosed the
+  result from there.
+- Re-verify competitor claims at the moment you use them. The competitive table went stale in about
+  a day: one competitor's domain is now parked for sale, one quote could not be reproduced, and the
+  closest live one turned out to offer more than we credited — which narrowed our own claim.
+- Never fabricate. Every product claim checkable in code, every competitor claim traceable to their
+  own copy with a URL. If you can't verify it, say so rather than softening it.
+- Committed markdown under docs/ is served publicly as raw text. No balances, no credentials.
+
+Commit and push as you go, with real reasoning in the messages.
+```
