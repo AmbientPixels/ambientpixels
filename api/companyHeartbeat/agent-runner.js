@@ -28,6 +28,7 @@ const {
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
 const { repairReplyLink: _repairReplyLink, repairReplyLinkTo: _repairReplyLinkTo, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
+const { normalizeReplyDraft: _normalizeReplyDraft } = require('./reply-normalize');
 const SUTM = require('../_utils/socialUtm');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
@@ -2005,31 +2006,13 @@ Write the full deliverable first, then the structured JSON block.`;
               // Scribe sometimes echoes the task's labels back as a formatted document
               // ("Bluesky Reply Draft", "**To:** @handle", "**Reply:** ..."), which would
               // otherwise be posted to Bluesky verbatim. Strip it down to the genuine reply text.
-              const _stripReplyScaffolding = function (raw) {
-                let t = String(raw || '').trim();
-                const _lines = t.split('\n');
-                // Drop leading scaffolding lines: a draft/title header, To:/Platform:/Thread:
-                // labels, and blank lines, until we hit real content.
-                while (_lines.length) {
-                  const _ln = _lines[0].trim();
-                  if (_ln === '' ||
-                      /^\*{0,2}\s*(?:bluesky\s+)?reply\s+draft\s*\*{0,2}\.?$/i.test(_ln) ||
-                      /^\*{0,2}\s*(?:to|platform|thread|in\s+reply\s+to|replying\s+to|context|original\s+post)\s*\*{0,2}\s*:/i.test(_ln)) {
-                    _lines.shift();
-                  } else { break; }
-                }
-                t = _lines.join('\n').trim();
-                // Drop a leading "Reply:" label if one survived the line strip.
-                t = t.replace(/^\*{0,2}\s*reply\s*\*{0,2}\s*:\s*\*{0,2}\s*/i, '');
-                // Unwrap a fully quote-wrapped reply.
-                if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
-                  t = t.slice(1, -1).trim();
-                }
-                return t.trim();
-              };
-              const _replyText = _stripReplyScaffolding(deliverable);
-              // Empty deliverable = Scribe explicitly chose not to reply (spam, nothing to add)
-              if (!_replyText || _replyText.length < 5) {
+              // Normalisation (strip scaffolding, sentence-case, cap length) lives in
+              // reply-normalize.js so the participation lane — and the worker, once it
+              // drafts inline — get byte-identical treatment. Two writers with two
+              // normalisers is how one of them starts shipping "**Reply:**" publicly.
+              const _norm = _normalizeReplyDraft(deliverable);
+              // ok:false = the agent chose not to reply (spam, nothing genuine to add).
+              if (!_norm.ok) {
                 result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
                 result.taskUpdates.push({
                   action: 'comment', taskId: action.taskId,
@@ -2039,9 +2022,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat] scribe: bluesky-reply declined for task', action.taskId);
                 continue;
               }
-              // Enforce proper sentence-case (founder-voice writes lowercase), then truncate
-              // to 280 chars max (bluesky cap is 300, leave headroom).
-              let _finalReply = capitalizeSentences(_replyText).substring(0, 280);
+              let _finalReply = _norm.text;
               // Deterministic report-link repair: swap invented ambient* URLs for the real
               // report link from the [SCAN RESULT] comment, or append it when omitted.
               // The drafter can't be trusted to copy it (see repairReplyLink in
