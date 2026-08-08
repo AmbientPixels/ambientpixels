@@ -178,6 +178,55 @@ test('the free allowance is eventually exhausted and answers 429', async () => {
   assert.match(last.body.message, /network/i, 'anonymous copy must say the limit is per-network, not accuse them personally');
 });
 
+test('a new connection from the same client does NOT mint a fresh allowance', async () => {
+  // The production failure, exactly. Azure puts the caller's ephemeral port in
+  // x-forwarded-for and it changes per TCP connection, so bucketing on the raw
+  // value gave every request its own allowance: 13 consecutive runs produced 13
+  // buckets each holding 1, while the API reported 4 free runs left every time.
+  store = {}; mutateDelayMs = 0;
+  const seen = [];
+  for (const port of [41001, 52774, 33150]) {
+    const c = ctx();
+    await handler(c, {
+      method: 'POST',
+      headers: { 'x-forwarded-for': '203.0.113.5:' + port },
+      body: { agentId: 'resume-roast', input: RESUME }
+    });
+    seen.push(c.res.body.remaining);
+  }
+  assert.strictEqual(Object.keys(store['pixelAgentRateLimits']).length, 1,
+    'one client produced ' + Object.keys(store['pixelAgentRateLimits']).length + ' buckets - the cap cannot bind');
+  assert.deepStrictEqual(seen, [4, 3, 2], 'got ' + JSON.stringify(seen) + '; production returned [4,4,4]');
+});
+
+test('a caller cannot reset their own limit by prepending x-forwarded-for', async () => {
+  // App Service appends rather than replaces, so the first entry is whatever
+  // the caller sent. Reading it made the cap opt-out.
+  store = {}; mutateDelayMs = 0;
+  for (let i = 0; i < 6; i++) {
+    const c = ctx();
+    await handler(c, {
+      method: 'POST',
+      headers: { 'x-forwarded-for': 'spoofed-' + i + ', 203.0.113.5:' + (40000 + i) },
+      body: { agentId: 'resume-roast', input: RESUME }
+    });
+    if (i === 5) assert.strictEqual(c.res.status, 429,
+      'varying the prefix bought a sixth free run - the cap is bypassable by anyone who reads the repo');
+  }
+});
+
+test('IPv6 callers are not all collapsed into one bucket', async () => {
+  // The opposite failure, and a worse one: a naive split(':')[0] buckets every
+  // IPv6 visitor as "2001" and locks strangers out of each other's free runs.
+  store = {}; mutateDelayMs = 0;
+  const a = ctx(), b = ctx();
+  await handler(a, { method: 'POST', headers: { 'x-forwarded-for': '[2001:db8::1]:41001' }, body: { agentId: 'resume-roast', input: RESUME } });
+  await handler(b, { method: 'POST', headers: { 'x-forwarded-for': '[2001:db8::2]:41002' }, body: { agentId: 'resume-roast', input: RESUME } });
+  assert.strictEqual(Object.keys(store['pixelAgentRateLimits']).length, 2,
+    'two distinct IPv6 visitors must not share an allowance');
+  assert.strictEqual(b.res.body.remaining, 4, 'the second visitor was charged for the first visitor\'s run');
+});
+
 test('separate networks get separate allowances', async () => {
   store = {}; mutateDelayMs = 0;
   for (let i = 0; i < 5; i++) await runOnce('198.51.100.42');

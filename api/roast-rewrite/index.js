@@ -42,11 +42,11 @@ const CORS_HEADERS = {
 const MAX_CREATES_PER_HOUR = 20;
 const QUEUE_KEY = 'roast_rewrite_queue';
 
-function getClientIP(req) {
-  return req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-    || req.headers['x-real-ip']
-    || 'unknown';
-}
+// Shared with pixel-agent-run. The old inline version read the first
+// x-forwarded-for entry, which on Azure carries the caller's ephemeral port, so
+// this limiter's bucket changed on every request too — it just never showed,
+// because 20 order creations an hour is a ceiling nobody was near.
+const { getClientIp: getClientIP } = require('../_utils/clientIp');
 
 // Same blob + shape as as-teardown's limiter, separate namespace key.
 async function checkRateLimit(ip) {

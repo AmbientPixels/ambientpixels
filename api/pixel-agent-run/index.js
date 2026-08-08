@@ -59,12 +59,10 @@ function hashIP(ip) {
   return crypto.createHash('sha256').update(ip || 'unknown').digest('hex').substring(0, 16);
 }
 
-function getClientIP(req) {
-  return req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-    || req.headers['x-real-ip']
-    || req.headers['client-ip']
-    || 'unknown';
-}
+// Was `x-forwarded-for.split(',')[0]`, which on Azure App Service includes the
+// client's ephemeral port — so every request became its own bucket and the free
+// cap never bound. See _utils/clientIp.js for the measurement.
+const { getClientIp: getClientIP } = require('../_utils/clientIp');
 
 function todayKey() {
   return new Date().toISOString().split('T')[0];
