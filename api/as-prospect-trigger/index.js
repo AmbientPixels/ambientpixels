@@ -37,7 +37,20 @@ module.exports = async function (context, req) {
     if (_all || laneParam === 'roast') roast = await runRoastLane({ storage: storage, log: _log });
     // Discovery BEFORE participation, same order as the cron: the lane should be
     // able to draft from threads found seconds ago rather than the previous pass.
-    if (_all || laneParam === 'bluesky') bluesky = await runBlueskyDiscovery({ storage: storage, log: _log });
+    //
+    // ?force=1 drops the 2h cooldown for THIS call only. Without it, verifying a
+    // keyword or scoring change after a deploy means waiting up to two hours for
+    // the timer — the exact wait this endpoint exists to avoid. The cooldown
+    // still governs every scheduled run; only a secret-holder can bypass it, and
+    // discovery is read-only against Bluesky, so the worst case is a wasted
+    // search rather than anything published.
+    const _force = String((req.query && req.query.force) || (req.body && req.body.force) || '') === '1';
+    if (_all || laneParam === 'bluesky') {
+      bluesky = await runBlueskyDiscovery(Object.assign(
+        { storage: storage, log: _log },
+        _force ? { cooldownMs: 0 } : {}
+      ));
+    }
     if (_all || laneParam === 'participation') participation = await runParticipationLane({ storage: storage, log: _log });
     context.res = { status: 200, headers: corsHeaders, body: { status: 'ok', result: result, roast: roast, bluesky: bluesky, participation: participation } };
   } catch (err) {
