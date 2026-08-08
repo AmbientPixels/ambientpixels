@@ -2251,6 +2251,22 @@
         }
         html += '<button class="act-btn act-btn--reject" onclick="doReject(\'' + a.id + '\')" title="Cancel this action"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Cancel</button>';
       }
+      // Direct link to the live post. The receipt already carried post_url but it
+      // was only rendered inside the details drawer, so "did that actually go
+      // out, and what does it look like?" needed two clicks and a scroll. On a
+      // reply that matters more than on a scheduled post: the thread is where you
+      // find out whether anyone answered.
+      var _rcpt = (a.execution && a.execution.receipt) || a.receipt || null;
+      var _postUrl = _rcpt && (_rcpt.post_url || _rcpt.public_url);
+      // display:inline-block is deliberate — .act-btn carries padding but no
+      // display mode, and on an inline <a> the vertical padding does not render,
+      // leaving the pill misaligned against the real buttons beside it.
+      if (_postUrl) {
+        html += '<a class="act-btn" href="' + esc(_postUrl) + '" target="_blank" rel="noopener"'
+          + ' title="Open the live post on the platform"'
+          + ' style="display:inline-block;color:#60a5fa;text-decoration:none;">'
+          + '<i class="fas fa-external-link-alt" style="margin-right:0.2rem;"></i>View Post</a>';
+      }
       // Always show details
       html += '<button class="act-btn act-btn--details" onclick="openDrawer(\'' + a.id + '\')"><i class="fas fa-eye"></i></button>';
       html += '</div>';
