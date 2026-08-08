@@ -3404,8 +3404,10 @@ module.exports = async function (context) {
             }
             context.log('[Heartbeat] AUTO-POST: Trimmed to', _rcText.length, 'chars');
           }
-          // Safety net: ensure post contains an ambientpixels.ai URL — extract from description or use default
-          if (_rcText.indexOf('ambientpixels.ai') === -1) {
+          // Safety net: ensure post contains an ambientpixels.ai URL — extract from description or use default.
+          // Engagement-shape posts (task.post_shape, 2026-08-08) carry no link BY DESIGN — appending one
+          // here would silently turn a value post into an ad.
+          if (_rcText.indexOf('ambientpixels.ai') === -1 && !(_pt && _pt.post_shape && _pt.post_shape.kind === 'engagement')) {
             var _descUrl = (_pt.description || '').match(/https?:\/\/ambientpixels\.ai(?:\/[a-z0-9\/-]*)?/i);
             var _fallbackUrl = _descUrl ? _descUrl[0] : 'https://ambientpixels.ai';
             _rcText = _rcText.trimEnd() + '\n' + _fallbackUrl;
