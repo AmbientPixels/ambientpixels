@@ -107,7 +107,18 @@
    RULE: every claim in the "them" column must be verifiable from competitor
    marketing copy, and phrased as "most" — 9+ competitors exist and only 4 were
    checked (2026-08-07), so universal claims are not defensible. Never name a
-   competitor or quote their price: they change, and a stale table is a false one. */
+   competitor or quote their price: they change, and a stale table is a false one.
+
+   That rule earned its keep the same day it was written. On a re-check hours
+   later, roastcv.com — the competitor whose $7/MONTH pricing justified the
+   "how you pay" row — had become a GoDaddy for-sale page, and the closest live
+   roaster charges $9 once, exactly like us. That row was deleted rather than
+   reworded: a differentiation table that lists a non-differentiator is padding,
+   and padding that implies a competitor is worse is just false.
+   The "what you pay for" row was also sharpened, because the same re-check
+   showed that roaster advertises "bullet rewrites" — so the honest difference
+   is rewritten bullets you paste in yourself versus the whole document handed
+   back, NOT "advice versus artifact". Re-verify before editing any cell. */
 .rr-vs {
   max-width: var(--rr-card-w);
   border: 1px solid var(--pa-sep-strong);
