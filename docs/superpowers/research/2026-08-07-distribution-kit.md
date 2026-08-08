@@ -105,7 +105,7 @@ else in this document is genuinely paste-ready.
 |---|---|---|
 | Square logo 240×240 | Product Hunt thumbnail | ✅ derive from `images/ambient-pixel-logo-rainbow.png` (1000×1000) |
 | Square icon ~256×256 | most AI directories | ✅ same source |
-| **2+ gallery images 1270×760** | **Product Hunt (required)** | ❌ **none exist** |
+| **2+ gallery images 1270×760** | **Product Hunt (required)** | ✅ **3 exist** — `resume-roast/launch/ph-gallery-{1-input,2-result,3-difference}.png`, screenshots of real output |
 | 1200×630 OG card | social unfurls | ⚠️ exists but it is the **generic Pixel Agents card**, not Resume Roast (`pixel-agents/img/og-card.png`) |
 
 Screenshots of the real roast output would cover the gallery requirement — the live page already shows
@@ -159,7 +159,8 @@ each is free)". None of those three is free anymore.
 
 #### ☐ A. SaaSHub — **DO THIS FIRST** (5 minutes, genuinely free, no catch)
 
-**Submit:** https://www.saashub.com/services/submit · **Cost: $0** · **Effort: 5 min**
+**Submit:** https://www.saashub.com/services/submit
+**STATUS: ✅ SUBMITTED by the CEO, 2026-08-07.** · **Cost: $0** · **Effort: 5 min**
 
 Their accept/reject rules, verbatim (same page): accepted are *"SaaS, IaaS & PaaS products and services.
 Most software products and apps."* Rejected are *"Software development agencies. Landing pages with an
@@ -611,7 +612,7 @@ returns an existing *Roasted Resume* listing. We are entry ~198 in a solved-look
 polish and clear positioning more than novelty, and "don't need to score high in every category" gives
 room to win on Useful and High Craft. Expect a modest launch, not a category-topping one.
 
-**Blocker:** we have **zero** 1270×760 gallery images and PH will not display the listing without two.
+**Blocker CLEARED 2026-08-07:** three 1270×760 images now exist in `resume-roast/launch/`, screenshotted from the real product (input with a job description, the scored result with keyword gap and the $9 offer, and the differentiation table). The remaining PH decision is the six-month domain lock, not the assets.
 Screenshots of the live roast output (the page already renders a complete real example) will do.
 
 #### The post — copy exactly
@@ -633,7 +634,7 @@ Paste your resume and get the whole roast free — an ATS score out of 100, a se
 **Link:** `https://www.ambientpixels.ai/resume-roast/`
 **Topics:** `Career` · `Artificial Intelligence` · `Productivity`
 **Thumbnail:** 240×240 square, from `images/ambient-pixel-logo-rainbow.png` (1000×1000)
-**Gallery:** ≥2 images at 1270×760 — **must be created**
+**Gallery:** ≥2 images at 1270×760 — ✅ three ready in `resume-roast/launch/`
 
 **First comment — pin this immediately:**
 
@@ -1029,8 +1030,8 @@ One row per decision. Every row is independently approvable — approve, skip, o
 | ☐ | Top up Anthropic balance (see GET /api/llm-spend, secret-gated, for the live figure) | your call | approve / skip |
 | ☐ | Confirm no ambientpixels.ai product launched on PH in the last 6 months | $0 | verify |
 | ☐ | Accept that the Show HN post must be **hand-typed**, not pasted | $0 | acknowledge |
-| ☐ | Create 2× gallery images at 1270×760 (screenshots of real roast output) | $0 | approve / skip |
-| ☐ | Create 240×240 thumbnail from `images/ambient-pixel-logo-rainbow.png` | $0 | approve / skip |
+| ✅ | Create 2× gallery images at 1270×760 — **DONE 2026-08-07**, 3 made, in `resume-roast/launch/` | $0 | done |
+| ✅ | Create 240×240 thumbnail — **DONE 2026-08-07**, `resume-roast/launch/ph-thumbnail-240.png` | $0 | done |
 | ☐ | Set up an `@ambientpixels.ai` mailbox (SaaSHub priority; some forms reject gmail) | $0 | approve / skip |
 
 ### FREE — directories
