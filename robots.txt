@@ -10,6 +10,7 @@ Allow: /about/
 
 Disallow: /modules/company/
 Disallow: /docs/published/
+Disallow: /docs/superpowers/
 Disallow: /hanson/
 Disallow: /lab/
 Disallow: /playground/

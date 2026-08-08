@@ -1,5 +1,10 @@
 # Handoff — Resume Roast: made ready for traffic
 
+> **Committed markdown under `docs/` is served publicly as raw text** — verified, this file returns
+> HTTP 200 to anyone. Remaining-credit balances are kept OUT of it and live behind `GET /api/llm-spend`,
+> which is secret-gated. A remaining balance tells an anonymous reader exactly what it costs to
+> exhaust the product, which is why that endpoint was gated in the first place.
+
 **Session of 2026-08-07 (evening). 7 commits, `130e319b` → `c0f42c70`, all pushed and deployed.**
 **Prior context: `docs/superpowers/handoffs/2026-08-07-resume-roast-repositioning.md`.**
 
@@ -101,9 +106,9 @@ alarm: `reason=credits` fires while everything still looks fine from outside.
 Four conditions, edge-triggered with a 12h cooldown: chain exhausted, credit fallback, runway (<10d
 warn, <3d critical), burn spike (3x weekly average with a $5/day floor).
 
-**Measured against production while building it:** $11.55 over 7 days, $1.65/day, 56 days of runway —
-and AmbientScore is $11.36 of that. `pixel-agent-run` is 4 calls and $0.065. At 1,000 roasts/day the
-burn is ~$20-27/day and the current balance is gone in under four days.
+**Measured against production while building it:** a low single-digit daily burn against a limited balance —
+and AmbientScore is nearly all of it; `pixel-agent-run` is 4 calls and a rounding error. At 1,000 roasts/day the
+burn rises roughly twentyfold and the balance is exhausted within days.
 
 `GET /api/llm-spend` is **secret-gated**, unlike most reads here: remaining balance plus per-caller
 burn tells an anonymous caller exactly what it costs to take the product down.
@@ -156,7 +161,7 @@ and nothing 301s one host to the other. Two parts:
 Until one host 301s to the other, duplicate content persists no matter what the tags say. This
 suppresses every page on the site, not just the roast.
 
-**2. Anthropic balance is $93 with 56 days of runway** at current (near-zero) traffic. That number is
+**2. The Anthropic balance has limited runway** at current (near-zero) traffic. The exact figure is
 manual — you type it on the Costs page and it only stays true until spend moves. If a channel lands,
 top it up first; the monitor will warn at 10 days but that is a short fuse at volume.
 
