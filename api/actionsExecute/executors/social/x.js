@@ -317,6 +317,44 @@ async function _waitForProcessing(creds, mediaId, processingInfo) {
 }
 
 /**
+ * Resolve a reply parent into an X tweet id, or null if it is not one.
+ *
+ * Accepts the X-native `in_reply_to_tweet_id` and also `parent`, which is the
+ * field bluesky.js already reads off action.payload.reply — one caller shape
+ * then works for both platforms.
+ *
+ * The numeric check is load-bearing. X tweet ids are numeric strings; handed
+ * an at:// URI copied from a Bluesky payload, the API ignores the unusable
+ * reference and posts a TOP-LEVEL tweet. Something written as a reply to
+ * someone else would ship as a context-free post on the brand account.
+ */
+function _replyParentId(reply) {
+  if (!reply || typeof reply !== 'object') return null;
+  const raw = reply.in_reply_to_tweet_id || reply.parent;
+  if (raw == null) return null;
+  const id = (typeof raw === 'object') ? (raw.id || raw.in_reply_to_tweet_id || null) : raw;
+  if (typeof id !== 'string' && typeof id !== 'number') return null;
+  const s = String(id).trim();
+  // Leading-zero and zero ids are not real snowflakes. A bare 0 slips past a
+  // plain \d+ check and would post top-level while looking like a threaded reply.
+  return /^[1-9]\d*$/.test(s) ? s : null;
+}
+
+/**
+ * Build the POST /2/tweets request body. Pure: no I/O, no OAuth, no network.
+ * Extracted so threading can be asserted without stubbing OAuth or the socket.
+ */
+function buildTweetBody(text, mediaIds, reply) {
+  const body = { text: text };
+  if (Array.isArray(mediaIds) && mediaIds.length > 0) {
+    body.media = { media_ids: mediaIds }; // X rejects an empty media_ids array
+  }
+  const parentId = _replyParentId(reply);
+  if (parentId) body.reply = { in_reply_to_tweet_id: parentId };
+  return body;
+}
+
+/**
  * Publish a tweet to X
  * @param {Object} action - Full action object
  * @returns {Promise<{receipt: Object}>} - Execution receipt
@@ -386,11 +424,10 @@ async function publishToX(action) {
 
   const authHeader = buildAuthHeader(oauthParams);
 
-  // Build tweet body — attach media_ids if any were uploaded
-  const tweetBody = { text: text };
-  if (uploadedMediaIds.length > 0) {
-    tweetBody.media = { media_ids: uploadedMediaIds };
-  }
+  // Build tweet body — attaches media_ids, and threads the tweet when
+  // action.payload.reply names a parent tweet id.
+  const _replyTo = _replyParentId(action.payload && action.payload.reply);
+  const tweetBody = buildTweetBody(text, uploadedMediaIds, action.payload && action.payload.reply);
   const body = JSON.stringify(tweetBody);
 
   // Tweet POST wrapped in retryOn429 — retries 429 + 5xx up to 3x with exponential backoff.
@@ -428,7 +465,10 @@ async function publishToX(action) {
               timestamp: new Date().toISOString(),
               content_hash: contentHash(text),
               media_ids: uploadedMediaIds.length > 0 ? uploadedMediaIds : undefined,
-              media_count: uploadedMediaIds.length || 0
+              media_count: uploadedMediaIds.length || 0,
+              // Present only on replies, so "did this thread or silently post
+              // top-level?" is answerable from the receipt alone.
+              in_reply_to: _replyTo || undefined
             }
           });
         } else {
@@ -469,5 +509,6 @@ module.exports = {
   uploadMediaToX,
   getCredentials,
   validateCredentials,
-  contentHash
+  contentHash,
+  buildTweetBody // exported for x.reply.test.js — threading needs direct assertion
 };
