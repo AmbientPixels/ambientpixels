@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the "Scribe writes the copy" heartbeat stage for short social posts with a stateless, cheap-model worker — cutting one full 6-hour stage of latency and ~47x of the cost of that step.
+**Goal:** Replace the "Scribe writes the copy" heartbeat stage for short social posts with a stateless, cheap-model worker — cutting one full 6-hour stage of latency and ~28x of the cost of that step.
 
-**Architecture:** A new pure module `api/_lib/socialCopy/` builds a small (~1k token) prompt from a shared voice spec, the product-facts entry, and platform rules, then calls `_lib/llm` with `model: 'gemini-flash'` (overridable via `systemConfig`, so the model can be changed without a deploy). It is dead code until Task 6 wires it into `agent-runner.js` behind a `systemConfig` kill switch that defaults to OFF. On any failure — bad output, quality-gate rejection, model outage — it falls back to creating the `social_copy` task for Scribe exactly as today. The worker never publishes; its output still goes through the quality gate, Quill, and CEO approval.
+**Architecture:** A new pure module `api/_lib/socialCopy/` builds a small (~1k token) prompt from a shared voice spec, the product-facts entry, and platform rules, then calls `_lib/llm` with `model: 'claude-haiku'` (overridable via `systemConfig`, so the model can be changed without a deploy). It is dead code until Task 6 wires it into `agent-runner.js` behind a `systemConfig` kill switch that defaults to OFF. On any failure — bad output, quality-gate rejection, model outage — it falls back to creating the `social_copy` task for Scribe exactly as today. The worker never publishes; its output still goes through the quality gate, Quill, and CEO approval.
 
 **Tech Stack:** Node.js (CommonJS), Azure Functions, `api/_lib/llm` (cross-provider model chain), `api/companyHeartbeat/quality-gate.js`, hand-rolled test runners (`node path/to/file.test.js`).
 
@@ -21,21 +21,34 @@ Measured on 2026-08-08 from `geminiUsage`, last 40 fleet calls:
 | Ratio | **34 : 1** |
 | Scribe specifically | **11,582 in → 204 out** |
 
-Scribe reads ~11.5k tokens of identity, memory and company doctrine to write ~150 words of social copy. A worker needs the brief, the voice rules, the product facts and the platform cap — about 1,000 tokens. That is an 11.6x cut on input tokens. The model swap adds more — but the two do NOT simply multiply, because the OUTPUT tokens do not shrink (the post is the same length) and output is priced far higher than input.
+Scribe reads ~11.5k tokens of identity, memory and company doctrine to write ~150 words of social copy. A worker needs the brief, the voice rules, the product facts and the platform cap — about 1,000 tokens. The prompt built by Task 2 measures **563–646 input tokens** in practice, not the ~1,000 budgeted, so the input cut against Scribe's 11,582 is **~18–20x**.
 
-Priced against the real tables in `api/_utils/companyStorage.js` (`CLAUDE_PRICING`, `GEMINI_PRICING`), for a ~1,000-token prompt producing a ~200-token post, against Scribe's measured 11,582 in / 204 out on Sonnet ($0.0378):
+### Measured, not projected (8 real calls, 2026-08-08)
 
-| model | $/M in | $/M out | cost per post | vs Scribe | in registry? |
-|---|---|---|---|---|---|
-| claude-sonnet-4-6 | 3.00 | 15.00 | $0.00600 | 6x | yes |
-| claude-haiku-4-5 | 1.00 | 5.00 | $0.00200 | 19x | yes |
-| **gemini-2.5-flash** | **0.30** | **2.50** | **$0.00080** | **47x** | **yes — the default** |
-| gemini-2.0-flash | 0.10 | 0.40 | $0.00018 | 210x | **no** |
-| gemini-2.0-flash-lite | 0.025 | 0.10 | $0.00005 | 840x | **no** |
+Both candidate models were run four times each — two Bluesky briefs, two LinkedIn — through `_lib/llm` with the exact prompt Task 2 builds, and their output put through the exact checks Task 3 applies:
 
-`gemini-flash` (2.5) is the default: already in `model-registry.js`, already proven on the fleet path, and `buildChain('gemini-flash')` falls back to `claude-sonnet` if Gemini fails — which on a 1k prompt still only costs $0.006. `requiresThinking('gemini-2.5-flash')` is false, so `_lib/llm` correctly sends `thinkingBudget: 0`, which Flash needs or its thinking tokens eat the output ceiling.
+| model | passed checks | avg cost/post | vs Scribe ($0.0378) |
+|---|---|---|---|
+| **claude-haiku-4-5** | **4/4** | $0.00133 | **28x** |
+| gemini-2.5-flash | 3/4 | $0.00067 | 56x |
 
-The 2.0 models are 4–17x cheaper again but are **not in the registry**, so using one means editing `model-registry.js`, which the fleet path shares. Not worth it until 2.5-flash has been shown to write acceptable copy. **Price cannot tell you which model writes better — only reading the output can**, which is why the model is configurable and why Task 8 Step 4 asks you to read it.
+**Haiku is the default, and the reason is quality, not cost.** Gemini overran the character limit in two separate samples (304 > 300 on Bluesky, 1517 > 1500 on LinkedIn) — a habit, not a fluke; it does not count characters reliably. Its copy also read as a feature list ("You get 5 free roasts daily. A free account raises it to 10. You can also get a full rewrite for $9") and led with the score, which the brief explicitly says not to do. Haiku produced shorter, restrained copy that led with a consequence ("Your resume probably has blind spots") and passed every check first time.
+
+The cost gap between them is irrelevant at this volume. At the campaign's 3 posts/week, Haiku costs **$0.017/month** and Gemini **$0.009/month** — a difference of **less than one cent a month**, against Scribe's $0.49. Both are a rounding error; only one of them writes copy you would publish. Optimising the cheaper of two rounding errors at the expense of the output is false economy.
+
+Gemini stays available via `systemConfig.socialCopyWorker.model` and is the right choice **if volume ever makes the difference real** — at which point the retry loop absorbs its overruns anyway, since a rejected attempt feeds "too long 1517>1500" straight back into the next prompt.
+
+For reference, the full price table from `api/_utils/companyStorage.js`:
+
+| model | $/M in | $/M out | in registry? |
+|---|---|---|---|
+| claude-sonnet-4-6 | 3.00 | 15.00 | yes |
+| **claude-haiku-4-5** | **1.00** | **5.00** | **yes — the default** |
+| gemini-2.5-flash | 0.30 | 2.50 | yes |
+| gemini-2.0-flash | 0.10 | 0.40 | **no** |
+| gemini-2.0-flash-lite | 0.025 | 0.10 | **no** |
+
+The 2.0 models are cheaper again but are **not in `model-registry.js`**, and on this evidence the binding constraint is instruction-following, not price. 
 
 The second win is latency. The heartbeat runs every 6 hours (`0 0 */6 * * *`) and `agent-runner.js` explicitly skips tasks younger than 30 seconds ("ANTI-STALL"), so each pipeline stage costs a cycle. Removing the Scribe stage removes ~6 hours from every social post.
 
@@ -596,14 +609,14 @@ t('returns the post and the usage on a clean first attempt', async () => {
 t('uses a CHEAP model — that is the point of the worker', async () => {
   reset(); scripted = [GOOD];
   await composeSocialCopy(BRIEF);
-  assert.strictEqual(calls[0].model, 'gemini-flash',
+  assert.strictEqual(calls[0].model, 'claude-haiku',
     'worker called ' + calls[0].model + '; a fleet-tier model erases the cost saving');
 });
 
 t('the model can be overridden without a code change, so it can be A/B tested', async () => {
   reset(); scripted = [GOOD];
-  await composeSocialCopy(Object.assign({}, BRIEF, { model: 'claude-haiku' }));
-  assert.strictEqual(calls[0].model, 'claude-haiku', 'brief.model must win over the default');
+  await composeSocialCopy(Object.assign({}, BRIEF, { model: 'gemini-flash' }));
+  assert.strictEqual(calls[0].model, 'gemini-flash', 'brief.model must win over the default');
 });
 
 t('the prompt it sends stays inside the token budget', async () => {
@@ -679,19 +692,22 @@ Create `api/_lib/socialCopy/index.js`:
 //
 // Cost, measured 2026-08-08: a fleet agent averages 11,315 input tokens to
 // produce ~330 output (34:1); Scribe specifically spends 11,582 to write ~204.
-// This sends ~1,000 on gemini-2.5-flash: ~$0.0008 per post against ~$0.0378,
-// which is ~47x. Note it is NOT 11.6x times the model price ratio — the output
-// tokens do not shrink and are priced far above input, so only the input side
-// benefits from the smaller prompt.
+// This sends ~600 on claude-haiku: ~$0.00133 per post against ~$0.0378, i.e.
+// ~28x, measured. Note it is NOT the token ratio times the price ratio — the
+// output tokens do not shrink and are priced far above input, so only the
+// input side benefits from the smaller prompt.
 
 const { callModel } = require('../llm');
 const { buildCopyPrompt } = require('./prompt');
 const { validateCopy } = require('./validate');
 
-// gemini-2.5-flash: $0.0008 per post vs Scribe's $0.0378 (47x). Already in
-// model-registry, and its chain falls back to claude-sonnet if Gemini is down.
-// Overridable per call so the model can be A/B'd from systemConfig with no deploy.
-const DEFAULT_MODEL = 'gemini-flash';
+// claude-haiku: $0.00133 per post vs Scribe's $0.0378 (28x), measured over 4
+// real calls, 4/4 passing the deterministic checks. gemini-2.5-flash is half
+// the price but overran the character limit in 2 of 4 samples and wrote copy
+// that read as a feature list. At 3 posts/week the gap between them is under a
+// cent a month, so this is a quality choice, not a cost one.
+// Overridable per call so the model can be A/B'd from systemConfig, no deploy.
+const DEFAULT_MODEL = 'claude-haiku';
 const MAX_ATTEMPTS = 2;      // one try, one corrective retry. Never a loop.
 const TIMEOUT_MS = 45000;
 
@@ -806,13 +822,13 @@ const SCRIBE_AVG_INPUT = 11582;
     console.log('output tokens: ' + r.usage.completionTokens);
     console.log('input cut    : ' + (SCRIBE_AVG_INPUT / Math.max(1, r.usage.promptTokens)).toFixed(1) + 'x vs scribe');
     console.log('');
-    const sonnet = { i: 3.00, o: 15.00 }, flash = { i: 0.30, o: 2.50 };
+    const sonnet = { i: 3.00, o: 15.00 }, haiku = { i: 1.00, o: 5.00 };
     const cost = (i, o, pr) => (i * pr.i + o * pr.o) / 1e6;
     const scribeCost = cost(SCRIBE_AVG_INPUT, 204, sonnet);
-    const workerCost = cost(r.usage.promptTokens, r.usage.completionTokens, flash);
+    const workerCost = cost(r.usage.promptTokens, r.usage.completionTokens, haiku);
     console.log('scribe cost  : $' + scribeCost.toFixed(5));
     console.log('worker cost  : $' + workerCost.toFixed(5));
-    console.log('COST CUT     : ' + (scribeCost / workerCost).toFixed(0) + 'x   (expect ~47x)');
+    console.log('COST CUT     : ' + (scribeCost / workerCost).toFixed(0) + 'x   (expect ~28x)');
   }
   process.exit(r.ok ? 0 : 1);
 })();
@@ -892,7 +908,7 @@ Immediately **before** `const copyTask = {`, insert:
                     // covers a second product.
                     productKey: _detectProductFromTask(socialTask),
                     // Lets the model be swapped from systemConfig with no deploy,
-                    // so gemini-flash vs claude-haiku can be compared on real copy.
+                    // so claude-haiku vs gemini-flash can be compared on real copy.
                     model: _sysCfg.socialCopyWorker.model || undefined,
                     qgFeedback: _qgFeedback || ''
                   });
@@ -1128,8 +1144,8 @@ WHY IT EXISTS, in one paragraph: writing one short social post currently costs a
 heartbeat stage and ~11,582 input tokens of Scribe's context to produce ~204 tokens of post.
 Measured on 2026-08-08 across the last 40 fleet calls: average 11,315 tokens in, 330 out, a 34:1
 ratio. A stateless worker with a ~1,000-token prompt on a cheaper model does the same job for
-~47x less on gemini-2.5-flash ($0.0008 vs $0.0378 per post), and removes a stage from a 5-stage
-pipeline on a 6-hour clock. Do NOT
+~28x less on claude-haiku ($0.00133 vs $0.0378 per post, measured over 4 real calls), and removes
+a stage from a 5-stage pipeline on a 6-hour clock. Do NOT
 "fix" this by adding capacity — the queue drains every cycle and agents already use only ~11 of
 ~21 available action slots. The win is stage removal and cost, not throughput.
 
