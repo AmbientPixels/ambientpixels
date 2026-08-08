@@ -24,7 +24,22 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type'
 };
 
-const MAX_CREATES_PER_HOUR = 5;
+// Per IP, per hour. Raised from 5 on 2026-08-07.
+//
+// What this control actually prevents is someone spamming order CREATION, and
+// an unpaid create costs one blob write — no model call, since composing only
+// happens once Stripe reports the order paid. So 5 was priced for a harm that
+// is not expensive, while the cost of a false positive is a lost sale.
+//
+// Two things made 5 actively wrong. The bucket is a raw IP, so on carrier
+// CGNAT, office NAT or cafe wifi it is shared by everyone behind it — five
+// people hesitating at a card form locks out the sixth person's PURCHASE, not
+// just their free run. And cancelled checkouts now restore the roast and invite
+// a retry, which is the correct experience but mints a new order each time, so
+// one indecisive buyer can burn the whole bucket alone.
+//
+// 20 still bounds abuse to 20 blob writes an hour from one address.
+const MAX_CREATES_PER_HOUR = 20;
 const QUEUE_KEY = 'roast_rewrite_queue';
 
 function getClientIP(req) {
@@ -311,7 +326,11 @@ module.exports = async function (context, req) {
         return;
       }
       if (await checkRateLimit(getClientIP(req))) {
-        context.res = { status: 429, headers: CORS_HEADERS, body: { error: 'Too many requests. Try again in an hour.' } };
+        // Says "this network", because the bucket is a raw IP and the person
+        // reading this may not have started a single order themselves. Also
+        // says nothing was charged: this fires at the buy button, and silence
+        // there reads as "did my card just get taken?".
+        context.res = { status: 429, headers: CORS_HEADERS, body: { error: 'Too many rewrite orders started from this network in the last hour. Nothing was charged. Try again shortly, or reply to us and we will sort it out.' } };
         return;
       }
 
