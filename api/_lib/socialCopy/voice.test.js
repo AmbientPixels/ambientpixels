@@ -59,6 +59,15 @@ t('approved tags are bare words, since the writer supplies the #', function () {
   });
 });
 
+t('every platform declares where a link belongs, and they differ', function () {
+  // Bluesky does not demote outbound links; X and LinkedIn heavily do. One
+  // shared policy is how we ended up publishing the most-demoted shape on
+  // every platform for four months (195 posts, 65 interactions).
+  assert.strictEqual(platformRule('social_bluesky').linkPolicy, 'allowed');
+  assert.strictEqual(platformRule('social_x').linkPolicy, 'reply');
+  assert.strictEqual(platformRule('social_linkedin').linkPolicy, 'comment');
+});
+
 t('the voice rules name the approved tags inline', function () {
   // Scribe writes all social copy today and only ever sees VOICE_RULES, so a
   // hashtag rule that lives anywhere else does not reach the writer that matters.

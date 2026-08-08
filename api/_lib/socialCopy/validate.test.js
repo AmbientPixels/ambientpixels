@@ -73,11 +73,37 @@ t('too many hashtags fails — tag spam is a ranking penalty, not a boost', func
 });
 
 t('the per-platform budget is enforced, not one shared number', function () {
-  const one = 'Roast it #jobsearch ' + URL;
-  const two = 'Roast it #jobsearch #resume ' + URL;
-  assert.strictEqual(validateCopy(one, { platform: 'social_x', url: URL }).ok, true, 'one tag is fine on X');
-  assert.strictEqual(validateCopy(two, { platform: 'social_x', url: URL }).ok, false, 'two is not');
-  assert.strictEqual(validateCopy(two, { platform: 'social_bluesky', url: URL }).ok, true, 'but two is fine on bluesky');
+  // X copy carries no body link here because its linkPolicy is 'reply'.
+  const one = 'Roast it #jobsearch';
+  const two = 'Roast it #jobsearch #resume';
+  assert.strictEqual(validateCopy(one, { platform: 'social_x', url: URL }).ok, true, JSON.stringify(validateCopy(one, { platform: 'social_x', url: URL }).problems));
+  assert.strictEqual(validateCopy(two, { platform: 'social_x', url: URL }).ok, false, 'two tags on X is spam');
+  assert.strictEqual(validateCopy(two + ' ' + URL, { platform: 'social_bluesky', url: URL }).ok, true, 'but two is fine on bluesky');
+});
+
+t('a body link is rejected where the platform demotes it', function () {
+  // X and LinkedIn suppress posts carrying outbound links; the link belongs in
+  // a follow-up there. Passing url still means "this post is FOR this url" —
+  // the body just must not contain it.
+  const rX = validateCopy('Roast it free. ' + URL, { platform: 'social_x', url: URL });
+  assert.strictEqual(rX.ok, false);
+  assert.ok(rX.problems.some(p => /reply/i.test(p)), JSON.stringify(rX.problems));
+  const rLi = validateCopy('Roast it free. The full story is linked below. ' + URL, { platform: 'social_linkedin', url: URL });
+  assert.strictEqual(rLi.ok, false);
+  assert.ok(rLi.problems.some(p => /comment/i.test(p)), JSON.stringify(rLi.problems));
+});
+
+t('link-free copy passes on reply/comment platforms even when a url is expected', function () {
+  // The old rule ("missing the required url") firing here would make shape 4
+  // (clean post, link in first reply) impossible to express on X at all.
+  const r = validateCopy('Roast it free. #jobsearch', { platform: 'social_x', url: URL });
+  assert.strictEqual(r.ok, true, JSON.stringify(r.problems));
+});
+
+t('no url expected at all still validates — shape 1 is expressible', function () {
+  // A no-link value post simply passes no url. Nothing should demand one.
+  const r = validateCopy('Most resumes say "responsible for". So does every intern\'s.', { platform: 'social_bluesky' });
+  assert.strictEqual(r.ok, true, JSON.stringify(r.problems));
 });
 
 t('a URL fragment is not counted as a hashtag', function () {

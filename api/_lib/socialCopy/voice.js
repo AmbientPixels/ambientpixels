@@ -41,10 +41,20 @@ const VOICE_RULES = [
 // maxTags is enforced by validate.js, not just suggested here. A small model
 // asked for "2 to 3" will occasionally produce nine, and tag spam is a ranking
 // penalty on every one of these platforms rather than a boost.
+//
+// linkPolicy — where a product link belongs on this platform:
+//   'allowed'  a link in the body costs nothing (Bluesky's Following feed is
+//              reverse-chronological and does not demote outbound links)
+//   'reply'    the platform demotes posts with outbound links; the body stays
+//              clean and the link goes in the first reply (X)
+//   'comment'  same demotion, link goes in the first comment (LinkedIn)
+// validate.js enforces the body side of this. Delivering the follow-up reply
+// or comment is the caller's job and does not exist yet — do not route live
+// X/LinkedIn copy through validateCopy until it does, or the link is lost.
 const PLATFORM_RULES = {
-  social_bluesky: { maxLen: 300, maxTags: 3, guidance: 'One short post. Every character counts; lead with the specific. Use 2 to 3 hashtags: on Bluesky they are how anyone who does not follow us finds the post at all.' },
-  social_x: { maxLen: 280, maxTags: 1, guidance: 'One short post. Every character counts; lead with the specific. At most ONE hashtag; more reads as spam here.' },
-  social_linkedin: { maxLen: 1500, maxTags: 3, guidance: 'Aim for 800-1500 chars. Write like a short article: narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline. Close with 3 hashtags.' }
+  social_bluesky: { maxLen: 300, maxTags: 3, linkPolicy: 'allowed', guidance: 'One short post. Every character counts; lead with the specific. Use 2 to 3 hashtags: on Bluesky they are how anyone who does not follow us finds the post at all.' },
+  social_x: { maxLen: 280, maxTags: 1, linkPolicy: 'reply', guidance: 'One short post. Every character counts; lead with the specific. At most ONE hashtag; more reads as spam here.' },
+  social_linkedin: { maxLen: 1500, maxTags: 3, linkPolicy: 'comment', guidance: 'Aim for 800-1500 chars. Write like a short article: narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline. Close with 3 hashtags.' }
 };
 
 // Returns null for unknown platforms on purpose. A default of 280 would

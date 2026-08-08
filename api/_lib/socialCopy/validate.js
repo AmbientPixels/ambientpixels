@@ -35,8 +35,15 @@ function validateCopy(text, opts) {
   const url = String(opts.url || '').trim();
   if (url) {
     const n = s.split(url).length - 1;
-    if (n === 0) problems.push('missing the required url ' + url);
-    else if (n > 1) problems.push('the url appears ' + n + ' times; include it exactly once');
+    const policy = (rule && rule.linkPolicy) || 'allowed';
+    if (policy === 'reply' || policy === 'comment') {
+      // This platform demotes posts carrying outbound links. opts.url still
+      // names the destination — it just travels in a follow-up, not the body.
+      if (n > 0) problems.push('the link belongs in the first ' + policy + ' on ' + opts.platform + ', not the post body; remove ' + url + ' from the copy');
+    } else {
+      if (n === 0) problems.push('missing the required url ' + url);
+      else if (n > 1) problems.push('the url appears ' + n + ' times; include it exactly once');
+    }
   }
 
   if (rule && Number.isFinite(rule.maxTags)) {
