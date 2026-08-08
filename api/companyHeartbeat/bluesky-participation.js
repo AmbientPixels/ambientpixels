@@ -25,6 +25,8 @@
 
 'use strict';
 
+var { relevanceVerdict } = require('./bluesky-relevance');
+
 var DEFAULTS = {
   enabled: false,             // OFF until switched on. A new outbound lane never self-starts.
   maxPerDay: 2,               // deliberately small: this talks to strangers as the brand
@@ -56,7 +58,11 @@ function _authorKey(a) { return String(a || '').toLowerCase(); }
 function selectForDrafting(candidates, tasks, cfg, nowMs) {
   var drops = {
     not_new: 0, too_old: 0, low_score: 0, too_short: 0,
-    already_tasked: 0, author_cooldown: 0, daily_budget: 0
+    already_tasked: 0, author_cooldown: 0, daily_budget: 0,
+    // Per-reason relevance drops, merged in below. Kept separate from the rest
+    // so "we found nothing" and "we found 40 political threads" do not look the
+    // same in the log.
+    irrelevant: 0
   };
   var maxAgeMs = cfg.maxAgeHours * 3600e3;
   var cooldownMs = cfg.perAuthorCooldownDays * 86400e3;
@@ -93,6 +99,15 @@ function selectForDrafting(candidates, tasks, cfg, nowMs) {
     if (!Number.isFinite(age) || age > maxAgeMs) { drops.too_old++; return; }
     if ((Number(c.score) || 0) < cfg.minScore) { drops.low_score++; return; }
     if (String(c.text || '').trim().length < cfg.minTextLength) { drops.too_short++; return; }
+    // "Do we belong in this thread?" — a different question from "is this thread
+    // busy?", which is all the discovery score can answer. Without this, the top
+    // of the real queue was politics, news commentary and one NSFW art post.
+    var rel = relevanceVerdict(c.text);
+    if (!rel.ok) {
+      drops.irrelevant++;
+      drops['irrelevant_' + rel.reason] = (drops['irrelevant_' + rel.reason] || 0) + 1;
+      return;
+    }
     if (c.uri && taskedUris[c.uri]) { drops.already_tasked++; return; }
     var ak = _authorKey(c.author);
     var t = lastTouch[ak];
