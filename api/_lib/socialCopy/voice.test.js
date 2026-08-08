@@ -2,7 +2,7 @@
 // The voice spec is the only thing standing between a cheap model and copy that
 // does not sound like us. These assert the load-bearing rules survive edits.
 const assert = require('assert');
-const { VOICE_RULES, PLATFORM_RULES, BANNED_WORDS, platformRule } = require('./voice');
+const { VOICE_RULES, PLATFORM_RULES, BANNED_WORDS, APPROVED_TAGS, platformRule } = require('./voice');
 
 let pass = 0, fail = 0;
 function t(name, fn) {
@@ -42,6 +42,30 @@ t('an unknown platform returns null rather than a wrong default', function () {
 t('the whole spec stays small — it is the point of the worker', function () {
   const chars = VOICE_RULES.length + Object.values(PLATFORM_RULES).map(r => r.guidance).join('').length;
   assert.ok(chars < 4000, 'voice + platform guidance is ' + chars + ' chars; the budget is ~1k tokens total');
+});
+
+t('every platform declares a hashtag budget, and the budgets differ', function () {
+  // Bluesky discovery runs on tags; on X more than one reads as spam. A single
+  // shared number would be wrong on at least one platform.
+  assert.strictEqual(platformRule('social_bluesky').maxTags, 3);
+  assert.strictEqual(platformRule('social_linkedin').maxTags, 3);
+  assert.strictEqual(platformRule('social_x').maxTags, 1, 'more than one hashtag on X reads as spam');
+});
+
+t('approved tags are bare words, since the writer supplies the #', function () {
+  assert.ok(Array.isArray(APPROVED_TAGS) && APPROVED_TAGS.length >= 4);
+  APPROVED_TAGS.forEach(function (tag) {
+    assert.ok(!/[#\s]/.test(tag), 'approved tag must be a bare word: ' + JSON.stringify(tag));
+  });
+});
+
+t('the voice rules name the approved tags inline', function () {
+  // Scribe writes all social copy today and only ever sees VOICE_RULES, so a
+  // hashtag rule that lives anywhere else does not reach the writer that matters.
+  const s = VOICE_RULES.toLowerCase();
+  assert.ok(s.includes('hashtag'), 'the hashtag rule must live in VOICE_RULES');
+  assert.ok(s.includes('buildinpublic'), 'the list must be named inline, not referenced');
+  assert.ok(s.includes('never invent'), 'a tag with no community behind it reaches nobody');
 });
 
 console.log('\nvoice tests: ' + pass + ' passed, ' + fail + ' failed');

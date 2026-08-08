@@ -66,5 +66,27 @@ t('the URL appearing twice fails — it reads as spam', function () {
   assert.ok(r.problems.some(p => /once/i.test(p)));
 });
 
+t('too many hashtags fails — tag spam is a ranking penalty, not a boost', function () {
+  const r = validateCopy('Roast it #jobsearch #resume #hiring #careers ' + URL, { platform: 'social_bluesky', url: URL });
+  assert.strictEqual(r.ok, false);
+  assert.ok(r.problems.some(p => /hashtag/i.test(p)), JSON.stringify(r.problems));
+});
+
+t('the per-platform budget is enforced, not one shared number', function () {
+  const one = 'Roast it #jobsearch ' + URL;
+  const two = 'Roast it #jobsearch #resume ' + URL;
+  assert.strictEqual(validateCopy(one, { platform: 'social_x', url: URL }).ok, true, 'one tag is fine on X');
+  assert.strictEqual(validateCopy(two, { platform: 'social_x', url: URL }).ok, false, 'two is not');
+  assert.strictEqual(validateCopy(two, { platform: 'social_bluesky', url: URL }).ok, true, 'but two is fine on bluesky');
+});
+
+t('a URL fragment is not counted as a hashtag', function () {
+  // Same trap as the facet detector: every post carries a URL, and some carry
+  // fragments. Counting "#how-it-works" as a tag would fail good copy.
+  const u = 'https://www.ambientpixels.ai/resume-roast/#how-it-works';
+  const r = validateCopy('Get it roasted free. ' + u, { platform: 'social_bluesky', url: u });
+  assert.ok(!r.problems.some(p => /hashtag/i.test(p)), JSON.stringify(r.problems));
+});
+
 console.log('\nvalidate tests: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

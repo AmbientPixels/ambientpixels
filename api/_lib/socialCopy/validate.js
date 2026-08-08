@@ -10,6 +10,14 @@ const { platformRule, BANNED_WORDS } = require('./voice');
 const PREAMBLE_RX = /^\s*(here('| i)s|this is|sure[,!]|okay[,!]|i'?ve written|draft:|post:)/i;
 const REFUSAL_RX = /\b(i (cannot|can't|am unable to)|as an ai|i'm sorry, but)\b/i;
 
+// Must open the string or follow whitespace, so the fragment in
+// ".../resume-roast/#how-it-works" is not counted as a tag. Every post we
+// publish carries a URL, so that is the common case, not the edge case.
+// Deliberately a separate expression from the facet detector in
+// executors/social/bluesky.js: that one decides what AT Protocol will index,
+// this one decides what we are willing to publish on any platform.
+const TAG_COUNT_RX = /(?:^|\s)#[^\s#]+/g;
+
 function validateCopy(text, opts) {
   opts = opts || {};
   const s = String(text == null ? '' : text).trim();
@@ -29,6 +37,13 @@ function validateCopy(text, opts) {
     const n = s.split(url).length - 1;
     if (n === 0) problems.push('missing the required url ' + url);
     else if (n > 1) problems.push('the url appears ' + n + ' times; include it exactly once');
+  }
+
+  if (rule && Number.isFinite(rule.maxTags)) {
+    const tagCount = (s.match(TAG_COUNT_RX) || []).length;
+    if (tagCount > rule.maxTags) {
+      problems.push('too many hashtags: ' + tagCount + ', the limit on ' + opts.platform + ' is ' + rule.maxTags);
+    }
   }
 
   if (/—|--/.test(s)) problems.push('contains an em dash or double hyphen');
