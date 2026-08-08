@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the "Scribe writes the copy" heartbeat stage for short social posts with a stateless, cheap-model worker — cutting one full 6-hour stage of latency and roughly 40x of the token cost for that step.
+**Goal:** Replace the "Scribe writes the copy" heartbeat stage for short social posts with a stateless, cheap-model worker — cutting one full 6-hour stage of latency and ~47x of the cost of that step.
 
-**Architecture:** A new pure module `api/_lib/socialCopy/` builds a small (~1k token) prompt from a shared voice spec, the product-facts entry, and platform rules, then calls `_lib/llm` with `model: 'claude-haiku'`. It is dead code until Task 6 wires it into `agent-runner.js` behind a `systemConfig` kill switch that defaults to OFF. On any failure — bad output, quality-gate rejection, model outage — it falls back to creating the `social_copy` task for Scribe exactly as today. The worker never publishes; its output still goes through the quality gate, Quill, and CEO approval.
+**Architecture:** A new pure module `api/_lib/socialCopy/` builds a small (~1k token) prompt from a shared voice spec, the product-facts entry, and platform rules, then calls `_lib/llm` with `model: 'gemini-flash'` (overridable via `systemConfig`, so the model can be changed without a deploy). It is dead code until Task 6 wires it into `agent-runner.js` behind a `systemConfig` kill switch that defaults to OFF. On any failure — bad output, quality-gate rejection, model outage — it falls back to creating the `social_copy` task for Scribe exactly as today. The worker never publishes; its output still goes through the quality gate, Quill, and CEO approval.
 
 **Tech Stack:** Node.js (CommonJS), Azure Functions, `api/_lib/llm` (cross-provider model chain), `api/companyHeartbeat/quality-gate.js`, hand-rolled test runners (`node path/to/file.test.js`).
 
@@ -21,7 +21,21 @@ Measured on 2026-08-08 from `geminiUsage`, last 40 fleet calls:
 | Ratio | **34 : 1** |
 | Scribe specifically | **11,582 in → 204 out** |
 
-Scribe reads ~11.5k tokens of identity, memory and company doctrine to write ~150 words of social copy. A worker needs the brief, the voice rules, the product facts and the platform cap — about 1,000 tokens. That is an ~11x cut on the dominant cost, before the model swap (Sonnet → Haiku) adds roughly another 4x.
+Scribe reads ~11.5k tokens of identity, memory and company doctrine to write ~150 words of social copy. A worker needs the brief, the voice rules, the product facts and the platform cap — about 1,000 tokens. That is an 11.6x cut on input tokens. The model swap adds more — but the two do NOT simply multiply, because the OUTPUT tokens do not shrink (the post is the same length) and output is priced far higher than input.
+
+Priced against the real tables in `api/_utils/companyStorage.js` (`CLAUDE_PRICING`, `GEMINI_PRICING`), for a ~1,000-token prompt producing a ~200-token post, against Scribe's measured 11,582 in / 204 out on Sonnet ($0.0378):
+
+| model | $/M in | $/M out | cost per post | vs Scribe | in registry? |
+|---|---|---|---|---|---|
+| claude-sonnet-4-6 | 3.00 | 15.00 | $0.00600 | 6x | yes |
+| claude-haiku-4-5 | 1.00 | 5.00 | $0.00200 | 19x | yes |
+| **gemini-2.5-flash** | **0.30** | **2.50** | **$0.00080** | **47x** | **yes — the default** |
+| gemini-2.0-flash | 0.10 | 0.40 | $0.00018 | 210x | **no** |
+| gemini-2.0-flash-lite | 0.025 | 0.10 | $0.00005 | 840x | **no** |
+
+`gemini-flash` (2.5) is the default: already in `model-registry.js`, already proven on the fleet path, and `buildChain('gemini-flash')` falls back to `claude-sonnet` if Gemini fails — which on a 1k prompt still only costs $0.006. `requiresThinking('gemini-2.5-flash')` is false, so `_lib/llm` correctly sends `thinkingBudget: 0`, which Flash needs or its thinking tokens eat the output ceiling.
+
+The 2.0 models are 4–17x cheaper again but are **not in the registry**, so using one means editing `model-registry.js`, which the fleet path shares. Not worth it until 2.5-flash has been shown to write acceptable copy. **Price cannot tell you which model writes better — only reading the output can**, which is why the model is configurable and why Task 8 Step 4 asks you to read it.
 
 The second win is latency. The heartbeat runs every 6 hours (`0 0 */6 * * *`) and `agent-runner.js` explicitly skips tasks younger than 30 seconds ("ANTI-STALL"), so each pipeline stage costs a cycle. Removing the Scribe stage removes ~6 hours from every social post.
 
@@ -582,8 +596,14 @@ t('returns the post and the usage on a clean first attempt', async () => {
 t('uses a CHEAP model — that is the point of the worker', async () => {
   reset(); scripted = [GOOD];
   await composeSocialCopy(BRIEF);
-  assert.strictEqual(calls[0].model, 'claude-haiku',
+  assert.strictEqual(calls[0].model, 'gemini-flash',
     'worker called ' + calls[0].model + '; a fleet-tier model erases the cost saving');
+});
+
+t('the model can be overridden without a code change, so it can be A/B tested', async () => {
+  reset(); scripted = [GOOD];
+  await composeSocialCopy(Object.assign({}, BRIEF, { model: 'claude-haiku' }));
+  assert.strictEqual(calls[0].model, 'claude-haiku', 'brief.model must win over the default');
 });
 
 t('the prompt it sends stays inside the token budget', async () => {
@@ -627,7 +647,7 @@ t('spend is attributed to the worker, not to whatever called it', async () => {
   reset(); scripted = [GOOD];
   await composeSocialCopy(BRIEF);
   assert.strictEqual(calls[0].caller, 'social-copy-worker',
-    'without this the 40x saving cannot be proven in the spend breakdown');
+    'without this the worker cannot be told apart from the agents in Cost Overview');
 });
 
 (async function () {
@@ -659,13 +679,19 @@ Create `api/_lib/socialCopy/index.js`:
 //
 // Cost, measured 2026-08-08: a fleet agent averages 11,315 input tokens to
 // produce ~330 output (34:1); Scribe specifically spends 11,582 to write ~204.
-// This sends ~1,000 on a cheaper model — roughly 40x less for the same job.
+// This sends ~1,000 on gemini-2.5-flash: ~$0.0008 per post against ~$0.0378,
+// which is ~47x. Note it is NOT 11.6x times the model price ratio — the output
+// tokens do not shrink and are priced far above input, so only the input side
+// benefits from the smaller prompt.
 
 const { callModel } = require('../llm');
 const { buildCopyPrompt } = require('./prompt');
 const { validateCopy } = require('./validate');
 
-const MODEL = 'claude-haiku';
+// gemini-2.5-flash: $0.0008 per post vs Scribe's $0.0378 (47x). Already in
+// model-registry, and its chain falls back to claude-sonnet if Gemini is down.
+// Overridable per call so the model can be A/B'd from systemConfig with no deploy.
+const DEFAULT_MODEL = 'gemini-flash';
 const MAX_ATTEMPTS = 2;      // one try, one corrective retry. Never a loop.
 const TIMEOUT_MS = 45000;
 
@@ -693,7 +719,7 @@ async function composeSocialCopy(brief) {
     let out;
     try {
       out = await callModel({
-        model: MODEL,
+        model: (brief && brief.model) || DEFAULT_MODEL,
         prompt: prompt,
         maxTokens: 700,
         temperature: 0.7,
@@ -721,7 +747,7 @@ async function composeSocialCopy(brief) {
   return { ok: false, text: null, problems: problems, usage: usage, attempts: attempts };
 }
 
-module.exports = { composeSocialCopy, MODEL, MAX_ATTEMPTS };
+module.exports = { composeSocialCopy, DEFAULT_MODEL, MAX_ATTEMPTS };
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
@@ -780,8 +806,13 @@ const SCRIBE_AVG_INPUT = 11582;
     console.log('output tokens: ' + r.usage.completionTokens);
     console.log('input cut    : ' + (SCRIBE_AVG_INPUT / Math.max(1, r.usage.promptTokens)).toFixed(1) + 'x vs scribe');
     console.log('');
-    console.log('Haiku is also ~4x cheaper per token than Sonnet, so total saving');
-    console.log('is roughly the number above times four.');
+    const sonnet = { i: 3.00, o: 15.00 }, flash = { i: 0.30, o: 2.50 };
+    const cost = (i, o, pr) => (i * pr.i + o * pr.o) / 1e6;
+    const scribeCost = cost(SCRIBE_AVG_INPUT, 204, sonnet);
+    const workerCost = cost(r.usage.promptTokens, r.usage.completionTokens, flash);
+    console.log('scribe cost  : $' + scribeCost.toFixed(5));
+    console.log('worker cost  : $' + workerCost.toFixed(5));
+    console.log('COST CUT     : ' + (scribeCost / workerCost).toFixed(0) + 'x   (expect ~47x)');
   }
   process.exit(r.ok ? 0 : 1);
 })();
@@ -816,6 +847,18 @@ Run: `sed -n '2780,2850p' api/companyHeartbeat/agent-runner.js`
 
 You are looking for `const copyTask = {` — the object that hands work to Scribe. The change wraps its creation, it does not delete it. **The Scribe path must remain reachable**, because it is the fallback.
 
+**Anchor check — run this before editing.** This file is actively developed, so the region can move:
+
+```bash
+for a in "const copyTask = {" "tasks.push(copyTask);" "_detectProductFromTask" "AUTO-CREATED Scribe copy task"; do
+  printf "%-34s %s\n" "$a" "$(grep -c "$a" api/companyHeartbeat/agent-runner.js)"
+done
+```
+
+Expected: `const copyTask = {` → 1, `tasks.push(copyTask);` → 1, `_detectProductFromTask` → 4, `AUTO-CREATED Scribe copy task` → 1.
+
+**If any count differs, STOP and report rather than editing.** 0 means the code moved; more than expected means there is now a second call site and this plan no longer describes the file.
+
 - [ ] **Step 2: Add the switch read and the worker attempt**
 
 Immediately **before** `const copyTask = {`, insert:
@@ -848,6 +891,9 @@ Immediately **before** `const copyTask = {`, insert:
                     // config value that would be wrong the moment a campaign
                     // covers a second product.
                     productKey: _detectProductFromTask(socialTask),
+                    // Lets the model be swapped from systemConfig with no deploy,
+                    // so gemini-flash vs claude-haiku can be compared on real copy.
+                    model: _sysCfg.socialCopyWorker.model || undefined,
                     qgFeedback: _qgFeedback || ''
                   });
                   if (_r.ok) {
@@ -857,6 +903,17 @@ Immediately **before** `const copyTask = {`, insert:
                   } else {
                     context.log('[Heartbeat] social-copy-worker declined for', action.taskId,
                       '-', _r.problems.join('; '), '- falling back to scribe');
+                    // Leave a trace you can SEE. A fallback that only exists in App
+                    // Insights looks identical to the worker never having run, which
+                    // makes 'is this thing working' unanswerable from the dashboard.
+                    socialTask.comments = socialTask.comments || [];
+                    socialTask.comments.push({
+                      id: 'cmt-' + Date.now(),
+                      author: 'social-copy-worker',
+                      text: 'Declined after ' + _r.attempts + ' attempt(s), handed to Scribe. Reasons: ' + _r.problems.join('; '),
+                      type: 'note',
+                      createdAt: new Date().toISOString()
+                    });
                   }
                 }
               } catch (_wErr) {
@@ -1029,6 +1086,20 @@ Open the copy the worker produced and read it as a person. The gate is fail-open
 
 ---
 
+## How to watch it
+
+No new dashboard is needed — the worker is visible in three places that already exist, provided it keeps `caller` and `agentId` set to `social-copy-worker` (Task 4 asserts both).
+
+**1. Cost Overview — `modules/company/cost-overview.html`.** It already renders cost grouped by CALLER and by AGENT, fed by `/api/geminiCosts` and `/api/claudeCosts`, which build `byCaller` and `byAgent` from the usage log. The worker appears as its own row in both, next to the agents, with no code change. `gemini-2.5-flash` and `claude-haiku-4-5-20251001` are both already priced in `GEMINI_PRICING` / `CLAUDE_PRICING`, so the cost is real rather than defaulted.
+
+**2. The tasks themselves.** Every post the worker writes lands as a task comment with `author: "social-copy-worker"`, and every time it declines it leaves a `note` comment saying why and how many attempts it took. So "worker wrote this" vs "Scribe wrote this" vs "worker tried and gave up" are all distinguishable per task, in the UI you already use.
+
+**3. `GET /api/llm-spend`** (secret-gated) lists `topCallers` live, if you want the number without opening a dashboard.
+
+What you will NOT see is a spawn/despawn event, because there is nothing to spawn — each call is a function invocation that returns text and ends. One row in `claudeUsage`/`geminiUsage` per call, 30-day retention, 5,000-entry cap. If you later want a running success rate, derive it from the ratio of `deliverable` to `note` comments authored by the worker; that needs no new state key.
+
+---
+
 ## Rollback
 
 Set `systemConfig.socialCopyWorker.enabled = false` using the GET-first pattern in Task 8 Step 1. The next heartbeat reverts to the Scribe path. No deploy, no revert, no data migration — the switch is read fresh every cycle.
@@ -1057,7 +1128,8 @@ WHY IT EXISTS, in one paragraph: writing one short social post currently costs a
 heartbeat stage and ~11,582 input tokens of Scribe's context to produce ~204 tokens of post.
 Measured on 2026-08-08 across the last 40 fleet calls: average 11,315 tokens in, 330 out, a 34:1
 ratio. A stateless worker with a ~1,000-token prompt on a cheaper model does the same job for
-roughly 40x less, and removes a stage from a 5-stage pipeline running on a 6-hour clock. Do NOT
+~47x less on gemini-2.5-flash ($0.0008 vs $0.0378 per post), and removes a stage from a 5-stage
+pipeline on a 6-hour clock. Do NOT
 "fix" this by adding capacity — the queue drains every cycle and agents already use only ~11 of
 ~21 available action slots. The win is stage removal and cost, not throughput.
 
@@ -1073,6 +1145,11 @@ STATE OF THE WORLD RIGHT NOW:
   of this pipeline, so its tasks are useful test subjects.
 - All three social platforms are connected and healthy: X (@AIAmbientPixels, 52 followers),
   Bluesky (81), LinkedIn (2). Zero errored.
+- **This repo auto-commits and pushes.** Edits left in the working tree can ship without you
+  running `git push`. Do not leave a task half-finished across a break — finish and commit it
+  deliberately, or revert it. Check `git status` before you stop.
+- **Committed markdown under `docs/` is served publicly as raw text.** This plan is safe for
+  anyone to read. If you add notes to it: no secrets, no balances, no tokens.
 
 DO NOT DO WITHOUT ASKING ME:
 - Touch `companyHeartbeat/index.js`, `company-state`, `staticwebapp.config.json`, or
@@ -1084,6 +1161,11 @@ DO NOT DO WITHOUT ASKING ME:
 - Enable the kill switch (Task 8) before Task 5's measurement has passed.
 
 RULES THAT EARNED THEIR PLACE:
+- **If a step's anchor text does not match what is in the file, STOP and report it. Do not
+  improvise a nearby edit.** The plan anchors on exact line CONTENT rather than line numbers,
+  but `agent-runner.js` is actively developed — another session edited it on 2026-08-08 — so
+  that region can still move. A plan that has drifted from the code is one to re-verify with
+  me, not to approximate around. This applies especially to Task 6.
 - Task 5 is a real gate, not a formality. If the measured input cut is under 5x, STOP and report
   the number. The whole plan rests on that claim and it is cheap to falsify.
 - `systemConfig` is read-modify-write: a POST REPLACES the whole object. GET first, always, or you
