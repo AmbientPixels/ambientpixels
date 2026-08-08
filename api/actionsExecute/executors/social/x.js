@@ -355,6 +355,124 @@ function buildTweetBody(text, mediaIds, reply) {
 }
 
 /**
+ * Shape 4 (2026-08-08): X demotes posts carrying outbound links, so a post
+ * whose text ENDS with a URL is delivered as a clean tweet + the URL in a
+ * self-reply. Split only when the URL is the final token — a mid-text link or
+ * trailing hashtags mean the copy was not written for splitting, and posting
+ * a mangled body is worse than eating the demotion.
+ * Pure. Returns { body, url } or null.
+ */
+function splitLinkForReply(text) {
+  const s = String(text || '').trim();
+  const m = s.match(/^([\s\S]*?)\s+(https?:\/\/\S+)$/);
+  if (!m) return null;
+  const body = m[1].trim();
+  if (!body) return null; // URL-only post — nothing left to say without it
+  return { body: body, url: m[2] };
+}
+
+/**
+ * Pure delivery decision, receipt-driven because the failure modes are public:
+ *  skip        — receipt is complete; the incident rule (a receipt exists →
+ *                never post again) short-circuits everything.
+ *  reply-only  — main tweet is LIVE but its link reply never landed
+ *                (receipt.link_reply_pending); deliver ONLY the reply.
+ *  post        — fresh tweet; body/replyText carry the split when policy
+ *                wants it and the text allows it.
+ */
+function decideXDelivery(opts) {
+  opts = opts || {};
+  const split = splitLinkForReply(opts.text);
+  const isThreadedReply = !!_replyParentId(opts.payloadReply);
+
+  if (opts.existingReceipt) {
+    if (opts.existingReceipt.link_reply_pending === true && split && !isThreadedReply) {
+      return { mode: 'reply-only', parentId: String(opts.existingReceipt.post_id), replyText: split.url };
+    }
+    // Pending but underivable → skip. Never invent a link to post publicly.
+    return { mode: 'skip', receipt: opts.existingReceipt };
+  }
+
+  if (opts.wantSplit && split && !isThreadedReply) {
+    return { mode: 'post', body: split.body, replyText: split.url };
+  }
+  return { mode: 'post', body: String(opts.text || ''), replyText: null };
+}
+
+// linkPolicy comes from the shared voice spec so the executor and the copy
+// pipeline cannot disagree about where a link belongs. Guarded require: if the
+// lib is ever absent, X falls back to posting the full text (today's shape).
+function _linkPolicyWantsReply() {
+  try {
+    const { PLATFORM_RULES } = require('../../../_lib/socialCopy/voice');
+    return !!(PLATFORM_RULES && PLATFORM_RULES.social_x && PLATFORM_RULES.social_x.linkPolicy === 'reply');
+  } catch (e) { return false; }
+}
+
+/**
+ * POST one tweet body with a FRESH OAuth signature (nonce/timestamp are
+ * per-request, so this must be re-signed per call — the link reply is a second
+ * call). Resolves { postId }. Wrapped in retryOn429.
+ */
+function _signedTweetPost(creds, tweetBody, actionId) {
+  const doPost = () => new Promise((resolve, reject) => {
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const nonce = generateNonce();
+    // OAuth params — DO NOT include JSON body params in signature base
+    const oauthParams = {
+      oauth_consumer_key: creds.consumerKey,
+      oauth_nonce: nonce,
+      oauth_signature_method: 'HMAC-SHA1',
+      oauth_timestamp: timestamp,
+      oauth_token: creds.accessToken,
+      oauth_version: '1.0'
+    };
+    oauthParams.oauth_signature = generateSignature('POST', X_API_URL, oauthParams, creds.consumerSecret, creds.accessTokenSecret);
+    const authHeader = buildAuthHeader(oauthParams);
+    const body = JSON.stringify(tweetBody);
+
+    const url = new URL(X_API_URL);
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname,
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        let parsed;
+        try { parsed = JSON.parse(data); } catch (e) { parsed = null; }
+        if (res.statusCode === 201 && parsed && parsed.data && parsed.data.id) {
+          resolve({ postId: parsed.data.id });
+        } else {
+          const errMsg = (parsed && parsed.detail) || (parsed && parsed.title) || data.substring(0, 200);
+          const errCode = (parsed && parsed.status) || res.statusCode;
+          reject({
+            code: 'X_API_ERROR_' + errCode,
+            message: errMsg,
+            statusCode: res.statusCode,
+            headers: res.headers || {},
+            raw: data.substring(0, 500)
+          });
+        }
+      });
+    });
+    req.on('error', (err) => { reject({ code: 'NETWORK_ERROR', message: err.message }); });
+    req.setTimeout(15000, () => { req.destroy(); reject({ code: 'TIMEOUT', message: 'X API request timed out after 15s' }); });
+    req.write(body);
+    req.end();
+  });
+  return retryOn429(doPost, { platform: 'x', actionId: actionId });
+}
+
+/**
  * Publish a tweet to X
  * @param {Object} action - Full action object
  * @returns {Promise<{receipt: Object}>} - Execution receipt
@@ -371,21 +489,38 @@ async function publishToX(action) {
     throw { code: 'EMPTY_CONTENT', message: 'Tweet text is empty' };
   }
 
-  // M1 idempotency guard: if an existing receipt matches the current content hash, return
-  // it instead of re-posting. Truncation is applied AFTER this check so hashes match across
-  // retries even for long tweets (the stored receipt's hash reflects the pre-truncation text
-  // from the original successful post).
+  // M1 idempotency guard: hash the ORIGINAL payload text (stable across
+  // retries and across the body/link split) and let the delivery decision be
+  // receipt-driven: a complete receipt skips, a pending link reply delivers
+  // only the reply, and only a fresh action posts a tweet.
   const _currentHash = contentHash(text);
   const _existingReceipt = shouldSkipDueToExistingReceipt(action, _currentHash);
-  if (_existingReceipt) {
-    console.log('[X] Skipping repost — content_hash matches existing receipt (post_id:', _existingReceipt.post_id + ')');
-    return { receipt: _existingReceipt };
+  const _delivery = decideXDelivery({
+    text: text,
+    wantSplit: _linkPolicyWantsReply(),
+    payloadReply: action.payload && action.payload.reply,
+    existingReceipt: _existingReceipt
+  });
+
+  if (_delivery.mode === 'skip') {
+    console.log('[X] Skipping repost — content_hash matches existing receipt (post_id:', _delivery.receipt.post_id + ')');
+    return { receipt: _delivery.receipt };
   }
 
-  if (text.length > MAX_CHARS) {
-    _log('truncating', { original: text.length, limit: MAX_CHARS });
-    // URL-preserving: trim the prose, never drop the trailing CTA link.
-    text = truncatePreservingUrl(text, MAX_CHARS);
+  if (_delivery.mode === 'reply-only') {
+    // The main tweet is LIVE; only its link reply is missing. A failure here
+    // may throw — marking the action failed is safe because the receipt
+    // survives and the next attempt converges right back to reply-only.
+    const _ro = await _signedTweetPost(creds, buildTweetBody(_delivery.replyText, [], { in_reply_to_tweet_id: _delivery.parentId }), action && action.id);
+    _log('link-reply-delivered', { parent: _delivery.parentId, reply_id: _ro.postId, recovered: true });
+    return { receipt: Object.assign({}, _existingReceipt, { link_reply_id: _ro.postId, link_reply_pending: false, link_reply_error: null }) };
+  }
+
+  let bodyText = _delivery.body;
+  if (bodyText.length > MAX_CHARS) {
+    _log('truncating', { original: bodyText.length, limit: MAX_CHARS });
+    // URL-preserving: trim the prose, never drop a trailing CTA link.
+    bodyText = truncatePreservingUrl(bodyText, MAX_CHARS);
   }
 
   // Upload media if provided (max 4) — uses shared media module for host allowlist + download
@@ -406,102 +541,43 @@ async function publishToX(action) {
     }
   }
 
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const nonce = generateNonce();
-
-  // OAuth params — DO NOT include JSON body params in signature base
-  const oauthParams = {
-    oauth_consumer_key: creds.consumerKey,
-    oauth_nonce: nonce,
-    oauth_signature_method: 'HMAC-SHA1',
-    oauth_timestamp: timestamp,
-    oauth_token: creds.accessToken,
-    oauth_version: '1.0'
-  };
-
-  const signature = generateSignature('POST', X_API_URL, oauthParams, creds.consumerSecret, creds.accessTokenSecret);
-  oauthParams.oauth_signature = signature;
-
-  const authHeader = buildAuthHeader(oauthParams);
-
   // Build tweet body — attaches media_ids, and threads the tweet when
   // action.payload.reply names a parent tweet id.
   const _replyTo = _replyParentId(action.payload && action.payload.reply);
-  const tweetBody = buildTweetBody(text, uploadedMediaIds, action.payload && action.payload.reply);
-  const body = JSON.stringify(tweetBody);
+  const _main = await _signedTweetPost(creds, buildTweetBody(bodyText, uploadedMediaIds, action.payload && action.payload.reply), action && action.id);
+  const handle = creds.handle.replace(/^@/, '');
+  const receipt = {
+    platform: 'x',
+    handle: creds.handle,
+    post_id: _main.postId,
+    post_url: 'https://x.com/' + handle + '/status/' + _main.postId,
+    timestamp: new Date().toISOString(),
+    // Hash of the ORIGINAL payload text, not the split body — idempotency
+    // compares against the payload, which does not change across retries.
+    content_hash: _currentHash,
+    media_ids: uploadedMediaIds.length > 0 ? uploadedMediaIds : undefined,
+    media_count: uploadedMediaIds.length || 0,
+    // Present only on replies, so "did this thread or silently post
+    // top-level?" is answerable from the receipt alone.
+    in_reply_to: _replyTo || undefined
+  };
 
-  // Tweet POST wrapped in retryOn429 — retries 429 + 5xx up to 3x with exponential backoff.
-  // Each invocation creates a fresh Promise. Errors throw via reject(...) which retryOn429
-  // inspects via err.code (parses _XXX suffix) to decide whether to retry.
-  const _doTweet = () => new Promise((resolve, reject) => {
-    const url = new URL(X_API_URL);
-    const options = {
-      hostname: url.hostname,
-      path: url.pathname,
-      method: 'POST',
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body)
-      }
-    };
+  if (_delivery.replyText) {
+    try {
+      const _lr = await _signedTweetPost(creds, buildTweetBody(_delivery.replyText, [], { in_reply_to_tweet_id: _main.postId }), action && action.id);
+      receipt.link_reply_id = _lr.postId;
+      _log('link-reply-delivered', { parent: _main.postId, reply_id: _lr.postId });
+    } catch (linkErr) {
+      // The main tweet is LIVE. Never throw here — that would mark a live
+      // post failed and invite a duplicate. Record the pending reply; the
+      // execute gate lets a re-run deliver ONLY the missing reply.
+      receipt.link_reply_pending = true;
+      receipt.link_reply_error = (linkErr && (linkErr.message || linkErr.code)) || String(linkErr);
+      _log('link-reply-failed', { parent: _main.postId, error: receipt.link_reply_error });
+    }
+  }
 
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => { data += chunk; });
-      res.on('end', () => {
-        let parsed;
-        try { parsed = JSON.parse(data); } catch (e) { parsed = null; }
-
-        if (res.statusCode === 201 && parsed && parsed.data && parsed.data.id) {
-          const postId = parsed.data.id;
-          const handle = creds.handle.replace(/^@/, '');
-          resolve({
-            receipt: {
-              platform: 'x',
-              handle: creds.handle,
-              post_id: postId,
-              post_url: 'https://x.com/' + handle + '/status/' + postId,
-              timestamp: new Date().toISOString(),
-              content_hash: contentHash(text),
-              media_ids: uploadedMediaIds.length > 0 ? uploadedMediaIds : undefined,
-              media_count: uploadedMediaIds.length || 0,
-              // Present only on replies, so "did this thread or silently post
-              // top-level?" is answerable from the receipt alone.
-              in_reply_to: _replyTo || undefined
-            }
-          });
-        } else {
-          const errMsg = (parsed && parsed.detail) || (parsed && parsed.title) || data.substring(0, 200);
-          const errCode = (parsed && parsed.status) || res.statusCode;
-          reject({
-            code: 'X_API_ERROR_' + errCode,
-            message: errMsg,
-            statusCode: res.statusCode,
-            headers: res.headers || {},
-            raw: data.substring(0, 500)
-          });
-        }
-      });
-    });
-
-    req.on('error', (err) => {
-      reject({
-        code: 'NETWORK_ERROR',
-        message: err.message
-      });
-    });
-
-    req.setTimeout(15000, () => {
-      req.destroy();
-      reject({ code: 'TIMEOUT', message: 'X API request timed out after 15s' });
-    });
-
-    req.write(body);
-    req.end();
-  });
-
-  return retryOn429(_doTweet, { platform: 'x', actionId: action && action.id });
+  return { receipt: receipt };
 }
 
 module.exports = {
@@ -510,5 +586,7 @@ module.exports = {
   getCredentials,
   validateCredentials,
   contentHash,
-  buildTweetBody // exported for x.reply.test.js — threading needs direct assertion
+  buildTweetBody, // exported for x.reply.test.js — threading needs direct assertion
+  splitLinkForReply,  // exported for x.linkreply.test.js
+  decideXDelivery     // exported for x.linkreply.test.js
 };

@@ -217,14 +217,23 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // 4. Prevent re-execution
+    // 4. Prevent re-execution. One exception (shape 4, 2026-08-08): an X post
+    // whose main tweet is live but whose link reply failed is marked
+    // link_reply_pending on the receipt — re-executing it is safe because the
+    // executor's receipt-driven delivery posts ONLY the missing reply, never
+    // the main tweet again.
     if (action.execution && action.execution.status === 'success') {
-      context.res = {
-        status: 409,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: 'Action already executed successfully', receipt: action.execution.receipt })
-      };
-      return;
+      const _rcpt = action.execution.receipt;
+      const _pendingLinkReply = !!(platform === 'x' && _rcpt && _rcpt.link_reply_pending === true);
+      if (!_pendingLinkReply) {
+        context.res = {
+          status: 409,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Action already executed successfully', receipt: action.execution.receipt })
+        };
+        return;
+      }
+      context.log('[ActionsExecute] re-executing', action.id, 'to deliver its pending X link reply (main tweet is live and will not repost)');
     }
 
     // 5. Platform allowlist
@@ -476,6 +485,25 @@ module.exports = async function (context, req) {
         } catch (alertErr) {
           context.log.warn('[ActionsExecute] receipt-loss Discord alert failed (non-fatal):', alertErr.message);
         }
+      }
+    }
+
+    // Shape 4 visibility: the tweet is live but its link reply failed, so the
+    // post currently carries NO link anywhere. Re-executing the action posts
+    // only the missing reply. Without a ping this is invisible until someone
+    // reads the receipt.
+    if (isSocialAction && result.receipt && result.receipt.link_reply_pending === true) {
+      try {
+        const { dispatchDiscord } = require('../_utils/fleetAlerts');
+        await dispatchDiscord({
+          title: 'X post is live but its link reply failed',
+          description: 'Action ' + action.id + ' posted' +
+            ((result.receipt.post_url) ? ('\n' + result.receipt.post_url) : '') +
+            '\nThe link reply did not land (' + (result.receipt.link_reply_error || 'unknown') + '), so the post has no link yet. Execute the action again to deliver ONLY the reply.',
+          color: 0xF9A825
+        });
+      } catch (alertErr) {
+        context.log.warn('[ActionsExecute] link-reply-pending Discord alert failed (non-fatal):', alertErr.message);
       }
     }
 
