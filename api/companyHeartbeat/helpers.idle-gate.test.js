@@ -12,8 +12,19 @@ const assert = require('node:assert');
 const H = require('./helpers.js');
 const C = require('./constants.js');
 
-const NOW = new Date('2026-08-07T18:00:00Z');
+// NOW is the real clock on purpose. shouldRunAgent() resolves mention freshness against
+// Date.now(), so a fixture pinned to a fixed date silently ages out of the window and the
+// suite starts failing on a calendar date rather than on a code change. This file was
+// pinned to 2026-08-07T18:00:00Z and went red at 2026-08-08T17:00:00Z — exactly 24h after
+// the mention it builds — with nothing in the repo having changed. Do not pin it back.
+//
+// Margins are derived from SUB_AGENT_MENTION_WINDOW_HOURS rather than written as literal
+// hours, so shrinking the window cannot quietly invert what these two tests assert.
+const NOW = new Date();
 const iso = ms => new Date(NOW.getTime() + ms).toISOString();
+const HOUR = 60 * 60 * 1000;
+const WELL_INSIDE_WINDOW = -(C.SUB_AGENT_MENTION_WINDOW_HOURS / 2) * HOUR;
+const WELL_OUTSIDE_WINDOW = -(C.SUB_AGENT_MENTION_WINDOW_HOURS + 24) * HOUR;
 
 function task(over) {
   return Object.assign({
@@ -79,7 +90,7 @@ test('an @mention inside the window wakes an idle agent', () => {
   const name = (C.AGENT_ROLES.pixel && C.AGENT_ROLES.pixel.name) || 'pixel';
   const board = [task({
     assignee: 'scribe',
-    comments: [{ text: 'need a hero image @' + name + ' please', createdAt: iso(-60 * 60 * 1000) }]
+    comments: [{ text: 'need a hero image @' + name + ' please', createdAt: iso(WELL_INSIDE_WINDOW) }]
   })];
   const r = H.shouldRunAgent(board, 'pixel');
   assert.strictEqual(r.run, true);
@@ -88,7 +99,7 @@ test('an @mention inside the window wakes an idle agent', () => {
 
 test('a stale @mention does NOT wake an idle agent forever', () => {
   const name = (C.AGENT_ROLES.pixel && C.AGENT_ROLES.pixel.name) || 'pixel';
-  const old = new Date(NOW.getTime() - (C.SUB_AGENT_MENTION_WINDOW_HOURS + 24) * 3600 * 1000).toISOString();
+  const old = iso(WELL_OUTSIDE_WINDOW);
   const board = [task({ assignee: 'scribe', comments: [{ text: '@' + name + ' ping', createdAt: old }] })];
   assert.strictEqual(H.shouldRunAgent(board, 'pixel').run, false);
 });
