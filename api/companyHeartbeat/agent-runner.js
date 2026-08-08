@@ -2680,11 +2680,12 @@ Write the full deliverable first, then the structured JSON block.`;
               const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : _platform === 'reddit' ? 'format as "TITLE: [max 300 chars]\\n\\n[body, 200-800 words, markdown supported]"' : _platform === 'facebook' ? '100-250 chars for engagement (up to 63,206 chars max). Supports links, hashtags, @mentions.' : '800-1500 chars for LinkedIn (article-style)';
               // Pull campaign context for Scribe (URL, posting rules)
               let _cmpContext = '';
+              let _cmpObj = null;   // post-shape profile lives on the campaign object
               if (socialTask.campaign_id) {
                 const _cmp = (activeDirectives || []).find(c => c.id === socialTask.campaign_id);
                 if (!_cmp) {
-                  try { const _cmps = (await storage.getState('campaigns')) || []; const _fc = _cmps.find(c => c.id === socialTask.campaign_id); if (_fc) { _cmpContext = _fc.description || ''; } } catch (_e) {}
-                } else { _cmpContext = _cmp.description || ''; }
+                  try { const _cmps = (await storage.getState('campaigns')) || []; const _fc = _cmps.find(c => c.id === socialTask.campaign_id); if (_fc) { _cmpContext = _fc.description || ''; _cmpObj = _fc; } } catch (_e) {}
+                } else { _cmpContext = _cmp.description || ''; _cmpObj = _cmp; }
               }
               // SUTM.extractProductUrl, not a local regex: the local copy here
               // lacked (?:www\.)? and so never matched
@@ -2699,6 +2700,22 @@ Write the full deliverable first, then the structured JSON block.`;
               // Both are now STRINGS (extractProductUrl) rather than match arrays.
               // Indexing [0] here would yield "h".
               const _cmpUrl = _cmpUrlMatch || _descUrlMatch || 'https://ambientpixels.ai';
+              // Post shape (2026-08-08): 2 no-link engagement posts per 1 link
+              // post, per campaign per platform. Decided ONCE per social task
+              // and persisted, so the URL gates downstream (the no-URL hard
+              // block below, the AUTO-POST URL append in index.js) can tell
+              // "no link BY DESIGN" from "the model dropped the link".
+              // QG retries keep the already-decided shape.
+              if (!socialTask.post_shape) {
+                const _SHAPE = require('../_lib/socialCopy/shape');
+                socialTask.post_shape = _SHAPE.pickPostShape({
+                  profile: _cmpObj && _cmpObj.shapeProfile,
+                  recentKinds: _SHAPE.shapeKindsFromTasks(tasks, socialTask.campaign_id, socialTask.taskType),
+                  seed: socialTask.id
+                });
+                socialTask.updatedAt = new Date().toISOString();
+                context.log('[Heartbeat]', agentId, 'post_shape decided for', socialTask.id + ':', socialTask.post_shape.kind, socialTask.post_shape.variant || '');
+              }
               const _cmpRules = _cmpContext ? '\n\nCAMPAIGN POSTING RULES:\n' + _cmpContext.substring(0, 600) : '';
               // Check if parent task has quality gate feedback to include
               var _qgFeedback = '';
@@ -2725,7 +2742,9 @@ Write the full deliverable first, then the structured JSON block.`;
                   + '- IF YOU CANNOT WRITE THE POST (platform disallowed, missing context, brief contradicts CEO directive, etc.): DO NOT write a refusal as your deliverable. A refusal becomes the published post. Instead, comment on the task explaining why (use comment-task) and leave the deliverable empty. The system will route accordingly.\n'
                   + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes, no "Post 1/Post 2" labels)\n'
                   + '- ' + require('../_lib/socialCopy/voice').VOICE_RULES + '\n'
-                  + '- MUST include the product URL: ' + _cmpUrl + '\n'
+                  + (socialTask.post_shape && socialTask.post_shape.kind === 'engagement'
+                      ? require('../_lib/socialCopy/shape').engagementBriefLines(socialTask.post_shape.variant)
+                      : '- MUST include the product URL: ' + _cmpUrl + '\n')
                   + '- LinkedIn posts: aim for 800-1500 chars. Write like a short article — narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline.\n'
                   + '- Reddit posts: format as "TITLE: [catchy post title, max 300 chars]\\n\\n[body, markdown supported, 200-800 words]". Title and body are both required. TONE: write like a builder sharing what they made — conversational, authentic, slightly informal. Use first person ("I built...", "We shipped..."). NO corporate speak, NO hashtags, NO press-release language. Lead with what the reader gets, not what we built. Tell a story: problem → what we built → how it works → link at the end. End with a genuine discussion prompt inviting feedback or questions. Redditors respect transparency and despise astroturfing.\n'
                   + '- After writing, this task goes to Quill for brand voice review. Once Quill approves, Echo uses the copy to create the social post.\n'
