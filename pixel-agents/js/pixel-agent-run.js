@@ -747,6 +747,16 @@ async function startRewriteCheckout() {
       })
     });
     const data = await res.json();
+    // Already paid for this exact resume + posting. The API refuses to mint a
+    // second checkout for it, so send them to what they already own rather
+    // than leaving the button sitting there inviting another attempt. No
+    // stashForCancelledCheckout(): nothing is being cancelled, and this is a
+    // navigation to the delivered product, not a detour through Stripe.
+    if (res.ok && data.alreadyPurchased && data.orderId && data.key) {
+      window.location.href = '/resume-roast/rewrite.html?id=' + encodeURIComponent(data.orderId)
+        + '&key=' + encodeURIComponent(data.key);
+      return;
+    }
     if (res.ok && data.checkoutUrl) {
       stashForCancelledCheckout();
       window.location.href = data.checkoutUrl;

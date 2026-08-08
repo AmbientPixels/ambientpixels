@@ -46,6 +46,12 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
 // chain would be useless in exactly the overload it exists for.
 const ATTEMPT_TIMEOUT_MS = 60000;
 
+// Smallest attempt worth starting when a caller supplies `deadlineAt`. Below
+// this there is no realistic chance of a completion landing, so starting the
+// call would only guarantee an abort — and would spend the caller's entire
+// remaining budget doing it, leaving nothing for the writes that follow.
+const MIN_ATTEMPT_MS = 15000;
+
 /**
  * Thrown only when EVERY model in the chain has failed.
  * `reason` classifies it so callers can choose honest user-facing copy:
@@ -219,6 +225,11 @@ async function callGemini(modelId, opts) {
  *   for large generations (the AmbientScore evaluators emit up to 16k tokens and
  *   legitimately run for minutes) — too low a value aborts a healthy call and
  *   burns a fallback attempt on a request that was going to succeed.
+ * @param {number} [opts.deadlineAt] - absolute epoch-ms ceiling for the WHOLE
+ *   chain. `timeoutMs` bounds one attempt; this bounds all of them, so a caller
+ *   behind a hard limit (Azure kills an HTTP request at 230s) can guarantee it
+ *   returns in time. Attempts are clamped to the remaining budget and the chain
+ *   stops once too little is left to be worth starting. Omit for no ceiling.
  * @returns {Promise<{text:string, modelKey:string, modelId:string, provider:string,
  *                    usage:object, fellBackFrom:?string, attempts:Array}>}
  * @throws {LlmUnavailableError} only when every model in the chain has failed
@@ -235,18 +246,42 @@ async function callModel(opts) {
     const provider = registry.providerOf(modelKey);
     const started = Date.now();
 
+    // `timeoutMs` bounds ONE attempt, so a chain of N models can still burn
+    // N * timeoutMs of wall clock. That is invisible to a caller sitting
+    // behind a hard limit — Azure kills an HTTP request at 230s no matter
+    // what this module thinks its budget is. `deadlineAt` (epoch ms) is the
+    // absolute version: every remaining attempt is clamped to the time
+    // actually left, and the chain stops rather than starting an attempt it
+    // cannot finish. Omitted (the default) leaves behaviour byte-identical.
+    let attemptOpts = opts;
+    if (opts.deadlineAt) {
+      const remaining = opts.deadlineAt - Date.now();
+      if (remaining < MIN_ATTEMPT_MS) {
+        attempts.push({ modelKey, modelId, provider, ok: false, reason: 'deadline', status: null, detail: 'skipped: ' + Math.max(0, remaining) + 'ms left, need ' + MIN_ATTEMPT_MS + 'ms', ms: 0 });
+        break;
+      }
+      attemptOpts = Object.assign({}, opts, {
+        timeoutMs: Math.min(opts.timeoutMs || ATTEMPT_TIMEOUT_MS, remaining)
+      });
+    }
+
     let out;
     try {
       out = provider === 'claude'
-        ? await callClaude(modelId, opts)
-        : await callGemini(modelId, opts);
+        ? await callClaude(modelId, attemptOpts)
+        : await callGemini(modelId, attemptOpts);
     } catch (err) {
       // A thrown error here is a transport failure (abort, DNS, socket). It must
       // advance the chain rather than escape, or the fallback is pointless.
+      // Report the timeout that actually applied, not the module default —
+      // with `deadlineAt` the effective ceiling is whatever budget was left,
+      // and a log claiming 60000ms when the call was cut at 9000ms sends the
+      // next person debugging in the wrong direction.
+      const effectiveTimeout = attemptOpts.timeoutMs || ATTEMPT_TIMEOUT_MS;
       out = {
         ok: false,
         reason: err.name === 'AbortError' ? 'capacity' : 'error',
-        detail: err.name === 'AbortError' ? 'timed out after ' + ATTEMPT_TIMEOUT_MS + 'ms' : err.message
+        detail: err.name === 'AbortError' ? 'timed out after ' + effectiveTimeout + 'ms' : err.message
       };
     }
 
@@ -271,7 +306,12 @@ async function callModel(opts) {
   const reasons = attempts.map(a => a.reason);
   const reason = reasons.includes('credits') ? 'credits'
     : reasons.includes('capacity') ? 'capacity'
-      : reasons.every(r => r === 'config') ? 'config' : 'error';
+      : reasons.every(r => r === 'config') ? 'config'
+        // Every remaining model was skipped for lack of clock. Distinct from
+        // 'capacity' on purpose: nothing upstream was wrong, WE ran out of
+        // time, so a caller with a longer budget (the cron backstop) can
+        // succeed on the identical request where the HTTP path could not.
+        : reasons.every(r => r === 'deadline') ? 'deadline' : 'error';
 
   recordFallback(chain[0] || primary, null, attempts, opts);
   throw new LlmUnavailableError(

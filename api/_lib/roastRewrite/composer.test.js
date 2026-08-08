@@ -500,4 +500,237 @@ enqueue('capQueue returns over-cap unchanged when no created entries are droppab
   assert.deepStrictEqual(result.removeDocIds, []);
 });
 
+// ── Compose budgets (2026-08-07) ─────────────────────────────────────
+// Bug: compose-on-poll ran the full two-attempt ladder, unbounded, inside an
+// HTTP request that Azure's gateway kills at 230s. The one real order to date
+// (rr_1785808666421_00d8) took 354s paid -> delivered. These tests exist so the
+// ceilings cannot quietly drift back over the limits they are sized against.
+
+const AZURE_GATEWAY_MS = 230000;   // hard, not configurable by us
+const FUNCTION_TIMEOUT_MS = 600000; // api/host.json functionTimeout 00:10:00
+
+enqueue('the inline compose budget fits inside the Azure gateway limit, with room to finish the writes', () => {
+  assert.ok(composer.INLINE_COMPOSE_BUDGET_MS < AZURE_GATEWAY_MS,
+    'inline budget ' + composer.INLINE_COMPOSE_BUDGET_MS + 'ms must be under the ' + AZURE_GATEWAY_MS + 'ms gateway limit');
+  const slack = AZURE_GATEWAY_MS - composer.INLINE_COMPOSE_BUDGET_MS;
+  assert.ok(slack >= 30000,
+    'need >=30s after compose for the doc write, the queue flip and the ready email; only ' + slack + 'ms left');
+});
+
+enqueue('the backstop budget fits inside functionTimeout, with room for retention IO and the email', () => {
+  assert.ok(composer.BACKSTOP_COMPOSE_BUDGET_MS < FUNCTION_TIMEOUT_MS,
+    'backstop budget must be under host.json functionTimeout');
+  assert.ok(FUNCTION_TIMEOUT_MS - composer.BACKSTOP_COMPOSE_BUDGET_MS >= 120000,
+    'the runner does retention IO before composing; leave it at least 2 minutes');
+  assert.ok(composer.BACKSTOP_COMPOSE_BUDGET_MS > composer.INLINE_COMPOSE_BUDGET_MS,
+    'the whole point of handing the last try to the cron is that it can wait longer');
+});
+
+enqueue('the inline path leaves a retry for the runner rather than failing a paid order itself', () => {
+  assert.ok(composer.INLINE_MAX_RETRIES <= composer.MAX_RETRIES,
+    'if the HTTP path may burn every retry, an order can be marked failed purely for being slow');
+});
+
+enqueue('composeRewrite with no opts is byte-for-byte the old behaviour (two attempts, 0.4 then 0.2, no deadline)', async () => {
+  const temps = [];
+  const stub = async (prompt, opts) => {
+    temps.push(opts.temperature);
+    assert.strictEqual(opts.deadlineAt, undefined, 'no opts must mean no deadline is imposed');
+    return 'garbage';
+  };
+  await assert.rejects(() => composer.composeRewrite('resume', null, stub), /failed after retries/);
+  assert.deepStrictEqual(temps, [0.4, 0.2]);
+});
+
+enqueue('maxAttempts:1 makes exactly one model call instead of laddering', async () => {
+  let calls = 0;
+  const stub = async () => { calls++; return 'garbage'; };
+  await assert.rejects(
+    () => composer.composeRewrite('resume', null, stub, null, { maxAttempts: 1 }),
+    /failed after retries/);
+  assert.strictEqual(calls, 1, 'one HTTP request must buy exactly one attempt');
+});
+
+enqueue('attemptOffset resumes the temperature ladder where the previous poll left it', async () => {
+  const temps = [];
+  const stub = async (prompt, opts) => { temps.push(opts.temperature); return 'garbage'; };
+  await assert.rejects(
+    () => composer.composeRewrite('resume', null, stub, null, { maxAttempts: 1, attemptOffset: 1 }),
+    /failed after retries/);
+  assert.deepStrictEqual(temps, [0.2], 'the second poll must try cooler, not re-roll 0.4');
+});
+
+enqueue('attemptOffset past the end of the ladder clamps to the coolest temperature', async () => {
+  const temps = [];
+  const stub = async (prompt, opts) => { temps.push(opts.temperature); return 'garbage'; };
+  await assert.rejects(
+    () => composer.composeRewrite('resume', null, stub, null, { maxAttempts: 1, attemptOffset: 99 }),
+    /failed after retries/);
+  assert.strictEqual(temps.length, 1);
+  assert.strictEqual(temps[0], composer.COMPOSE_TEMPERATURES[composer.COMPOSE_TEMPERATURES.length - 1]);
+  assert.ok(typeof temps[0] === 'number', 'must never send an undefined temperature');
+});
+
+enqueue('deadlineMs reaches the model call as an absolute future deadlineAt', async () => {
+  let seen = null;
+  const before = Date.now();
+  const stub = async (prompt, opts) => { seen = opts.deadlineAt; return JSON.stringify(goodRewrite()); };
+  await composer.composeRewrite('resume', null, stub, null, { deadlineMs: 195000 });
+  assert.ok(Number.isFinite(seen), 'deadlineAt must be a number the llm layer can compare against Date.now()');
+  assert.ok(seen >= before + 195000 - 2000 && seen <= Date.now() + 195000,
+    'deadlineAt should be ~now + budget, got an offset of ' + (seen - before) + 'ms');
+});
+
+enqueue('a budget too small to attempt anything spends NO money and reports a deadline', async () => {
+  let calls = 0;
+  const stub = async () => { calls++; return JSON.stringify(goodRewrite()); };
+  let caught = null;
+  try {
+    await composer.composeRewrite('resume', null, stub, null, { deadlineMs: 1000 });
+  } catch (e) { caught = e; }
+  assert.ok(caught, 'must reject');
+  assert.strictEqual(calls, 0, 'starting a generation that is certain to be aborted burns tokens for nothing');
+  assert.strictEqual(caught.deadline, true, 'the caller has to be able to tell this from a model refusal');
+});
+
+enqueue('a deadline error stops the ladder immediately instead of trying a cooler temperature', async () => {
+  let calls = 0;
+  const stub = async () => {
+    calls++;
+    const e = new Error('Claude budget exhausted before completion');
+    e.deadline = true;
+    throw e;
+  };
+  let caught = null;
+  try {
+    await composer.composeRewrite('resume', null, stub, null, { maxAttempts: 2 });
+  } catch (e) { caught = e; }
+  assert.strictEqual(calls, 1, 'a cooler temperature cannot conjure more clock');
+  assert.strictEqual(caught.deadline, true, 'the deadline flag must survive to the caller');
+});
+
+enqueue('the endpoint configuration composes exactly once, under budget', async () => {
+  // Guards the actual regression: the old code ran BOTH attempts inline. At
+  // ~150-180s per 8000-token rewrite that could not fit in 230s and never could.
+  let calls = 0;
+  const stub = async (prompt, opts) => {
+    calls++;
+    assert.ok(opts.deadlineAt <= Date.now() + composer.INLINE_COMPOSE_BUDGET_MS);
+    return JSON.stringify(goodRewrite());
+  };
+  const out = await composer.composeRewrite('resume', null, stub, null, {
+    deadlineMs: composer.INLINE_COMPOSE_BUDGET_MS,
+    maxAttempts: composer.INLINE_MAX_ATTEMPTS,
+    attemptOffset: 0
+  });
+  assert.strictEqual(calls, 1);
+  assert.strictEqual(composer.validateRewrite(out), null);
+});
+
+// ── Double-charge guard (2026-08-07) ─────────────────────────────────
+// Bug: nothing stopped the same buyer paying twice for one resume. markPaid
+// dedups on Stripe's session id, which only ever covered webhook retries of a
+// SINGLE checkout; two checkouts are two sessions, two orders, two charges.
+
+enqueue('fingerprintOrder is deterministic and specific to the resume and the posting', () => {
+  const a = composer.fingerprintOrder('my resume text', 'staff engineer posting');
+  assert.strictEqual(a, composer.fingerprintOrder('my resume text', 'staff engineer posting'));
+  assert.notStrictEqual(a, composer.fingerprintOrder('a different resume', 'staff engineer posting'));
+  // The same resume aimed at a different job is a different product, and must
+  // be purchasable a second time.
+  assert.notStrictEqual(a, composer.fingerprintOrder('my resume text', 'a different posting'));
+  assert.ok(/^[0-9a-f]{32}$/.test(a), 'expected a 32-char hex digest, got ' + a);
+});
+
+enqueue('fingerprintOrder treats absent, null and blank postings as the same no-posting order', () => {
+  const none = composer.fingerprintOrder('my resume text');
+  assert.strictEqual(none, composer.fingerprintOrder('my resume text', null));
+  assert.strictEqual(none, composer.fingerprintOrder('my resume text', '   '));
+});
+
+enqueue('fingerprintOrder cannot be collided by shifting the resume/posting boundary', () => {
+  // Length-prefixed for exactly this: with a plain separator, ('ab','c') and
+  // ('a','bc') hash the same, and one buyer could be handed another's rewrite.
+  assert.notStrictEqual(
+    composer.fingerprintOrder('ab', 'c'),
+    composer.fingerprintOrder('a', 'bc'));
+  assert.notStrictEqual(
+    composer.fingerprintOrder('resume', 'text posting'),
+    composer.fingerprintOrder('resume text', 'posting'));
+});
+
+enqueue('createOrder stamps the fingerprint on the ENTRY, which outlives the doc', () => {
+  const { entry, doc } = composer.createOrder('a'.repeat(300), SAMPLE_ROAST, NOW, 'Staff Engineer');
+  assert.strictEqual(entry.fingerprint, composer.fingerprintOrder('a'.repeat(300), 'Staff Engineer'));
+  // Docs get scrubbed at 30d and purged at 60d; dedup has to keep working
+  // for as long as the delivery link does.
+  assert.strictEqual(doc.fingerprint, undefined, 'the fingerprint belongs on the entry, not the payload');
+});
+
+enqueue('findPaidDuplicate catches every status that means money already changed hands', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  for (const status of ['paid', 'processing', 'delivered', 'failed']) {
+    const hit = composer.findPaidDuplicate([{ orderId: 'rr_x', status, fingerprint: fp }], fp);
+    assert.ok(hit, status + ' means they already paid; a second charge is not acceptable');
+    assert.strictEqual(hit.orderId, 'rr_x');
+  }
+});
+
+enqueue('findPaidDuplicate ignores created orders, or the buyer could never pay at all', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  const q = [{ orderId: 'rr_abandoned', status: 'created', fingerprint: fp }];
+  assert.strictEqual(composer.findPaidDuplicate(q, fp), null);
+});
+
+enqueue('findPaidDuplicate matches only the identical input', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  const q = [{ orderId: 'rr_other', status: 'delivered', fingerprint: composer.fingerprintOrder('other resume', null) }];
+  assert.strictEqual(composer.findPaidDuplicate(q, fp), null);
+});
+
+enqueue('findPaidDuplicate returns the most recent purchase when there is more than one', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  const q = [
+    { orderId: 'rr_first', status: 'delivered', fingerprint: fp },
+    { orderId: 'rr_latest', status: 'delivered', fingerprint: fp }
+  ];
+  assert.strictEqual(composer.findPaidDuplicate(q, fp).orderId, 'rr_latest');
+});
+
+enqueue('findDoubleCharge spots a second payment for an order already paid', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  const first = { orderId: 'rr_first', status: 'delivered', fingerprint: fp };
+  const second = { orderId: 'rr_second', status: 'paid', fingerprint: fp };
+  const hit = composer.findDoubleCharge([first, second], second);
+  assert.ok(hit, 'a buyer charged twice must not be a silent event');
+  assert.strictEqual(hit.orderId, 'rr_first');
+});
+
+enqueue('findDoubleCharge never reports an order against itself', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  const only = { orderId: 'rr_only', status: 'paid', fingerprint: fp };
+  assert.strictEqual(composer.findDoubleCharge([only], only), null);
+});
+
+enqueue('findDoubleCharge ignores an abandoned unpaid twin and fingerprint-less orders', () => {
+  const fp = composer.fingerprintOrder('resume', null);
+  const paid = { orderId: 'rr_paid', status: 'paid', fingerprint: fp };
+  // The buyer opened two checkouts and only completed one. Nothing was
+  // double-charged, so nothing should be alerted on.
+  assert.strictEqual(composer.findDoubleCharge([{ orderId: 'rr_open', status: 'created', fingerprint: fp }, paid], paid), null);
+  // Legacy order with no fingerprint: nothing to compare, so no false alarm.
+  const legacy = { orderId: 'rr_legacy', status: 'paid' };
+  assert.strictEqual(composer.findDoubleCharge([{ orderId: 'rr_other', status: 'paid' }, legacy], legacy), null);
+});
+
+enqueue('findPaidDuplicate never matches entries predating the fingerprint', () => {
+  // Orders created before this shipped have no fingerprint. A loose comparison
+  // would match undefined === undefined and hand a stranger someone else's
+  // rewrite, so both the needle and the haystack entry must be present.
+  const legacy = [{ orderId: 'rr_legacy', status: 'delivered' }];
+  assert.strictEqual(composer.findPaidDuplicate(legacy, undefined), null);
+  assert.strictEqual(composer.findPaidDuplicate(legacy, null), null);
+  assert.strictEqual(composer.findPaidDuplicate(legacy, composer.fingerprintOrder('resume', null)), null);
+});
+
 run();

@@ -151,10 +151,30 @@ function validateTeardown(t) {
 // (parse/validation) fall through to the cooler second attempt.
 const TRANSIENT_ERR_RX = /returned 5\d\d|returned 429|overloaded|timeout|ETIMEDOUT|ECONNRESET|ECONNABORTED|socket hang up/i;
 
+// Smallest window worth attempting a call in. Mirrors _lib/llm's own floor:
+// below this the call would be aborted before any completion could land.
+const MIN_RETRY_WINDOW_MS = 15000;
+
+// `opts.deadlineAt` (absolute epoch ms, optional) is passed straight through to
+// callClaude AND used here, because this ladder is itself a multiplier: three
+// tries plus 10s of sleeps on top of whatever one call costs. A caller behind a
+// hard limit needs both halves bounded or the budget is fiction. Without it the
+// ladder behaves exactly as before.
 async function _callClaudeWithBackoff(callClaude, prompt, opts) {
   const waitsMs = [0, 2000, 8000];
+  const deadlineAt = opts && opts.deadlineAt;
   let lastErr = null;
   for (const w of waitsMs) {
+    // Never sleep into the deadline, and never start a try there is no room
+    // to finish — burning the tail of the budget on a call that is certain to
+    // be aborted costs money and delivers nothing.
+    if (deadlineAt && deadlineAt - Date.now() - w < MIN_RETRY_WINDOW_MS) {
+      if (!lastErr) {
+        lastErr = new Error('Claude budget exhausted before completion — no room for an attempt');
+        lastErr.deadline = true;
+      }
+      break;
+    }
     if (w) await new Promise(function (r) { setTimeout(r, w); });
     try {
       return await callClaude(prompt, opts);

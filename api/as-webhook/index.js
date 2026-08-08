@@ -89,11 +89,23 @@ module.exports = async function (context, req) {
         try {
           const nowIso = new Date().toISOString();
           let rrReason = null;
+          // Residual half of the double-charge guard. roast-rewrite's create
+          // path refuses to mint a checkout for a resume that has already been
+          // PAID for — but it cannot see a checkout that is merely open, so a
+          // buyer who starts two before completing either can still pay twice.
+          // That last window closes here, at the only point where both
+          // payments are known facts. We cannot auto-refund, so the goal is
+          // that a double charge is never SILENT: the alternative is the
+          // customer discovering it on their statement before we do.
+          let rrDoubleChargeOf = null;
           const res = await storage.mutateState('roast_rewrite_queue', function (fresh) {
             const result = rrComposer.markPaid(fresh || [], session, nowIso);
             rrReason = result.reason;
+            rrDoubleChargeOf = null;   // derived from `fresh`, so recomputed on every conflict retry
             if (!result.order) return undefined;
             rrOrder = result.order;
+            const sibling = rrComposer.findDoubleCharge(result.queue, result.order);
+            if (sibling) rrDoubleChargeOf = sibling.orderId;
             return result.queue;
           });
           if (!res.ok) {
@@ -101,6 +113,22 @@ module.exports = async function (context, req) {
             context.log.error('[as-webhook] Rewrite order update FAILED (manual recovery needed) for session ' + session.id + ' orderId=' + rrOrderIdMeta + ' key=roast_rewrite_queue: mutateState reported not ok');
           } else if (rrOrder && res.written) {
             context.log('[as-webhook] Rewrite order paid: ' + rrOrder.orderId);
+            if (rrDoubleChargeOf) {
+              context.log.error('[as-webhook] DOUBLE CHARGE: ' + rrOrder.orderId + ' has the same fingerprint as already-paid ' + rrDoubleChargeOf);
+              try {
+                const { dispatchDiscord } = require('../_utils/fleetAlerts');
+                await dispatchDiscord({
+                  title: 'Possible DOUBLE CHARGE on a rewrite',
+                  description: 'Order ' + rrOrder.orderId + ' was just paid, but ' + rrDoubleChargeOf +
+                    ' covers the same resume and posting and was already paid.' +
+                    '\nThe buyer has almost certainly been charged $9 twice. A refund is owed unless they deliberately bought two.' +
+                    '\nCheck roast_rewrite_queue for both order ids.',
+                  color: 0xC62828
+                });
+              } catch (alertErr) {
+                context.log.warn('[as-webhook] double-charge Discord alert failed (non-fatal):', alertErr.message);
+              }
+            }
           } else if (rrReason === 'missing' || rrReason === 'bad-status') {
             rrOrder = null;
             context.log.error('[as-webhook] Rewrite payment with NO matching order (manual recovery needed): session ' + session.id + ' orderId=' + rrOrderIdMeta + ' reason=' + rrReason);

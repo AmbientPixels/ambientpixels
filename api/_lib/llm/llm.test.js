@@ -288,6 +288,63 @@ test('no API keys at all reports reason "config", not "capacity"', async () => {
   process.env.ANTHROPIC_API_KEY = a; process.env.GEMINI_API_KEY = g;
 });
 
+// ── deadlineAt: the absolute budget (2026-08-07) ──
+// `timeoutMs` bounds ONE attempt, so a 2-model chain could spend 2x it — which
+// is invisible to a caller sitting behind Azure's 230s HTTP gateway limit. The
+// $9 rewrite composed inside such a request and the one real order took 354s.
+
+test('without deadlineAt the chain is completely unchanged (regression guard)', async () => {
+  reset();
+  responses = [{ status: 529, body: 'overloaded_error' }, geminiOk('{"ok":1}')];
+  const out = await callModel({ prompt: 'p', caller: 't' });
+  assert.strictEqual(out.provider, 'gemini');
+  assert.strictEqual(requests.length, 2, 'both models must still be tried when no budget is set');
+});
+
+test('a deadline that has already passed spends nothing at all', async () => {
+  reset();
+  responses = [claudeOk('{"ok":1}'), geminiOk('{"ok":1}')];
+  await assert.rejects(
+    () => callModel({ prompt: 'p', caller: 't', deadlineAt: Date.now() - 1 }),
+    err => err instanceof LlmUnavailableError && err.reason === 'deadline');
+  assert.strictEqual(requests.length, 0, 'made ' + requests.length + ' calls with no time left to use them');
+});
+
+test('the chain stops rather than starting a model it has no time to finish', async () => {
+  reset();
+  // ~15.1s of budget, and the first attempt burns 250ms of it — leaving less
+  // than the 15s floor, so the Gemini leg must be skipped instead of started.
+  responses = [
+    async () => { await new Promise(r => setTimeout(r, 250)); return { ok: false, status: 529, text: async () => 'overloaded_error' }; },
+    geminiOk('{"ok":1}')
+  ];
+  await assert.rejects(
+    () => callModel({ prompt: 'p', caller: 't', deadlineAt: Date.now() + 15100 }),
+    err => err instanceof LlmUnavailableError);
+  assert.strictEqual(requests.length, 1, 'started the fallback with no budget to complete it');
+});
+
+test('a real upstream failure outranks a skipped one in the reported reason', async () => {
+  reset();
+  // Claude genuinely 529'd; Gemini was only skipped for lack of clock. The
+  // caller must hear 'capacity' (retry me) rather than 'deadline'.
+  responses = [
+    async () => { await new Promise(r => setTimeout(r, 250)); return { ok: false, status: 529, text: async () => 'overloaded_error' }; },
+    geminiOk('{"ok":1}')
+  ];
+  await assert.rejects(
+    () => callModel({ prompt: 'p', caller: 't', deadlineAt: Date.now() + 15100 }),
+    err => err.reason === 'capacity');
+});
+
+test('an ample deadline does not interfere with a healthy call', async () => {
+  reset();
+  responses = [claudeOk('{"ok":1}')];
+  const out = await callModel({ prompt: 'p', caller: 't', deadlineAt: Date.now() + 195000 });
+  assert.strictEqual(out.text, '{"ok":1}');
+  assert.strictEqual(out.provider, 'claude');
+});
+
 // ── classification, directly ──
 
 test('classify distinguishes credits from capacity from error', () => {

@@ -48,6 +48,83 @@ function normalizeJobDescription(value) {
   return value.trim().slice(0, JOB_DESCRIPTION_MAX_CHARS) || null;
 }
 
+// Keyed fingerprint of exactly what the buyer is paying to have rewritten. The
+// resume text plus the target posting, because the same resume aimed at a
+// different job is a genuinely different product and must not be deduped
+// against the first one.
+//
+// HMAC with the server-side salt rather than a bare sha256: a plain content
+// hash of a resume is confirmable by anyone who can guess the document, and
+// this value sits in a queue an operator can read. Keyed, it is a pseudonym
+// that means nothing off this system.
+//
+// Nothing is stored that could rebuild the resume — only enough to answer
+// "have we already been paid for this exact input?".
+function fingerprintOrder(resumeText, jobDescription) {
+  const resume = String(resumeText || '');
+  const jd = normalizeJobDescription(jobDescription) || '';
+  // Length-prefixed rather than joined by a separator character. Any separator
+  // could itself occur in a resume, letting two different (resume, posting)
+  // pairs hash identically by shifting the boundary between them, which would
+  // hand one buyer another buyer's rewrite. A length makes the split
+  // unambiguous for every possible input, and keeps this file plain ASCII.
+  return crypto.createHmac('sha256', FORM_INTAKE_SALT)
+    .update('rrfp:' + resume.length + ':' + resume + jd)
+    .digest('hex')
+    .slice(0, 32);
+}
+
+// Statuses that mean "this buyer has already handed over $9 for this exact
+// input". 'created' is deliberately absent: an order that never got paid must
+// not block the buyer from paying, which is the whole point of the record.
+// 'failed' IS included — they paid and got nothing, so the answer is a refund
+// or a requeue, never a second charge.
+const PAID_STATUSES = ['paid', 'processing', 'delivered', 'failed'];
+
+// Has this exact input already been paid for? Returns the existing entry so the
+// caller can hand back its delivery link instead of minting a second checkout.
+// Scans newest-first so a buyer with more than one match lands on their most
+// recent purchase.
+//
+// Dedup lifetime is deliberately the ENTRY's lifetime (60d, the same window the
+// delivery link works for) rather than the 30d resume-scrub window: for exactly
+// as long as we will still show someone their rewrite, we refuse to sell it to
+// them twice. The fingerprint is not scrubbed at 30d with the resume text
+// because it is a keyed pseudonym, not the content.
+function findPaidDuplicate(queue, fingerprint) {
+  if (!fingerprint) return null;
+  const q = Array.isArray(queue) ? queue : [];
+  for (let i = q.length - 1; i >= 0; i--) {
+    const o = q[i];
+    if (!o || o.fingerprint !== fingerprint) continue;
+    if (PAID_STATUSES.indexOf(o.status) === -1) continue;
+    return o;
+  }
+  return null;
+}
+
+// The webhook half of the same guard. findPaidDuplicate runs at CHECKOUT time
+// and so cannot see a checkout that is merely open — a buyer who starts two
+// before completing either can still pay twice. This runs at PAYMENT time,
+// when both charges are known facts, and answers "was an identical order
+// already paid for by someone other than this one?".
+//
+// It cannot prevent the charge, only surface it. That is the whole point: a
+// double charge nobody is told about is discovered by the customer, on their
+// statement, which is the worst possible way for it to come out.
+function findDoubleCharge(queue, order) {
+  if (!order || !order.fingerprint) return null;
+  const q = Array.isArray(queue) ? queue : [];
+  for (let i = q.length - 1; i >= 0; i--) {
+    const o = q[i];
+    if (!o || o.orderId === order.orderId) continue;
+    if (o.fingerprint !== order.fingerprint) continue;
+    if (PAID_STATUSES.indexOf(o.status) === -1) continue;
+    return o;
+  }
+  return null;
+}
+
 // Resume text is too large for Stripe metadata, so unlike teardowns the order
 // exists BEFORE checkout: queue entry (small, status machine) + doc (payload).
 // `jobDescription` is optional and trails the original signature so existing
@@ -55,7 +132,9 @@ function normalizeJobDescription(value) {
 function createOrder(resumeText, roastResult, nowIso, jobDescription) {
   const orderId = 'rr_' + Date.parse(nowIso) + '_' + crypto.randomBytes(2).toString('hex');
   return {
-    entry: { orderId, status: 'created', createdAt: nowIso, retryCount: 0, email: null },
+    // fingerprint lives on the ENTRY, not the doc: docs get scrubbed and purged
+    // on a retention schedule, and dedup has to keep working after that.
+    entry: { orderId, status: 'created', createdAt: nowIso, retryCount: 0, email: null, fingerprint: fingerprintOrder(resumeText, jobDescription) },
     doc: {
       orderId,
       resumeText: String(resumeText).slice(0, RESUME_MAX_CHARS),
@@ -301,22 +380,68 @@ function validateRewrite(r) {
   return null;
 }
 
-// One composition; malformed output retries once cooler; transient upstream
-// errors retry with backoff inside each attempt (shared teardown helper —
-// a paid $9 order must not die on an Anthropic 500 burst).
-// `jobDescription` trails callClaude so existing three-arg call sites are
-// unaffected; both compose call sites (the endpoint's compose-on-poll and the
-// runner's backstop) pass doc.jobDescription.
-async function composeRewrite(resumeText, roastResult, callClaude, jobDescription) {
+// Malformed output retries once cooler. Ladder is indexed rather than iterated
+// so a caller doing one attempt per call (the HTTP path, see below) can resume
+// at the temperature it left off at instead of always re-rolling at 0.4.
+const COMPOSE_TEMPERATURES = [0.4, 0.2];
+
+// Budget for a compose running INSIDE an HTTP request. Azure's gateway kills a
+// request at 230s regardless of functionTimeout, and the delivery page's fetch
+// dies with it. 195s leaves ~35s for the doc write, the queue flip and the
+// ready email that follow a successful compose.
+//
+// MEASURED, not assumed: the one real order to date (rr_1785808666421_00d8)
+// took 354s paid -> delivered — 1 for 1 past the gateway limit. A single
+// 8000-token rewrite runs ~150-180s, so the old code's two sequential attempts
+// could not fit in one request and never could have.
+const INLINE_COMPOSE_BUDGET_MS = 195000;
+
+// One temperature attempt per HTTP request. The ladder still happens — it is
+// just spread across successive polls, each of which gets a FRESH 230s gateway
+// budget, instead of being crammed into the first poll's. Two inline tries
+// (retryCount 0 and 1), then roastRewriteRunner takes the last one with the
+// much larger budget below, so a paid order is never failed merely because the
+// fast path has to be fast.
+const INLINE_MAX_ATTEMPTS = 1;
+const INLINE_MAX_RETRIES = 2;
+
+// Budget for the cron backstop. No gateway in front of a timer trigger, so the
+// only ceiling is host.json's functionTimeout (10 min). 420s runs the full
+// ladder and still leaves 3 min for retention IO, the doc write and the email.
+const BACKSTOP_COMPOSE_BUDGET_MS = 420000;
+
+// `jobDescription` trails callClaude and `opts` trails that, so existing
+// call sites are unaffected: no opts means two attempts, no deadline, exactly
+// the previous behaviour.
+//
+// opts.deadlineMs    — wall-clock budget for the WHOLE compose. Threaded down
+//                      to _lib/llm as an absolute deadline, so both the retry
+//                      ladder and each individual model attempt are bounded.
+// opts.maxAttempts   — how many temperature attempts to make in THIS call.
+// opts.attemptOffset — where to start on the temperature ladder, so an attempt
+//                      spread across calls still gets cooler each time.
+async function composeRewrite(resumeText, roastResult, callClaude, jobDescription, opts) {
+  const o = opts || {};
   const prompt = buildRewritePrompt(resumeText, roastResult, jobDescription);
-  const attempts = [{ temperature: 0.4 }, { temperature: 0.2 }];
+  const deadlineAt = Number.isFinite(o.deadlineMs) && o.deadlineMs > 0
+    ? Date.now() + o.deadlineMs
+    : null;
+  const offset = Number.isFinite(o.attemptOffset) && o.attemptOffset > 0 ? Math.floor(o.attemptOffset) : 0;
+  const maxAttempts = Number.isFinite(o.maxAttempts) && o.maxAttempts > 0
+    ? Math.floor(o.maxAttempts)
+    : COMPOSE_TEMPERATURES.length;
+
   let lastErr = null;
-  for (const opts of attempts) {
+  for (let i = 0; i < maxAttempts; i++) {
+    // An offset past the end of the ladder clamps to the coolest temperature
+    // rather than reading undefined and silently sending temperature: null.
+    const temperature = COMPOSE_TEMPERATURES[Math.min(offset + i, COMPOSE_TEMPERATURES.length - 1)];
     try {
       const raw = await callClaudeWithBackoff(callClaude, prompt, {
-        temperature: opts.temperature,
+        temperature,
         maxOutputTokens: 8000,
-        caller: 'roast-rewrite-compose'
+        caller: 'roast-rewrite-compose',
+        deadlineAt: deadlineAt || undefined
       });
       const parsed = parseJson(raw);
       const problem = validateRewrite(parsed);
@@ -324,14 +449,25 @@ async function composeRewrite(resumeText, roastResult, callClaude, jobDescriptio
       return parsed;
     } catch (err) {
       lastErr = err;
+      // Out of clock: a cooler temperature cannot conjure more of it, and
+      // looping would only report the same failure later.
+      if (err && err.deadline) break;
     }
   }
-  throw new Error('composeRewrite failed after retries: ' + (lastErr && lastErr.message));
+  const failure = new Error('composeRewrite failed after retries: ' + (lastErr && lastErr.message));
+  // Propagated so the caller can tell "we ran out of time" (retry me somewhere
+  // with a bigger budget) from "the model would not produce valid output"
+  // (retrying identically is unlikely to help).
+  if (lastErr && lastErr.deadline) failure.deadline = true;
+  throw failure;
 }
 
 module.exports = {
   buildRewriteToken,
   normalizeJobDescription,
+  fingerprintOrder,
+  findPaidDuplicate,
+  findDoubleCharge,
   createOrder,
   markPaid,
   advanceQueue,
@@ -341,6 +477,12 @@ module.exports = {
   buildRewritePrompt,
   validateRewrite,
   composeRewrite,
+  PAID_STATUSES,
+  COMPOSE_TEMPERATURES,
+  INLINE_COMPOSE_BUDGET_MS,
+  INLINE_MAX_ATTEMPTS,
+  INLINE_MAX_RETRIES,
+  BACKSTOP_COMPOSE_BUDGET_MS,
   QUEUE_CAP,
   MAX_RETRIES,
   STALE_PROCESSING_MS,

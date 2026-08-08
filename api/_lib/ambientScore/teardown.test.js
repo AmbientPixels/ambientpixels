@@ -216,5 +216,61 @@ enqueue('composeTeardown strips markdown fences', async () => {
   assert.strictEqual(out.killers.length, 5);
 });
 
+// ── callClaudeWithBackoff budget (2026-08-07) ────────────────────────
+// This ladder is a multiplier on top of one call: three tries plus 10s of
+// sleeps. A caller behind a hard limit (the $9 rewrite composes inside an HTTP
+// request Azure kills at 230s) needs both halves bounded or the budget is
+// fiction.
+
+const transient = () => { throw new Error('Claude returned 529: overloaded'); };
+
+enqueue('callClaudeWithBackoff without a deadline still climbs the whole ladder', async () => {
+  let calls = 0;
+  const fakeClaude = async () => { calls++; return transient(); };
+  let threw = false;
+  try { await composer.callClaudeWithBackoff(fakeClaude, 'p', { caller: 't' }); } catch (_) { threw = true; }
+  assert.ok(threw);
+  assert.strictEqual(calls, 3, 'unbudgeted behaviour must not change');
+});
+
+enqueue('a budget below the attempt floor makes no call at all', async () => {
+  let calls = 0;
+  const fakeClaude = async () => { calls++; return 'never reached'; };
+  let caught = null;
+  try {
+    await composer.callClaudeWithBackoff(fakeClaude, 'p', { caller: 't', deadlineAt: Date.now() + 500 });
+  } catch (e) { caught = e; }
+  assert.strictEqual(calls, 0, 'a generation certain to be aborted still costs tokens');
+  assert.ok(caught && caught.deadline === true, 'must be flagged as a deadline, not an upstream fault');
+});
+
+enqueue('the ladder stops rather than sleeping into its own deadline', async () => {
+  let calls = 0;
+  const fakeClaude = async () => { calls++; return transient(); };
+  // Room for the immediate try, but the 2s backoff would leave under the 15s
+  // floor, so the retry must be abandoned instead of slept into.
+  let caught = null;
+  try {
+    await composer.callClaudeWithBackoff(fakeClaude, 'p', { caller: 't', deadlineAt: Date.now() + 16500 });
+  } catch (e) { caught = e; }
+  assert.strictEqual(calls, 1, 'made ' + calls + ' calls; the backoff retry had no room');
+  assert.ok(caught, 'must still surface the failure');
+});
+
+enqueue('a deadline error is not treated as transient and is never retried', async () => {
+  let calls = 0;
+  const fakeClaude = async () => {
+    calls++;
+    // Deliberately worded to trip none of TRANSIENT_ERR_RX's patterns — the
+    // word "timeout" alone would send the ladder to sleep on a budget that no
+    // longer exists.
+    throw new Error('Claude budget exhausted before completion');
+  };
+  let threw = false;
+  try { await composer.callClaudeWithBackoff(fakeClaude, 'p', { caller: 't' }); } catch (_) { threw = true; }
+  assert.ok(threw);
+  assert.strictEqual(calls, 1, 'running out of our own clock is not an upstream fault to back off from');
+});
+
 console.log('\nteardownComposer tests\n');
 run();

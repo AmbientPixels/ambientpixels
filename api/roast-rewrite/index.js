@@ -142,10 +142,19 @@ module.exports = async function (context, req) {
       // mutator runs (another concurrent poll already claimed it, or it's in
       // any other state), the mutator aborts (returns undefined, no write) —
       // `claimRes.written` tells us whether WE won the claim this call.
+      //
+      // The retryCount gate hands the LAST attempt to roastRewriteRunner. This
+      // request is behind Azure's 230s gateway limit; the runner is a timer
+      // trigger with a 420s budget. Without the gate, an order whose compose
+      // genuinely needs longer than the HTTP path allows would burn all three
+      // retries here and be marked 'failed' — refund territory for a rewrite
+      // that a slower path could have produced. Two fast tries, then the
+      // patient one.
       const claimRes = await mutateQueue(function (fresh) {
         const arr = Array.isArray(fresh) ? fresh : [];
         const live = arr.find(o => o && o.orderId === orderId);
         if (!live || live.status !== 'paid') return undefined;
+        if ((live.retryCount || 0) >= composer.INLINE_MAX_RETRIES) return undefined;
         live.status = 'processing';
         live.processingAt = new Date().toISOString();
         return arr;
@@ -184,13 +193,28 @@ module.exports = async function (context, req) {
       // The Claude call itself stays OUTSIDE any mutator — it's the one part
       // of this cycle that can run 30-60s and must never be re-run by
       // mutateState's conflict-retry.
+      //
+      // BOUNDED (2026-08-07). This ran the full two-attempt ladder with no
+      // ceiling, inside a request Azure kills at 230s. The only real order to
+      // date took 354s: the buyer's fetch died at the gateway, the page fell
+      // back to 5s polling, and had the function been killed at its own 600s
+      // timeout the order would have sat 'processing' for the 10-minute stale
+      // window before the runner could touch it. Now: ONE attempt, budgeted to
+      // return before the gateway does, with the ladder spread across
+      // successive polls — each of which gets a fresh 230s of its own.
+      // attemptOffset keeps that ladder cooling across those polls instead of
+      // re-rolling 0.4 every time.
       let rewrite;
       try {
         const { callClaude } = require('../_lib/ambientScore/analyzer');
         // doc.jobDescription is absent on orders created before targeting
         // shipped (and null when the buyer pasted no posting) — composeRewrite
         // treats both as "no posting" and builds the original prompt.
-        rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude, doc.jobDescription);
+        rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude, doc.jobDescription, {
+          deadlineMs: composer.INLINE_COMPOSE_BUDGET_MS,
+          maxAttempts: composer.INLINE_MAX_ATTEMPTS,
+          attemptOffset: order.retryCount || 0
+        });
       } catch (err) {
         context.log.error('[roast-rewrite] compose failed for ' + orderId + ':', err.message);
         const errMsg = String(err.message || err).slice(0, 300);
@@ -325,6 +349,62 @@ module.exports = async function (context, req) {
         context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Resume text must be between 200 and ' + composer.RESUME_MAX_CHARS + ' characters.' } };
         return;
       }
+      // Optional target posting. The free roast's client sends the same text as
+      // `secondaryInput` (its generic second-input field name), so accept that
+      // spelling too rather than silently dropping the posting the buyer pasted
+      // — dropping it is exactly the bug this threading fixes. Over-long input
+      // is trimmed, not rejected, matching the free path (pixel-agent-run
+      // slices the same field to 6000): a buyer who pastes a whole job PAGE
+      // still gets a targeted rewrite instead of a 400.
+      //
+      // Read before the rate-limit check because the fingerprint below needs
+      // it, and a buyer being handed back something they ALREADY bought should
+      // not be spending create-budget to get it.
+      const jobDescription = composer.normalizeJobDescription(
+        typeof body.jobDescription === 'string' ? body.jobDescription : body.secondaryInput
+      );
+
+      // ── Double-charge guard (2026-08-07) ──
+      // Nothing anywhere stopped the same person paying twice for one resume.
+      // markPaid dedups on Stripe's session id, which only ever defended
+      // against webhook RETRIES of a single checkout — two checkouts are two
+      // sessions, two orders and two charges. The upsell button stays live on
+      // the roast page after purchase, the roast page survives the round trip
+      // (that is what the cancelled-checkout recovery is for), and until this
+      // session the buyer had every reason to press it again: delivery was
+      // taking 354s behind a page promising "about a minute".
+      //
+      // So: if this exact resume + posting has already been paid for, hand back
+      // the delivery link instead of a second checkout.
+      const fingerprint = composer.fingerprintOrder(resumeText, jobDescription);
+      // getStateWithMeta, not getState: a plain read collapses "no orders yet"
+      // and "the read failed" into the same null, and those two must not lead
+      // to the same decision here. Treating a failed read as an empty queue
+      // would mint a checkout for someone who may have already paid — the
+      // exact charge this guard exists to prevent. Being wrong in that
+      // direction costs $9 and trust; being wrong the other way costs a retry.
+      const queueMeta = await storage.getStateWithMeta(QUEUE_KEY);
+      if (queueMeta.failed) {
+        context.log.error('[roast-rewrite] queue read failed during duplicate check — refusing to start checkout rather than risk a second charge');
+        context.res = { status: 503, headers: CORS_HEADERS, body: { error: 'We could not verify your order just now, so nothing was charged. Please try again in a moment.' } };
+        return;
+      }
+      const dupe = composer.findPaidDuplicate(queueMeta.value || [], fingerprint);
+      if (dupe) {
+        context.log('[roast-rewrite] duplicate purchase blocked; returning existing order ' + dupe.orderId + ' (status ' + dupe.status + ')');
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: {
+            alreadyPurchased: true,
+            orderId: dupe.orderId,
+            key: composer.buildRewriteToken(dupe.orderId),
+            status: dupe.status
+          }
+        };
+        return;
+      }
+
       if (await checkRateLimit(getClientIP(req))) {
         // Says "this network", because the bucket is a raw IP and the person
         // reading this may not have started a single order themselves. Also
@@ -336,16 +416,6 @@ module.exports = async function (context, req) {
 
       const nowIso = new Date().toISOString();
       const roastResult = (body.roastResult && typeof body.roastResult === 'object') ? body.roastResult : null;
-      // Optional target posting. The free roast's client sends the same text as
-      // `secondaryInput` (its generic second-input field name), so accept that
-      // spelling too rather than silently dropping the posting the buyer pasted
-      // — dropping it is exactly the bug this threading fixes. Over-long input
-      // is trimmed, not rejected, matching the free path (pixel-agent-run
-      // slices the same field to 6000): a buyer who pastes a whole job PAGE
-      // still gets a targeted rewrite instead of a 400.
-      const jobDescription = composer.normalizeJobDescription(
-        typeof body.jobDescription === 'string' ? body.jobDescription : body.secondaryInput
-      );
       const { entry, doc } = composer.createOrder(resumeText, roastResult, nowIso, jobDescription);
 
       // Durability first: never hand out a Stripe checkout URL for an order

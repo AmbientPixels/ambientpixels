@@ -207,7 +207,15 @@ module.exports = async function (context) {
     // Must pass doc.jobDescription too: an order delivered by this backstop
     // (buyer closed the tab after paying) would otherwise silently lose the
     // job targeting that compose-on-poll applies.
-    const rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude, doc.jobDescription);
+    //
+    // The FULL ladder with the long budget. No gateway sits in front of a timer
+    // trigger, so unlike compose-on-poll this path can afford both temperature
+    // attempts — which is exactly why the endpoint hands it any order that has
+    // already used up its two fast tries. 420s keeps the whole thing inside
+    // host.json's 600s functionTimeout with room for the doc write and email.
+    const rewrite = await composer.composeRewrite(doc.resumeText, doc.roastResult, callClaude, doc.jobDescription, {
+      deadlineMs: composer.BACKSTOP_COMPOSE_BUDGET_MS
+    });
 
     const nowIso = new Date().toISOString();
     doc.rewrite = rewrite;

@@ -33,7 +33,13 @@ const SYNTHESIS_RETRY_MAX_TOKENS = 16000;
 // (teardownComposer's TRANSIENT_ERR_RX, composer's retry ladder) match on these
 // message shapes, so the strings still lead with "Claude returned <status>" and
 // truncation still throws rather than returning partial JSON.
-async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
+// `timeoutMs`/`deadlineAt` are optional and default to the old behaviour, so
+// every existing caller is unaffected. They exist because the 200s default
+// below is sized for AmbientScore's evaluators and is actively dangerous on a
+// path with a shorter hard limit: the $9 rewrite composes inside an HTTP
+// request that Azure kills at 230s, so ONE attempt at this default already
+// spends 87% of the budget, and the 2-model chain can spend 400s.
+async function callClaude(prompt, { temperature, maxOutputTokens, caller, timeoutMs, deadlineAt }) {
   let out;
   try {
     out = await callModel({
@@ -48,11 +54,23 @@ async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
       agentId: caller || 'ambientscore',
       // Group evaluation legitimately runs for minutes at a 16k ceiling; the
       // module's 60s default would abort a healthy call.
-      timeoutMs: 200000
+      timeoutMs: timeoutMs || 200000,
+      deadlineAt: deadlineAt || undefined
     });
   } catch (err) {
     if (err instanceof LlmUnavailableError) {
       const first = err.attempts.find(a => a.status) || {};
+      // Running out of OUR clock is not an upstream fault, and must not read
+      // like one: teardownComposer's TRANSIENT_ERR_RX would match a "returned
+      // 5xx"/"timeout" phrasing and spend the little budget that remains
+      // sleeping between retries of a call there is no time to make. The
+      // wording below deliberately trips none of those patterns, and
+      // `.deadline` lets callers branch on it without matching strings.
+      if (err.reason === 'deadline') {
+        const dErr = new Error('Claude budget exhausted before completion — ' + err.message);
+        dErr.deadline = true;
+        throw dErr;
+      }
       // Keep the "Claude returned <status>" prefix: teardownComposer's
       // TRANSIENT_ERR_RX greps for it to decide whether to back off and retry.
       throw new Error('Claude returned ' + (first.status || 503) + ': all models failed ('
