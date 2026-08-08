@@ -109,9 +109,19 @@ for $49 — roughly $27 of revenue at a generous conversion rate.
 
 ## Unblocked work, ranked
 
-1. **Two open bug-bash items on the money path.** Inline compose can exceed Azure's 230s HTTP gateway
-   limit (it self-heals, but the buyer waits ~13 minutes), and nothing prevents a customer paying
-   twice for the same roast.
+1. ~~**Two open bug-bash items on the money path.**~~ **CLOSED 2026-08-08** (`5d2c6e75`, `81d0f2fc`),
+   verified live. Compose-on-poll now makes ONE attempt inside a 195s budget and spreads the
+   temperature ladder across successive polls, each of which gets a fresh 230s gateway window; the
+   last retry is handed to `roastRewriteRunner`, which has no gateway in front of it and a 420s
+   budget, so a paid order can no longer be failed just for being slow. `_lib/llm` gained an optional
+   absolute `deadlineAt` (omit it and every existing caller is byte-identical) because `timeoutMs`
+   only ever bounded ONE attempt — a 2-model chain could spend 2x it, and `analyzer.callClaude`
+   passes 200000. Double charging is blocked by a keyed, length-prefixed fingerprint of resume +
+   posting; the residual race (two checkouts opened before either is paid) cannot be prevented at
+   create time and is instead detected in `as-webhook` and alerted to Discord.
+   **Caveat that will not fix itself: orders created before 2026-08-08 have no fingerprint** and can
+   never dedup — the resume text lives only in the docs, which are scrubbed at 30d, so there is
+   nothing to backfill from. `null` in the CEO status dump is how you tell.
 2. **PitchWall** — the last genuinely free directory. Verify it is not queue-gated like Uneed first.
 3. **Comparison page vs RoastTheResume** — defensible on today's verified copy, and the only competitor
    claim that survived re-checking. Must say "rewritten bullets vs the whole document", not "advice vs artifact".
@@ -131,6 +141,15 @@ for $49 — roughly $27 of revenue at a generous conversion rate.
 - **Pick a deploy sentinel that exists ONLY in the new code.** I waited on a string the old code also
   contained, "verified" a fix that was not live, and then misdiagnosed the result.
 - **Anthropic reports credit exhaustion as a 400**, not 402 — only the message body says so.
+- **Azure kills an HTTP request at 230s regardless of `functionTimeout`.** `api/host.json` says 10
+  minutes and that is true of the invocation, not of the client's connection. Anything composing
+  inside a request needs its own budget under 230s; `functionTimeout` will not save you, it just
+  decides how long the orphaned work keeps running after the browser has already given up.
+- **A `timeoutMs` is per ATTEMPT, not per call.** With a 2-model fallback chain, one `callClaude`
+  can cost 2x it, and the retry ladder above it multiplies again. Budget in absolute deadlines.
+- **The deploy that "succeeded" may not have deployed the API.** Run `5d2c6e75` failed at *Deploy to
+  Azure Static Web Apps* and **skipped the Node setup, the API install and the Kudu zip-deploy** —
+  the site went out, the functions did not. Check the step list, not the run's colour.
 - **`context.log` has no `.log`.** It is callable, with `.error`/`.warn`/`.info`.
 - **Only 1 of 10 scoring agents uses the key `score`.** Resolve through the agent's declared
   `outputSections`, never `result.score`.
