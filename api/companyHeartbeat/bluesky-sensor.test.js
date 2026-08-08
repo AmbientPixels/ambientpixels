@@ -56,6 +56,16 @@ t('candidates with no timestamp do not crash or count as recent', function () {
   assert.strictEqual(S.isCooldownElapsed([cand({ discoveredAt: null }), {}], NOW, 2 * HOUR), true);
 });
 
+t('a cooldown of 0 means RUN NOW, not "use the default"', function () {
+  // Live bug, 2026-08-08: the shell read the override as
+  // `(deps.cooldownMs) || DEFAULTS.cooldownMs`, so ?force=1 passing 0 hit the
+  // falsy branch and got the 2h default straight back. The override looked
+  // accepted and did nothing — verification silently kept waiting for the timer.
+  const justScanned = [cand({ discoveredAt: new Date(NOW - 60 * 1000).toISOString() })];
+  assert.strictEqual(S.isCooldownElapsed(justScanned, NOW, 0), true, '0 must bypass the cooldown');
+  assert.strictEqual(S.isCooldownElapsed(justScanned, NOW, 2 * HOUR), false, 'and the default must still hold');
+});
+
 // ── scoring ──
 
 const raw = o => Object.assign({

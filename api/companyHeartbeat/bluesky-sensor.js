@@ -123,7 +123,10 @@ async function runBlueskyDiscovery(deps) {
     let candidates = (await storage.getState('blueskyCandidates')) || [];
     if (!Array.isArray(candidates)) candidates = [];
 
-    const cooldownMs = (deps && deps.cooldownMs) || DEFAULTS.cooldownMs;
+    // Number.isFinite, not `||`: a caller passing 0 to mean "no cooldown, run
+    // now" hits the falsy branch and silently gets the 2h default back, so the
+    // override looks accepted and does nothing.
+    const cooldownMs = (deps && Number.isFinite(deps.cooldownMs)) ? deps.cooldownMs : DEFAULTS.cooldownMs;
     if (!isCooldownElapsed(candidates, now, cooldownMs)) {
       return { ran: false, reason: 'cooldown', total: candidates.length };
     }
