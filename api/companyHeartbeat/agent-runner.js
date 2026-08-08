@@ -407,9 +407,17 @@ async function runAgentHeartbeat(ctx) {
     ? tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived && _echoParked(t)).length
     : 0;
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
-  const allActiveTasks = agentId === 'nova'
+  // The SHARED board — other agents' work, for review, triage and coordination.
+  // It needs the same campaign filter as agentTasks above, and finding that out
+  // took a live cycle: hiding the frozen task from its assignee (echo) still left
+  // nova, cipher and quill reviewing it off this list and getting blocked, three
+  // more violations against the same task. A task nobody may mutate is not
+  // reviewable either, including by Nova — mutations are frozen for her too, and
+  // it reappears for everyone the moment the campaign is unpaused.
+  const _allActiveRaw = agentId === 'nova'
     ? tasks.filter(t => t.status !== 'done' && !t._archived)
     : tasks.filter(t => t.status !== 'done' && t.status !== 'backlog' && !t._archived);
+  const allActiveTasks = _filterActionableTasks(_allActiveRaw, activeDirectives).visible;
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
