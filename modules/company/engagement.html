@@ -69,6 +69,14 @@
         draft task died and produced nothing. <em>In progress</em> is Scribe drafting or a draft waiting on your approval.
         <em>Answered</em> shipped. <em>Skipped</em> was declined, by you or by a guard. Drafting is CEO-gated as always
         &mdash; nothing here posts on its own.</p>
+        <p><strong>Approving a draft.</strong> When Scribe has written a reply it appears under the comment it answers,
+        with its quality-gate verdict. Approve sends it: <code>api/actionsScheduler</code> runs every five minutes and posts
+        approved replies immediately. Reject sends nothing and closes the drafting task. The decision itself is the same
+        one the Actions page makes &mdash; <code>AgentEngine.approveAction</code> &mdash; not a second path. A verdict reading
+        <em>no quality-gate verdict recorded</em> means the gate never ran on that draft; it is not a pass.</p>
+        <p><strong>Read the full thread.</strong> Fetched on demand from Bluesky's free public
+        <code>getPostThread</code>, starting at the true thread root &mdash; which for a comment on one of our prospect replies
+        is <em>their</em> original post, not ours. Judging a second turn needs the first one.</p>
         <p><strong>Median response time.</strong> Hours between someone replying to us and our reply going out. It reads
         <em>not yet</em> below three answered conversations, because two is an anecdote, and it never shows a
         confident zero: conversations answered before we started stamping <code>answeredAt</code> are counted separately
@@ -90,6 +98,11 @@
   <!-- AHShared is the authenticated fetch (it merges secretHeaders). Loaded for
        fetchJSON/esc/relTime rather than duplicating them here. -->
   <script src="/modules/company/js/analytics-hub-shared.js"></script>
+  <!-- AgentEngine owns approveAction / rejectAction. Approving a draft here
+       calls the same functions the Actions page calls; there is no second
+       approval path and no execute call (api/actionsScheduler posts approved
+       replies within five minutes). -->
+  <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/engagement-page.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>

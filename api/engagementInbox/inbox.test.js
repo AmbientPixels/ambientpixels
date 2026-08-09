@@ -280,6 +280,71 @@ test('an unauthenticated caller gets 403, not the conversations', async () => {
   assert.strictEqual(context.res.status, 403);
 });
 
+// ── The drafted reply, in context (Phase 2) ─────────────────────────────
+//
+// The loop used to be: see the reply → click Draft → wait for the heartbeat →
+// go to the Actions page → find it among unrelated action types → approve. For
+// the decision to happen next to the comment it answers, the row has to carry
+// the draft and its quality-gate verdict.
+
+function replyAction(o) {
+  return Object.assign({
+    id: 'act_1',
+    type: 'social_post.reply',
+    _parentTaskId: 'task_1',
+    platform: 'bluesky',
+    created_at: new Date(NOW - 3600e3).toISOString(),
+    payload: { text: 'Thanks for reading it. The date question is the useful half.' },
+    approval: { status: 'pending' },
+    qualityGate: { pass: true, confidence: 95, issues: [] }
+  }, o);
+}
+
+function draftRow(actionOverrides, entryOverrides) {
+  const e = entry(Object.assign({ status: 'task_created', taskId: 'task_1' }, entryOverrides));
+  const byTask = { task_1: replyAction(actionOverrides) };
+  return replyRows([e], SINCE, 50, {}, {}, byTask)[0];
+}
+
+test('an awaiting-approval row carries the draft it is waiting on', () => {
+  const r = draftRow();
+  assert.strictEqual(r.draft_state, 'awaiting_approval');
+  assert.ok(r.draft, 'no draft on the row — the decision cannot happen here');
+  assert.strictEqual(r.draft.action_id, 'act_1');
+  assert.strictEqual(r.draft.text, 'Thanks for reading it. The date question is the useful half.');
+  assert.strictEqual(r.draft.approval_status, 'pending');
+});
+
+test('the quality-gate verdict travels with the draft', () => {
+  const r = draftRow({ qualityGate: { pass: false, confidence: 40, issues: ['fabricatedUrl'] } });
+  assert.strictEqual(r.draft.quality_gate.pass, false);
+  assert.deepStrictEqual(r.draft.quality_gate.issues, ['fabricatedUrl']);
+  assert.strictEqual(r.draft.quality_gate.confidence, 40);
+});
+
+test('NO verdict is null, never a pass — an unchecked draft must not look checked', () => {
+  // The gate fails open, so an action can reach approval with no verdict at all.
+  // Rendering that as a green tick would tell the CEO a check happened that did
+  // not. Same family as "waiting on your approval" for three cancelled tasks.
+  const r = draftRow({ qualityGate: undefined });
+  assert.strictEqual(r.draft.quality_gate.pass, null,
+    'an absent verdict was reported as ' + JSON.stringify(r.draft.quality_gate.pass));
+});
+
+test('a shipped reply carries the link to what we actually said', () => {
+  const r = draftRow({
+    approval: { status: 'approved' },
+    execution: { status: 'success', receipt: { post_url: 'https://bsky.app/profile/us/post/abc' } }
+  }, { status: 'answered' });
+  assert.strictEqual(r.draft.execution_status, 'success');
+  assert.strictEqual(r.draft.post_url, 'https://bsky.app/profile/us/post/abc');
+});
+
+test('a conversation with no draft says so with null, not an empty draft', () => {
+  const r = replyRows([entry({ status: 'new' })], SINCE, 50)[0];
+  assert.strictEqual(r.draft, null);
+});
+
 // ── Response time (Phase 1b) ────────────────────────────────────────────
 //
 // The only number that says whether we are conversational rather than merely

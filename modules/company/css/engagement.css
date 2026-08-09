@@ -264,6 +264,155 @@
 .ei-draft-btn:hover:not(:disabled) { background: rgba(251,191,36,0.2); }
 .ei-draft-btn:disabled { opacity: 0.5; cursor: default; }
 
+/* ── The drafted reply, in context ───────────────────────────── */
+/* Indented under the comment it answers and tinted blue against the amber of
+   an unanswered row, so "here is what we would say" is visibly OUR side of the
+   exchange rather than more of theirs. */
+.ei-draft {
+  margin: 10px 0 0 11px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-accent-border);
+  border-left-width: 3px;
+  border-radius: 0 var(--c-r-sm) var(--c-r-sm) 0;
+  background: var(--c-accent-dim);
+}
+.ei-draft-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-size: var(--c-text-xs);
+}
+.ei-draft-label { font-weight: 600; color: var(--c-accent); }
+
+.ei-qg {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: var(--c-r-pill);
+  font-size: var(--c-text-xs);
+}
+.ei-qg--done  { background: rgba(52,211,153,0.14); color: var(--c-green); }
+.ei-qg--wait  { background: rgba(251,191,36,0.14); color: var(--c-amber); font-weight: 600; }
+/* "We did not check" is not "we checked and it passed". The gate fails open, so
+   this state is real and must never wear the green tick. */
+.ei-qg--muted { background: var(--c-surface-2); color: var(--c-text-2); }
+
+.ei-draft-text {
+  margin: 9px 0 0;
+  font-size: var(--c-text-base);
+  line-height: var(--c-lh-base);
+  color: var(--c-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ei-draft-meta {
+  margin-top: 5px;
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.ei-draft-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--c-sep);
+  font-size: var(--c-text-xs);
+}
+.ei-draft-note { flex: 1 1 220px; color: var(--c-text-3); line-height: var(--c-lh-tight); }
+.ei-draft-state { display: inline-flex; align-items: center; gap: 5px; color: var(--c-text-2); }
+.ei-draft-state--done { color: var(--c-green); }
+.ei-draft-state--pending { color: var(--c-blue); }
+.ei-draft-state--fail { color: var(--c-red); }
+
+.ei-btn {
+  font-family: inherit;
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: var(--c-r-pill);
+  border: 1px solid var(--c-sep-strong);
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ei-btn:hover:not(:disabled) { background: var(--c-surface-3); color: var(--c-text); }
+.ei-btn:disabled { opacity: 0.45; cursor: default; }
+.ei-btn--approve {
+  border-color: rgba(52,211,153,0.4);
+  background: rgba(52,211,153,0.12);
+  color: var(--c-green);
+}
+.ei-btn--approve:hover:not(:disabled) { background: rgba(52,211,153,0.22); color: var(--c-green); }
+.ei-btn--reject { border-color: rgba(239,68,68,0.3); color: var(--c-red); background: transparent; }
+.ei-btn--reject:hover:not(:disabled) { background: rgba(239,68,68,0.12); color: var(--c-red); }
+
+/* ── Full thread ─────────────────────────────────────────────── */
+.ei-thread { margin-top: 8px; }
+.ei-thread-toggle {
+  font-family: inherit;
+  font-size: var(--c-text-xs);
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: var(--c-text-3);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ei-thread-toggle:hover { color: var(--c-text-2); }
+.ei-thread-note {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  line-height: var(--c-lh-base);
+  margin: 6px 0;
+}
+.ei-thread-note--error { color: var(--c-red); }
+
+.ei-turns {
+  margin: 8px 0;
+  border-left: 2px solid var(--c-sep);
+  padding-left: 11px;
+}
+.ei-turn { padding: 6px 0; }
+.ei-turn + .ei-turn { border-top: 1px solid var(--c-sep); }
+.ei-turn-head {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: var(--c-text-xs);
+}
+.ei-turn-author { font-weight: 600; color: var(--c-text-2); }
+.ei-turn--ours .ei-turn-author { color: var(--c-accent); }
+/* The turn this row is actually about, so the eye lands on it in a long thread. */
+.ei-turn--anchor { background: var(--c-surface-2); border-radius: var(--c-r-sm); padding: 6px 9px; }
+.ei-turn-tag {
+  font-size: var(--c-text-xs);
+  padding: 0 7px;
+  border-radius: var(--c-r-pill);
+  background: var(--c-accent-dim);
+  color: var(--c-accent);
+}
+.ei-turn-text {
+  font-size: var(--c-text-base);
+  line-height: var(--c-lh-base);
+  color: var(--c-text-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 3px;
+}
+.ei-turn--ours .ei-turn-text { color: var(--c-text); }
+
 /* ── Reactions ───────────────────────────────────────────────── */
 .ei-rx-controls {
   display: flex;

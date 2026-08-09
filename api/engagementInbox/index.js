@@ -156,6 +156,44 @@ function draftStateFor(entry, taskById, replyActionByTask) {
 }
 
 /**
+ * Pure. The drafted reply attached to a conversation, so the decision can
+ * happen next to the comment it answers.
+ *
+ * The loop this replaces: see the reply here → click Draft → wait for the
+ * heartbeat → go to the Actions page → find it among unrelated action types →
+ * approve. Nothing about the approval itself moves; js/agent-engine.js still
+ * owns that, and actionsScheduler still posts it. This only carries what a
+ * human needs in order to decide.
+ *
+ * quality_gate.pass is null when the action has no verdict at all. The gate
+ * fails open, so a draft CAN reach approval unchecked, and drawing that as a
+ * green tick would report a check that never happened — the same family of bug
+ * as "waiting on your approval" for three cancelled tasks.
+ */
+function buildDraft(action) {
+  if (!action) return null;
+  const qg = action.qualityGate || (action.payload && action.payload.qualityGate) || null;
+  const exec = action.execution || {};
+  return {
+    action_id: action.id || null,
+    text: (action.payload && action.payload.text) || '',
+    approval_status: (action.approval && action.approval.status) || 'pending',
+    execution_status: exec.status || action.execution_status || null,
+    quality_gate: {
+      // null, not false: "we did not check" and "we checked and it failed" are
+      // different sentences and only one of them is about the draft.
+      pass: qg && typeof qg.pass === 'boolean' ? qg.pass : null,
+      confidence: qg && Number.isFinite(qg.confidence) ? qg.confidence : null,
+      issues: (qg && Array.isArray(qg.issues)) ? qg.issues : []
+    },
+    // Where the reply actually landed, so an answered row links to what we said
+    // rather than only asserting that we said something.
+    post_url: (exec.receipt && exec.receipt.post_url) || null,
+    created_at: action.created_at || null
+  };
+}
+
+/**
  * Pure. engagementReplies entries → inbox rows, newest first.
  * `status` is passed through untouched: 'new' means nobody has drafted anything
  * and it is the only status that represents an unanswered human.
@@ -197,6 +235,9 @@ function buildReplyRows(store, sinceMs, limit, blockedById, taskById, replyActio
         draft_state: e.status === 'task_created'
           ? draftStateFor(e, taskById, replyActionByTask)
           : null,
+        // The reply Scribe wrote, if one exists yet. Null means no action has
+        // been created — which is not the same as an empty draft.
+        draft: buildDraft(e.taskId ? replyActionByTask[e.taskId] : null),
         manual_draft: e.manualDraft === true || undefined,
         link: blueskyUrl(e.replyUri),
         our_post_link: blueskyUrl(e.ourPostAtUri)

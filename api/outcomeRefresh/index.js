@@ -26,6 +26,7 @@
 const https = require('https');
 const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
+const blueskyThread = require('../_utils/blueskyThread');
 
 const MAX_AGE_DAYS = 30;          // stop refreshing after 30 days
 const PER_CYCLE_CAP = 50;          // max fetches per cron run
@@ -126,21 +127,20 @@ async function fetchXMetrics(postId) {
 // depth=1 (was 0): same free endpoint also returns thread.replies[] — the
 // Engagement Reply Loop harvests those. Metrics extraction unchanged; the
 // thread rides along on _thread for the harvest pass.
+//
+// The fetch itself moved to _utils/blueskyThread.js on 2026-08-09 when the
+// Engagement Inbox needed the same thread at greater depth to show a whole
+// exchange. Same URL, same 10s timeout, same throw-on-non-200 — one copy.
 async function fetchBlueskyMetrics(atUri) {
-  if (!atUri) throw { code: 'BSKY_NO_URI', message: 'missing at_uri' };
-  const url = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=' + encodeURIComponent(atUri) + '&depth=1';
-  const res = await httpGet(url, { 'Accept': 'application/json' });
-  if (res.status !== 200 || !res.body || !res.body.thread || !res.body.thread.post) {
-    throw { code: 'BSKY_API_ERROR_' + res.status, message: String(res.raw).substring(0, 200) };
-  }
-  const p = res.body.thread.post;
+  const thread = await blueskyThread.fetchThread(atUri, { depth: 1, httpGet: httpGet });
+  const p = thread.post;
   return {
     likes: p.likeCount || 0,
     comments: p.replyCount || 0,
     reposts: (p.repostCount || 0) + (p.quoteCount || 0),
     views: 0,  // Bluesky does not expose view count publicly
     clicks: 0,
-    _thread: res.body.thread
+    _thread: thread
   };
 }
 

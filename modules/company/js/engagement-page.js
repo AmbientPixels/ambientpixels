@@ -101,6 +101,11 @@
   var _query = '';
   var _rxPlatform = 'all';
   var _focusId = '';
+  // AgentEngine reads actions out of localStorage, and the actions this page
+  // decides on were created server-side by the heartbeat. Until
+  // CompanyStore.syncFromServer() has run they are simply not in this browser,
+  // and approveAction would find nothing and quietly do nothing.
+  var _synced = false;
 
   // ── Classification ─────────────────────────────────────────────
   /**
@@ -313,12 +318,104 @@
         '</div>';
     }
 
+    html += '<div class="ei-thread" data-thread-for="' + esc(r.id) + '">' + renderThread(r.id) + '</div>';
+
+    if (r.draft) html += renderDraft(r);
+
     var deadDraft = r.status === 'task_created'
       && (r.draft_state === 'task_canceled' || r.draft_state === 'task_missing');
     if (r.status === 'new' || deadDraft) html += renderAction(r, deadDraft);
 
     html += '</article>';
     return html;
+  }
+
+  // ── The drafted reply, in context ──────────────────────────────
+  //
+  // The point of the whole page. The old loop was: see the reply here → click
+  // Draft → wait for the heartbeat → go to the Actions page → find it among
+  // unrelated action types → approve. Nothing about the approval itself has
+  // moved: AE.approveAction in js/agent-engine.js still owns the decision, the
+  // audit log and the state write, and api/actionsScheduler still posts it.
+  // Only the place the human stands has changed.
+
+  var QG = {
+    pass: { cls: 'done', icon: 'fa-circle-check', label: 'quality gate passed' },
+    fail: { cls: 'wait', icon: 'fa-triangle-exclamation', label: 'quality gate flagged this' },
+    // NOT a pass. The gate fails open, so a draft can reach approval unchecked,
+    // and a green tick would report a check that never happened.
+    none: { cls: 'muted', icon: 'fa-circle-question', label: 'no quality-gate verdict recorded' }
+  };
+
+  function renderQualityGate(qg) {
+    var meta = qg.pass === true ? QG.pass : qg.pass === false ? QG.fail : QG.none;
+    var text = meta.label;
+    if (qg.pass !== null && qg.confidence != null) text += ' · ' + qg.confidence + '% confidence';
+    if (qg.pass === false && qg.issues.length) text += ' · ' + qg.issues.join(', ');
+    return '<span class="ei-qg ei-qg--' + meta.cls + '"><i class="fas ' + meta.icon + '"></i> ' +
+      esc(text) + '</span>';
+  }
+
+  var CHAR_LIMIT = { bluesky: 300, x: 280, linkedin: 3000 };
+
+  function renderDraft(r) {
+    var d = r.draft;
+    var status = d.approval_status;
+    var decidable = status === 'pending' || status === 'revision_requested';
+    var limit = CHAR_LIMIT[r.platform] || 300;
+
+    var html = '<div class="ei-draft" data-draft-action="' + esc(d.action_id) + '">';
+    html += '<div class="ei-draft-head">';
+    html += '<span class="ei-draft-label"><i class="fas fa-pen-nib"></i> Our draft reply</span>';
+    html += renderQualityGate(d.quality_gate);
+    html += '</div>';
+    html += '<blockquote class="ei-draft-text">' + esc(d.text) + '</blockquote>';
+    html += '<div class="ei-draft-meta">' + d.text.length + '/' + limit + ' characters</div>';
+
+    if (decidable) {
+      // Disabled until the action store is in this browser, and SAYING why. A
+      // button that looks live and does nothing is worse than one that is
+      // visibly not ready yet.
+      var ready = decisionsReady();
+      var dis = ready ? '' : ' disabled';
+      html += '<div class="ei-draft-actions">' +
+        '<span class="ei-draft-note">' + (ready
+          ? 'Approving sends it. api/actionsScheduler posts approved replies on its next run, within five minutes.'
+          : 'Loading the action store — decisions available in a moment.') + '</span>' +
+        '<button type="button" class="ei-btn ei-btn--reject" data-reject="' + esc(d.action_id) + '"' + dis + '>Reject</button>' +
+        '<button type="button" class="ei-btn ei-btn--approve" data-approve="' + esc(d.action_id) + '"' + dis + '>' +
+        '<i class="fas fa-check"></i> Approve &amp; send</button>' +
+        '</div>';
+    } else {
+      html += '<div class="ei-draft-actions">' + renderDecided(d) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // A decision already made. Each branch is a different sentence on purpose:
+  // "approved" and "posted" are not the same claim, and neither is "approved"
+  // and "approved but the send failed".
+  function renderDecided(d) {
+    if (d.execution_status === 'success') {
+      return '<span class="ei-draft-state ei-draft-state--done"><i class="fas fa-paper-plane"></i> Sent</span>' +
+        (d.post_url ? '<a class="ei-link" href="' + esc(d.post_url) + '" target="_blank" rel="noopener" ' +
+          'title="Read what we actually said"><i class="fas fa-arrow-up-right-from-square"></i></a>' : '');
+    }
+    if (d.execution_status === 'failed') {
+      return '<span class="ei-draft-state ei-draft-state--fail"><i class="fas fa-circle-xmark"></i> ' +
+        (d.approval_status === 'rejected' || d.approval_status === 'cancelled'
+          ? 'Rejected — nothing was sent'
+          : 'Approved, but sending failed. The Actions page has the error.') + '</span>';
+    }
+    if (d.approval_status === 'approved') {
+      return '<span class="ei-draft-state ei-draft-state--pending"><i class="fas fa-clock"></i> ' +
+        'Approved — the scheduler sends it within five minutes.</span>';
+    }
+    if (d.approval_status === 'rejected' || d.approval_status === 'cancelled') {
+      return '<span class="ei-draft-state ei-draft-state--fail"><i class="fas fa-ban"></i> Rejected — nothing was sent</span>';
+    }
+    return '<span class="ei-draft-state">' + esc(d.approval_status) + '</span>';
   }
 
   /**
@@ -366,6 +463,125 @@
       '<button type="button" class="ei-draft-btn" data-draft-id="' + esc(r.id) + '">' +
       '<i class="fas fa-pen-nib"></i> Draft a reply</button>' +
       '</div>';
+  }
+
+  // ── Full thread, on demand ─────────────────────────────────────
+  //
+  // A row shows our post and their reply. Judging a REPLY to them needs the
+  // whole exchange, especially now the manual button allows a second turn that
+  // has to sound like it heard the first.
+  //
+  // ON DEMAND AND CACHED. Nine conversations would be nine network calls to
+  // render a list nobody has asked to expand. `_threads` holds one entry per
+  // row for the life of the page, so re-rendering on a segment switch never
+  // re-hits the API.
+  var _threads = {}; // id → { state: 'loading'|'ready'|'error', open: bool, turns, ... }
+
+  function renderThread(id) {
+    var t = _threads[id];
+    if (!t || !t.open) {
+      return '<button type="button" class="ei-thread-toggle" data-thread="' + esc(id) + '">' +
+        '<i class="fas fa-comments"></i> Read the full thread</button>';
+    }
+    if (t.state === 'loading') {
+      return '<div class="ei-thread-note"><i class="fas fa-circle-notch fa-spin"></i> Reading the thread&hellip;</div>';
+    }
+    if (t.state === 'error') {
+      // Never an empty thread on failure: "nobody said anything" is a lie when
+      // the truth is that Bluesky returned an error.
+      return '<div class="ei-thread-note ei-thread-note--error">' +
+        '<i class="fas fa-triangle-exclamation"></i> Could not read the thread: ' + esc(t.error) +
+        '</div><button type="button" class="ei-thread-toggle" data-thread="' + esc(id) + '">Try again</button>';
+    }
+
+    var turns = t.turns || [];
+    if (!turns.length) {
+      return '<div class="ei-thread-note">Bluesky returned this thread with no readable posts &mdash; ' +
+        'usually deleted or blocked.</div>';
+    }
+
+    var html = '<div class="ei-turns">';
+    turns.forEach(function (turn) {
+      var cls = 'ei-turn' + (turn.is_ours ? ' ei-turn--ours' : '') +
+        (turn.is_the_reply ? ' ei-turn--anchor' : '');
+      html += '<div class="' + cls + '">' +
+        '<div class="ei-turn-head"><span class="ei-turn-author">' +
+        (turn.is_ours ? 'us' : '@' + esc(turn.author)) + '</span>' +
+        '<span class="ei-when">' + esc(relTime(turn.at)) + '</span>' +
+        (turn.is_the_reply ? '<span class="ei-turn-tag">the comment above</span>' : '') +
+        '</div>' +
+        '<div class="ei-turn-text">' + esc(turn.text) + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+
+    if (t.truncated) {
+      html += '<div class="ei-thread-note">Only the first ' + turns.length +
+        ' posts are shown &mdash; this thread is longer.</div>';
+    }
+    // The row exists because of one specific comment. If it is not in the
+    // thread it was deleted or hidden, and a reader hunting for it deserves to
+    // be told rather than left doubting the panel.
+    if (t.replyPresent === false) {
+      html += '<div class="ei-thread-note">The comment this row is about is not in the thread any more &mdash; ' +
+        'deleted, or hidden from us.</div>';
+    }
+    if (t.rootedAt && t.rootedAt !== 'thread_root') {
+      html += '<div class="ei-thread-note">This entry predates thread-root capture, so the thread starts at ' +
+        (t.rootedAt === 'our_post' ? 'our post' : 'their reply') +
+        ' rather than the true root. Anything said before that is not shown.</div>';
+    }
+    html += '<button type="button" class="ei-thread-toggle" data-thread-close="' + esc(id) + '">Hide the thread</button>';
+    return html;
+  }
+
+  function repaintThread(id) {
+    var host = document.querySelector('[data-thread-for="' + id + '"]');
+    if (!host) return;
+    host.innerHTML = renderThread(id);
+    bindThreadButtons(host);
+  }
+
+  function loadThread(id) {
+    _threads[id] = { state: 'loading', open: true };
+    repaintThread(id);
+    S.fetchJSON('/api/engagement-thread?id=' + encodeURIComponent(id))
+      .then(function (data) {
+        _threads[id] = {
+          state: 'ready',
+          open: true,
+          turns: data.turns || [],
+          truncated: !!data.truncated,
+          replyPresent: data.reply_present,
+          rootedAt: data.rooted_at
+        };
+        repaintThread(id);
+      })
+      .catch(function (err) {
+        _threads[id] = { state: 'error', open: true, error: String((err && err.message) || err) };
+        repaintThread(id);
+      });
+  }
+
+  function bindThreadButtons(root) {
+    var open = root.querySelectorAll('[data-thread]');
+    for (var i = 0; i < open.length; i++) {
+      open[i].addEventListener('click', function (ev) {
+        var id = ev.currentTarget.getAttribute('data-thread');
+        var cached = _threads[id];
+        // Re-opening costs nothing: the turns are still here.
+        if (cached && cached.state === 'ready') { cached.open = true; repaintThread(id); }
+        else loadThread(id);
+      });
+    }
+    var close = root.querySelectorAll('[data-thread-close]');
+    for (var j = 0; j < close.length; j++) {
+      close[j].addEventListener('click', function (ev) {
+        var id = ev.currentTarget.getAttribute('data-thread-close');
+        if (_threads[id]) _threads[id].open = false;
+        repaintThread(id);
+      });
+    }
   }
 
   /**
@@ -422,7 +638,130 @@
     html += rows.map(renderReply).join('');
     el.innerHTML = html;
     bindDraftButtons(el);
+    bindThreadButtons(el);
+    bindDecisionButtons(el);
     applyFocus();
+  }
+
+  // ── Approve / Reject ───────────────────────────────────────────
+  //
+  // THE APPROVAL PATH IS NOT REIMPLEMENTED HERE. AE.approveAction and
+  // AE.rejectAction in js/agent-engine.js own the decision, the approval-queue
+  // entry, the governance log and the state write — the same functions the
+  // Actions page calls. This file supplies a button and a place to stand.
+  //
+  // There is deliberately no execute call. api/actionsScheduler runs every five
+  // minutes and posts approved social_post.reply actions immediately (they never
+  // carry payload.scheduled_for, and it has a special case saying so). A second
+  // transport here would be a second way for a reply to go out.
+  //
+  // AE reads and writes localStorage, which is why init() waits for
+  // CompanyStore.syncFromServer() before enabling any of this: without the sync
+  // the actions created by the heartbeat are not in this browser, approveAction
+  // finds nothing, and the button would appear to do nothing at all.
+  function decisionsReady() {
+    return typeof AgentEngine !== 'undefined' && !!AgentEngine.approveAction && _synced;
+  }
+
+  function draftRow(actionId) {
+    return document.querySelector('[data-draft-action="' + actionId + '"]');
+  }
+
+  function decisionNotice(actionId, tone, message) {
+    var host = draftRow(actionId);
+    if (!host) return;
+    var actions = host.querySelector('.ei-draft-actions');
+    if (!actions) return;
+    actions.innerHTML = '<span class="ei-draft-state ei-draft-state--' + tone + '">' + esc(message) + '</span>';
+  }
+
+  /**
+   * The server write is fire-and-forget (CompanyStore.setStateSync), so a
+   * failure would otherwise leave the page saying "approved" while nothing
+   * reached the server and no reply was ever sent. failCount is the only signal
+   * available, so compare it either side of the decision and say so when it moves.
+   */
+  function verifyPersisted(actionId, before, successMessage) {
+    setTimeout(function () {
+      var after = 0, lastError = '';
+      try {
+        var st = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteStatus)
+          ? CompanyStore.getWriteStatus() : null;
+        if (st) { after = st.failCount || 0; lastError = st.lastError || ''; }
+      } catch (e) { /* nothing to check against */ }
+      if (after > before) {
+        decisionNotice(actionId, 'fail',
+          'Saved in this browser but the server write FAILED (' + (lastError || 'unknown') +
+          '). Nothing will be sent. Check the Actions page.');
+      } else {
+        decisionNotice(actionId, 'done', successMessage);
+      }
+    }, 1500);
+  }
+
+  function writeFailCount() {
+    try {
+      var st = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteStatus)
+        ? CompanyStore.getWriteStatus() : null;
+      return (st && st.failCount) || 0;
+    } catch (e) { return 0; }
+  }
+
+  function bindDecisionButtons(root) {
+    var approve = root.querySelectorAll('[data-approve]');
+    for (var i = 0; i < approve.length; i++) {
+      approve[i].addEventListener('click', function (ev) {
+        var id = ev.currentTarget.getAttribute('data-approve');
+        if (!decisionsReady()) {
+          decisionNotice(id, 'fail', 'Not connected to the action store yet. Reload, or use the Actions page.');
+          return;
+        }
+        var before = writeFailCount();
+        decisionNotice(id, 'pending', 'Approving…');
+        var result = AgentEngine.approveAction(id, null, null);
+        if (!result) {
+          // approveAction only acts on pending / revision_requested. A null
+          // means somebody already decided this one somewhere else.
+          decisionNotice(id, 'fail', 'Already decided elsewhere, or not in this browser. Open the Actions page.');
+          return;
+        }
+        markDecided(id, 'approved');
+        verifyPersisted(id, before, 'Approved. The scheduler sends it within five minutes.');
+      });
+    }
+
+    var reject = root.querySelectorAll('[data-reject]');
+    for (var j = 0; j < reject.length; j++) {
+      reject[j].addEventListener('click', function (ev) {
+        var id = ev.currentTarget.getAttribute('data-reject');
+        // Rejecting cascades: agent-engine closes the parent task too. Worth a
+        // confirm, the same as the Actions page.
+        if (!window.confirm('Reject this draft? Nothing is sent and the drafting task is closed.')) return;
+        if (!decisionsReady()) {
+          decisionNotice(id, 'fail', 'Not connected to the action store yet. Reload, or use the Actions page.');
+          return;
+        }
+        var before = writeFailCount();
+        decisionNotice(id, 'pending', 'Rejecting…');
+        var result = AgentEngine.rejectAction(id, 'Rejected from the Engagement Inbox');
+        if (!result) {
+          decisionNotice(id, 'fail', 'Already decided elsewhere, or not in this browser. Open the Actions page.');
+          return;
+        }
+        markDecided(id, 'rejected');
+        verifyPersisted(id, before, 'Rejected. Nothing was sent.');
+      });
+    }
+  }
+
+  // Keep the model in step with the decision, so a segment switch re-renders
+  // the truth rather than offering the buttons again.
+  function markDecided(actionId, status) {
+    ((_data && _data.replies) || []).forEach(function (r) {
+      if (!r.draft || r.draft.action_id !== actionId) return;
+      r.draft.approval_status = status;
+      if (status === 'rejected') r.draft.execution_status = 'failed';
+    });
   }
 
   // ── Reactions ──────────────────────────────────────────────────
@@ -691,6 +1030,30 @@
       });
   }
 
+  /**
+   * Pull the action store into this browser so Approve / Reject can work.
+   *
+   * Same two calls the Actions page makes on load. If it fails the page still
+   * renders every conversation — reading who is waiting is useful without the
+   * ability to decide — and the decision buttons say why they cannot act
+   * instead of appearing to work.
+   */
+  function syncActions() {
+    if (typeof CompanyStore === 'undefined' || !CompanyStore.init) return;
+    CompanyStore.init()
+      .then(function () { return CompanyStore.syncFromServer(); })
+      .then(function () {
+        _synced = true;
+        // Re-render: rows drawn before the sync carry buttons that would have
+        // found nothing, and the banner above them is now wrong.
+        renderConversations();
+      })
+      .catch(function (err) {
+        console.warn('[engagement-page] action sync failed — decisions disabled:', err);
+        renderConversations();
+      });
+  }
+
   function init() {
     var search = document.getElementById('ei-search');
     if (search) {
@@ -708,6 +1071,7 @@
       renderConversations();
     });
     load();
+    syncActions();
   }
 
   if (document.readyState === 'loading') {
