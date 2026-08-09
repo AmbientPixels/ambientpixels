@@ -4855,6 +4855,116 @@ Write the full deliverable first, then the structured JSON block.`;
       context.log('[Heartbeat]', agentId, 'content package created:', cpPackageId, cpSuccessCount, 'ok,', cpFailedCount, 'failed, duration:', cpDurationMs + 'ms');
       result.taskUpdates.push({ action: 'content-package-created', packageId: cpPackageId, agentId: agentId, taskId: action.taskId || null });
 
+    } else if (action.type === 'generate-video' && action.video) {
+      // Character video REQUEST. Note what this block does not do: generate anything.
+      //
+      // generate-image runs inline right below because an image costs $0.039. A clip costs
+      // dollars, so this only queues a request for CEO approval, and approving it is what
+      // spends the money. The generation itself lives in
+      // actionsExecute/executors/content/generateVideo.js.
+      //
+      // Required inside the handler rather than at module scope on purpose: a problem in
+      // videoEngine must not be able to stop the heartbeat from loading.
+      const VIDEO_ALLOWED_AGENTS = ['pixel'];
+      if (VIDEO_ALLOWED_AGENTS.indexOf(agentId) === -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED generate-video (pixel only)');
+        continue;
+      }
+
+      const _vid = action.video || {};
+      const _vPortrait = String(_vid.portrait || '').trim();
+      const _vSays = String(_vid.says || '').trim();
+      if (!_vPortrait || !_vSays) {
+        context.log('[Heartbeat] pixel generate-video SKIPPED: portrait and says are both required');
+        continue;
+      }
+
+      let _videoEngine;
+      try {
+        _videoEngine = require('../_lib/contentEngine/videoEngine');
+        // Fails fast on traversal, URLs, and portraits that do not exist, so a bad request
+        // never reaches the approval queue and never wastes a CEO decision.
+        _videoEngine.resolvePortrait(_vPortrait);
+        _videoEngine.buildVideoPrompt({ says: _vSays, motion: _vid.motion, tone: _vid.tone });
+      } catch (_vErr) {
+        context.log('[Heartbeat] pixel generate-video REJECTED:', _vErr.message);
+        result.taskUpdates.push({ action: 'comment', taskId: action.taskId || null, agentId: 'system',
+          comment: '**Video request rejected.** ' + _vErr.message });
+        continue;
+      }
+
+      const _vNow = new Date().toISOString();
+      const _vId = 'act_' + Date.now() + '_vid_' + Math.random().toString(36).substr(2, 5);
+      try {
+        const _vExisting = (await storage.getState('actions')) || [];
+        // One pending video request at a time, per task. Approvals are a scarce human
+        // resource; a queue full of near-identical clip requests wastes them.
+        const _vDupe = _vExisting.some(function (a) {
+          return a && a.type === 'generate_video' && a.approval && a.approval.status === 'pending' &&
+            (a._parentTaskId === (action.taskId || null) || ((a.payload && a.payload.video && a.payload.video.says) === _vSays));
+        });
+        if (_vDupe) {
+          context.log('[Heartbeat] pixel generate-video SKIPPED: an equivalent request is already awaiting approval');
+          continue;
+        }
+
+        // Cap the QUEUE too, not just generation. Queueing more than a day can produce just
+        // moves the pile-up in front of the CEO instead of in front of the API.
+        const _vTodayStart = new Date(); _vTodayStart.setUTCHours(0, 0, 0, 0);
+        const _vTodayCount = _vExisting.filter(function (a) {
+          return a && a.type === 'generate_video' && new Date(a.created_at) >= _vTodayStart;
+        }).length;
+        if (_vTodayCount >= _videoEngine.MAX_CLIPS_PER_DAY) {
+          context.log('[Heartbeat] pixel generate-video SKIPPED: daily request cap reached (' + _vTodayCount + '/' + _videoEngine.MAX_CLIPS_PER_DAY + ')');
+          continue;
+        }
+
+        const _vAction = {
+          id: _vId,
+          type: 'generate_video',
+          platform: 'character',
+          created_at: _vNow,
+          created_by: agentId,
+          payload: { video: { portrait: _vPortrait, says: _vSays, motion: _vid.motion || null, tone: _vid.tone || null } },
+          approval: { status: 'pending' },
+          execution: { status: 'pending' },
+          requires_approval: true,
+          // A real number, not 0: this is what the CEO is agreeing to spend.
+          budget_impact: _videoEngine.VIDEO_COST_PER_CLIP,
+          risk_level: 'medium',
+          brand_impact: 'medium',
+          classification: 'advisory',
+          _parentTaskId: action.taskId || null,
+          source: 'heartbeat'
+        };
+
+        await storage.mutateState('actions', function (_fresh) {
+          const _arr = Array.isArray(_fresh) ? _fresh : [];
+          if (_arr.some(function (a) { return a && a.id === _vId; })) return undefined;
+          _arr.push(_vAction);
+          return _arr;
+        });
+
+        await storage.mutateState('approvalQueue', function (_fresh) {
+          const _q = Array.isArray(_fresh) ? _fresh : [];
+          const _qId = 'aq-' + _vId;
+          if (_q.some(function (e) { return e && e.id === _qId; })) return undefined;
+          _q.push({
+            id: _qId, kind: 'generate.video', type: 'generate.video', action_id: _vId,
+            title: 'Video: ' + _vPortrait.replace(/\.(png|webp|jpg|jpeg)$/i, '') + ' speaks',
+            summary: '"' + _vSays.substring(0, 180) + '"  (~$' + _videoEngine.VIDEO_COST_PER_CLIP + ')',
+            task_id: action.taskId || null, originAgent: agentId, status: 'pending', createdAt: _vNow
+          });
+          return _q;
+        });
+
+        context.log('[Heartbeat] pixel generate-video QUEUED for approval:', _vId, 'portrait:', _vPortrait);
+        result.taskUpdates.push({ action: 'comment', taskId: action.taskId || null, agentId: 'system',
+          comment: '**Video request submitted for CEO approval** (id: `' + _vId + '`). Nothing is generated and nothing is charged until it is approved. Estimated cost ~$' + _videoEngine.VIDEO_COST_PER_CLIP + '.' });
+      } catch (_vQueueErr) {
+        context.log.warn('[Heartbeat] pixel generate-video queue failed (non-fatal):', _vQueueErr.message);
+      }
+
     } else if (action.type === 'generate-image' && action.image) {
       // Single image generation for blog headers, inline illustrations, social media assets
       // Allowed agents: echo, pixel, scribe (scribe can generate blog headers)
