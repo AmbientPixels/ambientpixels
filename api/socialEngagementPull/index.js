@@ -176,6 +176,16 @@ function _buildSnapshot(base, mode, metrics, errMeta) {
     post_url: base.post_url || '',
     action_id: base.action_id,
     agent_id: base.agent_id || '',
+    // What the post SAID, stamped at capture time.
+    //
+    // The dashboard used to resolve this by looking the action up by id at read
+    // time, but `actions` is a trimmed rolling store (~a week) while snapshots
+    // keep 60 days and this cron re-polls for 30. So every post older than the
+    // trim showed as a blank row with a number next to it — a leaderboard of
+    // nothing. Carried forward from the previous snapshot when the action is
+    // already gone (see _priorTextByPost), so a post keeps its text for as long
+    // as we keep measuring it.
+    post_text: base.post_text || '',
     captured_at: _iso(),
     window_hint: 'pull',
     metrics: {
@@ -194,6 +204,25 @@ function _buildSnapshot(base, mode, metrics, errMeta) {
       error_message: errMeta ? errMeta.error_message : null
     }
   };
+}
+
+function _postKey(r) {
+  return String(r.post_platform || '') + '|' + (r.post_id || r.post_url || r.action_id || '');
+}
+
+// Last known text per post, indexed under BOTH the post key and the action id.
+// Bluesky rewrites post_id to the at:// URI once metrics come back, so a lookup
+// keyed only on post_id misses the very rows it just wrote; the action id is
+// stable across that rewrite.
+function _priorTextByPost(snapshots) {
+  const out = {};
+  for (let i = 0; i < (snapshots || []).length; i++) {
+    const s = snapshots[i];
+    if (!s || !s.post_text) continue;
+    out[_postKey(s)] = s.post_text;
+    if (s.action_id) out['action|' + s.action_id] = s.post_text;
+  }
+  return out;
 }
 
 function _extractRecentSuccessPosts(events) {
@@ -233,9 +262,26 @@ module.exports = async function (context) {
     const events = (await storage.getState('socialMetricsEvents')) || [];
     const targets = _extractRecentSuccessPosts(events);
     const snapshots = [];
+
+    // Text sources, in order of preference: the live action (fresh posts), then
+    // whatever we stamped on this post last time (older posts whose action has
+    // been trimmed away). Read once, outside the pull loop.
+    const existingSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    const priorTextByPost = _priorTextByPost(existingSnapshots);
+    const actions = (await storage.getState('actions')) || [];
+    const actionTextMap = {};
+    for (let i = 0; i < actions.length; i++) {
+      const a = actions[i];
+      if (a && a.id && a.payload && a.payload.text) actionTextMap[a.id] = String(a.payload.text).slice(0, 280);
+    }
+
     if (targets.length) {
       for (let i = 0; i < targets.length; i++) {
         const t = targets[i];
+        t.post_text = actionTextMap[t.action_id]
+          || priorTextByPost[_postKey(t)]
+          || priorTextByPost['action|' + t.action_id]
+          || '';
 
         try {
           let metrics = null;
@@ -259,8 +305,7 @@ module.exports = async function (context) {
     }
 
     if (snapshots.length) {
-      const existing = (await storage.getState('socialEngagementSnapshots')) || [];
-      const merged = existing.concat(snapshots);
+      const merged = existingSnapshots.concat(snapshots);
       const trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
       await storage.setState('socialEngagementSnapshots', trimmed);
       context.log('[socialEngagementPull] Appended snapshots:', snapshots.length, 'mode=', mode);
