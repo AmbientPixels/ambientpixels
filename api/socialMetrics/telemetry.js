@@ -1,6 +1,18 @@
 const storage = require('../_utils/companyStorage');
+const { AUTO_PUBLISH } = require('../_shared/socialPlatforms');
 
-const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook', 'instagram'];
+// The question this list answers: "did an executor publish this, so is there an
+// execution outcome worth recording?" That is AUTO_PUBLISH by definition — the
+// platforms an adapter can actually post to. Reddit is correctly absent: it is a
+// manual outbox the CEO posts by hand, so no execution event exists to emit.
+//
+// This was a hand-written copy of the same five names until 2026-08-09. It happened
+// to be correct, which is exactly why it was worth removing: the two silent channel
+// drops that produced _shared/socialPlatforms.js were both a list that looked fine
+// until a platform was added and one copy was missed. A stale copy HERE is the
+// quietest failure of the set — the post publishes, the receipt is written, and only
+// the funnel goes dark, so nothing looks broken while the numbers are wrong.
+const SOCIAL_PLATFORMS = AUTO_PUBLISH;
 const MAX_EVENTS = 10000;
 
 function isSocialAction(action) {
