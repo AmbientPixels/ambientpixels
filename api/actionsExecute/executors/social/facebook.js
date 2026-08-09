@@ -182,13 +182,34 @@ async function checkTokenHealth() {
   }
 }
 
+// FALLBACK ONLY — ask Facebook for the real permalink instead where possible.
+//
+// Pages created under the New Pages Experience publish under an actor id that is NOT
+// the Page id the API accepts. Verified on the first live post: we post to
+// 1250918731441250 and Facebook's own permalink_url came back rooted at
+// 122105341017424861. A URL built from the Page id is therefore a guess, and post_url
+// feeds receipts, attribution and the dashboard, so a wrong one breaks link tracking
+// everywhere it lands.
 function _permalink(pageId, returnedId) {
   if (!returnedId) return '';
   var parts = String(returnedId).split('_');
-  // Graph returns "{page-id}_{post-id}". The two-part permalink is the shareable one;
-  // fall back to the composite id if the shape ever changes.
   if (parts.length === 2 && parts[1]) return 'https://www.facebook.com/' + pageId + '/posts/' + parts[1];
   return 'https://www.facebook.com/' + returnedId;
+}
+
+/**
+ * Ask Facebook for the canonical permalink. Best-effort by design: the post is ALREADY
+ * published by the time this runs, so a failure here must never turn a successful
+ * publish into a thrown error. Returns '' and lets the caller fall back.
+ */
+async function _fetchPermalink(postId, token) {
+  try {
+    var res = await _request('GET', '/' + postId, { fields: 'permalink_url', access_token: token });
+    return (res && res.permalink_url) || '';
+  } catch (e) {
+    _log('permalink-read-failed', { post_id: postId, error: e.message || String(e) });
+    return '';
+  }
 }
 
 /**
@@ -248,13 +269,16 @@ async function publishToFacebook(action) {
 
   // /photos returns { id, post_id }; /feed returns { id }.
   var postId = result.post_id || result.id || '';
+  // Authoritative permalink, with the constructed one only as a fallback.
+  var canonical = await _fetchPermalink(postId, creds.pageAccessToken);
   var receipt = {
     platform: 'facebook',
     page_id: creds.pageId,
     handle: 'AmbientPixels',
     post_id: postId,
     photo_id: usePhoto ? (result.id || '') : '',
-    post_url: _permalink(creds.pageId, postId),
+    post_url: canonical || _permalink(creds.pageId, postId),
+    post_url_source: canonical ? 'graph' : 'constructed',
     timestamp: new Date().toISOString(),
     content_hash: hash,
     api: usePhoto ? 'photos' : 'feed',
@@ -334,6 +358,7 @@ module.exports = {
   fetchPageStats,
   contentHash,
   _permalink,
+  _fetchPermalink,
   _describeError,
   _resetCredsCache,
   GRAPH_VERSION,

@@ -50,6 +50,7 @@ t('empty id yields empty string, not a link to the page root', () => {
   assert.strictEqual(fb._permalink(PAGE, ''), '');
 });
 
+
 // ── error flattening ──
 // A governance log entry reading "HTTP 400" is unactionable; the subcode and
 // fbtrace_id are what Meta support and the docs are keyed on.
@@ -83,6 +84,16 @@ t('missing token and missing page id are reported distinctly', () => {
 
 (async () => {
   fb._resetCredsCache();
+
+  // The first live post proved _permalink is a GUESS: we published to page
+  // 1250918731441250 and Facebook's own permalink_url came back rooted at actor id
+  // 122105341017424861 — New Pages publish under an actor id that is not the Page id.
+  // So the constructed URL is fallback-only, and a permalink read that fails must never
+  // break an already-published post.
+  await ta('permalink fetch failure resolves to empty rather than throwing', async () => {
+    const out = await fb._fetchPermalink('bogus_id', 'bad-token');
+    assert.strictEqual(out, '', 'must degrade to empty so publish can fall back');
+  });
 
   await ta('empty post text is rejected before any network call', async () => {
     let threw = null;
