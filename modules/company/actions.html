@@ -300,6 +300,22 @@
 
   <main class="content-section" id="act-main">
 
+    <!-- Write-auth banner.
+         This page fires public posts, and until 2026-08-09 it was the ONLY page with no
+         write-status indicator — dashboard.html has had one for months. The write secret
+         lives in sessionStorage, which the browser wipes when the tab closes, so a CEO
+         returning in a fresh tab got a silent 401 on "Post Now" and an error toast that
+         vanished after 8 seconds. Nothing on the page said writes were dead. -->
+    <div id="act-write-banner" style="display:none;align-items:center;gap:0.6rem;flex-wrap:wrap;margin:0 0 1rem;padding:0.7rem 1rem;border-radius:8px;font-size:var(--c-text-xs);border:1px solid rgba(251,191,36,0.25);background:rgba(251,191,36,0.1);color:#fbbf24;">
+      <i class="fas fa-exclamation-triangle" style="flex-shrink:0;"></i>
+      <span id="act-write-msg">Not authenticated — approvals and Post Now will fail.</span>
+      <span style="display:inline-flex;align-items:center;gap:0.4rem;margin-left:auto;">
+        Key: <input id="act-write-key" type="password" placeholder="write secret" autocomplete="off"
+                    style="padding:0.25rem 0.5rem;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.35);color:inherit;font-size:var(--c-text-xs);width:190px;" />
+        <button id="act-write-key-btn" class="act-btn">Set Key</button>
+      </span>
+    </div>
+
     <div class="company-header" id="act-header">
       <div>
         <h1 class="act-h1">
@@ -2463,6 +2479,54 @@
     window.openRevisionModal = openRevisionModal;
 
     // ── Execution toast notification ──
+    // ── Write-auth banner ──
+    // Shown BEFORE anything is clicked, so a dead write key is visible rather than
+    // discovered by a public post failing. Also re-raised on a 401, because that is the
+    // moment the CEO actually needs the key field in front of them.
+    function _refreshWriteBanner(forceMsg) {
+      var banner = document.getElementById('act-write-banner');
+      if (!banner || typeof CompanyStore === 'undefined' || !CompanyStore.getWriteStatus) return;
+      if (window.__DEMO_MODE) { banner.style.display = 'none'; return; }
+      var msgEl = document.getElementById('act-write-msg');
+      var ws = CompanyStore.getWriteStatus();
+
+      if (forceMsg) {
+        banner.style.display = 'flex';
+        banner.style.borderColor = 'rgba(239,68,68,0.3)';
+        banner.style.background = 'rgba(239,68,68,0.1)';
+        banner.style.color = '#f87171';
+        msgEl.textContent = forceMsg;
+        return;
+      }
+      // mode !== 'server' means local-only, where there is nothing to authenticate against.
+      if (ws.mode !== 'server' || ws.canWrite) { banner.style.display = 'none'; return; }
+      banner.style.display = 'flex';
+      banner.style.borderColor = 'rgba(251,191,36,0.25)';
+      banner.style.background = 'rgba(251,191,36,0.1)';
+      banner.style.color = '#fbbf24';
+      msgEl.textContent = 'Not authenticated — approvals and Post Now will fail until a write key is set.';
+    }
+
+    (function () {
+      var btn = document.getElementById('act-write-key-btn');
+      var input = document.getElementById('act-write-key');
+      if (!btn || !input) return;
+      function apply() {
+        var key = input.value.trim();
+        if (!key) return;
+        CompanyStore.setWriteKey(key);
+        if (typeof CompanyStoreAdapter !== 'undefined' && CompanyStoreAdapter.setKey) CompanyStoreAdapter.setKey(key);
+        input.value = '';
+        _refreshWriteBanner();
+        _showExecNotice('success', 'Write key set — try Post Now again.');
+      }
+      btn.addEventListener('click', apply);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') apply(); });
+      window.addEventListener('companystoreready', function () { _refreshWriteBanner(); });
+      // CompanyStore may already be ready before this script runs.
+      setTimeout(function () { _refreshWriteBanner(); }, 800);
+    })();
+
     function _showExecNotice(type, msg) {
       var colors = { success: '#34d399', error: '#f87171', warn: '#fbbf24', info: '#60a5fa' };
       var icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', warn: 'fa-clock', info: 'fa-info-circle' };
@@ -2533,6 +2597,13 @@
         } else if (resp.status === 429) {
           var retryMsg = resp.data.error || 'Too many requests — wait before retrying.';
           _showExecNotice('warn', retryMsg);
+        } else if (resp.status === 401 || resp.status === 403) {
+          // Auth failure is NOT an action failure — the server never looked at the action,
+          // so marking it failed would leave a healthy approved post sitting in a failed
+          // state for no reason. Raise the banner instead: it persists, unlike the toast
+          // that made this look like nothing happened at all on 2026-08-09.
+          _refreshWriteBanner('Not authenticated (HTTP ' + resp.status + ') — nothing was posted. Set the write key, then press Post Now again.');
+          _showExecNotice('error', 'Not authenticated — nothing was posted. See the banner at the top of the page.');
         } else {
           var errMsg = resp.data.error || 'Execution failed (HTTP ' + resp.status + ')';
           var errDetails = resp.data.details || null;
