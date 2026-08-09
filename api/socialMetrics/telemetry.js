@@ -1,6 +1,6 @@
 const storage = require('../_utils/companyStorage');
 
-const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky'];
+const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook'];
 const MAX_EVENTS = 10000;
 
 function isSocialAction(action) {

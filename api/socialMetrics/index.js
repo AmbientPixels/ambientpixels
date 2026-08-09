@@ -7,7 +7,7 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const PLATFORMS = ['x', 'linkedin', 'bluesky'];
+const PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook'];
 const EVENT_TYPES = ['approval', 'execution', 'retry'];
 const RESULTS = ['success', 'failure'];
 const ERROR_CLASSES = ['AUTH', 'RATE_LIMIT', 'PAYLOAD', 'MEDIA', 'NETWORK', 'UNKNOWN'];
@@ -18,7 +18,7 @@ const SOCIAL_METRICS_EVENT_SHAPE = {
   action_id: 'string',
   trace_id: 'string',
   attempt: 'number',
-  platform: 'enum:x|linkedin|bluesky',
+  platform: 'enum:x|linkedin|bluesky|facebook',
   event_type: 'enum:approval|execution|retry',
   result: 'enum:success|failure',
   error_class: 'enum:AUTH|RATE_LIMIT|PAYLOAD|MEDIA|NETWORK|UNKNOWN',

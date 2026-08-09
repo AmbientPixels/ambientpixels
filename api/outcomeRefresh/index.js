@@ -163,12 +163,39 @@ async function fetchRedditMetrics(postId) {
   };
 }
 
+// Facebook post counts are LIFETIME CUMULATIVE totals — every poll returns the running
+// total, not the delta since last time. That is fine here because outcomeRefresh stores
+// point-in-time SAMPLES at lag boundaries and differences them downstream. It is only
+// dangerous if a caller ever adds samples together, which would multiply the number by
+// the polling frequency.
+//
+// Throws rather than returning zeros when the read fails: a caught error is recorded as
+// an error, whereas {likes: 0} would be charted as genuine silence.
+async function fetchFacebookMetrics(postId) {
+  if (!postId) throw { code: 'FACEBOOK_NO_POST_ID', message: 'snapshot has no postId' };
+  const fbAdapter = require('../actionsExecute/executors/social/facebook');
+  const eng = await fbAdapter.fetchPostEngagement(postId);
+  if (!eng) {
+    throw { code: 'FACEBOOK_READ_FAILED', message: 'Facebook engagement read failed for ' + postId + ' (token, permissions, or data-access expiry) — recording error, not zero' };
+  }
+  return {
+    likes: eng.likes || 0,
+    comments: eng.comments || 0,
+    reposts: eng.shares || 0,
+    // Page-level impressions need read_insights on a per-post insights call; not wired,
+    // and null keeps it out of any engagement-rate denominator rather than faking a 0.
+    views: null,
+    clicks: null
+  };
+}
+
 async function fetchMetrics(snapshot) {
   const platform = (snapshot.platform || '').toLowerCase();
   if (platform === 'x' || platform === 'twitter') return fetchXMetrics(snapshot.postId);
   if (platform === 'bluesky') return fetchBlueskyMetrics(snapshot.postUrl && snapshot.postUrl.startsWith('at://') ? snapshot.postUrl : snapshot._atUri || snapshot.atUri || deriveBlueskyAtUri(snapshot));
   if (platform === 'reddit') return fetchRedditMetrics(snapshot.postId);
-  // linkedin/facebook not supported in Phase 1
+  if (platform === 'facebook') return fetchFacebookMetrics(snapshot.postId);
+  // linkedin not supported in Phase 1
   throw { code: 'PLATFORM_UNSUPPORTED', message: 'platform not supported yet: ' + platform };
 }
 

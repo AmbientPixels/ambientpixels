@@ -359,6 +359,73 @@ function buildDemoAccountStats() {
   };
 }
 
+// ── Facebook ──
+//
+// Credentials come from the adapter rather than being re-read here, so the blob-first
+// / env-fallback precedence lives in exactly one place.
+//
+// followers_count and fan_count are LIFETIME TOTALS, not deltas. They are stored as-is
+// (a follower count is meant to be a level, not a rate), but any caller computing
+// "followers gained this week" must difference two snapshots. Summing them across polls
+// is the same mistake that inflated engagement 22x.
+async function pullFacebookAccountStats() {
+  var fbAdapter = require('../actionsExecute/executors/social/facebook');
+  var creds;
+  try { creds = await fbAdapter.getCredentials(); } catch (e) { return { ok: false, error: 'Facebook credential load failed: ' + e.message }; }
+
+  var credError = fbAdapter.validateCredentials(creds);
+  if (credError) return { ok: false, error: credError };
+
+  var base = 'https://graph.facebook.com/' + fbAdapter.GRAPH_VERSION + '/';
+  var tok = encodeURIComponent(creds.pageAccessToken);
+
+  try {
+    var profRes = await _httpGet(base + creds.pageId + '?fields=name,followers_count,fan_count,link&access_token=' + tok, {});
+    if (profRes.status !== 200 || !profRes.data) {
+      var detail = (profRes.data && profRes.data.error && profRes.data.error.message) || (profRes.raw || '').slice(0, 200);
+      return { ok: false, error: 'Facebook page lookup failed (HTTP ' + profRes.status + '): ' + detail };
+    }
+    var p = profRes.data;
+
+    var feedRes = await _httpGet(
+      base + creds.pageId + '/posts?limit=10&fields=message,created_time,permalink_url,' +
+      'likes.summary(true).limit(0),comments.summary(true).limit(0),shares&access_token=' + tok, {});
+
+    var posts = [];
+    if (feedRes.status === 200 && feedRes.data && Array.isArray(feedRes.data.data)) {
+      posts = feedRes.data.data.map(function (post) {
+        return {
+          id: post.id || '',
+          text: (post.message || '').slice(0, 140),
+          created_at: post.created_time || '',
+          url: post.permalink_url || ('https://www.facebook.com/' + (post.id || '')),
+          likes: (post.likes && post.likes.summary && post.likes.summary.total_count) || 0,
+          comments: (post.comments && post.comments.summary && post.comments.summary.total_count) || 0,
+          reposts: (post.shares && post.shares.count) || 0
+        };
+      });
+    }
+
+    return {
+      ok: true,
+      platform: 'facebook',
+      handle: p.name || 'AmbientPixels',
+      name: p.name || 'AmbientPixels',
+      description: '',
+      avatar: '',
+      // Explicit null (not 0) when Facebook omits the field — an absent count must not
+      // be chartable as "zero followers".
+      followers: typeof p.followers_count === 'number' ? p.followers_count : null,
+      likes_count: typeof p.fan_count === 'number' ? p.fan_count : null,
+      posts_count: posts.length,
+      recentPosts: posts,
+      profileUrl: p.link || ('https://www.facebook.com/' + creds.pageId)
+    };
+  } catch (err) {
+    return { ok: false, error: 'Facebook stats pull failed: ' + (err.message || String(err)) };
+  }
+}
+
 // ── Refresh (shared by HTTP handler and socialAccountStatsRefreshCron) ──
 
 async function refreshAccountStats() {
@@ -366,7 +433,8 @@ async function refreshAccountStats() {
   var results = await Promise.all([
     pullXAccountStats(),
     pullLinkedInAccountStats(),
-    pullBlueskyAccountStats()
+    pullBlueskyAccountStats(),
+    pullFacebookAccountStats()
   ]);
 
   var platforms = {};
