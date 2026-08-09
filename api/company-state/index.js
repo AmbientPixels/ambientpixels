@@ -35,6 +35,21 @@ const VALID_KEYS = [
   'agentInheritance'
 ];
 
+// Keys that hold credentials. Reads of everything else are public by design; these are
+// not, and were: on 2026-08-08 an unauthenticated GET of socialCredentials returned the
+// live LinkedIn access token, the Facebook Page token and the Meta app secret in full.
+//
+// The secrets now live in Function App application settings, but this key CANNOT simply
+// be removed from VALID_KEYS: linkedin.js writes refreshed tokens back to it (see
+// _refreshAccessToken), so it has to remain a writable persistence target. Gating the
+// READ is what keeps a future refresh from silently re-publishing a token to the open
+// internet.
+//
+// Adding a key here makes it secret-or-authenticated on GET. Nothing in the dashboard
+// reads socialCredentials over HTTP — the server-side callers all use storage.getState()
+// directly — so this is invisible to the UI.
+const SENSITIVE_KEYS = ['socialCredentials'];
+
 module.exports = async function (context, req) {
   context.log('[company-state] Function called, req method:', req ? req.method : 'req is null', 'req query:', req ? JSON.stringify(req.query) : 'N/A');
 
@@ -63,6 +78,20 @@ module.exports = async function (context, req) {
         body: { error: 'Invalid or missing key. Valid keys: ' + VALID_KEYS.join(', ') }
       };
       return;
+    }
+
+    // Credential-bearing keys require the same auth as a write.
+    if (SENSITIVE_KEYS.indexOf(key) !== -1) {
+      const readSecret = (req.headers && req.headers['x-company-secret']) || '';
+      const readPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';
+      if (!storage.validateSecret(readSecret) && !readPrincipal) {
+        context.res = {
+          status: 403,
+          headers: corsHeaders,
+          body: { error: 'This key holds credentials and requires authentication to read.' }
+        };
+        return;
+      }
     }
 
     try {
