@@ -157,6 +157,8 @@
           <div style="display:flex;gap:.9rem;align-items:center;white-space:nowrap;padding-top:.35rem;">
             <label class="cmp-check-label"><input type="checkbox" id="mh-plat-bluesky" value="social_bluesky" />Bluesky</label>
             <label class="cmp-check-label"><input type="checkbox" id="mh-plat-x" value="social_x" />X</label>
+            <label class="cmp-check-label"><input type="checkbox" id="mh-plat-facebook" value="social_facebook" />Facebook</label>
+            <label class="cmp-check-label" title="Instagram milestone posts carry no link — captions cannot render one. The agent portrait card carries the identity instead."><input type="checkbox" id="mh-plat-instagram" value="social_instagram" />Instagram</label>
           </div>
         </div>
         <div class="cmp-field-col">
@@ -805,8 +807,18 @@
       var apiBase = CompanyStore.getServerBase ? CompanyStore.getServerBase() : '/api';
       function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') }; }
       var enabled = document.getElementById('mh-enabled');
+      // Driven off one list so adding a platform means adding a checkbox and ONE entry
+      // here, not editing the load path, the save path and the change-listener array
+      // separately (which is how the two Instagram boxes happened in the form above).
+      // Order matches milestone-herald.js PLATFORM_LABELS — a value missing there is
+      // filtered out by resolveConfig and would save as a silent no-op.
+      var MH_PLATS = [
+        { key: 'social_bluesky', el: document.getElementById('mh-plat-bluesky') },
+        { key: 'social_x', el: document.getElementById('mh-plat-x') },
+        { key: 'social_facebook', el: document.getElementById('mh-plat-facebook') },
+        { key: 'social_instagram', el: document.getElementById('mh-plat-instagram') }
+      ].filter(function (p) { return p.el; });
       var platBs = document.getElementById('mh-plat-bluesky');
-      var platX = document.getElementById('mh-plat-x');
       var fleetCap = document.getElementById('mh-fleet-cap');
       var minXp = document.getElementById('mh-min-xp');
       var dryBtn = document.getElementById('mh-dryrun');
@@ -821,8 +833,7 @@
           var cfg = Object.assign({}, DEF, (resp && resp.value && resp.value.milestoneHerald) || {});
           enabled.checked = cfg.enabled !== false;
           var plats = Array.isArray(cfg.platforms) && cfg.platforms.length ? cfg.platforms : DEF.platforms;
-          platBs.checked = plats.indexOf('social_bluesky') !== -1;
-          platX.checked = plats.indexOf('social_x') !== -1;
+          MH_PLATS.forEach(function (p) { p.el.checked = plats.indexOf(p.key) !== -1; });
           fleetCap.value = cfg.fleetWeeklyCap || DEF.fleetWeeklyCap;
           minXp.value = cfg.minWeeklyXp || DEF.minWeeklyXp;
         })
@@ -830,8 +841,7 @@
 
       function save() {
         var platforms = [];
-        if (platBs.checked) platforms.push('social_bluesky');
-        if (platX.checked) platforms.push('social_x');
+        MH_PLATS.forEach(function (p) { if (p.el.checked) platforms.push(p.key); });
         if (!platforms.length) { platBs.checked = true; platforms = ['social_bluesky']; }
         fetch(apiBase + '/company-state?key=systemConfig', { headers: hdrs() })
           .then(function (r) { return r.ok ? r.json() : null; })
@@ -851,7 +861,8 @@
           })
           .catch(function () { statusEl.textContent = 'Could not save Herald settings — try again.'; });
       }
-      [enabled, platBs, platX, fleetCap, minXp].forEach(function (el) { el.addEventListener('change', save); });
+      [enabled, fleetCap, minXp].concat(MH_PLATS.map(function (p) { return p.el; }))
+        .forEach(function (el) { el.addEventListener('change', save); });
 
       dryBtn.addEventListener('click', function () {
         dryBtn.disabled = true; statusEl.textContent = 'Dry run…';

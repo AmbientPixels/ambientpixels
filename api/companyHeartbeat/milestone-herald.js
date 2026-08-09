@@ -41,7 +41,21 @@ const DEFAULTS = {
 // Lower number = more newsworthy. One candidate max per agent per run.
 const PRIORITY = { rank_up: 1, level_up: 2, achievement: 3, streak: 4, notable_week: 5 };
 
-const PLATFORM_LABELS = { social_bluesky: 'Bluesky', social_x: 'X' };
+// Also the whitelist — resolveConfig filters cfg.platforms against these keys, so a
+// platform absent here is silently dropped from the config no matter what systemConfig says.
+const PLATFORM_LABELS = {
+  social_bluesky: 'Bluesky',
+  social_x: 'X',
+  social_facebook: 'Facebook',
+  social_instagram: 'Instagram'
+};
+
+// Platforms whose caption can carry a clickable profile link. Instagram cannot: captions
+// render URLs as plain text and instagram.js REJECTS any caption containing one, so asking
+// Scribe for a link there would produce a post that dies at the executor after burning a
+// brief, a copy pass, a review and a CEO approval.
+// Mirrors LINK_CAPABLE in api/_shared/socialPlatforms.js, keyed by taskType.
+const LINK_CAPABLE_TASK_TYPES = ['social_bluesky', 'social_x', 'social_facebook'];
 
 function resolveConfig(systemConfig) {
   const raw = (systemConfig && systemConfig.milestoneHerald) || {};
@@ -243,7 +257,10 @@ function buildTasks(m, entry, quote, config, nowMs) {
       'Use ONLY the facts in the sheet below — do not invent numbers, badges, levels, or events. ' +
       'The reflection may be quoted VERBATIM only, framed as ' + name + "'s own words. " +
       'Voice: ' + name + "'s personality — playful, self-aware, build-in-public. " +
-      'Include the profile link.\n\n' + factSheet,
+      (LINK_CAPABLE_TASK_TYPES.indexOf(platform) !== -1
+        ? 'Include the profile link.'
+        : 'NO LINK and NO URL of any kind — Instagram renders URLs as dead text and the post will be rejected if the caption contains one. Name the agent instead and let the image carry it.') +
+      '\n\n' + factSheet,
     status: 'todo',
     taskType: platform,
     assignee: 'echo',

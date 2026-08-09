@@ -256,3 +256,36 @@ setTimeout(() => {
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail > 0 ? 1 : 0);
 }, 500);
+
+// ── Facebook + Instagram (2026-08-09) ──
+// The Herald gained two platforms. Instagram is the one with a constraint: its copy must
+// carry no URL, because instagram.js rejects any caption containing one.
+
+test('facebook and instagram are accepted by resolveConfig', () => {
+  const cfg = H.resolveConfig({ milestoneHerald: { platforms: ['social_facebook', 'social_instagram'] } });
+  assert.deepStrictEqual(cfg.platforms.sort(), ['social_facebook', 'social_instagram'],
+    'a platform missing from PLATFORM_LABELS is silently filtered out of the config');
+});
+
+test('instagram milestone copy forbids links; facebook still asks for one', () => {
+  const m = { agentId: 'forge', kind: 'achievement', priority: 3, detail: { id: 'x', label: 'First CEO Yes', tier: 'bronze' } };
+  const cfg = Object.assign({}, H.DEFAULTS, { platforms: ['social_facebook', 'social_instagram'] });
+  const tasks = H.buildTasks(m, ledgerEntry(), null, cfg, NOW);
+
+  const fb = tasks.find(t => t.taskType === 'social_facebook');
+  const ig = tasks.find(t => t.taskType === 'social_instagram');
+  assert(fb && ig, 'both tasks created');
+
+  assert(fb.description.indexOf('Include the profile link') !== -1, 'facebook keeps the link');
+  assert(ig.description.indexOf('Include the profile link') === -1, 'instagram must NOT ask for a link');
+  assert(ig.description.indexOf('NO LINK') !== -1, 'instagram must say so explicitly');
+});
+
+test('instagram herald copy would survive the instagram executor guard', () => {
+  // The real gate, not a paraphrase of it: the adapter refuses any caption with a URL.
+  const igAdapter = require('../actionsExecute/executors/social/instagram');
+  const withLink = igAdapter.checkPublishable({ text: 'Forge hit bronze. https://ambientpixels.ai/ambientos/agents/forge' });
+  assert(withLink && withLink.code === 'LINK_SHAPE_UNSUPPORTED', 'a linked milestone post is rejected');
+  const clean = igAdapter.checkPublishable({ text: 'Forge just earned First CEO Yes. Bronze tier, and he will not stop talking about it.' });
+  assert.strictEqual(clean, null, 'link-free milestone copy passes');
+});
