@@ -321,9 +321,14 @@ module.exports = async function (context, req) {
           // used to read as healthy and in-queue.
           needsAttention: (counts.new || 0)
             + replies.filter((r) => r.draft_state === 'task_canceled' || r.draft_state === 'task_missing').length,
-          // Of those, the ones a click can actually put into the pipeline. The
-          // rest need you to answer as yourself.
-          draftable: replies.filter((r) => r.status === 'new' && r.can_draft).length,
+          // Of those, the ones a click can actually put into the pipeline — which
+          // must match the rows that render a button, or the chip undercounts the
+          // work. Includes dead drafts: a cancelled task produced nothing, so
+          // that conversation is re-draftable too.
+          draftable: replies.filter((r) =>
+            (r.status === 'new' && r.can_draft)
+            || r.draft_state === 'task_canceled'
+            || r.draft_state === 'task_missing').length,
           reactions: reactions.length,
           likes: reactions.reduce((a, r) => a + r.likes, 0),
           reposts: reactions.reduce((a, r) => a + r.reposts, 0)
