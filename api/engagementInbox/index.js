@@ -107,7 +107,13 @@ function annotateBlocked(store, cfg, nowMs) {
     out[entry.id] = {
       blocked_reason: asCron === undefined ? null : asCron,
       // The button lifts the age gate and nothing else.
-      can_draft: ignoringAge === null
+      can_draft: ignoringAge === null,
+      // Why the button cannot help either. filterCandidates reports drops in a
+      // fixed order and too_old comes first, so it MASKS the deeper guard: both
+      // live entries read "aged out" when the real reason one cannot be drafted
+      // is that we replied to that person 11 days ago. Showing the cron's first
+      // drop as the explanation would be a confident wrong answer.
+      override_blocked_reason: ignoringAge === undefined ? null : ignoringAge
     };
   });
   return out;
@@ -145,6 +151,7 @@ function buildReplyRows(store, sinceMs, limit, blockedById) {
         // override it (the button lifts the age gate and nothing else).
         blocked_reason: b.blocked_reason === undefined ? null : b.blocked_reason,
         can_draft: b.can_draft === undefined ? false : b.can_draft,
+        override_blocked_reason: b.override_blocked_reason === undefined ? null : b.override_blocked_reason,
         manual_draft: e.manualDraft === true || undefined,
         link: blueskyUrl(e.replyUri),
         our_post_link: blueskyUrl(e.ourPostAtUri)

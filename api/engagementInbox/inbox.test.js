@@ -130,6 +130,43 @@ test('a reaction row still says what the post was', () => {
   assert.ok(r.link);
 });
 
+test('the reason a button is missing is the guard that blocks the OVERRIDE', () => {
+  // Both live production rows report blocked_reason 'too_old' because that check
+  // runs first inside filterCandidates. But the age gate is exactly what the
+  // button lifts, so "aged out" is a confident wrong answer to "why can I not
+  // draft this". The deeper guard has to be reported separately.
+  const cfg = { maxAgeHours: 72, minTextLength: 15, perAuthorCooldownDays: 14, maxPerDay: 3 };
+  const old = new Date(NOW - 9 * DAY).toISOString();
+
+  const store = [
+    // We answered this person in this thread already.
+    entry({ id: 'prior', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString(), indexedAt: old }),
+    entry({ id: 'target', status: 'new', indexedAt: old })
+  ];
+  const ann = mod._annotateBlocked(store, cfg, NOW).target;
+  assert.strictEqual(ann.blocked_reason, 'too_old', 'the cron drop should still be reported');
+  assert.strictEqual(ann.can_draft, false);
+  assert.strictEqual(ann.override_blocked_reason, 'author_thread_done',
+    'the panel would tell the CEO "aged out" when the real reason is that we already replied');
+});
+
+test('an item blocked ONLY by age is draftable, with no override blocker', () => {
+  const cfg = { maxAgeHours: 72, minTextLength: 15, perAuthorCooldownDays: 14, maxPerDay: 3 };
+  const store = [entry({ id: 'target', status: 'new', indexedAt: new Date(NOW - 9 * DAY).toISOString() })];
+  const ann = mod._annotateBlocked(store, cfg, NOW).target;
+  assert.strictEqual(ann.blocked_reason, 'too_old');
+  assert.strictEqual(ann.can_draft, true, 'the age gate is the one thing the button lifts');
+  assert.strictEqual(ann.override_blocked_reason, null);
+});
+
+test('a fresh item is queued, not blocked at all', () => {
+  const cfg = { maxAgeHours: 72, minTextLength: 15, perAuthorCooldownDays: 14, maxPerDay: 3 };
+  const store = [entry({ id: 'target', status: 'new', indexedAt: new Date(NOW - 2 * 3600e3).toISOString() })];
+  const ann = mod._annotateBlocked(store, cfg, NOW).target;
+  assert.strictEqual(ann.blocked_reason, null, 'nothing stopped it — the cron will draft it next run');
+  assert.strictEqual(ann.can_draft, true);
+});
+
 test('empty and missing stores are handled without throwing', () => {
   assert.deepStrictEqual(replyRows(null, SINCE, 50), []);
   assert.deepStrictEqual(replyRows([], SINCE, 50), []);

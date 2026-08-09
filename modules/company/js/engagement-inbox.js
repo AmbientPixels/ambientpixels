@@ -128,19 +128,22 @@
         '</div>';
     }
 
-    var why = BLOCKED[r.blocked_reason] || BLOCKED.unknown;
-
     if (!r.can_draft) {
-      // A guard that protects the relationship, not the schedule. Not
-      // overridable by design — reply as yourself if it still deserves one.
+      // Show the guard that blocks the OVERRIDE, not the cron's first drop.
+      // Those differ: both live rows report blocked_reason 'too_old' because
+      // that check runs first, while the reason a button cannot help is that we
+      // already replied to that person. "Aged out" would be a confident wrong
+      // answer to "why is there no button".
+      var realWhy = BLOCKED[r.override_blocked_reason] || BLOCKED[r.blocked_reason] || BLOCKED.unknown;
       return '<div class="ei-action ei-action--blocked">' +
-        '<i class="fas fa-hand"></i> ' + esc(why) +
+        '<i class="fas fa-hand"></i> ' + esc(realWhy) +
         '<span class="ei-action-note">reply as yourself if it still deserves one</span>' +
         '</div>';
     }
 
     return '<div class="ei-action">' +
-      '<span class="ei-action-why"><i class="fas fa-circle-info"></i> ' + esc(why) + '</span>' +
+      '<span class="ei-action-why"><i class="fas fa-circle-info"></i> ' +
+      esc(BLOCKED[r.blocked_reason] || BLOCKED.unknown) + '</span>' +
       '<button type="button" class="ei-draft-btn" data-draft-id="' + esc(r.id) + '">' +
       '<i class="fas fa-pen-nib"></i> Draft a reply</button>' +
       '</div>';
