@@ -286,6 +286,16 @@ module.exports = async function (context) {
           raw: (execError && execError.raw) || null
         };
         a.execution_status = 'failed';
+        // An adapter that knows the outcome is UNKNOWN (the POST may have landed while
+        // the response was lost) says so, and that parks the action instead of retrying
+        // it. Without this the retry loop treats "we did not hear back" as "it failed",
+        // which is exactly how three Bluesky replies double-posted on 2026-08-08.
+        // Instagram's media_publish is the first adapter to raise it: a retry there
+        // publishes a second time to a public account.
+        if (execError && execError.requires_manual_review) {
+          a.execution.requires_manual_review = true;
+          context.log.warn('[Scheduler] Action', a.id, 'parked for manual review — outcome unknown, NOT retrying:', a.execution.last_error.message);
+        }
         actions[i] = a;
 
         await _logGovernance(storage, 'scheduled-action-failed', {

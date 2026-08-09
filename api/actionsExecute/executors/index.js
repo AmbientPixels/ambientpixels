@@ -6,6 +6,7 @@ const linkedinAdapter = require('./social/linkedin');
 const blueskyAdapter = require('./social/bluesky');
 const redditAdapter = require('./social/reddit');
 const facebookAdapter = require('./social/facebook');
+const instagramAdapter = require('./social/instagram');
 const contentAdapter = require('./content/publishDocument');
 const videoAdapter = require('./content/generateVideo');
 const storage = require('../../_utils/companyStorage');
@@ -17,14 +18,16 @@ const EXECUTORS = {
     'linkedin': linkedinAdapter.publishToLinkedIn,
     'bluesky': blueskyAdapter.publishToBluesky,
     'reddit': redditAdapter.publishToReddit,
-    'facebook': facebookAdapter.publishToFacebook
+    'facebook': facebookAdapter.publishToFacebook,
+    'instagram': instagramAdapter.publishToInstagram
   },
   'social_post.schedule': {
     'x': xAdapter.publishToX,
     'linkedin': linkedinAdapter.publishToLinkedIn,
     'bluesky': blueskyAdapter.publishToBluesky,
     'reddit': redditAdapter.publishToReddit,
-    'facebook': facebookAdapter.publishToFacebook
+    'facebook': facebookAdapter.publishToFacebook,
+    'instagram': instagramAdapter.publishToInstagram
   },
   'social_post.reply': {
     'x': null, // v3

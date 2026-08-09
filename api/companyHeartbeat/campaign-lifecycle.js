@@ -3,18 +3,18 @@
 
 const { normalizeCampaignRef } = require('../_shared/campaignMatcher');
 
-var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_reddit', 'social_facebook', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
+var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_reddit', 'social_facebook', 'social_instagram', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
 
 var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
 var _taskTypeToAgent = {
   blog_post: 'scribe', social_linkedin: 'echo', social_bluesky: 'echo',
-  social_x: 'echo', social_facebook: 'echo', design_asset: 'pixel',
+  social_x: 'echo', social_facebook: 'echo', social_instagram: 'echo', design_asset: 'pixel',
   research: 'scout', internal_doc: 'scribe', general: 'nova',
   bluesky_discovery: 'scout', bluesky_reply: 'scribe'
 };
 var _taskTypeLabels = {
   blog_post: 'blog post', social_linkedin: 'LinkedIn post', social_bluesky: 'Bluesky post',
-  social_x: 'X post', social_facebook: 'Facebook post', design_asset: 'design asset',
+  social_x: 'X post', social_facebook: 'Facebook post', social_instagram: 'Instagram post', design_asset: 'design asset',
   research: 'research task', internal_doc: 'internal doc', general: 'task',
   bluesky_discovery: 'Bluesky thread discovery', bluesky_reply: 'Bluesky reply draft'
 };

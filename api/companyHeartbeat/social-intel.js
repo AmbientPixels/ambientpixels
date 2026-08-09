@@ -479,7 +479,7 @@ function _buildCampaignVelocityBlock(campaigns, allTasks) {
   if (!Array.isArray(campaigns) || campaigns.length === 0) return '';
   var now = Date.now();
   var lines = [];
-  var socialTypes = ['social_linkedin', 'social_x', 'social_bluesky', 'social_facebook', 'social_reddit'];
+  var socialTypes = ['social_linkedin', 'social_x', 'social_bluesky', 'social_facebook', 'social_reddit', 'social_instagram'];
 
   campaigns.forEach(function (c) {
     if (c.status !== 'active') return;

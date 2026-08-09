@@ -227,9 +227,9 @@ const { _buildWorldStatePromptBlock } = require('./world-state-intel');
 // This prevents the "Facebook gap" class of bugs where a feature is wired in the executor
 // but agents never receive instructions for it.
 (function _validatePromptCoverage() {
-  const _schemaEnum = 'general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support';
+  const _schemaEnum = 'general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_instagram|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support';
   const _platformEnum = 'x|linkedin|bluesky|facebook|reddit';
-  const _socialPlatformMap = { social_x: 'x', social_linkedin: 'linkedin', social_bluesky: 'bluesky', social_facebook: 'facebook', social_reddit: 'reddit' };
+  const _socialPlatformMap = { social_x: 'x', social_linkedin: 'linkedin', social_bluesky: 'bluesky', social_facebook: 'facebook', social_instagram: 'instagram', social_reddit: 'reddit' };
 
   VALID_TASK_TYPES.forEach(function (t) {
     if (_schemaEnum.indexOf(t) === -1) {
@@ -321,6 +321,7 @@ function buildHeartbeatPrompt(ctx) {
     social_linkedin: '→ Use create-social-action with platform "linkedin" to draft the post.',
     social_bluesky: '→ Use create-social-action with platform "bluesky" to draft the post.',
     social_facebook: '→ Use create-social-action with platform "facebook" to draft the post.',
+    social_instagram: '→ Use create-social-action with platform "instagram" to draft the post. NO LINKS: Instagram captions render URLs as dead text, so an Instagram post must be engagement-shaped. Put no URL in the copy — the executor refuses a caption containing one. The image is rendered automatically from the approved copy; you do not need to supply media.',
     internal_doc: '→ Use create-doc to write the document. Internal docs are saved to the wiki immediately (no approval needed).',
     design_asset: '→ Use create-content-package or generate-image to produce visual assets.',
     research: '→ Use execute-task to produce research deliverable. Use web_search for live data.',
@@ -1932,7 +1933,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|generate-image|generate-video|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
+      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_instagram|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
       "taskId": "existing-task-id",
       "action_id": "existing-action-id-for-revise-action",
       "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "campaign_id": "..." },
@@ -1955,7 +1956,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
 IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend. Use taskType in updates to reclassify intake/support tasks to the correct pipeline type (e.g., taskType: "blog_post").
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "social_facebook", "social_reddit", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
+- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "social_facebook", "social_instagram", "social_reddit", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
 - update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it. To reclassify an intake/support task, set taskType to the correct pipeline type (e.g., "blog_post", "social_x", "ops").
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
@@ -2161,6 +2162,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     When the CEO creates a one-off task without a campaign, it needs your explicit delegation comment and correct assignee. Match taskType to agent and pipeline:
     blog_post / article / newsletter → assign to scribe. Comment: "Please write this using create-doc (kind: marketing_post) with the full content in content_md. Then use submit-for-publish. Do NOT use execute-task — it will not create a publishable document or trigger the hero image pipeline."
     social_linkedin / social_x / social_bluesky / social_facebook → assign to echo. Comment: "Please use execute-task to produce a strategy brief first. The system will auto-create a Scribe copy task. Once the task is done and has reviewed_copy, use create-social-action."
+    social_instagram → assign to echo. Comment: "Please use execute-task to produce a strategy brief first, then the normal copy chain. IMPORTANT: Instagram takes ENGAGEMENT-shaped posts only — captions cannot contain a link, because Instagram renders URLs as unclickable text and the executor rejects any caption with a URL in it. Never brief an Instagram post around driving a click. The post image is rendered automatically from the approved copy, so no design task is needed."
     social_reddit → assign to echo. Comment: "Please use execute-task for strategy brief. Scribe will write a Reddit post (TITLE: line + markdown body). Specify target subreddit in task description (e.g. r/SideProject) based on the REDDIT POSTING GUIDE subreddit recommendations. Once reviewed_copy is set, use create-social-action."
     design_asset → assign to pixel. Comment: "Please use generate-image or create-content-package to produce the visual asset."
     research → assign to scout. Comment: "Please conduct research and deliver your findings via execute-task."
@@ -2352,7 +2354,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     RULES:
       - Max 1 proposal per day. Make it count.
       - ALWAYS include a data-backed rationale (cite specific metrics, trends, or analytics signals).
-      - Platforms must be valid: social_linkedin, social_x, social_bluesky, social_reddit, social_facebook.
+      - Platforms must be valid: social_linkedin, social_x, social_bluesky, social_reddit, social_facebook, social_instagram.
       - Do NOT propose campaigns that duplicate active ones.
       - BUDGET IS NOT A REASON TO STAY SILENT: a proposal is nearly free (~$0.01, a single call) and the highest-leverage move you make. NEVER skip or defer a needed proposal to conserve budget — budget caution is for high-volume posting, not strategy. A YELLOW budget does not block proposing.
       - MANDATORY: If you identify a platform/product gap with NO active campaign covering it — OR an active campaign that's been stagnant (~0 output) for 2+ weeks — you MUST use propose-campaign in this heartbeat (a fresh angle or replacement). Do not just note it in observations — ACT on it.

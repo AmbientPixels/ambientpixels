@@ -300,7 +300,7 @@ const VALID_TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress
 
 // ── Valid task types — single source of truth ──
 // Keep in sync with: index.js _validTaskTypes, prompt-builders.js schema enum, company-state VALID_KEYS
-const VALID_SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky', 'social_facebook', 'social_reddit'];
+const VALID_SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky', 'social_facebook', 'social_reddit', 'social_instagram'];
 const VALID_TASK_TYPES = [
   'general', 'blog_post', 'article', 'newsletter', 'internal_doc',
   'design_asset', 'research', 'ops', 'finance', 'editorial', 'bug_fix',

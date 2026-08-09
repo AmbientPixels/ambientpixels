@@ -10,7 +10,7 @@ const MAX_POSTS_PER_CYCLE = 120;
 // (which has listed it since the adapter shipped), so execution events were being
 // RECORDED for Facebook posts while this cron filtered every one of them back out —
 // the funnel would have shown a published post that never produced a metrics row.
-const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook'];
+const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook', 'instagram'];
 
 function _id(prefix) {
   return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
@@ -203,6 +203,47 @@ async function _pullFacebookMetrics(postId) {
   };
 }
 
+/**
+ * Instagram media metrics.
+ *
+ * Read straight off the media object (`like_count`, `comments_count`) rather than the
+ * /insights edge: insights on a brand-new Business account with 0 followers return
+ * sparse or empty metric arrays, and an empty insights payload would arrive here as a
+ * confident zero. These two fields are always present on a published media object.
+ *
+ * Reposts/quotes are null, not 0 — Instagram has no public reshare counter for feed
+ * posts, and "we cannot see it" is not "it did not happen".
+ *
+ * Absolute totals at capture time, exactly like every other platform here. Difference a
+ * series of these; never sum them.
+ */
+async function _pullInstagramMetrics(mediaId) {
+  const instagram = require('../actionsExecute/executors/social/instagram');
+  if (!mediaId) throw { code: 'PAYLOAD_POST_ID_MISSING', message: 'Missing Instagram media id', status: 400 };
+  const creds = await instagram.getCredentials();
+  if (instagram.validateCredentials(creds)) {
+    throw { code: 'AUTH_INSTAGRAM_MISSING', message: 'Instagram credentials unavailable', status: 401 };
+  }
+  const url = 'https://graph.facebook.com/v26.0/' + encodeURIComponent(mediaId)
+    + '?fields=like_count,comments_count&access_token=' + encodeURIComponent(creds.pageAccessToken);
+  const res = await _httpRequest(url, 'GET');
+  if (res.status !== 200 || !res.data) {
+    throw {
+      code: 'INSTAGRAM_ENGAGEMENT_LOOKUP_FAILED',
+      status: res.status,
+      message: (res.data && res.data.error && res.data.error.message) || (res.raw || '').slice(0, 300)
+    };
+  }
+  return {
+    likes: Number.isFinite(res.data.like_count) ? res.data.like_count : 0,
+    comments: Number.isFinite(res.data.comments_count) ? res.data.comments_count : 0,
+    reposts: null,
+    quotes: null,
+    views: null,
+    clicks: null
+  };
+}
+
 function _buildSnapshot(base, mode, metrics, errMeta) {
   return {
     id: _id('seg'),
@@ -278,6 +319,13 @@ function _extractRecentSuccessPosts(events, actionsById) {
       if (platform === 'x') postId = _extractXPostId(postUrl);
       else if (platform === 'linkedin') postId = _extractLinkedInPostId(postUrl);
       else if (platform === 'bluesky') postId = _extractBlueskyParts(postUrl) ? _extractBlueskyParts(postUrl).rkey : '';
+      else if (platform === 'instagram') {
+        // Same rule as Facebook: the media id comes from the receipt. There is no URL
+        // form to parse it back out of — an Instagram permalink carries a shortcode,
+        // not the numeric media id the API needs.
+        const _ig = actionsById[e.action_id];
+        postId = (_ig && _ig.execution && _ig.execution.receipt && _ig.execution.receipt.post_id) || '';
+      }
       else if (platform === 'facebook') {
         // From the RECEIPT, never parsed from post_url. New Pages publish under an
         // actor id that is not the Page id, so a composite rebuilt from a URL is a
@@ -345,6 +393,8 @@ module.exports = async function (context) {
             if (metrics && metrics.at_uri) t.post_id = metrics.at_uri;
           } else if (t.post_platform === 'facebook') {
             metrics = await _pullFacebookMetrics(t.post_id);
+          } else if (t.post_platform === 'instagram') {
+            metrics = await _pullInstagramMetrics(t.post_id);
           }
 
           snapshots.push(_buildSnapshot(t, mode, metrics, null));

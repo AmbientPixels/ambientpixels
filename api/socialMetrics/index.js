@@ -7,7 +7,7 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook'];
+const PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook', 'instagram'];
 const EVENT_TYPES = ['approval', 'execution', 'retry'];
 const RESULTS = ['success', 'failure'];
 const ERROR_CLASSES = ['AUTH', 'RATE_LIMIT', 'PAYLOAD', 'MEDIA', 'NETWORK', 'UNKNOWN'];

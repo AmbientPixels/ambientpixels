@@ -1383,7 +1383,7 @@ Write the full deliverable first, then the structured JSON block.`;
     if (action.taskId) {
       const _ttTask = tasks.find(t => t.id === action.taskId);
       const _ttType = _ttTask ? (_ttTask.taskType || 'general') : 'general';
-      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky', 'social_reddit', 'social_facebook'];
+      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky', 'social_reddit', 'social_facebook', 'social_instagram'];
       const _ttBlog = ['blog_post', 'article', 'newsletter'];
       const _ttDoc = ['blog_post', 'article', 'newsletter', 'internal_doc'];
       const _ttContent = ['design_asset'];
