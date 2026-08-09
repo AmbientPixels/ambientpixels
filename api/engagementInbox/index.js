@@ -78,11 +78,14 @@ function blueskyUrl(atUri) {
 function annotateBlocked(store, cfg, nowMs) {
   const out = {};
   let filterCandidates;
+  let OVERRIDE_CONFIG;
   try {
     filterCandidates = require('../companyHeartbeat/engagement-reply').filterCandidates;
+    OVERRIDE_CONFIG = require('../engagementReplyDraft').OVERRIDE_CONFIG;
   } catch (e) {
     return out;
   }
+  if (!filterCandidates || !OVERRIDE_CONFIG) return out;
 
   const fresh = (Array.isArray(store) ? store : []).filter((e) => e && e.status === 'new');
   fresh.forEach((entry) => {
@@ -99,11 +102,9 @@ function annotateBlocked(store, cfg, nowMs) {
       }
     };
     const asCron = firedIn(cfg);
-    // NOT Infinity — filterCandidates guards with Number.isFinite(), which is
-    // false for Infinity, so it would silently restore the 72h default and every
-    // aged-out row would claim it cannot be drafted. Must match the constant in
-    // engagementReplyDraft or the button appears exactly where it will fail.
-    const ignoringAge = firedIn(Object.assign({}, cfg, { maxAgeHours: 1e6 }));
+    // Imported, never re-declared: if this drifted from what the endpoint
+    // actually applies, the button would appear exactly where it will refuse.
+    const ignoringAge = firedIn(Object.assign({}, cfg, OVERRIDE_CONFIG));
     out[entry.id] = {
       blocked_reason: asCron === undefined ? null : asCron,
       // The button lifts the age gate and nothing else.

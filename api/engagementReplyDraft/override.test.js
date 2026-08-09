@@ -101,18 +101,47 @@ test('a comment the cron aged out CAN be drafted on demand', async () => {
   assert.strictEqual(e.manualDraft, true, 'the age-gate override is not auditable');
 });
 
-test('one reply per person per thread still blocks', async () => {
-  // We already answered this person in this conversation. A button must not turn
-  // that into a second reply.
+test('a SECOND exchange in a thread is allowed — the button buys one turn', async () => {
+  // The automation replies once and stops, which leaves a real back-and-forth
+  // dead after one turn. @fberrez.co answered our reply with more substance and
+  // nothing could pick it up. One click, one more turn.
   reset([
     entry({ id: 'er_prior', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString() }),
     entry()
   ]);
   const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.status, 200, JSON.stringify(res.body));
+  assert.strictEqual(store.tasks.length, 1);
+});
+
+test('a THIRD reply in the same thread still blocks', async () => {
+  // Two exchanges is a conversation. Three is us talking at someone.
+  reset([
+    entry({ id: 'er_p1', status: 'answered', answeredAt: new Date(NOW - 9 * DAY).toISOString() }),
+    entry({ id: 'er_p2', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString() }),
+    entry()
+  ]);
+  const res = await post({ id: 'er_target' });
   assert.strictEqual(res.status, 409);
   assert.strictEqual(res.body.reason, 'author_thread_done');
-  assert.strictEqual(store.tasks.length, 0, 'a task was created anyway');
-  assert.strictEqual(store.engagementReplies[1].status, 'new', 'entry moved despite the block');
+  assert.ok(/twice/i.test(res.body.message), 'the refusal does not say why two was the limit');
+  assert.strictEqual(store.tasks.length, 0);
+  assert.strictEqual(store.engagementReplies[2].status, 'new', 'entry moved despite the block');
+});
+
+test('the second exchange is counted per THREAD, not per person', async () => {
+  // A prior reply in a DIFFERENT thread must not spend this thread's allowance.
+  // (The per-author cooldown is what governs across threads, tested below.)
+  reset([
+    entry({
+      id: 'er_other', status: 'answered',
+      rootUri: 'at://did:plc:us/app.bsky.feed.post/other',
+      answeredAt: new Date(NOW - 30 * DAY).toISOString()
+    }),
+    entry()
+  ]);
+  const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.status, 200, JSON.stringify(res.body));
 });
 
 test('the 14-day per-author cooldown still blocks', async () => {
@@ -192,14 +221,32 @@ test('disabling the loop in systemConfig disables the button', async () => {
 });
 
 test('a config that widens the age gate does not widen anything else', async () => {
-  // maxAgeHours is the caller's to change; the relationship guards are not.
+  // maxAgeHours is the caller's to change; the cooldown is not.
   reset([
-    entry({ id: 'er_prior', status: 'answered', answeredAt: new Date(NOW - 1 * DAY).toISOString() }),
+    entry({
+      id: 'er_prior', status: 'answered',
+      rootUri: 'at://did:plc:us/app.bsky.feed.post/other',
+      answeredAt: new Date(NOW - 1 * DAY).toISOString()
+    }),
     entry()
   ], { systemConfig: { engagementReply: { maxAgeHours: 9999 } } });
   const res = await post({ id: 'er_target' });
   assert.strictEqual(res.status, 409);
-  assert.strictEqual(res.body.reason, 'author_thread_done');
+  assert.strictEqual(res.body.reason, 'author_cooldown');
+});
+
+test('the AUTOMATION is still one reply per thread — only the button reaches two', async () => {
+  // The whole point of routing this through a button: autonomous behaviour is
+  // unchanged. Asserted against the cron's own config, not the override.
+  const ER = require('../companyHeartbeat/engagement-reply');
+  const cfg = ER.loadConfig({});
+  assert.strictEqual(cfg.maxRepliesPerThread, 1, 'the drafter would now follow up on its own');
+
+  const prior = entry({ id: 'er_prior', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString() });
+  const target = entry({ indexedAt: new Date(NOW - 1 * 3600e3).toISOString() }); // fresh, so age is not the blocker
+  const v = ER.filterCandidates([prior, target], cfg, NOW);
+  assert.strictEqual(v.survivors.length, 0, 'the cron picked up a second exchange by itself');
+  assert.strictEqual(v.drops.author_thread_done, 1);
 });
 
 test('unauthenticated callers get nothing', async () => {

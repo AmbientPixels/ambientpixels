@@ -59,11 +59,24 @@
   // "needs a reply" and stopping there implied a draft was coming when none was.
   var BLOCKED = {
     too_old: 'aged out — the drafter only picks up comments under 72h',
-    author_thread_done: 'we already replied in this thread',
+    author_thread_done: 'the drafter only follows up once per thread',
     author_cooldown: 'we replied to them within the last 14 days',
     too_short: 'too short to answer',
     daily_budget: 'today\'s draft budget is spent',
     unknown: 'the drafter passed on this'
+  };
+
+  // Same rule names, different sentence, because they answer different
+  // questions. BLOCKED says why the automation passed; this says why a click
+  // cannot help either — and the button already lifts the age gate and raises
+  // the per-thread limit to 2, so reaching these means the limit is genuinely
+  // spent, not merely applied.
+  var BLOCKED_OVERRIDE = {
+    author_thread_done: 'we have already replied twice in this thread',
+    author_cooldown: 'we replied to them within the last 14 days',
+    too_short: 'too short to answer',
+    daily_budget: 'today\'s draft budget is spent',
+    unknown: 'a guard blocks this'
   };
 
   function platformChip(platform) {
@@ -134,7 +147,8 @@
       // that check runs first, while the reason a button cannot help is that we
       // already replied to that person. "Aged out" would be a confident wrong
       // answer to "why is there no button".
-      var realWhy = BLOCKED[r.override_blocked_reason] || BLOCKED[r.blocked_reason] || BLOCKED.unknown;
+      var realWhy = BLOCKED_OVERRIDE[r.override_blocked_reason]
+        || BLOCKED[r.blocked_reason] || BLOCKED_OVERRIDE.unknown;
       return '<div class="ei-action ei-action--blocked">' +
         '<i class="fas fa-hand"></i> ' + esc(realWhy) +
         '<span class="ei-action-note">reply as yourself if it still deserves one</span>' +

@@ -23,6 +23,13 @@ var DEFAULTS = {
   enabled: true,
   maxPerDay: 3,             // drafts per UTC day
   maxAgeHours: 72,          // ignore replies older than this
+  // How many times WE may reply to one person inside one thread. 1 keeps the
+  // automation exactly where it has always been: it says its piece once and
+  // then stops, which is what stops an agent monologuing at a stranger it cold
+  // approached. The manual draft button raises this to 2 (see
+  // api/engagementReplyDraft), so a real back-and-forth is possible but a human
+  // decides to have it. Was a hard-coded boolean before 2026-08-09.
+  maxRepliesPerThread: 1,
   perAuthorCooldownDays: 14,// one touch per author across ALL threads inside this window
   minTextLength: 15,        // chars after emoji/whitespace strip (no bare "nice"/emoji)
   maxThreadFetchesPerRun: 25,
@@ -146,19 +153,32 @@ function filterCandidates(store, cfg, nowMs) {
   var minLen = Number.isFinite(cfg.minTextLength) ? cfg.minTextLength : 15;
   var cooldownMs = (Number.isFinite(cfg.perAuthorCooldownDays) ? cfg.perAuthorCooldownDays : 14) * 86400e3;
   var maxPerDay = Number.isFinite(cfg.maxPerDay) ? cfg.maxPerDay : 3;
+  // Non-finite falls back to the default rather than "no limit" — the same trap
+  // that made an Infinity age gate silently restore 72h.
+  var maxPerThread = Number.isFinite(cfg.maxRepliesPerThread) ? cfg.maxRepliesPerThread : 1;
 
   // Author history from entries that represent a draft or a shipped reply.
   // 'skipped' does NOT block: a CEO decline must not silence a person forever.
-  var threadDone = {};   // authorKey + '|' + rootUri → true (one per person per thread EVER)
-  var lastTouch = {};    // authorKey → most recent touch ms (cooldown across threads)
+  var threadCount = {};  // authorKey + '|' + rootUri → how many times WE replied
+  // authorKey → [{ts, hk}]. Per-touch, not a single max, because the cooldown is
+  // about approaching someone AGAIN — and answering inside a thread they are
+  // already talking in is not a new approach, it is the same conversation. A
+  // flat per-author max made the two rules redundant and the cooldown always
+  // won: a second exchange was unreachable at any per-thread limit.
+  //
+  // Inert for the automation, which allows one reply per thread — the per-thread
+  // gate below fires first in exactly the cases this distinction would matter.
+  // It only takes effect when maxRepliesPerThread > 1, i.e. the manual override.
+  var touches = {};
   var today = _dayKey(new Date(nowMs).toISOString());
   var createdToday = 0;
   store.forEach(function (e) {
     if (!e || (e.status !== 'task_created' && e.status !== 'answered')) return;
     var a = String(e.author || '').toLowerCase();
-    threadDone[a + '|' + (e.rootUri || '')] = true;
+    var hk = a + '|' + (e.rootUri || '');
+    threadCount[hk] = (threadCount[hk] || 0) + 1;
     var t = Date.parse(e.answeredAt || e.taskCreatedAt || e.discoveredAt || 0);
-    if (Number.isFinite(t)) lastTouch[a] = Math.max(lastTouch[a] || 0, t);
+    if (Number.isFinite(t)) (touches[a] = touches[a] || []).push({ ts: t, hk: hk });
     if (e.taskCreatedAt && _dayKey(e.taskCreatedAt) === today) createdToday++;
   });
   var budget = Math.max(0, maxPerDay - createdToday);
@@ -174,13 +194,23 @@ function filterCandidates(store, cfg, nowMs) {
     if (!Number.isFinite(age) || age > maxAgeMs) { drops.too_old++; return; }
     if (_strippedLength(e.text) < minLen) { drops.too_short++; return; }
     var a = String(e.author || '').toLowerCase();
-    if (threadDone[a + '|' + (e.rootUri || '')]) { drops.author_thread_done++; return; }
-    var t = lastTouch[a];
-    if (Number.isFinite(t) && nowMs - t < cooldownMs) { drops.author_cooldown++; return; }
+    var hk = a + '|' + (e.rootUri || '');
+    if ((threadCount[hk] || 0) >= maxPerThread) { drops.author_thread_done++; return; }
+    // Most recent touch of this author in some OTHER thread. Touches inside this
+    // one are the conversation itself and are governed by maxRepliesPerThread.
+    var lastOther = 0;
+    var prior = touches[a] || [];
+    for (var pi = 0; pi < prior.length; pi++) {
+      if (prior[pi].hk === hk) continue;
+      if (prior[pi].ts > lastOther) lastOther = prior[pi].ts;
+    }
+    if (lastOther && nowMs - lastOther < cooldownMs) { drops.author_cooldown++; return; }
     if (budget <= 0) { drops.daily_budget++; return; }
     budget--;
-    threadDone[a + '|' + (e.rootUri || '')] = true;
-    lastTouch[a] = nowMs;
+    threadCount[hk] = (threadCount[hk] || 0) + 1;
+    // Registering the selection keeps two comments by the same person in
+    // different threads from both passing in one run.
+    (touches[a] = touches[a] || []).push({ ts: nowMs, hk: hk });
     survivors.push(e);
   });
   return { survivors: survivors, drops: drops };

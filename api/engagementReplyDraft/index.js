@@ -17,18 +17,19 @@
 // This is the human override. The CEO looks at a conversation the bot let go and
 // says draft it anyway.
 //
-// WHAT IT DOES NOT OVERRIDE. Only the AGE gate. The rules that protect the
-// relationship rather than the schedule still block, and say so:
-//   - one reply per person per thread, ever
+// WHAT IT OVERRIDES. The AGE gate, and the per-thread reply limit from 1 to 2 —
+// a real conversation has a second turn, and the automation deliberately does
+// not take one. Everything else still blocks, and says so:
+//   - a THIRD reply to the same person in the same thread
 //   - 14-day per-author cooldown across all threads
 //   - minimum text length (nothing to answer)
 //   - the daily draft budget
-// Those exist so an agent cannot pester a stranger three times in a week, and a
-// button is not a good reason to lose them. Whichever one fires is named in the
-// response so the answer is never a silent no.
+// Those exist so an agent cannot pester a stranger, and a button is not a good
+// reason to lose them. Whichever fires is named in the response so the answer is
+// never a silent no.
 //
 // Rules are not reimplemented here. filterCandidates() from engagement-reply.js
-// is called with the age gate lifted, against a store containing only this
+// is called with an overridden config, against a store containing only this
 // candidate — same engine, no second copy to drift.
 
 const storage = require('../_utils/companyStorage');
@@ -41,17 +42,30 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-// How the age gate is lifted. NOT Infinity: filterCandidates guards its config
-// with Number.isFinite(), and Number.isFinite(Infinity) is false — so passing
-// Infinity silently restores the 72h DEFAULT and the override quietly does
-// nothing. ~114 years, finite, and nothing in this store outlives it.
-const AGE_GATE_LIFTED_HOURS = 1e6;
+// THE override, in one place. engagementInbox imports this to decide whether to
+// show the button, and if the two ever disagree the button appears exactly where
+// it will refuse — so there is one definition, not two.
+//
+// maxAgeHours: NOT Infinity. filterCandidates guards its config with
+// Number.isFinite(), and Number.isFinite(Infinity) is false, so passing Infinity
+// silently restores the 72h DEFAULT and the override quietly does nothing.
+// ~114 years, finite, and nothing in this store outlives it.
+//
+// maxRepliesPerThread 2 against a default of 1: the automation says its piece
+// once and stops, which is what keeps an agent from monologuing at a stranger.
+// A real conversation has a second turn, so a human can buy exactly one — and
+// no more. Everything else (per-author cooldown, minimum length, daily budget)
+// is inherited from the live config untouched.
+const OVERRIDE_CONFIG = {
+  maxAgeHours: 1e6,
+  maxRepliesPerThread: 2
+};
 
 // Human sentences for each rule filterCandidates can drop on. too_old is absent
 // on purpose: this endpoint exists precisely to ignore it.
 const DROP_REASONS = {
   too_short: 'There is nothing substantive to answer — the comment is too short.',
-  author_thread_done: 'We already replied to this person in this thread. One reply per person per conversation.',
+  author_thread_done: 'We have already replied to this person twice in this thread. Two exchanges is the limit.',
   author_cooldown: 'We replied to this person within the last 14 days. The cooldown is what stops us pestering someone.',
   daily_budget: 'The daily reply-draft budget is already spent. Try again tomorrow.'
 };
@@ -60,6 +74,8 @@ function badRequest(context, status, body) {
   context.res = { status: status, headers: CORS, body: body };
 }
 
+// Exported so engagementInbox decides "can this be drafted?" with the EXACT
+// config this endpoint will use, rather than a second copy of it.
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') {
     context.res = { status: 204, headers: CORS, body: '' };
@@ -131,7 +147,7 @@ module.exports = async function (context, req) {
     const subset = store.filter((e) => e && (e.status !== 'new' || e.id === id));
     const verdict = engagement.filterCandidates(
       subset,
-      Object.assign({}, cfg, { maxAgeHours: AGE_GATE_LIFTED_HOURS }),
+      Object.assign({}, cfg, OVERRIDE_CONFIG),
       nowMs
     );
 
@@ -238,3 +254,5 @@ module.exports = async function (context, req) {
     badRequest(context, 500, { error: 'Draft failed', details: (err && err.message) || String(err) });
   }
 };
+
+module.exports.OVERRIDE_CONFIG = OVERRIDE_CONFIG;

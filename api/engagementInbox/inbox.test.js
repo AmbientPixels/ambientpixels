@@ -139,15 +139,29 @@ test('the reason a button is missing is the guard that blocks the OVERRIDE', () 
   const old = new Date(NOW - 9 * DAY).toISOString();
 
   const store = [
-    // We answered this person in this thread already.
-    entry({ id: 'prior', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString(), indexedAt: old }),
+    // Two exchanges already spent in this thread — the button's own limit.
+    entry({ id: 'p1', status: 'answered', answeredAt: new Date(NOW - 9 * DAY).toISOString(), indexedAt: old }),
+    entry({ id: 'p2', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString(), indexedAt: old }),
     entry({ id: 'target', status: 'new', indexedAt: old })
   ];
   const ann = mod._annotateBlocked(store, cfg, NOW).target;
   assert.strictEqual(ann.blocked_reason, 'too_old', 'the cron drop should still be reported');
   assert.strictEqual(ann.can_draft, false);
   assert.strictEqual(ann.override_blocked_reason, 'author_thread_done',
-    'the panel would tell the CEO "aged out" when the real reason is that we already replied');
+    'the panel would tell the CEO "aged out" when the real reason is the conversation is spent');
+});
+
+test('one prior exchange leaves the button available — that is the point of 2', () => {
+  const cfg = { maxAgeHours: 72, minTextLength: 15, perAuthorCooldownDays: 14, maxPerDay: 3 };
+  const old = new Date(NOW - 9 * DAY).toISOString();
+  const store = [
+    entry({ id: 'prior', status: 'answered', answeredAt: new Date(NOW - 8 * DAY).toISOString(), indexedAt: old }),
+    entry({ id: 'target', status: 'new', indexedAt: old })
+  ];
+  const ann = mod._annotateBlocked(store, cfg, NOW).target;
+  assert.strictEqual(ann.blocked_reason, 'too_old');
+  assert.strictEqual(ann.can_draft, true, 'the second turn of a conversation is unreachable');
+  assert.strictEqual(ann.override_blocked_reason, null);
 });
 
 test('an item blocked ONLY by age is draftable, with no override blocker', () => {
