@@ -323,6 +323,73 @@ async function fetchPostEngagement(postId) {
 }
 
 /**
+ * Read comments on one post, newest first.
+ *
+ * Returns [] for "the post has no comments" and NULL for "we could not look". Those are
+ * different sentences and the inbox renders them differently: an empty array is a post
+ * nobody replied to, null is a hole in our knowledge. Collapsing them is how a broken token
+ * starts reading as silence.
+ *
+ * Requires pages_read_engagement. Comments are NOT cumulative counters, so unlike the
+ * metrics these can be consumed directly.
+ */
+async function fetchPostComments(postId, opts) {
+  var creds = await getCredentials();
+  if (validateCredentials(creds) || !postId) return null;
+  var limit = (opts && opts.limit) || 50;
+  try {
+    var res = await _request('GET', '/' + postId + '/comments', {
+      fields: 'id,message,created_time,permalink_url,from{id,name},like_count,parent',
+      order: 'reverse_chronological',
+      limit: String(limit),
+      access_token: creds.pageAccessToken
+    });
+    var rows = (res && res.data) || [];
+    return rows.map(function (c) {
+      var from = c.from || {};
+      return {
+        id: c.id,
+        post_id: postId,
+        // `from` is omitted by Graph for commenters who have not granted the app profile
+        // access, which is most of them. An absent name is anonymised, not missing data.
+        author: from.name || 'Facebook user',
+        author_id: from.id || null,
+        text: c.message || '',
+        created_time: c.created_time || null,
+        permalink: c.permalink_url || '',
+        likes: typeof c.like_count === 'number' ? c.like_count : 0,
+        is_reply: !!(c.parent && c.parent.id)
+      };
+    });
+  } catch (err) {
+    _log('comments-read-failed', { post_id: postId, error: err.message || String(err) });
+    return null;
+  }
+}
+
+/**
+ * Reply to a comment as the Page. Requires pages_manage_engagement.
+ * Deliberately NOT wired to any automation: the reply lane has no fabrication guard, and a
+ * first-person anecdote invented by a model has already passed the quality gate at 95% once.
+ * A human decides every one of these.
+ */
+async function replyToComment(commentId, text) {
+  var creds = await getCredentials();
+  var credError = validateCredentials(creds);
+  if (credError) throw { code: 'MISSING_CREDENTIALS', message: credError };
+  if (!commentId) throw { code: 'MISSING_COMMENT_ID', message: 'commentId is required' };
+  var body = String(text || '').trim();
+  if (!body) throw { code: 'EMPTY_CONTENT', message: 'Reply text is empty' };
+
+  var result = await retryOn429(
+    function () { return _request('POST', '/' + commentId + '/comments', { message: body, access_token: creds.pageAccessToken }); },
+    { platform: 'facebook', actionId: null }
+  );
+  _log('comment-reply-success', { comment_id: commentId, reply_id: result.id });
+  return { reply_id: result.id || '', comment_id: commentId, timestamp: new Date().toISOString() };
+}
+
+/**
  * Page-level follower count. Returns null on failure — never 0 — so a lost token
  * cannot be mistaken for an audience that vanished.
  */
@@ -355,6 +422,8 @@ module.exports = {
   validateCredentials,
   checkTokenHealth,
   fetchPostEngagement,
+  fetchPostComments,
+  replyToComment,
   fetchPageStats,
   contentHash,
   _permalink,

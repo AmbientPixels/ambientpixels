@@ -211,10 +211,15 @@ function buildReplyRows(store, sinceMs, limit, blockedById, taskById, replyActio
     .slice(0, limit)
     .map((e) => {
       const b = (blockedById && blockedById[e.id]) || {};
+      // Platform was hardcoded to bluesky because engagementReplies only ever had one
+      // source. Entries now carry their own, and the fallback keeps every existing row
+      // reading exactly as it did — a Bluesky entry written before this change has no
+      // platform field and must not become 'unknown'.
+      const _platform = e.platform || 'bluesky';
       return {
         id: e.id,
         kind: 'reply',
-        platform: 'bluesky',
+        platform: _platform,
         author: e.author,
         text: e.text || '',
         our_post_text: e.ourPostText || '',
@@ -239,8 +244,11 @@ function buildReplyRows(store, sinceMs, limit, blockedById, taskById, replyActio
         // been created — which is not the same as an empty draft.
         draft: buildDraft(e.taskId ? replyActionByTask[e.taskId] : null),
         manual_draft: e.manualDraft === true || undefined,
-        link: blueskyUrl(e.replyUri),
-        our_post_link: blueskyUrl(e.ourPostAtUri)
+        // Facebook comments carry a real permalink from Graph; Bluesky's is derived from
+        // the at:// URI. Building a bsky.app URL out of a Facebook comment id would emit a
+        // link that 404s, which is worse than no link at all.
+        link: _platform === 'bluesky' ? blueskyUrl(e.replyUri) : (e.permalink || ''),
+        our_post_link: _platform === 'bluesky' ? blueskyUrl(e.ourPostAtUri) : (e.ourPostPermalink || '')
       };
     });
 }
