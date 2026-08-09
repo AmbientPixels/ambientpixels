@@ -25,7 +25,7 @@ const COMPOSE_TIMEOUT_MS = 90000; // 90s cap on a single model call (incl. its f
 
 // Valid campaign platforms — a SUBSET of materialize.js VALID_TASK_TYPES: growth
 // channels only (excludes ops/financial/general), which is what a campaign can task.
-const VALID_CAMPAIGN_PLATFORMS = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research'];
+const VALID_CAMPAIGN_PLATFORMS = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_facebook', 'social_instagram', 'design_asset', 'internal_doc', 'research'];
 
 function _arr(v) { return Array.isArray(v) ? v : null; }
 function _normName(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); }

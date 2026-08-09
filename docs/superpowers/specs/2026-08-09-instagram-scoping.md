@@ -1,7 +1,23 @@
 # Instagram — scoping, and the blocker that stops it being an afternoon
 
-**Status:** NOT BUILT. **Step 1 UNBLOCKED 2026-08-09 — see below.** Now blocked on the
-link-shape decision (step 2), which is the CEO's.
+**Status: SHIPPED 2026-08-09 (`edd5ccc1`).** Adapter live, all lists swept, prompt enums
+updated, 87/87 green. Nothing has been published yet — the first Instagram post will be a
+normal approved action through the queue.
+
+**The link-shape decision (step 2) was made: REFUSE.** Instagram takes engagement-shaped
+posts only. The adapter rejects any caption containing a URL, before the card render and
+before any Graph call. The rule is also in the agent prompt, so Echo never briefs a post
+that would be refused. Stripping the URL and rewriting to link-in-bio were both considered
+and rejected — see "The link problem" below.
+
+**Remaining gaps, named rather than left to be discovered:**
+- `companyHeartbeat/index.js:3921` `_paceSocialTypes` is off-limits, so Instagram
+  campaigns are **not pace-tracked**.
+- `socialAccountStats`, `socialEngagement`, `research-intel`, and four sites in
+  `social-intel` still list only x/linkedin/bluesky — they are missing **facebook too**,
+  so this is pre-existing drift, not new. Instagram follower counts will not surface on
+  the dashboard until someone sweeps them.
+- Reels are phase 2 and need the video pipeline.
 **Date:** 2026-08-09
 **Prerequisite reading:** `2026-08-09-facebook-and-video-handoff.md`, `2026-08-09-video-pipeline.md`
 

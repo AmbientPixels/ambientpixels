@@ -23,7 +23,18 @@ function _id(prefix, nowIso) { return prefix + _ts(nowIso).toString(36) + '-' + 
 // Valid campaign task types (mirrors the heartbeat normalizer's allowlist). A
 // campaign with no valid type can't be routed by auto-replenish — it just makes
 // untyped generic tasks. So we always resolve to at least one valid type.
-const VALID_TASK_TYPES = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
+// social_facebook and social_instagram were MISSING here while campaigns.html has
+// offered a Facebook checkbox for months. The effect was silent and total: an approved
+// campaign whose platforms were ['social_facebook'] had every entry filtered out by
+// deriveTaskTypes below, fell through to keyword inference, and defaulted to
+// social_bluesky. A Facebook campaign quietly became a Bluesky campaign — no error, no
+// flag, and `derived: true` was the only trace.
+//
+// social_reddit is still absent, deliberately unresolved rather than silently included:
+// Reddit is in actionsScheduler's _manualPlatforms, so campaign-generated Reddit tasks
+// would produce actions nothing can auto-post. That is a real question about the manual
+// outbox, not a list to pad.
+const VALID_TASK_TYPES = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_facebook', 'social_instagram', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
 // Objective statuses that can still accept new campaign work.
 const ACTIVE_OBJECTIVE_STATUSES = ['active', 'on_track', 'at_risk', 'behind'];
 // Tokens too generic to carry signal when matching a campaign name to an objective.
