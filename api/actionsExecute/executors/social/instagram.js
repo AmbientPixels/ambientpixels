@@ -176,6 +176,81 @@ function checkPublishable(payload) {
   return null;
 }
 
+// A container is not publishable the instant it is created. Instagram fetches image_url
+// on ITS side, asynchronously, and the container sits IN_PROGRESS until that finishes.
+// Publishing before then fails with "Media ID is not available" (code 9007, subcode
+// 2207027) — which is what happened to the first real post on 2026-08-09.
+const CONTAINER_POLL_INTERVAL_MS = 3000;
+const CONTAINER_READY_TIMEOUT_MS = 60000;
+
+function _sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+/**
+ * Pure. What a container's status_code means for us.
+ * 'ready'   — publishable now
+ * 'pending' — still processing, keep waiting
+ * 'failed'  — terminal, never publishable (Instagram could not use the image)
+ */
+function classifyContainerStatus(statusCode) {
+  var s = String(statusCode || '').toUpperCase();
+  if (s === 'FINISHED') return 'ready';
+  if (s === 'ERROR' || s === 'EXPIRED') return 'failed';
+  return 'pending'; // IN_PROGRESS, PUBLISHED, or an empty/unknown read
+}
+
+/**
+ * Block until the container is publishable.
+ *
+ * Everything this throws is SAFE TO RETRY and deliberately does NOT set
+ * requires_manual_review: no publish has been attempted, so nothing can be live. That is
+ * the opposite of the media_publish step below, where an unknown outcome must never retry.
+ * A container nobody publishes expires on its own within 24h, costs nothing, and is
+ * invisible — so giving up here is free.
+ */
+async function _waitForContainerReady(creationId, token) {
+  const deadline = Date.now() + CONTAINER_READY_TIMEOUT_MS;
+  let lastStatus = '(never read)';
+  let polls = 0;
+
+  while (Date.now() < deadline) {
+    polls++;
+    let res = null;
+    try {
+      res = await _request('GET', '/' + creationId, { fields: 'status_code,status', access_token: token });
+    } catch (readErr) {
+      // Reading the status is not the same as publishing. A failed read tells us nothing
+      // about the container, so treat it as "not ready yet" and keep waiting rather than
+      // failing a post that was about to become publishable.
+      _log('container-status-read-failed', { creation_id: creationId, poll: polls, error: readErr.message || String(readErr) });
+      await _sleep(CONTAINER_POLL_INTERVAL_MS);
+      continue;
+    }
+
+    lastStatus = (res && res.status_code) || '(absent)';
+    const verdict = classifyContainerStatus(lastStatus);
+
+    if (verdict === 'ready') {
+      _log('container-ready', { creation_id: creationId, polls: polls, waited_ms: polls * CONTAINER_POLL_INTERVAL_MS });
+      return;
+    }
+    if (verdict === 'failed') {
+      throw {
+        code: 'IG_CONTAINER_FAILED',
+        message: 'Instagram could not prepare the media container (status ' + lastStatus + ')'
+          + ((res && res.status) ? ': ' + res.status : '')
+          + '. Nothing was published. The usual cause is an image_url Instagram could not fetch.'
+      };
+    }
+    await _sleep(CONTAINER_POLL_INTERVAL_MS);
+  }
+
+  throw {
+    code: 'IG_CONTAINER_NOT_READY',
+    message: 'Container ' + creationId + ' was still "' + lastStatus + '" after '
+      + Math.round(CONTAINER_READY_TIMEOUT_MS / 1000) + 's. Nothing was published; this is safe to retry.'
+  };
+}
+
 /**
  * Best-effort canonical permalink. The post is ALREADY live when this runs, so a failure
  * here must never turn a successful publish into a thrown error — same rule as
@@ -270,6 +345,13 @@ async function publishToInstagram(action) {
     throw { code: 'IG_CONTAINER_FAILED', message: 'Instagram returned no container id' };
   }
 
+  // ── Step 1b: wait for Instagram to actually prepare it ──
+  // The /media call returning an id means "accepted", NOT "ready". Publishing straight
+  // after it is a race, and on 2026-08-09 it lost: the first real post failed with
+  // "Media ID is not available" (9007/2207027). Verified at the time that the image was
+  // publicly fetchable and nothing had published — the container simply was not finished.
+  await _waitForContainerReady(creationId, creds.pageAccessToken);
+
   // ── Step 2: publish ──
   // This is the dangerous one. If the POST lands but the RESPONSE is lost, the post is
   // live and we do not know it — and a retry publishes the same container again or builds
@@ -345,11 +427,13 @@ module.exports = {
   getCredentials,
   validateCredentials,
   checkPublishable,
+  classifyContainerStatus,
   findUrls,
   countHashtags,
   contentHash,
   _describeError,
   GRAPH_VERSION,
   MAX_CHARS,
-  MAX_HASHTAGS
+  MAX_HASHTAGS,
+  CONTAINER_READY_TIMEOUT_MS
 };

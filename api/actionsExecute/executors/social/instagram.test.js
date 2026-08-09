@@ -121,4 +121,49 @@ test('prompt enum names social_instagram, or the agent can never emit it', () =>
   assert.ok(/Instagram captions render URLs as dead text/.test(src), 'the no-links rule must reach the agent, not just the executor');
 });
 
+// ── Container readiness ──
+// The first real Instagram post (2026-08-09) failed with "Media ID is not available"
+// (9007/2207027) because /media returning an id was treated as "ready to publish". It is
+// not: Instagram fetches image_url on its own side and the container stays IN_PROGRESS
+// until that finishes. Verified at the time that the image was publicly fetchable and
+// media_count was 0, so the container simply had not finished.
+test('only FINISHED is publishable', () => {
+  assert.strictEqual(ig.classifyContainerStatus('FINISHED'), 'ready');
+});
+
+test('in-progress states mean wait, never publish and never give up', () => {
+  ['IN_PROGRESS', 'PUBLISHED', '', null, undefined, '(absent)'].forEach(function (s) {
+    assert.strictEqual(ig.classifyContainerStatus(s), 'pending', 'status ' + JSON.stringify(s) + ' must be pending');
+  });
+});
+
+test('ERROR and EXPIRED are terminal, not retried forever', () => {
+  assert.strictEqual(ig.classifyContainerStatus('ERROR'), 'failed');
+  assert.strictEqual(ig.classifyContainerStatus('EXPIRED'), 'failed');
+});
+
+test('status matching is case-insensitive', () => {
+  assert.strictEqual(ig.classifyContainerStatus('finished'), 'ready');
+  assert.strictEqual(ig.classifyContainerStatus('error'), 'failed');
+});
+
+test('publish waits for the container before calling media_publish', () => {
+  const src = require('fs').readFileSync(require('path').join(__dirname, 'instagram.js'), 'utf8');
+  const waitAt = src.indexOf('_waitForContainerReady(creationId');
+  const publishAt = src.indexOf("'/media_publish'");
+  assert.ok(waitAt !== -1, 'the readiness wait must exist');
+  assert.ok(publishAt !== -1, 'media_publish call must still exist');
+  assert.ok(waitAt < publishAt, 'the wait must happen BEFORE media_publish, or the race is back');
+});
+
+test('container-wait failures stay retryable — they must never park for manual review', () => {
+  const src = require('fs').readFileSync(require('path').join(__dirname, 'instagram.js'), 'utf8');
+  const start = src.indexOf('async function _waitForContainerReady');
+  const end = src.indexOf('async function _fetchPermalink');
+  assert.ok(start !== -1 && end > start, 'could not isolate the wait helper');
+  const body = src.slice(start, end);
+  assert.strictEqual(body.indexOf('requires_manual_review'), -1,
+    'nothing has published at this point, so parking for a human would strand a post that is safe to retry');
+});
+
 console.log('\n' + passed + ' passed');
