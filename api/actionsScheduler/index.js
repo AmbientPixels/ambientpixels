@@ -101,8 +101,15 @@ module.exports = async function (context) {
         if (sinceLastAttempt < RETRY_COOLDOWN_MS) continue;
       }
 
-      // Manual platforms (Reddit, Facebook) — never expire, CEO posts manually
-      const _manualPlatforms = ['reddit', 'facebook'];
+      // Manual platforms — no adapter can publish these, so the CEO posts them by hand
+      // and they must never expire or be marked failed.
+      //
+      // Facebook came OFF this list on 2026-08-08: facebook.js was a manual-outbox stub
+      // when this was written, and is now a real Graph API adapter. Leaving it here would
+      // have made every scheduled Facebook post silently skip forever — approved, never
+      // posted, nothing marked failed, nothing to notice. Same shape as the reply gap
+      // documented above.
+      const _manualPlatforms = ['reddit'];
       if (_manualPlatforms.indexOf((a.platform || '').toLowerCase()) !== -1) continue;
 
       // Replies execute IMMEDIATELY on approval — they answer live conversations
