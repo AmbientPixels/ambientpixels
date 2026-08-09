@@ -164,7 +164,45 @@
       </div>
     </section>
 
-    <!-- ═══ Zone 2: Social Command Center ═══ -->
+    <!-- ═══ Zone 2: Engagement Inbox ═══
+         Sits ABOVE the aggregate social panel on purpose: a person waiting on a
+         reply outranks a chart of how many likes we got. -->
+    <section class="ah-zone" id="ah-zone-inbox">
+      <div class="ah-zone-head">
+        <div class="ah-zone-title"><i class="fas fa-inbox"></i> Engagement Inbox</div>
+      </div>
+      <nav class="ah-tabs">
+        <button class="ah-tab" data-tab="overview" type="button"><i class="fas fa-comments"></i>Interactions</button>
+        <button class="ah-tab" data-tab="about" type="button"><i class="fas fa-info-circle"></i>About</button>
+      </nav>
+      <div class="ah-tab-panels">
+        <div class="ah-tab-panel" data-tab="overview">
+          <div id="engagement-inbox-body">
+            <div class="ah-loading">Loading interactions&hellip;</div>
+          </div>
+        </div>
+        <div class="ah-tab-panel" data-tab="about">
+          <div class="ah-about">
+            <p><strong>What this shows.</strong> Every real interaction with our posts, as a row you can read &mdash; who replied,
+            what they said, which post they were replying to, and whether anyone has answered them. Last 30 days.</p>
+            <p><strong>Why rows and not a chart.</strong> Four months of posting produced 65 interactions. At that volume an
+            average and a trend line both round to noise, and the only useful action is to read every one and reply.
+            The panel below this one is the aggregate view; this one is the conversation.</p>
+            <p><strong>Reply text is Bluesky only.</strong> Replies are harvested via AT Protocol <code>getPostThread</code>, which is
+            free and public. X and LinkedIn have no equivalent we pay for, so they contribute likes and reposts but no
+            conversation. An empty Bluesky section means nobody replied; an absent X section means we never asked.</p>
+            <p><strong>Status.</strong> <em>needs a reply</em> means nobody has drafted anything yet.
+            <em>draft queued</em> means Scribe wrote one and it is waiting on your approval in the Actions page.
+            <em>answered</em> means it shipped. Drafting is CEO-gated as always &mdash; nothing here posts on its own.</p>
+            <p><strong>Where the data comes from.</strong> <code>engagementReplies</code>, written by
+            <code>companyHeartbeat/engagement-reply.js</code> on the daily <code>outcomeRefresh</code> cron. If the store has never
+            been written the panel says so rather than showing a quiet, healthy-looking zero.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Zone 3: Social Command Center ═══ -->
     <section class="ah-zone" id="ah-zone-social">
       <div class="ah-zone-head">
         <div class="ah-zone-title"><i class="fas fa-satellite-dish"></i> Social Command Center</div>
@@ -190,7 +228,7 @@
       </div>
     </section>
 
-    <!-- ═══ Zone 3: Product Analytics (DEMOTED — sparse data, lazy tabs) ═══ -->
+    <!-- ═══ Zone 4: Product Analytics (DEMOTED — sparse data, lazy tabs) ═══ -->
     <section class="ah-zone" id="ah-zone-product">
       <div class="ah-zone-head">
         <div class="ah-zone-title"><i class="fas fa-cube"></i> Product Analytics</div>
@@ -240,7 +278,7 @@
       </div>
     </section>
 
-    <!-- ═══ Zone 4: Account Overview (compact, bottom) ═══ -->
+    <!-- ═══ Zone 5: Account Overview (compact, bottom) ═══ -->
     <section class="ah-zone ah-zone--compact" id="sa-acct-section">
       <div class="ah-zone-head">
         <div class="ah-zone-title"><i class="fas fa-users"></i> Account Overview</div>
@@ -271,6 +309,7 @@
   <script src="/modules/company/js/analytics-hub.js"></script>
   <script src="/modules/company/js/product-analytics-dashboard.js"></script>
   <script src="/js/agent-engine.js"></script>
+  <script src="/modules/company/js/engagement-inbox.js"></script>
   <script src="/modules/company/js/social-command.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>

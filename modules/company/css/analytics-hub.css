@@ -1179,3 +1179,145 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
     flex: 0 0 80px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Engagement Inbox (2026-08-09)
+
+   Rows, not charts. Four months of posting produced 65 interactions, so the
+   whole week fits on screen and the useful act is reading it, not averaging it.
+   The reply text is the one human sentence on this page — it gets the type
+   weight, and it never truncates.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ei-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.ei-count {
+  font-size: var(--c-text-xs);
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+  opacity: 0.65;
+}
+/* The only chip that asks something of a human today. */
+.ei-count--wait {
+  border-color: rgba(251,191,36,0.35);
+  background: rgba(251,191,36,0.1);
+  color: #fbbf24;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.ei-section-label {
+  font-size: var(--c-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.4;
+  margin: 14px 0 6px;
+}
+.ei-section-note {
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.ei-row {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 3px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 9px 11px;
+  margin-bottom: 7px;
+  background: rgba(255,255,255,0.012);
+}
+/* Left edge carries the state, so a scan down the column finds what is waiting. */
+.ei-row--wait { border-left-color: #fbbf24; background: rgba(251,191,36,0.03); }
+.ei-row--pending { border-left-color: #60a5fa; }
+.ei-row--done { border-left-color: #34d399; }
+.ei-row--muted { border-left-color: rgba(255,255,255,0.1); opacity: 0.55; }
+
+.ei-row-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: var(--c-text-xs);
+}
+.ei-plat { font-size: 0.8em; }
+.ei-author { font-weight: 600; }
+.ei-verb, .ei-when { opacity: 0.4; }
+
+.ei-status {
+  font-size: var(--c-text-xs);
+  padding: 1px 7px;
+  border-radius: 999px;
+  margin-left: auto;
+}
+.ei-status--wait { background: rgba(251,191,36,0.12); color: #fbbf24; font-weight: 600; }
+.ei-status--pending { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.ei-status--done { background: rgba(52,211,153,0.12); color: #34d399; }
+.ei-status--muted { background: rgba(255,255,255,0.05); opacity: 0.5; }
+
+/* What they actually said. Full text, wrapped — the reason this panel exists. */
+.ei-said {
+  margin: 7px 0 0;
+  padding: 0 0 0 10px;
+  border-left: 2px solid rgba(255,255,255,0.1);
+  font-size: var(--c-text-base);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ei-context {
+  margin-top: 6px;
+  font-size: var(--c-text-xs);
+  opacity: 0.45;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.ei-context-arrow { transform: rotate(90deg); font-size: 0.75em; }
+.ei-context-label { flex: 0 0 auto; }
+.ei-context-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ei-reaction-metrics { display: inline-flex; gap: 9px; flex: 0 0 auto; }
+.ei-metric { font-weight: 600; }
+.ei-metric i { font-size: 0.8em; margin-right: 3px; }
+.ei-metric--like { color: #34d399; }
+.ei-metric--repost { color: #a78bfa; }
+.ei-metric--comment { color: #fbbf24; }
+.ei-reaction-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.55;
+}
+.ei-notext { font-style: italic; opacity: 0.6; }
+
+.ei-link { color: inherit; opacity: 0.35; text-decoration: none; flex: 0 0 auto; }
+.ei-link:hover { opacity: 1; }
+
+.ei-coverage {
+  margin: 14px 0 0;
+  font-size: var(--c-text-xs);
+  opacity: 0.4;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .ei-status { margin-left: 0; }
+  .ei-context-text, .ei-reaction-text { white-space: normal; }
+}
