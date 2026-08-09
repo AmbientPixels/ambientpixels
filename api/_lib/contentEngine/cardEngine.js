@@ -83,9 +83,25 @@ function splitLines(text) {
  * largest size that fits. Short copy gets big type, long copy gets smaller type, and the card
  * is full either way.
  *
- * 0.62em average advance for Archivo Black is approximate. It only has to be close: being
- * one size step conservative costs nothing, and availHeight already excludes the lockup.
+ * The two constants below were GUESSED as a single 0.62 until 2026-08-09, and the guess was
+ * 14.5% too wide, which is a real cost: it undercounts how many characters fit on a line,
+ * so it overcounts rows, so it picks type smaller than the card can carry. Splitting the
+ * guess into the two separate things it was conflating makes each one checkable.
  */
+
+// Mean advance per character of Archivo Black at letterSpacing -0.02em, MEASURED rather
+// than assumed: render one unwrapped line on a wide canvas, take the ink extents, divide by
+// (chars x fontSize). Five real captions gave 0.5212-0.5586, mean 0.5415.
+// Re-derive with scripts/measure-card-advance.js if the font or letterSpacing ever changes.
+const AVG_ADVANCE_EM = 0.5415;
+
+// Words do not break, so a wrapped line stops short of the right edge and the leftover is
+// wasted. That is a DIFFERENT effect from glyph width and belongs in its own number — folding
+// it into the advance is what made the old constant unfalsifiable. 0.92 keeps the estimate
+// about one row pessimistic on typical copy, which is the safe direction: overflow collides
+// with the lockup, whereas slack is only slack.
+const WRAP_FILL_EFFICIENCY = 0.92;
+
 function fitSize(lines, maxWidth, opts) {
   opts = opts || {};
   const max = opts.max || 92;
@@ -95,7 +111,7 @@ function fitSize(lines, maxWidth, opts) {
   if (!body.length) return max;
 
   for (let size = max; size >= min; size -= 2) {
-    const charsPerLine = Math.max(8, Math.floor(maxWidth / (size * 0.62)));
+    const charsPerLine = Math.max(8, Math.floor((maxWidth / (size * AVG_ADVANCE_EM)) * WRAP_FILL_EFFICIENCY));
     let rows = 0;
     for (const l of lines) {
       // Blank lines are paragraph gaps, not full rows.
