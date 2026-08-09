@@ -1,0 +1,364 @@
+/* ═══════════════════════════════════════════════════════════════
+   Engagement Inbox — modules/company/engagement.html
+
+   Moved out of analytics-hub.css on 2026-08-09 when the inbox stopped being
+   zone 2 of a dashboard and became a workspace. The rules are the same ones
+   the section shipped with; the colours are now tokens, because a page that
+   lives under the sidebar gets opened in the light and dim themes and the
+   section version had hardcoded rgba(255,255,255,...) throughout.
+
+   ROWS, NOT CHARTS. 195 posts produced 65 interactions in four months. At that
+   volume an average rounds to noise and the useful act is reading every one, so
+   the reply text is the one thing on this page with real type weight and it
+   never truncates.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Counts strip ────────────────────────────────────────────── */
+.ei-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--c-gap);
+  margin-bottom: var(--c-gap-lg);
+}
+
+.ei-stat {
+  border: 1px solid var(--c-sep);
+  border-radius: var(--c-r-sm);
+  background: var(--c-surface);
+  padding: 10px 12px;
+}
+/* The only tile that asks something of a human today. */
+.ei-stat--wait {
+  border-color: rgba(251,191,36,0.35);
+  background: rgba(251,191,36,0.06);
+}
+.ei-stat-value {
+  font-size: var(--c-text-xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--c-text);
+  line-height: var(--c-lh-tight);
+}
+.ei-stat--wait .ei-stat-value { color: var(--c-amber); }
+/* A statistic we do not have yet must not look like a small one. */
+.ei-stat-value--none {
+  font-size: var(--c-text-lg);
+  font-weight: 600;
+  color: var(--c-text-3);
+}
+.ei-stat-label {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-2);
+  margin-top: 3px;
+}
+.ei-stat-sub {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  margin-top: 2px;
+  line-height: var(--c-lh-tight);
+}
+
+/* ── Toolbar: segments + search ──────────────────────────────── */
+.ei-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--c-gap);
+  flex-wrap: wrap;
+  margin-bottom: var(--c-gap);
+}
+.ei-segments { flex: 1 1 auto; min-width: 0; }
+
+.ei-search-wrap {
+  position: relative;
+  flex: 0 1 260px;
+  padding-bottom: 6px;
+}
+.ei-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-60%);
+  font-size: 11px;
+  color: var(--c-text-3);
+  pointer-events: none;
+}
+.ei-search {
+  width: 100%;
+  font-family: var(--c-font);
+  font-size: var(--c-text-base);
+  color: var(--c-text);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-sep);
+  border-radius: var(--c-r-pill);
+  padding: 6px 12px 6px 28px;
+}
+.ei-search:focus {
+  outline: none;
+  border-color: var(--c-accent-border);
+  background: var(--c-surface-3);
+}
+.ei-search::placeholder { color: var(--c-text-3); }
+
+/* Client-side over the loaded set. At 9 conversations that is the right
+   trade; past a few hundred this belongs in the query string. */
+.ei-search-note {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  margin: 0 0 8px;
+}
+
+/* ── Empty states (structure only — .ap-empty comes from company.css) ── */
+.ei-empty-title { font-weight: 600; color: var(--c-text-2); }
+.ei-empty-hint {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  line-height: var(--c-lh-base);
+  max-width: 46ch;
+  margin: 6px auto 0;
+}
+
+/* ── Conversation rows ───────────────────────────────────────── */
+.ei-section-label {
+  font-size: var(--c-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-text-3);
+  margin: 18px 0 8px;
+}
+.ei-section-note {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--c-text-2);
+  font-weight: 400;
+}
+
+.ei-row {
+  border: 1px solid var(--c-sep);
+  border-left: 3px solid var(--c-sep-strong);
+  border-radius: var(--c-r-sm);
+  padding: 11px 13px;
+  margin-bottom: 8px;
+  background: var(--c-surface);
+  scroll-margin-top: 90px;
+}
+/* Left edge carries the state, so a scan down the column finds what is waiting. */
+.ei-row--wait { border-left-color: var(--c-amber); background: rgba(251,191,36,0.04); }
+.ei-row--pending { border-left-color: var(--c-blue); }
+.ei-row--done { border-left-color: var(--c-green); }
+.ei-row--muted { border-left-color: var(--c-sep-strong); opacity: 0.6; }
+
+/* Deep-link target: engagement.html#er_abc123. The Discord approval ping can
+   point at one person instead of at a dashboard, so arriving has to land the
+   eye on the right row. */
+.ei-row--focus {
+  border-color: var(--c-accent-border);
+  box-shadow: 0 0 0 3px var(--c-accent-dim);
+}
+
+.ei-row-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: var(--c-text-xs);
+  color: var(--c-text);
+}
+.ei-plat { font-size: 0.9em; }
+.ei-plat--bluesky  { color: #60a5fa; }
+.ei-plat--x        { color: var(--c-text); }
+.ei-plat--linkedin { color: #0a66c2; }
+.ei-plat--facebook { color: #1877f2; }
+.ei-plat--reddit   { color: #ff4500; }
+.ei-plat--other    { color: var(--c-text-2); }
+
+.ei-author { font-weight: 600; }
+.ei-verb, .ei-when { color: var(--c-text-3); }
+
+.ei-status {
+  font-size: var(--c-text-xs);
+  padding: 1px 8px;
+  border-radius: var(--c-r-pill);
+  margin-left: auto;
+}
+.ei-status--wait { background: rgba(251,191,36,0.14); color: var(--c-amber); font-weight: 600; }
+.ei-status--pending { background: rgba(96,165,250,0.14); color: var(--c-blue); }
+.ei-status--done { background: rgba(52,211,153,0.14); color: var(--c-green); }
+.ei-status--muted { background: var(--c-surface-2); color: var(--c-text-2); }
+
+/* What they actually said. Full text, wrapped — the reason this page exists. */
+.ei-said {
+  margin: 8px 0 0;
+  padding: 0 0 0 11px;
+  border-left: 2px solid var(--c-sep-strong);
+  font-size: var(--c-text-base);
+  line-height: var(--c-lh-base);
+  color: var(--c-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ei-context {
+  margin-top: 7px;
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.ei-context-arrow { transform: rotate(90deg); font-size: 0.75em; }
+.ei-context-label { flex: 0 0 auto; }
+.ei-context-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ei-link { color: inherit; opacity: 0.4; text-decoration: none; flex: 0 0 auto; }
+.ei-link:hover { opacity: 1; }
+
+.ei-coverage {
+  margin: 20px 0 0;
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  line-height: var(--c-lh-base);
+}
+
+/* ── Unanswered footer ───────────────────────────────────────── */
+/* Three states, because "nobody drafted this" hides three different
+   situations: it is queued, it aged out and you can force it, or a
+   relationship guard says no and only you can answer. */
+.ei-action {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--c-sep);
+  font-size: var(--c-text-xs);
+  color: var(--c-text-2);
+}
+.ei-action--queued, .ei-action--blocked { color: var(--c-text-3); }
+.ei-action-why { color: var(--c-text-2); }
+.ei-action-note { color: var(--c-text-3); font-style: italic; }
+.ei-action-error { color: var(--c-red); }
+
+.ei-draft-btn {
+  margin-left: auto;
+  font-family: inherit;
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--c-r-pill);
+  border: 1px solid rgba(251,191,36,0.35);
+  background: rgba(251,191,36,0.1);
+  color: var(--c-amber);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ei-draft-btn:hover:not(:disabled) { background: rgba(251,191,36,0.2); }
+.ei-draft-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Reactions ───────────────────────────────────────────────── */
+.ei-rx-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.ei-rx-filter {
+  font-family: var(--c-font);
+  font-size: var(--c-text-xs);
+  padding: 3px 10px;
+  border-radius: var(--c-r-pill);
+  border: 1px solid var(--c-sep);
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  cursor: pointer;
+}
+.ei-rx-filter:hover { color: var(--c-text); }
+.ei-rx-filter--active {
+  border-color: var(--c-accent-border);
+  background: var(--c-accent-dim);
+  color: var(--c-accent);
+  font-weight: 600;
+}
+.ei-rx-count {
+  margin-left: 6px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.ei-row--reaction { padding: 8px 13px; }
+.ei-reaction-metrics { display: inline-flex; gap: 10px; flex: 0 0 auto; }
+.ei-metric { font-weight: 600; }
+.ei-metric i { font-size: 0.8em; margin-right: 3px; }
+.ei-metric--like { color: var(--c-green); }
+.ei-metric--repost { color: var(--c-purple); }
+.ei-metric--comment { color: var(--c-amber); }
+.ei-reaction-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--c-text-2);
+}
+/* Said ONCE above the list, not on every row. Seventeen identical lines
+   reading "post text not captured" is the blank-row bug wearing a label. */
+.ei-rx-honesty {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-3);
+  line-height: var(--c-lh-base);
+  margin: 0 0 10px;
+  padding-left: 9px;
+  border-left: 2px solid var(--c-sep);
+}
+
+/* ── About ───────────────────────────────────────────────────── */
+/* <details>, so the explanation is one click away and costs no vertical space
+   on a page whose whole point is reading conversations. */
+.ei-about {
+  margin-top: 28px;
+  border-top: 1px solid var(--c-sep);
+  padding-top: 14px;
+}
+.ei-about > summary {
+  font-size: var(--c-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-text-3);
+  cursor: pointer;
+}
+.ei-about > summary:hover { color: var(--c-text-2); }
+.ei-about-body {
+  font-size: var(--c-text-base);
+  line-height: 1.55;
+  color: var(--c-text-2);
+  max-width: 720px;
+  margin-top: 12px;
+}
+.ei-about-body p { margin: 0 0 0.7rem 0; }
+.ei-about-body p:last-child { margin-bottom: 0; }
+.ei-about-body strong { color: var(--c-text); font-weight: 600; }
+.ei-about-body code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.92em;
+  background: var(--c-surface-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--c-accent);
+}
+
+@media (max-width: 768px) {
+  .ei-status { margin-left: 0; }
+  .ei-context-text, .ei-reaction-text { white-space: normal; }
+  .ei-draft-btn { margin-left: 0; }
+  .ei-search-wrap { flex: 1 1 100%; }
+}

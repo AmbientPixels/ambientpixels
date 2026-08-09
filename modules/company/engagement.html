@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/modules/company/runtime-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Engagement Inbox — every reply to our posts, and what we are going to say back." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Engagement Inbox — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/engagement.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+</head>
+<body data-theme="dark">
+  <main id="eng-main" class="content-section">
+    <div class="company-header">
+      <h1><i class="fas fa-comments co-icon-mr-lg dash-icon-blue"></i>Engagement Inbox</h1>
+      <p>Who is talking to us, and what we are going to say back.</p>
+    </div>
+
+    <!-- Counts strip. Deliberately five plain numbers and no chart: 195 posts
+         produced 65 interactions in four months, and at that volume a trend
+         line rounds to noise. -->
+    <div class="ei-strip" id="ei-strip">
+      <div class="ap-empty">Loading&hellip;</div>
+    </div>
+
+    <div class="ei-toolbar">
+      <nav class="ap-tabs ei-segments" id="ei-segments"></nav>
+      <div class="ei-search-wrap">
+        <i class="fas fa-magnifying-glass ei-search-icon"></i>
+        <label class="sr-only" for="ei-search">Search conversations</label>
+        <input type="search" id="ei-search" class="ei-search" autocomplete="off"
+               placeholder="Search conversations"
+               title="Searches the handle, their words and our post text" />
+      </div>
+    </div>
+
+    <div id="ei-conversations">
+      <div class="ap-empty">Loading conversations&hellip;</div>
+    </div>
+
+    <div class="ei-section-label">Reactions <span class="ei-section-note">no conversation attached &mdash; a like is all the platform gives us</span></div>
+    <div id="ei-reactions"></div>
+
+    <p class="ei-coverage" id="ei-coverage"></p>
+
+    <details class="ei-about">
+      <summary>About this page</summary>
+      <div class="ei-about-body">
+        <p><strong>What this shows.</strong> Every real interaction with our posts, as a row you can read &mdash; who replied,
+        what they said, which post they were replying to, and whether anyone has answered them. Last 60 days.</p>
+        <p><strong>Why rows and not a chart.</strong> Four months of posting produced 65 interactions. At that volume an
+        average and a trend line both round to noise, and the only useful action is to read every one and reply.
+        The Analytics Hub is the aggregate view; this is the conversation.</p>
+        <p><strong>Reply text is Bluesky only.</strong> Replies are harvested via AT Protocol <code>getPostThread</code>, which is
+        free and public. X and LinkedIn have no equivalent we pay for, so they contribute likes and reposts but no
+        conversation. An empty Bluesky section means nobody replied; an absent X section means we never asked.</p>
+        <p><strong>Segments.</strong> <em>Needs a reply</em> is nobody has drafted anything yet, plus the conversations whose
+        draft task died and produced nothing. <em>In progress</em> is Scribe drafting or a draft waiting on your approval.
+        <em>Answered</em> shipped. <em>Skipped</em> was declined, by you or by a guard. Drafting is CEO-gated as always
+        &mdash; nothing here posts on its own.</p>
+        <p><strong>Median response time.</strong> Hours between someone replying to us and our reply going out. It reads
+        <em>not yet</em> below three answered conversations, because two is an anecdote, and it never shows a
+        confident zero: conversations answered before we started stamping <code>answeredAt</code> are counted separately
+        rather than scored as instant.</p>
+        <p><strong>Deep links.</strong> <code>engagement.html#er_&lt;id&gt;</code> opens on one conversation and highlights it, so an
+        alert can point at a person instead of at a dashboard.</p>
+        <p><strong>Where the data comes from.</strong> <code>engagementReplies</code>, written by
+        <code>companyHeartbeat/engagement-reply.js</code> on the daily <code>outcomeRefresh</code> cron. If the store has never
+        been written the page says so rather than showing a quiet, healthy-looking zero.</p>
+      </div>
+    </details>
+  </main>
+
+  <script src="/js/storage-manager.js"></script>
+  <script src="/modules/company/js/demo-toast.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/modules/company/js/ap-utils.js"></script>
+  <script src="/modules/company/js/ap-api.js"></script>
+  <!-- AHShared is the authenticated fetch (it merges secretHeaders). Loaded for
+       fetchJSON/esc/relTime rather than duplicating them here. -->
+  <script src="/modules/company/js/analytics-hub-shared.js"></script>
+  <script src="/modules/company/js/engagement-page.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

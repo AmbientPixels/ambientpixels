@@ -95,6 +95,7 @@
         { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
         { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] },
         { href: BASE + 'analytics-hub.html', label: 'Analytics Hub', icon: 'fa-chart-simple', match: ['analytics-hub.html'] },
+        { href: BASE + 'engagement.html', label: 'Engagement', icon: 'fa-comments', match: ['engagement.html'] },
         { href: BASE + 'attribution.html', label: 'Attribution', icon: 'fa-chart-line', match: ['attribution.html'] },
         { href: BASE + 'bluesky-discovery.html', label: 'Bluesky', icon: 'fa-satellite-dish', match: ['bluesky-discovery.html'] }
       ]
@@ -411,6 +412,9 @@
       topbar.appendChild(a);
     });
 
+    // Every re-render rebuilds these anchors, so any badge attached to one is
+    // gone. Re-apply from the count we already have rather than re-fetching.
+    applyEngagementBadge();
   }
 
   function selectCategory(catId) {
@@ -489,5 +493,92 @@
   }
   // Fire once, ~500ms after initial render so the sub-links are in the DOM.
   setTimeout(attachAwarenessBadge, 500);
+
+  // ── Engagement Inbox badge (2026-08-09) ──
+  //
+  // How many strangers are waiting on an answer. Unlike every other number in
+  // this nav it represents a person, so it is worth carrying on every page.
+  //
+  // CACHED IN sessionStorage FOR 10 MINUTES, deliberately. sidebar.js loads on
+  // all 52 company pages and /api/engagement-inbox reads five blobs, so an
+  // uncached badge would add an API call to every click around the dashboard —
+  // real money on a fleet whose burn is already the constraint. The store it
+  // reads is written once a day by the outcomeRefresh cron, so ten minutes of
+  // staleness costs nothing.
+  //
+  // It renders only when the count is > 0. A grey zero on every page is
+  // furniture, and furniture is what people stop seeing.
+  var EI_CACHE_KEY = 'ap_engagement_needs';
+  var EI_TTL_MS = 10 * 60 * 1000;
+  var _eiNeeds = 0;
+
+  function _eiAuthHeaders() {
+    // secretHeaders() wraps CompanyStore.getWriteHeaders() and falls back to
+    // window.AP_SECRET. Returning null rather than guessing matters: an
+    // unauthenticated call 403s, and a 403 must not be drawn as "nobody is
+    // waiting".
+    try {
+      if (typeof APApi !== 'undefined' && APApi.secretHeaders) {
+        var h = APApi.secretHeaders();
+        if (h && h['x-company-secret']) return h;
+      }
+    } catch (e) { /* helper is best-effort */ }
+    try {
+      if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) {
+        var w = CompanyStore.getWriteHeaders();
+        if (w && w['x-company-secret']) return w;
+      }
+    } catch (e2) { /* helper is best-effort */ }
+    return null;
+  }
+
+  // Re-applied after every renderSubLinks(), because switching UI mode rebuilds
+  // the whole top bar and would otherwise drop the badge on the floor.
+  function applyEngagementBadge() {
+    if (!_eiNeeds) return;
+    var link = topbar.querySelector('a[href$="engagement.html"]');
+    if (!link || link.querySelector('.sb-sub-badge')) return;
+    var badge = document.createElement('span');
+    badge.className = 'sb-sub-badge';
+    badge.textContent = String(_eiNeeds);
+    badge.title = _eiNeeds + (_eiNeeds === 1 ? ' conversation has' : ' conversations have')
+      + ' had no reply from anyone.';
+    link.appendChild(badge);
+  }
+
+  function attachEngagementBadge() {
+    // This nav only renders the sub-links of the ACTIVE category, so the
+    // Engagement link exists only while you are somewhere under Content — the
+    // same limitation the Emergence badge lives with. No link, no fetch: paying
+    // for five blob reads to populate a badge with nowhere to go is pure waste.
+    if (!topbar.querySelector('a[href$="engagement.html"]')) return;
+
+    try {
+      var cached = JSON.parse(sessionStorage.getItem(EI_CACHE_KEY) || 'null');
+      if (cached && (Date.now() - cached.t) < EI_TTL_MS) {
+        _eiNeeds = cached.n;
+        applyEngagementBadge();
+        return;
+      }
+    } catch (e) { /* sessionStorage may be blocked — just fetch */ }
+
+    var headers = _eiAuthHeaders();
+    if (!headers) return; // nothing to authenticate with; silent beats a wrong zero
+
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    // limit=1 is safe: counts are computed over the whole window server-side and
+    // only the returned rows are trimmed. This badge is why that is true.
+    fetch(API + '/engagement-inbox?days=60&limit=1', { headers: headers })
+      .then(function (r) { if (!r.ok) throw r; return r.json(); })
+      .then(function (data) {
+        _eiNeeds = (data && data.counts && data.counts.needsAttention) || 0;
+        try { sessionStorage.setItem(EI_CACHE_KEY, JSON.stringify({ n: _eiNeeds, t: Date.now() })); } catch (e) {}
+        applyEngagementBadge();
+      })
+      .catch(function () { /* silent — the badge is additive, never blocking */ });
+  }
+  setTimeout(attachEngagementBadge, 500);
 
 })();

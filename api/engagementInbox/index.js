@@ -349,14 +349,23 @@ module.exports = async function (context, req) {
     } catch (e) { /* annotation degrades to "unknown"; the rows still render */ }
 
     const blockedById = annotateBlocked(Array.isArray(replyStore) ? replyStore : [], cfg, Date.now());
-    const replies = buildReplyRows(replyStore, sinceMs, limit, blockedById, taskById, replyActionByTask);
-    const reactions = buildReactionRows(snapshots, sinceMs, limit);
-    // Computed off the WHOLE store, not the trimmed rows: `limit` is a rendering
-    // budget and must not silently change a statistic.
+
+    // COUNT the whole window, RETURN at most `limit`.
+    //
+    // `limit` is a rendering budget. Counting after it trimmed made every
+    // number below a function of how the caller asked — the sidebar badge
+    // would say "3 people are waiting" because the page requested three rows.
+    // MAX_SAFE_INTEGER rather than Infinity on purpose: Number.isFinite
+    // (Infinity) is false and this codebase has already lost an afternoon to
+    // that exact guard silently restoring a default.
+    const allReplies = buildReplyRows(replyStore, sinceMs, Number.MAX_SAFE_INTEGER, blockedById, taskById, replyActionByTask);
+    const allReactions = buildReactionRows(snapshots, sinceMs, Number.MAX_SAFE_INTEGER);
+    const replies = allReplies.slice(0, limit);
+    const reactions = allReactions.slice(0, limit);
     const responseTime = responseTimeStats(replyStore, sinceMs);
 
     const counts = { new: 0, task_created: 0, answered: 0, skipped: 0 };
-    replies.forEach((r) => {
+    allReplies.forEach((r) => {
       if (counts[r.status] === undefined) counts[r.status] = 0;
       counts[r.status]++;
     });
@@ -368,25 +377,25 @@ module.exports = async function (context, req) {
         replies: replies,
         reactions: reactions,
         counts: {
-          replies: replies.length,
+          replies: allReplies.length,
           byStatus: counts,
           // The only number that asks something of a human today.
           // Unanswered from a human's point of view: never drafted, PLUS the
           // ones whose draft task died and produced nothing. The second group
           // used to read as healthy and in-queue.
           needsAttention: (counts.new || 0)
-            + replies.filter((r) => r.draft_state === 'task_canceled' || r.draft_state === 'task_missing').length,
+            + allReplies.filter((r) => r.draft_state === 'task_canceled' || r.draft_state === 'task_missing').length,
           // Of those, the ones a click can actually put into the pipeline — which
           // must match the rows that render a button, or the chip undercounts the
           // work. Includes dead drafts: a cancelled task produced nothing, so
           // that conversation is re-draftable too.
-          draftable: replies.filter((r) =>
+          draftable: allReplies.filter((r) =>
             (r.status === 'new' && r.can_draft)
             || r.draft_state === 'task_canceled'
             || r.draft_state === 'task_missing').length,
-          reactions: reactions.length,
-          likes: reactions.reduce((a, r) => a + r.likes, 0),
-          reposts: reactions.reduce((a, r) => a + r.reposts, 0),
+          reactions: allReactions.length,
+          likes: allReactions.reduce((a, r) => a + r.likes, 0),
+          reposts: allReactions.reduce((a, r) => a + r.reposts, 0),
           // Hours between a stranger speaking and us answering. null under three
           // samples — the sample counts travel with it so the page can say which
           // nothing it means: none answered, not enough answered, or answered
@@ -408,6 +417,12 @@ module.exports = async function (context, req) {
           // has replied", which are very different problems.
           replyStoreExists: Array.isArray(replyStore),
           replyStoreSize: Array.isArray(replyStore) ? replyStore.length : null,
+          // Shown vs total, so a page rendering 100 of 137 conversations can say
+          // so instead of presenting a truncated list as the whole story.
+          repliesTotal: allReplies.length,
+          repliesShown: replies.length,
+          reactionsTotal: allReactions.length,
+          reactionsShown: reactions.length,
           generatedAt: new Date().toISOString()
         }
       }

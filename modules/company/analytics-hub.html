@@ -164,41 +164,26 @@
       </div>
     </section>
 
-    <!-- ═══ Zone 2: Engagement Inbox ═══
+    <!-- ═══ Zone 2: Engagement Inbox — SUMMARY ═══
          Sits ABOVE the aggregate social panel on purpose: a person waiting on a
-         reply outranks a chart of how many likes we got. -->
+         reply outranks a chart of how many likes we got.
+
+         This was the full inbox for one evening (2026-08-09). It is now a
+         glance that links to modules/company/engagement.html, because the inbox
+         answers "who is talking to us and what are we going to say back", which
+         is a workspace rather than a metric — and every other zone here is
+         read-only. Do not grow this back into a second copy: the counts, two
+         conversations, and a way in. Everything readable or clickable belongs
+         on the page. -->
     <section class="ah-zone" id="ah-zone-inbox">
       <div class="ah-zone-head">
         <div class="ah-zone-title"><i class="fas fa-inbox"></i> Engagement Inbox</div>
+        <div class="ah-zone-tools">
+          <a class="sa-btn sa-btn--ghost sa-btn--xs" href="/modules/company/engagement.html">Open the inbox</a>
+        </div>
       </div>
-      <nav class="ah-tabs">
-        <button class="ah-tab" data-tab="overview" type="button"><i class="fas fa-comments"></i>Interactions</button>
-        <button class="ah-tab" data-tab="about" type="button"><i class="fas fa-info-circle"></i>About</button>
-      </nav>
-      <div class="ah-tab-panels">
-        <div class="ah-tab-panel" data-tab="overview">
-          <div id="engagement-inbox-body">
-            <div class="ah-loading">Loading interactions&hellip;</div>
-          </div>
-        </div>
-        <div class="ah-tab-panel" data-tab="about">
-          <div class="ah-about">
-            <p><strong>What this shows.</strong> Every real interaction with our posts, as a row you can read &mdash; who replied,
-            what they said, which post they were replying to, and whether anyone has answered them. Last 30 days.</p>
-            <p><strong>Why rows and not a chart.</strong> Four months of posting produced 65 interactions. At that volume an
-            average and a trend line both round to noise, and the only useful action is to read every one and reply.
-            The panel below this one is the aggregate view; this one is the conversation.</p>
-            <p><strong>Reply text is Bluesky only.</strong> Replies are harvested via AT Protocol <code>getPostThread</code>, which is
-            free and public. X and LinkedIn have no equivalent we pay for, so they contribute likes and reposts but no
-            conversation. An empty Bluesky section means nobody replied; an absent X section means we never asked.</p>
-            <p><strong>Status.</strong> <em>needs a reply</em> means nobody has drafted anything yet.
-            <em>draft queued</em> means Scribe wrote one and it is waiting on your approval in the Actions page.
-            <em>answered</em> means it shipped. Drafting is CEO-gated as always &mdash; nothing here posts on its own.</p>
-            <p><strong>Where the data comes from.</strong> <code>engagementReplies</code>, written by
-            <code>companyHeartbeat/engagement-reply.js</code> on the daily <code>outcomeRefresh</code> cron. If the store has never
-            been written the panel says so rather than showing a quiet, healthy-looking zero.</p>
-          </div>
-        </div>
+      <div id="engagement-inbox-summary">
+        <div class="ah-loading">Loading interactions&hellip;</div>
       </div>
     </section>
 
@@ -309,7 +294,7 @@
   <script src="/modules/company/js/analytics-hub.js"></script>
   <script src="/modules/company/js/product-analytics-dashboard.js"></script>
   <script src="/js/agent-engine.js"></script>
-  <script src="/modules/company/js/engagement-inbox.js"></script>
+  <script src="/modules/company/js/engagement-summary.js"></script>
   <script src="/modules/company/js/social-command.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>

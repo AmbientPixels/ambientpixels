@@ -263,6 +263,21 @@
   opacity: 0.85;
 }
 
+/* Count badge on a sub-link. Amber rather than red: people waiting on a reply
+   is work, not an incident, and a nav that cries wolf gets ignored. Rendered
+   only when the count is above zero — a permanent grey 0 is furniture. */
+.sb-sub-badge {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.4;
+  background: #fbbf24;
+  color: #1c1c1e;
+}
+
 /* AmbientOS badge */
 .sb-topbar-ambientos {
   margin-left: auto;

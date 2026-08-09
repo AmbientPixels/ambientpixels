@@ -7,6 +7,23 @@
 // reads as "nobody replied" when it means "we never asked that platform".
 
 const assert = require('assert');
+
+// Stubbed BEFORE ./index is required, so the handler itself can be driven —
+// same pattern as engagementReplyDraft/override.test.js. The pure functions
+// below are still tested directly; this is only for the wiring that decides
+// what gets counted versus what gets returned.
+const storagePath = require.resolve('../_utils/companyStorage');
+let fakeState = {};
+require.cache[storagePath] = {
+  id: storagePath, filename: storagePath, loaded: true,
+  exports: {
+    async getState(k) { return fakeState[k] === undefined ? null : fakeState[k]; },
+    async setState(k, v) { fakeState[k] = v; return true; },
+    async mutateState() { return { ok: true, written: false }; },
+    validateSecret(s) { return s === 'test-secret'; }
+  }
+};
+
 const mod = require('./index');
 const {
   _buildReplyRows: replyRows,
@@ -201,6 +218,66 @@ test('empty and missing stores are handled without throwing', () => {
   assert.deepStrictEqual(replyRows([], SINCE, 50), []);
   assert.deepStrictEqual(reactionRows(null, SINCE, 50), []);
   assert.deepStrictEqual(reactionRows(undefined, SINCE, 50), []);
+});
+
+async function callHandler(query) {
+  const context = { res: null, log: Object.assign(function () {}, { error() {}, warn() {} }) };
+  await mod(context, {
+    method: 'GET',
+    headers: { 'x-company-secret': 'test-secret' },
+    query: query || {}
+  });
+  return context.res;
+}
+
+test('a small limit trims what is RETURNED, never what is COUNTED', async () => {
+  // `limit` is a rendering budget. The sidebar badge and the counts strip both
+  // read counts.needsAttention, so if a page asked for fewer rows the badge
+  // would quietly under-report how many people are waiting — a number that
+  // changes depending on how you ask for it, which is the same shape as the
+  // cumulative-metrics bug that inflated the hub 22x.
+  const store = [];
+  for (let i = 0; i < 7; i++) {
+    store.push(entry({
+      id: 'er_' + i,
+      replyUri: 'at://did:plc:a/app.bsky.feed.post/r' + i,
+      indexedAt: new Date(NOW - (i + 1) * 3600e3).toISOString(),
+      status: 'new'
+    }));
+  }
+  fakeState = { engagementReplies: store };
+
+  const res = await callHandler({ limit: '3' });
+  assert.strictEqual(res.status, 200);
+  assert.strictEqual(res.body.replies.length, 3, 'limit must still trim the payload');
+  assert.strictEqual(res.body.counts.byStatus.new, 7,
+    'got ' + res.body.counts.byStatus.new + ' — the count followed the page size');
+  assert.strictEqual(res.body.counts.needsAttention, 7,
+    'the sidebar badge would under-report by ' + (7 - res.body.counts.needsAttention) + ' people');
+});
+
+test('a truncated payload says so, rather than looking like the whole story', async () => {
+  const store = [];
+  for (let i = 0; i < 7; i++) {
+    store.push(entry({
+      id: 'er_' + i,
+      replyUri: 'at://did:plc:a/app.bsky.feed.post/r' + i,
+      indexedAt: new Date(NOW - (i + 1) * 3600e3).toISOString(),
+      status: 'new'
+    }));
+  }
+  fakeState = { engagementReplies: store };
+
+  const res = await callHandler({ limit: '3' });
+  assert.strictEqual(res.body.meta.repliesTotal, 7);
+  assert.strictEqual(res.body.meta.repliesShown, 3);
+});
+
+test('an unauthenticated caller gets 403, not the conversations', async () => {
+  fakeState = { engagementReplies: [entry()] };
+  const context = { res: null, log: Object.assign(function () {}, { error() {}, warn() {} }) };
+  await mod(context, { method: 'GET', headers: {}, query: {} });
+  assert.strictEqual(context.res.status, 403);
 });
 
 // ── Response time (Phase 1b) ────────────────────────────────────────────
