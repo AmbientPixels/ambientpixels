@@ -63,11 +63,62 @@ function blueskyUrl(atUri) {
 }
 
 /**
+ * Why a 'new' entry was never drafted, and whether a human can force it.
+ *
+ * 'new' is not a queue. companyHeartbeat/engagement-reply.js drops a comment
+ * permanently once it is older than maxAgeHours (72 by default), so an entry can
+ * sit at 'new' forever with nothing coming for it. Labelling that "needs a
+ * reply" was true about the human and false about the machine.
+ *
+ * Rules are not reimplemented — filterCandidates() is asked directly, twice: as
+ * the cron would run it (what stopped this?) and with the age gate lifted (would
+ * the button work?). Failing softly is deliberate: an inbox that cannot explain
+ * itself must still show the conversations.
+ */
+function annotateBlocked(store, cfg, nowMs) {
+  const out = {};
+  let filterCandidates;
+  try {
+    filterCandidates = require('../companyHeartbeat/engagement-reply').filterCandidates;
+  } catch (e) {
+    return out;
+  }
+
+  const fresh = (Array.isArray(store) ? store : []).filter((e) => e && e.status === 'new');
+  fresh.forEach((entry) => {
+    // Only this candidate, plus every settled entry — those are the history the
+    // per-author cooldown, one-per-thread and daily-budget rules read from.
+    const subset = store.filter((e) => e && (e.status !== 'new' || e.id === entry.id));
+    const firedIn = (conf) => {
+      try {
+        const v = filterCandidates(subset, conf, nowMs);
+        if (v.survivors.some((s) => s && s.id === entry.id)) return null;
+        return Object.keys(v.drops).filter((k) => v.drops[k] > 0)[0] || 'unknown';
+      } catch (e) {
+        return undefined; // unknown, not "nothing blocked it"
+      }
+    };
+    const asCron = firedIn(cfg);
+    // NOT Infinity — filterCandidates guards with Number.isFinite(), which is
+    // false for Infinity, so it would silently restore the 72h default and every
+    // aged-out row would claim it cannot be drafted. Must match the constant in
+    // engagementReplyDraft or the button appears exactly where it will fail.
+    const ignoringAge = firedIn(Object.assign({}, cfg, { maxAgeHours: 1e6 }));
+    out[entry.id] = {
+      blocked_reason: asCron === undefined ? null : asCron,
+      // The button lifts the age gate and nothing else.
+      can_draft: ignoringAge === null
+    };
+  });
+  return out;
+}
+
+/**
  * Pure. engagementReplies entries → inbox rows, newest first.
  * `status` is passed through untouched: 'new' means nobody has drafted anything
  * and it is the only status that represents an unanswered human.
  */
-function buildReplyRows(store, sinceMs, limit) {
+function buildReplyRows(store, sinceMs, limit, blockedById) {
   return (Array.isArray(store) ? store : [])
     .filter((e) => e && e.replyUri && e.author)
     .filter((e) => {
@@ -76,21 +127,29 @@ function buildReplyRows(store, sinceMs, limit) {
     })
     .sort((a, b) => Date.parse(b.indexedAt || b.discoveredAt || 0) - Date.parse(a.indexedAt || a.discoveredAt || 0))
     .slice(0, limit)
-    .map((e) => ({
-      id: e.id,
-      kind: 'reply',
-      platform: 'bluesky',
-      author: e.author,
-      text: e.text || '',
-      our_post_text: e.ourPostText || '',
-      our_post_action_id: e.ourPostActionId || '',
-      at: e.indexedAt || e.discoveredAt || null,
-      status: e.status || 'new',
-      task_id: e.taskId || null,
-      skip_reason: e.skipReason || null,
-      link: blueskyUrl(e.replyUri),
-      our_post_link: blueskyUrl(e.ourPostAtUri)
-    }));
+    .map((e) => {
+      const b = (blockedById && blockedById[e.id]) || {};
+      return {
+        id: e.id,
+        kind: 'reply',
+        platform: 'bluesky',
+        author: e.author,
+        text: e.text || '',
+        our_post_text: e.ourPostText || '',
+        our_post_action_id: e.ourPostActionId || '',
+        at: e.indexedAt || e.discoveredAt || null,
+        status: e.status || 'new',
+        task_id: e.taskId || null,
+        skip_reason: e.skipReason || null,
+        // 'new' rows only. Why the automation passed, and whether the CEO can
+        // override it (the button lifts the age gate and nothing else).
+        blocked_reason: b.blocked_reason === undefined ? null : b.blocked_reason,
+        can_draft: b.can_draft === undefined ? false : b.can_draft,
+        manual_draft: e.manualDraft === true || undefined,
+        link: blueskyUrl(e.replyUri),
+        our_post_link: blueskyUrl(e.ourPostAtUri)
+      };
+    });
 }
 
 /**
@@ -167,12 +226,19 @@ module.exports = async function (context, req) {
     // engagementReplies is a companyStorage-direct key, deliberately NOT in
     // company-state's VALID_KEYS (same class as pingLog) — which is exactly why
     // it needed its own reader.
-    const [replyStore, snapshots] = await Promise.all([
+    const [replyStore, snapshots, systemConfig] = await Promise.all([
       storage.getState('engagementReplies').catch(() => null),
-      storage.getState('socialEngagementSnapshots').catch(() => null)
+      storage.getState('socialEngagementSnapshots').catch(() => null),
+      storage.getState('systemConfig').catch(() => null)
     ]);
 
-    const replies = buildReplyRows(replyStore, sinceMs, limit);
+    let cfg = {};
+    try {
+      cfg = require('../companyHeartbeat/engagement-reply').loadConfig(systemConfig || {});
+    } catch (e) { /* annotation degrades to "unknown"; the rows still render */ }
+
+    const blockedById = annotateBlocked(Array.isArray(replyStore) ? replyStore : [], cfg, Date.now());
+    const replies = buildReplyRows(replyStore, sinceMs, limit, blockedById);
     const reactions = buildReactionRows(snapshots, sinceMs, limit);
 
     const counts = { new: 0, task_created: 0, answered: 0, skipped: 0 };
@@ -192,6 +258,9 @@ module.exports = async function (context, req) {
           byStatus: counts,
           // The only number that asks something of a human today.
           needsAttention: counts.new || 0,
+          // Of those, the ones a click can actually put into the pipeline. The
+          // rest need you to answer as yourself.
+          draftable: replies.filter((r) => r.status === 'new' && r.can_draft).length,
           reactions: reactions.length,
           likes: reactions.reduce((a, r) => a + r.likes, 0),
           reposts: reactions.reduce((a, r) => a + r.reposts, 0)
@@ -224,5 +293,6 @@ module.exports = async function (context, req) {
 };
 
 module.exports._buildReplyRows = buildReplyRows;
+module.exports._annotateBlocked = annotateBlocked;
 module.exports._buildReactionRows = buildReactionRows;
 module.exports._blueskyUrl = blueskyUrl;

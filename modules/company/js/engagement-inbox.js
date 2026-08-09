@@ -52,6 +52,20 @@
     skipped: { label: 'skipped', tone: 'muted' }
   };
 
+  // Why the automated drafter passed on a 'new' item.
+  //
+  // 'new' is NOT a queue. engagement-reply.js drops anything past maxAgeHours
+  // permanently, so most of these will never be drafted by anything. Saying
+  // "needs a reply" and stopping there implied a draft was coming when none was.
+  var BLOCKED = {
+    too_old: 'aged out — the drafter only picks up comments under 72h',
+    author_thread_done: 'we already replied in this thread',
+    author_cooldown: 'we replied to them within the last 14 days',
+    too_short: 'too short to answer',
+    daily_budget: 'today\'s draft budget is spent',
+    unknown: 'the drafter passed on this'
+  };
+
   function platformChip(platform) {
     var icon = PLATFORM_ICON[platform] || 'fas fa-share-alt';
     var color = PLATFORM_COLOR[platform] || '#94a3b8';
@@ -69,7 +83,8 @@
     var label = meta.label;
     if (r.status === 'skipped' && r.skip_reason) label += ' — ' + r.skip_reason;
 
-    var html = '<article class="ei-row ei-row--reply ei-row--' + esc(meta.tone) + '">';
+    var html = '<article class="ei-row ei-row--reply ei-row--' + esc(meta.tone) + '"'
+      + ' data-id="' + esc(r.id) + '">';
 
     html += '<div class="ei-row-head">';
     html += platformChip(r.platform);
@@ -93,8 +108,42 @@
         '</div>';
     }
 
+    if (r.status === 'new') html += renderAction(r);
+
     html += '</article>';
     return html;
+  }
+
+  /**
+   * The footer of an unanswered row: why nothing drafted it, and what can be
+   * done about it. Three genuinely different situations, and collapsing them
+   * was the original sin of this panel.
+   */
+  function renderAction(r) {
+    // blocked_reason null with can_draft true = it passed every rule and the
+    // next cron run will draft it. Nothing to do but wait.
+    if (!r.blocked_reason && r.can_draft) {
+      return '<div class="ei-action ei-action--queued">' +
+        '<i class="fas fa-hourglass-half"></i> queued — the drafter will pick this up on its next run' +
+        '</div>';
+    }
+
+    var why = BLOCKED[r.blocked_reason] || BLOCKED.unknown;
+
+    if (!r.can_draft) {
+      // A guard that protects the relationship, not the schedule. Not
+      // overridable by design — reply as yourself if it still deserves one.
+      return '<div class="ei-action ei-action--blocked">' +
+        '<i class="fas fa-hand"></i> ' + esc(why) +
+        '<span class="ei-action-note">reply as yourself if it still deserves one</span>' +
+        '</div>';
+    }
+
+    return '<div class="ei-action">' +
+      '<span class="ei-action-why"><i class="fas fa-circle-info"></i> ' + esc(why) + '</span>' +
+      '<button type="button" class="ei-draft-btn" data-draft-id="' + esc(r.id) + '">' +
+      '<i class="fas fa-pen-nib"></i> Draft a reply</button>' +
+      '</div>';
   }
 
   function metricBits(r) {
@@ -151,6 +200,11 @@
     if (c.needsAttention > 0) {
       chips.push('<span class="ei-count ei-count--wait">' + c.needsAttention + ' need' +
         (c.needsAttention === 1 ? 's' : '') + ' a reply</span>');
+    }
+    // How many of those a click can put into the pipeline. The rest are blocked
+    // by a guard that protects the relationship, and only you can answer them.
+    if (c.draftable > 0) {
+      chips.push('<span class="ei-count ei-count--draft">' + c.draftable + ' can be drafted</span>');
     }
     chips.push('<span class="ei-count">' + c.replies + ' repl' + (c.replies === 1 ? 'y' : 'ies') + '</span>');
     chips.push('<span class="ei-count">' + c.likes + ' like' + (c.likes === 1 ? '' : 's') + '</span>');
@@ -210,6 +264,78 @@
     }
 
     el.innerHTML = html;
+    bindDraftButtons(el);
+  }
+
+  /**
+   * Send one conversation into the existing Scribe pipeline.
+   *
+   * Nothing here posts anything. The endpoint creates the same bluesky_reply
+   * task the daily cron creates, so it rides the same chain — Scribe drafts,
+   * the quality gate checks it, and it lands on the Actions page for approval.
+   * The only rule it lifts is the 72h age gate; a refusal names the guard that
+   * fired rather than failing quietly.
+   */
+  function bindDraftButtons(root) {
+    var btns = root.querySelectorAll('.ei-draft-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function (ev) {
+        var btn = ev.currentTarget;
+        var id = btn.getAttribute('data-draft-id');
+        if (!id || btn.disabled) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Drafting…';
+
+        // Direct fetch rather than S.fetchJSON: that helper throws on a non-2xx
+        // and discards the body, and the body is the whole point here — a
+        // refusal names the guard that fired. Auth still comes from the shared
+        // helper so this cannot drift from the rest of the hub.
+        var hdrs = { 'Content-Type': 'application/json' };
+        var auth = S.authHeaders();
+        Object.keys(auth).forEach(function (k) { hdrs[k] = auth[k]; });
+
+        fetch(S.apiBase() + '/api/engagement-reply-draft', {
+          method: 'POST',
+          headers: hdrs,
+          body: JSON.stringify({ id: id })
+        }).then(function (r) {
+          return r.json().catch(function () { return { error: 'HTTP ' + r.status }; });
+        }).then(function (res) {
+          var row = btn.closest('.ei-row');
+          if (res && (res.ok || res.already)) {
+            // Reflect the new state in place — a full reload would scroll the
+            // reader away from the conversation they were just reading.
+            if (row) {
+              row.classList.remove('ei-row--wait');
+              row.classList.add('ei-row--pending');
+              var chip = row.querySelector('.ei-status');
+              if (chip) {
+                chip.className = 'ei-status ei-status--pending';
+                chip.textContent = 'draft queued — waiting on your approval';
+              }
+            }
+            btn.parentNode.innerHTML = '<div class="ei-action ei-action--queued">' +
+              '<i class="fas fa-check"></i> ' + esc(res.message || 'Scribe will draft it on the next heartbeat.') +
+              '</div>';
+          } else {
+            // A refusal is information, not a failure. Show the guard's own
+            // sentence and stop offering a button that will refuse again.
+            btn.parentNode.innerHTML = '<div class="ei-action ei-action--blocked">' +
+              '<i class="fas fa-hand"></i> ' + esc(res.message || res.error || 'Blocked') +
+              '<span class="ei-action-note">reply as yourself if it still deserves one</span>' +
+              '</div>';
+          }
+        }).catch(function (err) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-pen-nib"></i> Draft a reply';
+          var note = document.createElement('span');
+          note.className = 'ei-action-error';
+          note.textContent = 'Could not reach the API: ' + String((err && err.message) || err);
+          btn.parentNode.appendChild(note);
+        });
+      });
+    }
   }
 
   function renderError(err) {

@@ -1341,3 +1341,47 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   opacity: 0.45;
 }
 .ei-rollup-link:hover { opacity: 1; border-color: rgba(255,255,255,0.25); }
+
+/* Draft-on-demand footer on unanswered conversations. Three states, because
+   "nobody drafted this" hides three different situations: it is queued, it aged
+   out and you can force it, or a relationship guard says no and only you can
+   answer. */
+.ei-action {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: var(--c-text-xs);
+}
+.ei-action--queued { opacity: 0.5; }
+.ei-action--blocked { opacity: 0.6; }
+.ei-action-why { opacity: 0.5; }
+.ei-action-note { opacity: 0.45; font-style: italic; }
+.ei-action-error { color: #ef4444; opacity: 0.9; }
+
+.ei-draft-btn {
+  margin-left: auto;
+  font-family: inherit;
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(251,191,36,0.35);
+  background: rgba(251,191,36,0.1);
+  color: #fbbf24;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ei-draft-btn:hover:not(:disabled) { background: rgba(251,191,36,0.2); }
+.ei-draft-btn:disabled { opacity: 0.5; cursor: default; }
+
+.ei-count--draft { border-color: rgba(96,165,250,0.3); color: #60a5fa; opacity: 1; }
+
+@media (max-width: 768px) {
+  .ei-draft-btn { margin-left: 0; }
+}
