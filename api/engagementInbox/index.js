@@ -182,6 +182,9 @@ function buildReplyRows(store, sinceMs, limit, blockedById, taskById, replyActio
         our_post_text: e.ourPostText || '',
         our_post_action_id: e.ourPostActionId || '',
         at: e.indexedAt || e.discoveredAt || null,
+        // When we answered, so a row can say how long they waited. 'answered'
+        // alone is the same sentence for one hour and for nine days.
+        answered_at: e.answeredAt || null,
         status: e.status || 'new',
         task_id: e.taskId || null,
         skip_reason: e.skipReason || null,
@@ -199,6 +202,55 @@ function buildReplyRows(store, sinceMs, limit, blockedById, taskById, replyActio
         our_post_link: blueskyUrl(e.ourPostAtUri)
       };
     });
+}
+
+/**
+ * Pure. How long we take to answer a stranger, in hours.
+ *
+ * Nothing else in the platform measures this. Post counts, likes and reply
+ * counts all say we were PRESENT; only the gap between someone speaking and us
+ * answering says we were conversational.
+ *
+ * Every rule below exists to stop it becoming a confident zero:
+ *   - under 3 samples the median is null, not a number. Two conversations is an
+ *     anecdote (same rule as roast-funnel-reconcile.js).
+ *   - an 'answered' entry with no answeredAt is COUNTED SEPARATELY, never
+ *     scored as 0h. reconcileEngagement stamps that field, so entries settled
+ *     before it existed have none, and treating a missing timestamp as instant
+ *     would report the fleet as replying the moment anyone spoke.
+ *   - a negative interval is clock skew or a backfill, not a fast reply.
+ *   - the window is the one the rows use, so the number always describes the
+ *     conversations on screen.
+ *
+ * Returns { medianHours, samples, answeredNoTimestamp } — three numbers so the
+ * page can say WHICH nothing it means.
+ */
+function responseTimeStats(store, sinceMs) {
+  const durations = [];
+  let answeredNoTimestamp = 0;
+
+  (Array.isArray(store) ? store : []).forEach((e) => {
+    if (!e || e.status !== 'answered') return;
+    const asked = Date.parse(e.indexedAt || e.discoveredAt || '');
+    if (Number.isNaN(asked) || asked < sinceMs) return;
+    const answeredMs = Date.parse(e.answeredAt || '');
+    if (Number.isNaN(answeredMs) || answeredMs < asked) { answeredNoTimestamp++; return; }
+    durations.push((answeredMs - asked) / 3600e3);
+  });
+
+  if (durations.length < 3) {
+    return { medianHours: null, samples: durations.length, answeredNoTimestamp: answeredNoTimestamp };
+  }
+  durations.sort((a, b) => a - b);
+  const mid = Math.floor(durations.length / 2);
+  const median = durations.length % 2
+    ? durations[mid]
+    : (durations[mid - 1] + durations[mid]) / 2;
+  return {
+    medianHours: Math.round(median * 10) / 10,
+    samples: durations.length,
+    answeredNoTimestamp: answeredNoTimestamp
+  };
 }
 
 /**
@@ -299,6 +351,9 @@ module.exports = async function (context, req) {
     const blockedById = annotateBlocked(Array.isArray(replyStore) ? replyStore : [], cfg, Date.now());
     const replies = buildReplyRows(replyStore, sinceMs, limit, blockedById, taskById, replyActionByTask);
     const reactions = buildReactionRows(snapshots, sinceMs, limit);
+    // Computed off the WHOLE store, not the trimmed rows: `limit` is a rendering
+    // budget and must not silently change a statistic.
+    const responseTime = responseTimeStats(replyStore, sinceMs);
 
     const counts = { new: 0, task_created: 0, answered: 0, skipped: 0 };
     replies.forEach((r) => {
@@ -331,7 +386,14 @@ module.exports = async function (context, req) {
             || r.draft_state === 'task_missing').length,
           reactions: reactions.length,
           likes: reactions.reduce((a, r) => a + r.likes, 0),
-          reposts: reactions.reduce((a, r) => a + r.reposts, 0)
+          reposts: reactions.reduce((a, r) => a + r.reposts, 0),
+          // Hours between a stranger speaking and us answering. null under three
+          // samples — the sample counts travel with it so the page can say which
+          // nothing it means: none answered, not enough answered, or answered
+          // before we started stamping when.
+          medianResponseHours: responseTime.medianHours,
+          responseSamples: responseTime.samples,
+          answeredNoTimestamp: responseTime.answeredNoTimestamp
         },
         coverage: {
           replies: ['bluesky'],
@@ -364,3 +426,4 @@ module.exports._buildReplyRows = buildReplyRows;
 module.exports._annotateBlocked = annotateBlocked;
 module.exports._buildReactionRows = buildReactionRows;
 module.exports._blueskyUrl = blueskyUrl;
+module.exports._responseTimeStats = responseTimeStats;

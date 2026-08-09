@@ -8,7 +8,12 @@
 
 const assert = require('assert');
 const mod = require('./index');
-const { _buildReplyRows: replyRows, _buildReactionRows: reactionRows, _blueskyUrl: bskyUrl } = mod;
+const {
+  _buildReplyRows: replyRows,
+  _buildReactionRows: reactionRows,
+  _blueskyUrl: bskyUrl,
+  _responseTimeStats: responseStats
+} = mod;
 
 const NOW = Date.now();
 const DAY = 24 * 60 * 60 * 1000;
@@ -67,6 +72,16 @@ test('a malformed at:// uri yields an empty link, never a broken one', () => {
   assert.strictEqual(bskyUrl(''), '');
   assert.strictEqual(bskyUrl(null), '');
   assert.strictEqual(bskyUrl('at://did:plc:x/app.bsky.feed.like/abc'), '', 'a like is not a post');
+});
+
+test('an answered row carries WHEN it was answered, not just that it was', () => {
+  // Without this the page can only say "answered", which is the same sentence
+  // for a reply sent in an hour and one sent nine days later.
+  const at = new Date(NOW - 3 * 3600e3).toISOString();
+  const [r] = replyRows([entry({ status: 'answered', answeredAt: at })], SINCE, 50);
+  assert.strictEqual(r.answered_at, at);
+  const [u] = replyRows([entry({ status: 'new' })], SINCE, 50);
+  assert.strictEqual(u.answered_at, null, 'an unanswered row must not carry a time');
 });
 
 test('newest first — this is an inbox, not an archive', () => {
@@ -186,6 +201,96 @@ test('empty and missing stores are handled without throwing', () => {
   assert.deepStrictEqual(replyRows([], SINCE, 50), []);
   assert.deepStrictEqual(reactionRows(null, SINCE, 50), []);
   assert.deepStrictEqual(reactionRows(undefined, SINCE, 50), []);
+});
+
+// ── Response time (Phase 1b) ────────────────────────────────────────────
+//
+// The only number that says whether we are conversational rather than merely
+// present. Every assertion below exists to stop it becoming a confident zero:
+// this panel has already shipped four bugs where one kind of nothing was
+// reported as another.
+
+function answered(o) {
+  return entry(Object.assign({ status: 'answered' }, o));
+}
+
+// hoursAgo(n) → an ISO string n hours before NOW.
+function hoursAgo(n) { return new Date(NOW - n * 3600e3).toISOString(); }
+
+test('a median needs three samples — two is an anecdote, not a median', () => {
+  const s = responseStats([
+    answered({ id: 'a', replyUri: 'at://did:plc:a/app.bsky.feed.post/a', indexedAt: hoursAgo(50), answeredAt: hoursAgo(48) }),
+    answered({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', indexedAt: hoursAgo(40), answeredAt: hoursAgo(30) })
+  ], SINCE);
+  assert.strictEqual(s.medianHours, null, 'reported a median off two conversations');
+  assert.strictEqual(s.samples, 2, 'the reader has to be told how close we are to a real number');
+});
+
+test('three samples give the middle one, not the mean', () => {
+  const s = responseStats([
+    answered({ id: 'a', replyUri: 'at://did:plc:a/app.bsky.feed.post/a', indexedAt: hoursAgo(100), answeredAt: hoursAgo(99) }),   // 1h
+    answered({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', indexedAt: hoursAgo(100), answeredAt: hoursAgo(96) }),   // 4h
+    answered({ id: 'c', replyUri: 'at://did:plc:a/app.bsky.feed.post/c', indexedAt: hoursAgo(100), answeredAt: hoursAgo(40) })    // 60h
+  ], SINCE);
+  assert.strictEqual(s.medianHours, 4, 'got ' + s.medianHours + ' — one slow reply must not move the middle');
+  assert.strictEqual(s.samples, 3);
+});
+
+test('an even count averages the two middle values', () => {
+  const s = responseStats([
+    answered({ id: 'a', replyUri: 'at://did:plc:a/app.bsky.feed.post/a', indexedAt: hoursAgo(100), answeredAt: hoursAgo(99) }),   // 1h
+    answered({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', indexedAt: hoursAgo(100), answeredAt: hoursAgo(98) }),   // 2h
+    answered({ id: 'c', replyUri: 'at://did:plc:a/app.bsky.feed.post/c', indexedAt: hoursAgo(100), answeredAt: hoursAgo(95) }),   // 5h
+    answered({ id: 'd', replyUri: 'at://did:plc:a/app.bsky.feed.post/d', indexedAt: hoursAgo(100), answeredAt: hoursAgo(90) })    // 10h
+  ], SINCE);
+  assert.strictEqual(s.medianHours, 3.5);
+});
+
+test('an answered conversation with no answeredAt is counted, never treated as instant', () => {
+  // reconcileEngagement stamps answeredAt, but entries settled before it did
+  // have none. Scoring those as 0h would report the fleet as instantaneous.
+  const s = responseStats([
+    answered({ id: 'a', replyUri: 'at://did:plc:a/app.bsky.feed.post/a', indexedAt: hoursAgo(100), answeredAt: null }),
+    answered({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', indexedAt: hoursAgo(100), answeredAt: hoursAgo(96) }),
+    answered({ id: 'c', replyUri: 'at://did:plc:a/app.bsky.feed.post/c', indexedAt: hoursAgo(100), answeredAt: hoursAgo(95) })
+  ], SINCE);
+  assert.strictEqual(s.medianHours, null, 'two timed samples cannot make a median');
+  assert.strictEqual(s.samples, 2);
+  assert.strictEqual(s.answeredNoTimestamp, 1,
+    'silently dropping it makes "not enough data" indistinguishable from "nobody replied"');
+});
+
+test('a reply answered before it arrived is skew, not a zero-hour response', () => {
+  const s = responseStats([
+    answered({ id: 'a', replyUri: 'at://did:plc:a/app.bsky.feed.post/a', indexedAt: hoursAgo(40), answeredAt: hoursAgo(50) }),
+    answered({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', indexedAt: hoursAgo(100), answeredAt: hoursAgo(96) }),
+    answered({ id: 'c', replyUri: 'at://did:plc:a/app.bsky.feed.post/c', indexedAt: hoursAgo(100), answeredAt: hoursAgo(95) })
+  ], SINCE);
+  assert.strictEqual(s.samples, 2, 'a negative interval was counted');
+  assert.strictEqual(s.medianHours, null);
+});
+
+test('only answered conversations count — a queued draft is not a response', () => {
+  const s = responseStats([
+    entry({ id: 'a', replyUri: 'at://did:plc:a/app.bsky.feed.post/a', status: 'task_created', indexedAt: hoursAgo(100), answeredAt: hoursAgo(99) }),
+    entry({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', status: 'skipped', indexedAt: hoursAgo(100), answeredAt: hoursAgo(99) }),
+    answered({ id: 'c', replyUri: 'at://did:plc:a/app.bsky.feed.post/c', indexedAt: hoursAgo(100), answeredAt: hoursAgo(95) })
+  ], SINCE);
+  assert.strictEqual(s.samples, 1);
+});
+
+test('conversations outside the window do not prop up the median', () => {
+  const s = responseStats([
+    answered({ id: 'old', replyUri: 'at://did:plc:a/app.bsky.feed.post/o', indexedAt: new Date(NOW - 90 * DAY).toISOString(), answeredAt: new Date(NOW - 89 * DAY).toISOString() }),
+    answered({ id: 'b', replyUri: 'at://did:plc:a/app.bsky.feed.post/b', indexedAt: hoursAgo(100), answeredAt: hoursAgo(96) }),
+    answered({ id: 'c', replyUri: 'at://did:plc:a/app.bsky.feed.post/c', indexedAt: hoursAgo(100), answeredAt: hoursAgo(95) })
+  ], SINCE);
+  assert.strictEqual(s.samples, 2, 'the window the rows use must be the window the number uses');
+});
+
+test('an empty store reports no samples rather than throwing or claiming zero', () => {
+  assert.deepStrictEqual(responseStats([], SINCE), { medianHours: null, samples: 0, answeredNoTimestamp: 0 });
+  assert.deepStrictEqual(responseStats(null, SINCE), { medianHours: null, samples: 0, answeredNoTimestamp: 0 });
 });
 
 (async function () {
