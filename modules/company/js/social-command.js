@@ -15,6 +15,16 @@
   var _fmtNum = APUtils.fmtNum;
   var _relTime = APUtils.relTime;
 
+  // Platforms the Social Command panel renders, in display order. Facebook and Instagram
+  // were missing here while the backend was already collecting Facebook — the panel showed
+  // three platforms and presented that as the whole picture.
+  var PLATFORM_ORDER = ['x', 'linkedin', 'bluesky', 'facebook', 'instagram'];
+  var PLATFORM_LABELS = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky', facebook: 'Facebook', instagram: 'Instagram' };
+  // Facebook blue matches .ei-plat--facebook in engagement.css so one platform is not two
+  // colours across two dashboards.
+  var PLATFORM_COLORS = { x: '#1d9bf0', linkedin: '#0a66c2', bluesky: '#0085ff', facebook: '#1877f2', instagram: '#e4405f' };
+  var PLATFORM_ICONS = { x: 'fab fa-x-twitter', linkedin: 'fab fa-linkedin', bluesky: 'fas fa-cloud', facebook: 'fab fa-facebook', instagram: 'fab fa-instagram' };
+
   function _postUrl(platform, postId) {
     if (!postId) return '';
     if (platform === 'x') return 'https://x.com/i/status/' + postId;
@@ -152,8 +162,8 @@
   function _renderEmpty(container, acct) {
     var platforms = (acct && acct.platforms) || {};
     var errors = (acct && acct.errors) || [];
-    var order = ['x', 'linkedin', 'bluesky'];
-    var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
+    var order = PLATFORM_ORDER;
+    var labels = PLATFORM_LABELS;
     var html = '<div class="scc-empty">';
     html += '<div class="scc-empty-title"><i class="fas fa-satellite-dish" style="opacity:0.3;margin-right:5px;"></i>No social data yet</div>';
     html += '<div class="scc-empty-platforms">';
@@ -214,10 +224,10 @@
     html += '</div>';
 
     // ── Platform cards ──
-    var order = ['x', 'linkedin', 'bluesky'];
-    var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
-    var colors = { x: '#1d9bf0', linkedin: '#0a66c2', bluesky: '#0085ff' };
-    var platformIcons = { x: 'fab fa-x-twitter', linkedin: 'fab fa-linkedin', bluesky: 'fas fa-cloud' };
+    var order = PLATFORM_ORDER;
+    var labels = PLATFORM_LABELS;
+    var colors = PLATFORM_COLORS;
+    var platformIcons = PLATFORM_ICONS;
 
     function _profileUrl(platform, pl) {
       var handle = pl && pl.handle ? pl.handle : '';
@@ -225,6 +235,11 @@
       if (platform === 'x') return 'https://x.com/' + handle.replace(/^@/, '');
       if (platform === 'linkedin') return 'https://www.linkedin.com/company/' + handle.replace(/^@/, '');
       if (platform === 'bluesky') return 'https://bsky.app/profile/' + handle.replace(/^@/, '');
+      if (platform === 'instagram') return 'https://www.instagram.com/' + handle.replace(/^@/, '') + '/';
+      // A Facebook Page lives under a numeric id or vanity slug that the handle (the Page
+      // NAME) is not. Building one from the name would 404 — the same class of guess as
+      // the _permalink() bug. The stats payload carries the real URL, so use that or none.
+      if (platform === 'facebook') return (pl && pl.profileUrl) || '';
       return '';
     }
 

@@ -426,6 +426,73 @@ async function pullFacebookAccountStats() {
   }
 }
 
+// Instagram Business account stats, via the same Page token Facebook uses.
+//
+// followers_count / media_count are LIFETIME LEVELS, same rule as Facebook above: store
+// as-is, difference two snapshots to get "gained this week", never sum across polls.
+//
+// Reads the media edge for recent posts rather than /insights: insights on an account
+// with 0 followers return sparse or empty arrays, and an empty insights payload would
+// arrive here looking exactly like real zeroes.
+async function pullInstagramAccountStats() {
+  var igAdapter = require('../actionsExecute/executors/social/instagram');
+  var creds;
+  try { creds = await igAdapter.getCredentials(); } catch (e) { return { ok: false, error: 'Instagram credential load failed: ' + e.message }; }
+
+  var credError = igAdapter.validateCredentials(creds);
+  if (credError) return { ok: false, error: credError };
+
+  var base = 'https://graph.facebook.com/' + igAdapter.GRAPH_VERSION + '/';
+  var tok = encodeURIComponent(creds.pageAccessToken);
+
+  try {
+    var profRes = await _httpGet(base + creds.igUserId + '?fields=username,name,biography,profile_picture_url,followers_count,follows_count,media_count&access_token=' + tok, {});
+    if (profRes.status !== 200 || !profRes.data) {
+      var detail = (profRes.data && profRes.data.error && profRes.data.error.message) || (profRes.raw || '').slice(0, 200);
+      return { ok: false, error: 'Instagram account lookup failed (HTTP ' + profRes.status + '): ' + detail };
+    }
+    var p = profRes.data;
+
+    var mediaRes = await _httpGet(
+      base + creds.igUserId + '/media?limit=10&fields=caption,timestamp,permalink,like_count,comments_count&access_token=' + tok, {});
+
+    var posts = [];
+    if (mediaRes.status === 200 && mediaRes.data && Array.isArray(mediaRes.data.data)) {
+      posts = mediaRes.data.data.map(function (m) {
+        return {
+          id: m.id || '',
+          text: (m.caption || '').slice(0, 140),
+          created_at: m.timestamp || '',
+          url: m.permalink || '',
+          likes: typeof m.like_count === 'number' ? m.like_count : 0,
+          comments: typeof m.comments_count === 'number' ? m.comments_count : 0,
+          // Instagram exposes no public reshare counter for feed posts. null, not 0 —
+          // "we cannot see it" is not "it did not happen".
+          reposts: null
+        };
+      });
+    }
+
+    return {
+      ok: true,
+      platform: 'instagram',
+      handle: '@' + (p.username || creds.igUsername),
+      name: p.name || p.username || 'AmbientPixels',
+      description: p.biography || '',
+      avatar: p.profile_picture_url || '',
+      // Explicit null when the field is absent, so a lost token cannot render as an
+      // audience that vanished.
+      followers: typeof p.followers_count === 'number' ? p.followers_count : null,
+      following: typeof p.follows_count === 'number' ? p.follows_count : null,
+      posts_count: typeof p.media_count === 'number' ? p.media_count : posts.length,
+      recentPosts: posts,
+      profileUrl: 'https://www.instagram.com/' + (p.username || creds.igUsername) + '/'
+    };
+  } catch (err) {
+    return { ok: false, error: 'Instagram stats pull failed: ' + (err.message || String(err)) };
+  }
+}
+
 // ── Refresh (shared by HTTP handler and socialAccountStatsRefreshCron) ──
 
 async function refreshAccountStats() {
@@ -434,7 +501,8 @@ async function refreshAccountStats() {
     pullXAccountStats(),
     pullLinkedInAccountStats(),
     pullBlueskyAccountStats(),
-    pullFacebookAccountStats()
+    pullFacebookAccountStats(),
+    pullInstagramAccountStats()
   ]);
 
   var platforms = {};
@@ -451,11 +519,18 @@ async function refreshAccountStats() {
   // Aggregate totals
   var totalFollowers = 0;
   var totalPosts = 0;
+  // A platform whose follower count came back null is COUNTED SEPARATELY, never added as
+  // zero. Adding it silently understates the total and makes "we lost read access" look
+  // identical to "nobody follows us there" — the same phantom-zero class as the 22x
+  // engagement inflation. The UI uses this to qualify the number instead of printing a
+  // confident sum over incomplete data.
+  var followersUnknownOn = [];
   var allRecentPosts = [];
   var platformKeys = Object.keys(platforms);
   for (var j = 0; j < platformKeys.length; j++) {
     var pl = platforms[platformKeys[j]];
-    totalFollowers += (pl.followers || 0);
+    if (typeof pl.followers === 'number') totalFollowers += pl.followers;
+    else followersUnknownOn.push(platformKeys[j]);
     totalPosts += (pl.posts_count || pl.tweets_count || 0);
     if (Array.isArray(pl.recentPosts)) {
       pl.recentPosts.forEach(function (post) {
@@ -475,7 +550,14 @@ async function refreshAccountStats() {
       followers: totalFollowers,
       posts: totalPosts,
       platforms_connected: platformKeys.length,
-      platforms_errored: errors.length
+      // How many we TRIED, so the dashboard stops hardcoding a denominator. It said
+      // "/3" while four platforms were already being pulled, which would have rendered
+      // "4/3" the moment Facebook connected.
+      platforms_attempted: results.length,
+      platforms_errored: errors.length,
+      // Which platforms contributed no follower number, so `followers` is never
+      // presented as a complete count when it isn't one.
+      followers_unknown_on: followersUnknownOn
     },
     platforms: platforms,
     recentPosts: allRecentPosts.slice(0, 20),

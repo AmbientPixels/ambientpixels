@@ -290,9 +290,20 @@
   letter-spacing: 0.04em;
 }
 .sa-acct-total-value { font-size: var(--c-text-xl); font-weight: 700; letter-spacing: -0.03em; color: rgba(255,255,255,0.9); margin-top: 1px; }
+/* Qualifier under a total that had to leave a platform out. Deliberately quiet — it
+   should read as a footnote on the number, not compete with it. */
+.sa-acct-total-note {
+  font-size: var(--c-text-xs);
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+}
 
 .sa-acct-grid {
   display: grid;
+  /* Stays at 3. Five cards wrap to 3+2, which is what the design already did for any
+     count that is not a multiple of three. Tried auto-fit to fill the row: at five across
+     each card drops to ~237px and the three stat labels (FOLLOWERS / FOLLOWING / POSTS)
+     collide, which is a worse problem than an empty grid cell. */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
@@ -309,12 +320,19 @@
 .sa-acct-card--x        { border-left: 3px solid #1d9bf0; }
 .sa-acct-card--linkedin { border-left: 3px solid #0a66c2; }
 .sa-acct-card--bluesky  { border-left: 3px solid #0085ff; }
+/* Facebook blue matches .ei-plat--facebook in engagement.css — one platform, one colour
+   across every dashboard. Instagram uses its magenta rather than the brand gradient: a
+   gradient on a 3px rule reads as a muddy stripe at this size. */
+.sa-acct-card--facebook  { border-left: 3px solid #1877f2; }
+.sa-acct-card--instagram { border-left: 3px solid #e4405f; }
 
 .sa-acct-card-head { display: flex; align-items: center; gap: 8px; }
 .sa-acct-badge { margin-left: auto; font-size: 20px; }
 .sa-acct-badge--x        { color: #1d9bf0; }
 .sa-acct-badge--linkedin { color: #0a66c2; }
 .sa-acct-badge--bluesky  { color: #0085ff; }
+.sa-acct-badge--facebook  { color: #1877f2; }
+.sa-acct-badge--instagram { color: #e4405f; }
 .sa-acct-avatar {
   width: 32px;
   height: 32px;
@@ -402,6 +420,7 @@ body[data-theme="light"] .sa-eng-label { color: rgba(0,0,0,0.25); }
 body[data-theme="light"] .sa-acct-cache-hint { color: rgba(0,0,0,0.25); }
 body[data-theme="light"] .sa-acct-total { background: #f2f2f7; }
 body[data-theme="light"] .sa-acct-total-label { color: rgba(0,0,0,0.3); }
+body[data-theme="light"] .sa-acct-total-note { color: rgba(0,0,0,0.4); }
 body[data-theme="light"] .sa-acct-total-value { color: rgba(0,0,0,0.9); }
 body[data-theme="light"] .sa-acct-card { background: #ffffff; }
 body[data-theme="light"] .sa-acct-avatar { border-color: rgba(0,0,0,0.1); }
@@ -453,6 +472,7 @@ body[data-theme="dim"] .sa-eng-label { color: rgba(241,245,249,0.25); }
 body[data-theme="dim"] .sa-acct-cache-hint { color: rgba(241,245,249,0.25); }
 body[data-theme="dim"] .sa-acct-total { background: #334155; }
 body[data-theme="dim"] .sa-acct-total-label { color: rgba(241,245,249,0.3); }
+body[data-theme="dim"] .sa-acct-total-note { color: rgba(241,245,249,0.4); }
 body[data-theme="dim"] .sa-acct-total-value { color: rgba(241,245,249,0.9); }
 body[data-theme="dim"] .sa-acct-card { background: #1e293b; }
 body[data-theme="dim"] .sa-acct-avatar { border-color: rgba(148,163,184,0.15); }

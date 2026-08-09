@@ -7,7 +7,11 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const PLATFORMS = ['x', 'linkedin', 'bluesky'];
+// facebook + instagram added 2026-08-09. Both were already emitting execution telemetry
+// (socialMetrics/telemetry.js has accepted facebook since the adapter shipped), so
+// filtering them out here meant their posts were recorded and then dropped before they
+// could reach the analytics hub.
+const PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook', 'instagram'];
 
 function parseLimit(raw) {
   const n = parseInt(raw, 10);
