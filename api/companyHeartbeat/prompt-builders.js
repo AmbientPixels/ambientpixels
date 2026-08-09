@@ -228,7 +228,7 @@ const { _buildWorldStatePromptBlock } = require('./world-state-intel');
 // but agents never receive instructions for it.
 (function _validatePromptCoverage() {
   const _schemaEnum = 'general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_instagram|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support';
-  const _platformEnum = 'x|linkedin|bluesky|facebook|reddit';
+  const _platformEnum = 'x|linkedin|bluesky|facebook|instagram|reddit';
   const _socialPlatformMap = { social_x: 'x', social_linkedin: 'linkedin', social_bluesky: 'bluesky', social_facebook: 'facebook', social_instagram: 'instagram', social_reddit: 'reddit' };
 
   VALID_TASK_TYPES.forEach(function (t) {
@@ -1774,7 +1774,11 @@ You must remain within your assigned authority tier. Doctrine influences your st
       // Payload nests platforms under .platforms (see socialAccountStats API); keep
       // the flat lookup as fallback for any legacy shape.
       var _sasPlatforms = socialAccountStats.platforms || socialAccountStats;
-      ['bluesky', 'linkedin', 'x', 'twitter'].forEach(function(p) {
+      // 'twitter' is kept as a legacy alias for x. Facebook and Instagram were missing, so
+      // the founder-voice block told Scribe our follower counts on three platforms and
+      // silently omitted two — which reads as "we have no audience there" rather than
+      // "nobody listed them".
+      ['bluesky', 'linkedin', 'x', 'twitter', 'facebook', 'instagram'].forEach(function(p) {
         var s = _sasPlatforms[p];
         if (s && (s.followers != null || s.follower_count != null)) {
           var count = s.followers != null ? s.followers : s.follower_count;
@@ -1939,7 +1943,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
       "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "campaign_id": "..." },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
-      "social": { "text": "Post content", "platform": "x|linkedin|bluesky|facebook|reddit", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
+      "social": { "text": "Post content", "platform": "x|linkedin|bluesky|facebook|instagram|reddit", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
       "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
       "documentId": "existing-doc-id",
       "tool": "web_search",
@@ -1962,7 +1966,7 @@ Action types:
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress). You CANNOT review your own tasks — you must review tasks assigned to a DIFFERENT agent. Self-reviews are blocked by the system.
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
-- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 220 chars for X, 240 for Bluesky, 700 for LinkedIn, 250 for Facebook — attribution tracking adds ~55 chars to your link before posting, and the FINAL text is hard-capped at the platform limit, so over-budget copy gets trimmed or rejected), platform ("x"|"linkedin"|"bluesky"|"facebook"|"reddit"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
+- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 220 chars for X, 240 for Bluesky, 700 for LinkedIn, 250 for Facebook — attribution tracking adds ~55 chars to your link before posting, and the FINAL text is hard-capped at the platform limit, so over-budget copy gets trimmed or rejected), platform ("x"|"linkedin"|"bluesky"|"facebook"|"instagram"|"reddit"), optionally media (URLs). INSTAGRAM RULE: Instagram captions do NOT render clickable links, so an Instagram post must be engagement-shaped and its text must contain NO URL — the executor rejects any caption with one, and a post whose purpose was to drive a click is wasted there. Never pick Instagram for a link, promo, or blog-announcement post. You do not need to supply media for Instagram: the image is rendered automatically from the approved copy. You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
   CRITICAL: The "text" field must contain ONLY the clean, publish-ready post copy that will appear on the social platform. Do NOT include task titles, deliverable headers, markdown formatting (**bold**, ## headings), notes sections, peer review comments, follow-up instructions, or any internal metadata. The text is posted VERBATIM to the platform. Example: "text": "AmbientPixels helps teams govern AI at scale. Learn more at https://ambientpixels.ai #AI" — NOT "**Task:** Hello World\\n**Deliverable:**\\n## Draft\\nAmbientPixels...".
   ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.

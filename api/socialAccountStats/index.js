@@ -337,12 +337,16 @@ function buildDemoAccountStats() {
     }
   };
 
-  // Aggregate
-  var totalFollowers = 1247 + 843 + 389;
-  var totalPosts = 89 + 4 + 23;
+  // Aggregate. Derived from the objects above rather than three literals — the old
+  // `1247 + 843 + 389` had to be edited by hand every time a platform was added, so demo
+  // mode would have kept reporting a stale total that did not match its own cards.
   var allRecent = [];
-  ['x', 'linkedin', 'bluesky'].forEach(function (key) {
-    platforms[key].recentPosts.forEach(function (post) {
+  var totalFollowers = 0;
+  var totalPosts = 0;
+  Object.keys(platforms).forEach(function (key) {
+    totalFollowers += platforms[key].followers || 0;
+    totalPosts += platforms[key].posts_count || platforms[key].tweets_count || 0;
+    (platforms[key].recentPosts || []).forEach(function (post) {
       allRecent.push(Object.assign({ platform: key }, post));
     });
   });
@@ -352,7 +356,16 @@ function buildDemoAccountStats() {
 
   return {
     _cachedAt: now.toISOString(),
-    totals: { followers: totalFollowers, posts: totalPosts, platforms_connected: 3, platforms_errored: 0 },
+    // platforms_connected counted, not hardcoded to 3 — and platforms_attempted present so
+    // the dashboard's "Connected x/y" reads the same way in demo mode as in production.
+    totals: {
+      followers: totalFollowers,
+      posts: totalPosts,
+      platforms_connected: Object.keys(platforms).length,
+      platforms_attempted: Object.keys(platforms).length,
+      platforms_errored: 0,
+      followers_unknown_on: []
+    },
     platforms: platforms,
     recentPosts: allRecent.slice(0, 20),
     errors: []

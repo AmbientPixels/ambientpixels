@@ -189,12 +189,46 @@ async function fetchFacebookMetrics(postId) {
   };
 }
 
+// Instagram media metrics, read off the media object.
+//
+// NOT the /insights edge: on an account with 0 followers insights return sparse or empty
+// arrays, and an empty payload arriving here would be recorded as real zeroes — which is
+// exactly the phantom-zero the whole outcome pipeline exists to avoid.
+async function fetchInstagramMetrics(mediaId) {
+  if (!mediaId) throw { code: 'INSTAGRAM_NO_POST_ID', message: 'snapshot has no postId' };
+  const igAdapter = require('../actionsExecute/executors/social/instagram');
+  const creds = await igAdapter.getCredentials();
+  if (igAdapter.validateCredentials(creds)) {
+    throw { code: 'INSTAGRAM_NO_CREDENTIALS', message: 'Instagram credentials unavailable — recording error, not zero' };
+  }
+  const url = 'https://graph.facebook.com/' + igAdapter.GRAPH_VERSION + '/' + encodeURIComponent(mediaId)
+    + '?fields=like_count,comments_count&access_token=' + encodeURIComponent(creds.pageAccessToken);
+  const res = await httpGet(url);
+  if (res.status !== 200 || !res.data) {
+    throw {
+      code: 'INSTAGRAM_READ_FAILED',
+      message: 'Instagram engagement read failed for ' + mediaId + ': '
+        + ((res.data && res.data.error && res.data.error.message) || ('HTTP ' + res.status))
+    };
+  }
+  return {
+    likes: typeof res.data.like_count === 'number' ? res.data.like_count : 0,
+    comments: typeof res.data.comments_count === 'number' ? res.data.comments_count : 0,
+    // Instagram exposes no public reshare counter for feed posts, and impressions need the
+    // insights edge. null, never 0 — "cannot see it" is not "it did not happen".
+    reposts: null,
+    views: null,
+    clicks: null
+  };
+}
+
 async function fetchMetrics(snapshot) {
   const platform = (snapshot.platform || '').toLowerCase();
   if (platform === 'x' || platform === 'twitter') return fetchXMetrics(snapshot.postId);
   if (platform === 'bluesky') return fetchBlueskyMetrics(snapshot.postUrl && snapshot.postUrl.startsWith('at://') ? snapshot.postUrl : snapshot._atUri || snapshot.atUri || deriveBlueskyAtUri(snapshot));
   if (platform === 'reddit') return fetchRedditMetrics(snapshot.postId);
   if (platform === 'facebook') return fetchFacebookMetrics(snapshot.postId);
+  if (platform === 'instagram') return fetchInstagramMetrics(snapshot.postId);
   // linkedin not supported in Phase 1
   throw { code: 'PLATFORM_UNSUPPORTED', message: 'platform not supported yet: ' + platform };
 }

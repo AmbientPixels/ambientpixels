@@ -63,7 +63,9 @@ var CompanySchemas = (function () {
 
   var ACTION_APPROVAL_STATUSES = ['pending', 'approved', 'rejected', 'revision_requested', 'overridden'];
   var ACTION_EXEC_STATUSES = ['pending', 'queued', 'running', 'success', 'failed'];
-  var SUPPORTED_PLATFORMS = ['x', 'linkedin', 'bluesky', 'reddit'];
+  // Mirrors api/_shared/socialPlatforms.js ALL. Duplicated because the browser cannot
+  // require() the API module — when a platform is added, BOTH need updating.
+  var SUPPORTED_PLATFORMS = ['x', 'linkedin', 'bluesky', 'reddit', 'facebook', 'instagram'];
 
   // Actions that always require CEO approval
   var ACTIONS_REQUIRE_APPROVAL = [

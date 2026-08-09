@@ -26,7 +26,9 @@ function buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, p
   // Echo: declining platforms
   if (socialIntel && socialIntel.deltas) {
     var d = socialIntel.deltas;
-    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    // Facebook and Instagram were absent, so a channel could decline for weeks without
+    // ever raising a research demand signal for Scout.
+    require('../_shared/socialPlatforms').ANALYTICS.forEach(function (p) {
       var fDelta = (d.followers && d.followers[p]) || 0;
       var eDelta = (d.engagement && d.engagement[p]) || 0;
       if (fDelta < -5 || eDelta < -10) {

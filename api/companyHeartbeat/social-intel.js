@@ -3,6 +3,10 @@
 
 const { SOCIAL_INTEL_FRESHNESS_MS, SOCIAL_INTEL_WINDOW_DAYS } = require('./constants');
 const { _socialIntelIsoDayUTC, _socialIntelEventTs, _socialIntelResolveMode } = require('./helpers');
+// One list, not six. Four of the arrays in this file said ['x','linkedin','bluesky'] while
+// two others already said facebook — so Echo's WoW deltas, platform-health summary and
+// weekly snapshot were blind to Facebook while the engagement rollup above them was not.
+const { ANALYTICS: ANALYTICS_PLATFORMS } = require('../_shared/socialPlatforms');
 
 function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs, accountStats, weeklyHistory, blogPostViews) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
@@ -68,14 +72,16 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
     topIssue24h = issueKeys[0] || null;
   }
 
-  var byPlatform = {
-    x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
-    linkedin: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
-    bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
-    reddit: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
-    facebook: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
-  };
-  var platformPostSets = { x: {}, linkedin: {}, bluesky: {}, reddit: {}, facebook: {} };
+  // Built from the shared list rather than written out, so a platform can never be present
+  // in the loops below and absent from the buckets they read — which would throw, not
+  // degrade. Reddit is included because snapshots exist for it even though it is not in
+  // ANALYTICS.
+  var byPlatform = {};
+  var platformPostSets = {};
+  ANALYTICS_PLATFORMS.concat(['reddit']).forEach(function (p) {
+    byPlatform[p] = { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
+    platformPostSets[p] = {};
+  });
   var postAgg = {};
 
   for (var j = 0; j < snapshots.length; j++) {
@@ -117,10 +123,11 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
     if (!postAgg[postKey].post_url && s.post_url) postAgg[postKey].post_url = s.post_url;
   }
 
-  byPlatform.x.posts7d = Object.keys(platformPostSets.x).length;
-  byPlatform.linkedin.posts7d = Object.keys(platformPostSets.linkedin).length;
-  byPlatform.bluesky.posts7d = Object.keys(platformPostSets.bluesky).length;
-  byPlatform.facebook.posts7d = Object.keys(platformPostSets.facebook).length;
+  // Loop, not four hand-written lines — reddit's posts7d was silently never computed and
+  // stayed 0 forever because its assignment was simply missing from the list.
+  Object.keys(platformPostSets).forEach(function (p) {
+    byPlatform[p].posts7d = Object.keys(platformPostSets[p]).length;
+  });
 
   var topPosts7d = Object.keys(postAgg)
     .map(function (k) { return postAgg[k]; })
@@ -152,20 +159,24 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   var avgExecutionLatencyMs7d = latencyCount7d > 0 ? Math.round(latencyTotal7d / latencyCount7d) : 0;
 
   var topEngagementPlatform = 'x';
-  ['x', 'linkedin', 'bluesky', 'facebook'].forEach(function (p) {
+  ANALYTICS_PLATFORMS.forEach(function (p) {
     if (byPlatform[p].likes7d > byPlatform[topEngagementPlatform].likes7d) topEngagementPlatform = p;
   });
 
   // Account-level stats (from socialAccountStats cache)
   var acct = (accountStats && accountStats.platforms) ? accountStats : null;
   var acctTotals = (accountStats && accountStats.totals) ? accountStats.totals : null;
-  var acctFollowers = { x: 0, linkedin: 0, bluesky: 0, facebook: 0, total: 0 };
+  var acctFollowers = { total: 0 };
+  ANALYTICS_PLATFORMS.forEach(function (p) { acctFollowers[p] = 0; });
   if (acct && acct.platforms) {
-    ['x', 'linkedin', 'bluesky', 'facebook'].forEach(function (p) {
+    ANALYTICS_PLATFORMS.forEach(function (p) {
       var pl = acct.platforms[p];
       if (pl && pl.ok !== false) acctFollowers[p] = pl.followers || 0;
     });
-    acctFollowers.total = acctFollowers.x + acctFollowers.linkedin + acctFollowers.bluesky + acctFollowers.facebook;
+    // Summed over the list, not over four named keys — the old line added exactly
+    // x+linkedin+bluesky+facebook, so any platform added after it was written contributed
+    // nothing to the total no matter how many followers it had.
+    acctFollowers.total = ANALYTICS_PLATFORMS.reduce(function (sum, p) { return sum + (acctFollowers[p] || 0); }, 0);
   }
   if (acctTotals && acctTotals.followers) acctFollowers.total = acctTotals.followers;
 
@@ -205,7 +216,7 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   if (successRate7d < 90) {
     recommendations.push('Improve delivery reliability before increasing social posting cadence.');
   }
-  ['x', 'linkedin', 'bluesky', 'facebook'].forEach(function (p) {
+  ANALYTICS_PLATFORMS.forEach(function (p) {
     if (recommendations.length >= 3) return;
     if (byPlatform[p].posts7d === 0) {
       recommendations.push('Publish at least one ' + p + ' post this week to restore engagement signal coverage.');
@@ -220,7 +231,7 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   var prevWeek = Array.isArray(weeklyHistory) && weeklyHistory.length > 0 ? weeklyHistory[weeklyHistory.length - 1] : null;
   if (prevWeek && prevWeek.engagement) {
     deltas = { followers: {}, engagement: {}, postCount: {} };
-    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    ANALYTICS_PLATFORMS.forEach(function (p) {
       var prevF = (prevWeek.followers && prevWeek.followers[p]) || 0;
       var curF = acctFollowers[p] || 0;
       deltas.followers[p] = prevF > 0 ? Math.round(((curF - prevF) / prevF) * 1000) / 10 : 0;
@@ -319,7 +330,7 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
 
     // Platform health with WoW trends
     var platformLines = '';
-    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    ANALYTICS_PLATFORMS.forEach(function (p) {
       var bp = byPlatform[p] || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
       var eng = bp.likes7d + bp.comments7d + bp.reposts7d;
       var fol = followers[p] || 0;
@@ -337,7 +348,7 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
     if (deltas) {
       var declining = [];
       var growing = [];
-      ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+      ANALYTICS_PLATFORMS.forEach(function (p) {
         var fD = deltas.followers[p] || 0;
         var eD = deltas.engagement[p] || 0;
         if (fD < -5 || eD < -10) declining.push(p);
@@ -425,10 +436,16 @@ function _buildWeeklySnapshot(digest) {
   var snapshot = {
     week: new Date().toISOString().substring(0, 10),
     timestamp: digest.asOfUtc || new Date().toISOString(),
-    followers: { x: followers.x || 0, linkedin: followers.linkedin || 0, bluesky: followers.bluesky || 0, total: followers.total || 0 },
+    // Built from the list. The weekly snapshot is what next week's WoW deltas are computed
+    // AGAINST, so a platform missing here has no baseline and shows a 0% delta forever —
+    // a silent flat line rather than an error.
+    followers: ANALYTICS_PLATFORMS.reduce(function (acc, p) {
+      acc[p] = followers[p] || 0;
+      return acc;
+    }, { total: followers.total || 0 }),
     engagement: {}
   };
-  ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+  ANALYTICS_PLATFORMS.forEach(function (p) {
     var pl = bp[p] || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
     snapshot.engagement[p] = {
       total: pl.likes7d + pl.comments7d + pl.reposts7d,

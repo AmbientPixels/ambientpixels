@@ -195,8 +195,13 @@ async function publishDocument(action) {
     try {
       const tasks = (await storage.getState('tasks')) || [];
       const blogUrl = 'https://ambientpixels.ai/blog/' + slug;
-      const platforms = ['linkedin', 'x', 'bluesky'];
-      const platformLimits = { linkedin: '3000 chars', x: '280 chars', bluesky: '300 chars' };
+      // LINK_CAPABLE, not AUTO_PUBLISH. A blog promo exists to carry the article URL, and
+      // Instagram captions render URLs as dead text — instagram.js refuses any caption
+      // containing one. Including Instagram here would queue a Scribe copy task and an
+      // approval for a post the executor was always going to reject.
+      const platforms = require('../../../_shared/socialPlatforms').LINK_CAPABLE
+        .filter(function (p) { return p !== 'reddit'; }); // reddit promo is a manual outbox flow
+      const platformLimits = { linkedin: '3000 chars', x: '280 chars', bluesky: '300 chars', facebook: '63206 chars (aim under 500)' };
       let tasksCreated = 0;
 
       // Resolve objective_id and campaign_id from parent task if doc doesn't have them
