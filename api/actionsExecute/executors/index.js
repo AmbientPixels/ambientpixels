@@ -7,6 +7,7 @@ const blueskyAdapter = require('./social/bluesky');
 const redditAdapter = require('./social/reddit');
 const facebookAdapter = require('./social/facebook');
 const contentAdapter = require('./content/publishDocument');
+const videoAdapter = require('./content/generateVideo');
 const storage = require('../../_utils/companyStorage');
 
 // Map of action_type → platform → executor function
@@ -37,11 +38,17 @@ const EXECUTORS = {
   },
   'publish_document': {
     'site': contentAdapter.publishDocument
+  },
+  // 'character' occupies the platform slot the same way 'site' does for publish_document:
+  // the destination is a kind of output, not an external network. Brand clips are absent on
+  // purpose — they need ffmpeg to composite text, which the Function App does not have.
+  'generate_video': {
+    'character': videoAdapter.generateVideo
   }
 };
 
 // Supported action types for execution
-const EXECUTABLE_TYPES = ['social_post.publish', 'social_post.schedule', 'social_post.reply', 'publish_document'];
+const EXECUTABLE_TYPES = ['social_post.publish', 'social_post.schedule', 'social_post.reply', 'publish_document', 'generate_video'];
 
 /**
  * Execute an action by routing to the correct platform adapter
