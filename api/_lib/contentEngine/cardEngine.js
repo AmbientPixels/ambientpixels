@@ -150,14 +150,21 @@ function buildMarkup(opts) {
     return { type: 'div', props: { style: style, children: l || ' ' } };
   });
 
+  // `transparent` omits the ink fill so this markup can be rendered as an overlay with an
+  // alpha channel and composited onto a moving background. The property is DELETED rather
+  // than set to 'transparent' because every style value here has to be a real value —
+  // see the undefined-style note above.
+  const rootStyle = {
+    width: W, height: H, display: 'flex', flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: PAD + 'px', fontFamily: 'Archivo Black'
+  };
+  if (!opts.transparent) rootStyle.backgroundColor = INK;
+
   return {
     type: 'div',
     props: {
-      style: {
-        width: W, height: H, display: 'flex', flexDirection: 'column',
-        justifyContent: 'space-between',
-        backgroundColor: INK, padding: PAD + 'px', fontFamily: 'Archivo Black'
-      },
+      style: rootStyle,
       children: [
         // Copy block, top-aligned. Reads first because it is the message.
         { type: 'div', props: { style: { display: 'flex', flexDirection: 'column' }, children: lineNodes } },
@@ -199,6 +206,99 @@ async function renderCard(opts) {
   const png = new Resvg(svg, { fitTo: { mode: 'width', value: W } }).render().asPng();
   const sharp = require('sharp');
   return await sharp(png).jpeg({ quality: 90, chromaSubsampling: '4:4:4' }).toBuffer();
+}
+
+// ── Motion ──
+//
+// Same card, moving background. This exists because it is nearly free: the copy does not
+// move, so the expensive part — laying out and rasterising the text — is done ONCE and
+// composited onto every frame. Only the background is re-rendered per frame, and a
+// gradient is the cheapest thing satori draws.
+//
+// The measured cost of that: an animated WebP of this card is ~118KB against ~76KB for the
+// still. Motion is about 1.5x a static image. The GIF of the identical frames is ~3MB,
+// which is a GIF problem, not a motion problem — hence the per-platform format in
+// _shared/socialPlatforms.js ANIMATED_IMAGE_FORMAT.
+//
+// NO ffmpeg is involved. satori and resvg draw the frames, sharp assembles them. That is
+// the whole reason this can run in the Function App, which has neither ffmpeg nor a browser.
+
+const ANIM_FRAMES = 24;
+const ANIM_FRAME_DELAY_MS = 80;   // 24 x 80ms = 1.92s loop
+
+/**
+ * Pure. One background frame at phase t in [0,1).
+ *
+ * The warm centre travels on a sine and a cosine, so t=1 lands exactly where t=0 started
+ * and the loop has no seam. A visible jump on repeat is worse than no motion at all, and
+ * it is the failure you cannot un-see once a post is live.
+ */
+function buildBackgroundFrame(t) {
+  const cx = Math.round(50 + 34 * Math.sin(2 * Math.PI * t));
+  const cy = Math.round(24 + 10 * Math.cos(2 * Math.PI * t));
+  return {
+    type: 'div',
+    props: {
+      style: {
+        width: W, height: H, display: 'flex', backgroundColor: INK,
+        backgroundImage: 'radial-gradient(circle at ' + cx + '% ' + cy + '%, #3a2c17 0%, ' + INK + ' 58%)'
+      },
+      children: ' '
+    }
+  };
+}
+
+async function _toPng(markup, background) {
+  const svg = await satori(markup, {
+    width: W, height: H,
+    fonts: [{ name: 'Archivo Black', data: _font(), weight: 400, style: 'normal' }]
+  });
+  return new Resvg(svg, { fitTo: { mode: 'width', value: W }, background: background }).render().asPng();
+}
+
+/**
+ * Render copy onto an animated card.
+ * @param {Object} opts - { text, handle?, format?: 'gif'|'webp', frames?, delayMs?, quality? }
+ * @returns {Promise<{buffer: Buffer, contentType: string, format: string, frames: number, delayMs: number, bytes: number}>}
+ */
+async function renderAnimatedCard(opts) {
+  opts = opts || {};
+  const format = String(opts.format || 'gif').toLowerCase();
+  if (format !== 'gif' && format !== 'webp') {
+    throw new Error('cardEngine: animated format must be gif or webp, got "' + format + '"');
+  }
+  const frameCount = Math.max(2, opts.frames || ANIM_FRAMES);
+  const delayMs = Math.max(20, opts.delayMs || ANIM_FRAME_DELAY_MS);
+  const sharp = require('sharp');
+
+  // Rendered once. Re-rendering identical text per frame would multiply the satori cost by
+  // frameCount for a pixel-identical result.
+  const overlay = await _toPng(buildMarkup(Object.assign({}, opts, { transparent: true })), 'rgba(0,0,0,0)');
+
+  const frames = [];
+  for (let i = 0; i < frameCount; i++) {
+    const bg = await _toPng(buildBackgroundFrame(i / frameCount), INK);
+    frames.push(await sharp(bg).composite([{ input: overlay, top: 0, left: 0 }]).png().toBuffer());
+  }
+
+  // Per-frame delays as an ARRAY, deliberately. On the join path a SCALAR delay is written
+  // to the first frame only and every other frame is left at 0ms — verified: sharp 0.34.5
+  // produced [80,0,0,0] for `.gif({delay: 80})` over four joined frames. The result plays
+  // as fast as the client will run it, which reads as a broken flicker rather than a loop.
+  const delays = new Array(frameCount).fill(delayMs);
+  const joined = sharp(frames, { join: { animated: true } });
+  const buffer = format === 'gif'
+    ? await joined.gif({ loop: 0, delay: delays }).toBuffer()
+    : await joined.webp({ loop: 0, delay: delays, quality: opts.quality || 72 }).toBuffer();
+
+  return {
+    buffer: buffer,
+    contentType: format === 'gif' ? 'image/gif' : 'image/webp',
+    format: format,
+    frames: frameCount,
+    delayMs: delayMs,
+    bytes: buffer.length
+  };
 }
 
 // ── Blob ──
@@ -252,12 +352,53 @@ async function generateCard(opts) {
   };
 }
 
+/**
+ * Render and upload an ANIMATED card. Returns a public https URL an adapter can hand to a
+ * platform, on the one host `actionsExecute/executors/social/media.js` allows.
+ *
+ * Pick `format` from ANIMATED_IMAGE_FORMAT in _shared/socialPlatforms.js rather than
+ * guessing: X animates image/gif but renders image/webp as a still, so the wrong format
+ * costs the motion silently and nothing reports it.
+ *
+ * @param {Object} opts - { text, handle?, format?, frames?, delayMs?, quality?, jobId? }
+ */
+async function generateAnimatedCard(opts) {
+  if (!opts || !String(opts.text || '').trim()) throw new Error('cardEngine: text is required');
+  const started = Date.now();
+  const jobId = opts.jobId || ('cardanim-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex'));
+  const rendered = await renderAnimatedCard(opts);
+
+  const now = new Date();
+  const blobPath = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/'
+    + jobId + '_' + W + 'x' + H + '.' + rendered.format;
+  const container = await _ensureContainer(CARDS_CONTAINER);
+  const blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
+  await blob.upload(rendered.buffer, rendered.bytes, {
+    blobHTTPHeaders: { blobContentType: rendered.contentType }, overwrite: true
+  });
+
+  console.log('[CardEngine] ' + jobId + ' ' + rendered.format + ' ' + rendered.frames + 'f '
+    + (rendered.bytes / 1024).toFixed(0) + 'KB in ' + (Date.now() - started) + 'ms');
+  return {
+    imageUrl: blob.url, jobId, bytes: rendered.bytes,
+    contentType: rendered.contentType, format: rendered.format,
+    frames: rendered.frames, delayMs: rendered.delayMs,
+    width: W, height: H, durationMs: Date.now() - started,
+    engineVersion: ENGINE_VERSION, estimatedCost: 0
+  };
+}
+
 module.exports = {
   generateCard,
   renderCard,
+  generateAnimatedCard,
+  renderAnimatedCard,
   buildMarkup,
+  buildBackgroundFrame,
   splitLines,
   fitSize,
+  ANIM_FRAMES,
+  ANIM_FRAME_DELAY_MS,
   ENGINE_VERSION,
   WIDTH: W,
   HEIGHT: H,

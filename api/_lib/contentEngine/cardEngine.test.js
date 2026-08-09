@@ -168,6 +168,60 @@ async function inkBands(buf) {
     }
   });
 
+  // ── Motion ──
+  await ta('animated card is a real multi-frame image, not a still', async () => {
+    const sharp = require('sharp');
+    const out = await ce.renderAnimatedCard({ text: 'Motion test.\n\nStill the same words.', frames: 6, format: 'gif' });
+    assert.strictEqual(out.contentType, 'image/gif');
+    const meta = await sharp(out.buffer, { animated: true }).metadata();
+    assert.strictEqual(meta.pages, 6, 'expected 6 frames, got ' + meta.pages);
+    assert.strictEqual(meta.pageHeight, ce.HEIGHT, 'each frame must be a full card');
+  });
+
+  // The bug this guards actually happened. sharp 0.34.5 given a SCALAR delay on the
+  // join path writes it to frame 0 and leaves the rest at 0ms — [80,0,0,0] — which plays
+  // as a flicker rather than a loop, and looks like a design failure rather than an
+  // encoding one. Nothing surfaces it except reading the delays back.
+  await ta('every frame carries a delay, not just the first', async () => {
+    const sharp = require('sharp');
+    const out = await ce.renderAnimatedCard({ text: 'Delay test.', frames: 5, delayMs: 90, format: 'gif' });
+    const meta = await sharp(out.buffer, { animated: true }).metadata();
+    const delays = meta.delay || [];
+    assert.strictEqual(delays.length, 5, 'expected 5 delays, got ' + delays.length);
+    const zeros = delays.filter(d => !d).length;
+    assert.strictEqual(zeros, 0, 'frames with 0ms delay: ' + zeros + ' of 5 — delay must be passed as an ARRAY (' + JSON.stringify(delays) + ')');
+  });
+
+  // Bluesky rejects anything over 1,000,000 bytes (BSKY_MAX_IMAGE_BYTES). WebP is the only
+  // format that clears it; the same frames as GIF are ~26x larger. If this ever fails,
+  // animated posting to Bluesky silently degrades to text-only.
+  await ta('animated WebP stays under the 1MB blob ceiling', async () => {
+    const out = await ce.renderAnimatedCard({ text: 'This picture was not made by an image model.\n\nThe words came first.', format: 'webp' });
+    assert.strictEqual(out.contentType, 'image/webp');
+    assert.ok(out.bytes < 1000000, 'animated WebP is ' + Math.round(out.bytes / 1000) + 'KB, over the 1MB Bluesky limit');
+  });
+
+  await ta('the loop has no seam: last frame returns to the first', async () => {
+    // t=1 must land on t=0. Compared on the pure background markup, so this tests the
+    // motion maths rather than the renderer.
+    const first = JSON.stringify(ce.buildBackgroundFrame(0));
+    const wrap = JSON.stringify(ce.buildBackgroundFrame(1));
+    assert.strictEqual(first, wrap, 'frame at t=1 must equal t=0 or the loop visibly jumps');
+    const mid = JSON.stringify(ce.buildBackgroundFrame(0.5));
+    assert.notStrictEqual(first, mid, 'the background must actually move');
+  });
+
+  t('an unsupported animation format is refused, not silently rendered', () => {
+    assert.rejects(() => ce.renderAnimatedCard({ text: 'x', format: 'mp4' }), /gif or webp/);
+  });
+
+  t('transparent markup drops the ink fill, opaque keeps it', () => {
+    const opaque = ce.buildMarkup({ text: 'a' });
+    const clear = ce.buildMarkup({ text: 'a', transparent: true });
+    assert.ok(opaque.props.style.backgroundColor, 'the normal card must stay opaque');
+    assert.ok(!('backgroundColor' in clear.props.style), 'overlay must have NO backgroundColor key at all, not an undefined one');
+  });
+
   console.log('\n  ' + pass + ' passed, ' + fail + ' failed\n');
   process.exit(fail ? 1 : 0);
 })();

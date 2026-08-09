@@ -48,6 +48,23 @@ const LINK_CAPABLE = ['x', 'linkedin', 'bluesky', 'reddit', 'facebook'];
 // Platforms we harvest human replies/comments from into `engagementReplies`.
 const REPLY_HARVEST = ['bluesky', 'facebook'];
 
+// Platforms that render an ANIMATED image in-feed, and the container format each one
+// actually animates. Absence means "send a still" — never "send it anyway and hope".
+//
+// The format is per-platform because the same file does NOT work everywhere:
+//   x        — x.js maps image/gif -> tweet_gif (animated) but image/webp -> tweet_image
+//              (STATIC). Sending X a WebP produces a still with none of the cost saved.
+//   bluesky  — DELIBERATELY ABSENT. An animated WebP is ~118KB and clears its 1MB blob
+//              limit eightfold, but whether the app animates an uploaded WebP rather than
+//              flattening it to one frame is UNVERIFIED. Add it only after a real post
+//              proves it. GIF is not an option: 1.2MB at 720x900, over the limit.
+//   instagram— absent, and not a size problem. Motion there means Reels, which needs an
+//              MP4 and a media_type=REELS container instagram.js does not build.
+//   linkedin/reddit — not investigated.
+const ANIMATED_IMAGE_FORMAT = {
+  x: 'gif'
+};
+
 // taskType (`social_instagram`) ↔ platform (`instagram`), both directions.
 const TASK_TYPE_BY_PLATFORM = {
   x: 'social_x',
@@ -78,6 +95,7 @@ module.exports = {
   METRICS,
   LINK_CAPABLE,
   REPLY_HARVEST,
+  ANIMATED_IMAGE_FORMAT,
   TASK_TYPE_BY_PLATFORM,
   PLATFORM_BY_TASK_TYPE,
   SOCIAL_TASK_TYPES,
