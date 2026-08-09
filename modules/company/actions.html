@@ -2580,6 +2580,7 @@
       if (a.platform) html += ' ' + platformBadge(a.platform);
       if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += ' <span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:var(--c-text-xs);padding:0.15rem 0.5rem;border-radius:3px;background:rgba(167,139,250,0.12);color:#a78bfa;font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
       if (aType === 'publish_document') html += ' <span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:var(--c-text-xs);padding:0.15rem 0.5rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
+      if (aType === 'generate_video') html += ' <span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:var(--c-text-xs);padding:0.15rem 0.5rem;border-radius:3px;background:rgba(212,169,82,0.14);color:#d4a952;font-weight:600;"><i class="fas fa-film"></i>Video</span>';
       html += '</h3>';
 
       // Status bar
@@ -2591,6 +2592,50 @@
       }
       html += '<span style="font-size:var(--c-text-xs);opacity:0.35;margin-left:auto;">' + esc(a.id) + '</span>';
       html += '</div>';
+
+      // Video card. The clip does not exist yet at approval time — approving is what spends
+      // the money and generates it — so before execution this shows the three things the
+      // decision actually rests on: which face, what it says, and what it costs. After
+      // execution it plays the result, so "did that work" never requires digging a blob URL
+      // out of a receipt.
+      if (aType === 'generate_video') {
+        var _v = (a.payload && a.payload.video) || a.video || {};
+        var _vReceipt = (a.execution && a.execution.receipt) || null;
+        var _vCost = (typeof a.budget_impact === 'number' && a.budget_impact) || (_vReceipt && _vReceipt.estimated_cost) || null;
+
+        // Heading names the STATE, not the type — the drawer title already says
+        // "Character Video", and repeating it reads as a template seam.
+        html += '<div class="act-drawer-section"><h4 style="margin:0 0 0.5rem;">'
+          + ((_vReceipt && _vReceipt.video_url) ? 'Result' : 'Preview') + '</h4>';
+
+        if (_vReceipt && _vReceipt.video_url) {
+          html += '<video src="' + esc(_vReceipt.video_url) + '" controls playsinline preload="metadata" '
+            + 'style="width:100%;max-width:260px;border-radius:8px;background:#000;display:block;margin-bottom:0.6rem;"></video>';
+          html += '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-bottom:0.5rem;">'
+            + esc(_vReceipt.resolution || '1080x1920') + ' &middot; ' + esc(String(_vReceipt.duration_seconds || 8)) + 's &middot; '
+            + (_vReceipt.has_audio ? 'with audio' : 'silent')
+            + (_vReceipt.bytes ? ' &middot; ' + (_vReceipt.bytes / 1048576).toFixed(1) + ' MB' : '')
+            + '</div>';
+          html += '<a href="' + esc(_vReceipt.video_url) + '" download style="font-size:var(--c-text-xs);color:#60a5fa;text-decoration:none;"><i class="fas fa-download" style="margin-right:3px;"></i>Download</a>';
+        } else {
+          html += '<div style="display:flex;gap:0.75rem;align-items:flex-start;">';
+          if (_v.portrait) {
+            html += '<img src="/pixel-agents/img/' + esc(_v.portrait) + '" alt="" '
+              + 'style="width:86px;height:86px;object-fit:cover;object-position:50% 20%;border-radius:8px;flex-shrink:0;background:#111;" '
+              + 'onerror="this.style.display=\'none\'">';
+          }
+          html += '<div style="min-width:0;">';
+          html += '<div style="font-size:var(--c-text-xs);opacity:0.5;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.25rem;">Will say</div>';
+          html += '<div style="font-size:var(--c-text-base);color:rgba(255,255,255,0.85);line-height:1.45;font-style:italic;">&ldquo;' + esc(_v.says || '(no line)') + '&rdquo;</div>';
+          if (_v.tone) html += '<div style="font-size:var(--c-text-xs);opacity:0.55;margin-top:0.35rem;">Tone: ' + esc(_v.tone) + '</div>';
+          html += '</div></div>';
+          html += '<div style="margin-top:0.6rem;padding:0.45rem 0.6rem;border-radius:6px;background:rgba(212,169,82,0.08);border-left:2px solid rgba(212,169,82,0.5);font-size:var(--c-text-xs);color:rgba(255,255,255,0.72);">'
+            + '<i class="fas fa-coins" style="margin-right:4px;color:#d4a952;"></i>'
+            + 'Approving generates the clip and spends about $' + esc(Number(_vCost != null ? _vCost : 1.20).toFixed(2))
+            + '. Nothing has been charged yet.</div>';
+        }
+        html += '</div>';
+      }
 
       // Replying-To card (bluesky_reply actions) — show the original post for context.
       // The original post text lives on the approval-queue entry's threadContext, not on
@@ -3109,7 +3154,8 @@
       'git.deploy': 'Deploy',
       'git.pr': 'Pull Request',
       'azure.scale': 'Scale Infrastructure',
-      'task_completion.approve': 'Task Completion'
+      'task_completion.approve': 'Task Completion',
+      'generate_video': 'Character Video'
     };
     function friendlyActionName(type) {
       return esc(ACTION_NAMES[type] || type.replace(/[_.]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }));

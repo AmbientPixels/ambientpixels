@@ -3557,8 +3557,8 @@
           if (total === 0) {
             previewEl.innerHTML = '<div style="font-size:var(--c-text-xs); opacity:0.4;">Nothing pending. All clear.</div>';
           } else {
-            var platformIcon = { linkedin: 'fab fa-linkedin', facebook: 'fab fa-facebook', x: 'fab fa-x-twitter', bluesky: 'fab fa-bluesky', site: 'fas fa-globe' };
-            var typeLabel = { 'social_post.schedule': 'Social Post', 'publish_document': 'Blog Post', 'trend_alert': 'Trend Alert', 'research.intel': 'Research Brief' };
+            var platformIcon = { linkedin: 'fab fa-linkedin', facebook: 'fab fa-facebook', x: 'fab fa-x-twitter', bluesky: 'fab fa-bluesky', site: 'fas fa-globe', character: 'fas fa-film' };
+            var typeLabel = { 'social_post.schedule': 'Social Post', 'publish_document': 'Blog Post', 'trend_alert': 'Trend Alert', 'research.intel': 'Research Brief', 'generate_video': 'Character Video', 'generate.video': 'Character Video' };
             // Build combined list: actions first, then aq items
             var preview = pendingActions.slice(0, 3).map(function (a) {
               var platform = a.platform || '';
