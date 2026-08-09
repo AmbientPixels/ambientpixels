@@ -47,9 +47,21 @@
   // that represents a person still waiting.
   var STATUS = {
     new: { label: 'needs a reply', tone: 'wait' },
-    task_created: { label: 'draft queued — waiting on your approval', tone: 'pending' },
+    task_created: { label: 'drafting', tone: 'pending' },
     answered: { label: 'answered', tone: 'done' },
     skipped: { label: 'skipped', tone: 'muted' }
+  };
+
+  // What actually became of the draft task. `task_created` only ever meant "a
+  // task exists for Scribe", but the chip read "waiting on your approval" — and
+  // three of them pointed at tasks CANCELLED on 2026-08-08, so the panel sent
+  // the reader to an approval queue that did not contain them. Only
+  // awaiting_approval is that sentence.
+  var DRAFT_STATE = {
+    awaiting_approval: { label: 'waiting on your approval', tone: 'pending' },
+    drafting: { label: 'Scribe is drafting it', tone: 'pending' },
+    task_canceled: { label: 'the draft task was cancelled', tone: 'wait' },
+    task_missing: { label: 'the draft task is gone', tone: 'wait' }
   };
 
   // Why the automated drafter passed on a 'new' item.
@@ -95,6 +107,12 @@
     var meta = STATUS[r.status] || { label: r.status || 'unknown', tone: 'muted' };
     var label = meta.label;
     if (r.status === 'skipped' && r.skip_reason) label += ' — ' + r.skip_reason;
+    // The entry status says a task was made; draft_state says what became of it.
+    // Prefer the second — it is the one that can be checked.
+    if (r.status === 'task_created' && DRAFT_STATE[r.draft_state]) {
+      meta = DRAFT_STATE[r.draft_state];
+      label = meta.label;
+    }
 
     var html = '<article class="ei-row ei-row--reply ei-row--' + esc(meta.tone) + '"'
       + ' data-id="' + esc(r.id) + '">';
@@ -121,7 +139,9 @@
         '</div>';
     }
 
-    if (r.status === 'new') html += renderAction(r);
+    var deadDraft = r.status === 'task_created'
+      && (r.draft_state === 'task_canceled' || r.draft_state === 'task_missing');
+    if (r.status === 'new' || deadDraft) html += renderAction(r, deadDraft);
 
     html += '</article>';
     return html;
@@ -132,7 +152,19 @@
    * done about it. Three genuinely different situations, and collapsing them
    * was the original sin of this panel.
    */
-  function renderAction(r) {
+  function renderAction(r, deadDraft) {
+    // A draft task that was cancelled or vanished produced nothing, so this
+    // conversation is unanswered whatever the entry status says. Offer the
+    // button rather than leaving it stranded behind a stale label.
+    if (deadDraft) {
+      return '<div class="ei-action">' +
+        '<span class="ei-action-why"><i class="fas fa-circle-info"></i> ' +
+        'the earlier draft task never produced a reply</span>' +
+        '<button type="button" class="ei-draft-btn" data-draft-id="' + esc(r.id) + '">' +
+        '<i class="fas fa-pen-nib"></i> Draft again</button>' +
+        '</div>';
+    }
+
     // blocked_reason null with can_draft true = it passed every rule and the
     // next cron run will draft it. Nothing to do but wait.
     if (!r.blocked_reason && r.can_draft) {

@@ -195,6 +195,61 @@ test('the daily draft budget still applies', async () => {
   assert.strictEqual(res.body.reason, 'daily_budget');
 });
 
+test('a conversation whose draft task was CANCELLED can be re-drafted', async () => {
+  // The live failure, 2026-08-08: a bulk cancel closed three engagement-reply
+  // tasks in the same second. reconcile only recognised 'done', so the entries
+  // stayed at task_created forever, the panel reported "waiting on your
+  // approval" for a queue that did not contain them, and the dead entry counted
+  // as a reply we never sent.
+  reset([entry({ status: 'task_created', taskId: 'task_dead', taskCreatedAt: new Date(NOW - 5 * DAY).toISOString() })], {
+    tasks: [{ id: 'task_dead', status: 'canceled', assignee: 'scribe' }]
+  });
+  const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.status, 200, JSON.stringify(res.body));
+  assert.strictEqual(res.body.already, undefined, 'reported as already drafted when the task was dead');
+  assert.strictEqual(store.tasks.length, 2, 'no fresh task was appended');
+  assert.strictEqual(store.engagementReplies[0].taskId, res.body.taskId, 'entry still points at the dead task');
+});
+
+test('a LIVE draft task is not re-drafted', async () => {
+  reset([entry({ status: 'task_created', taskId: 'task_live' })], {
+    tasks: [{ id: 'task_live', status: 'in-progress', assignee: 'scribe' }]
+  });
+  const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.body.already, true);
+  assert.strictEqual(res.body.taskId, 'task_live');
+  assert.strictEqual(store.tasks.length, 1, 'duplicated a draft that was already being written');
+});
+
+test('a draft already awaiting approval is not re-drafted', async () => {
+  reset([entry({ status: 'task_created', taskId: 'task_done' })], {
+    tasks: [{ id: 'task_done', status: 'done', assignee: 'scribe' }],
+    actions: [{ id: 'act_r', type: 'social_post.reply', _parentTaskId: 'task_done', approval: { status: 'pending' } }]
+  });
+  const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.body.already, true, 'would have duplicated a reply sitting in the approval queue');
+  assert.strictEqual(store.tasks.length, 1);
+});
+
+test('an answered conversation is never re-opened', async () => {
+  reset([entry({ status: 'answered' })]);
+  const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.body.ok, false);
+  assert.strictEqual(store.tasks.length, 0);
+});
+
+test('a dead draft does not spend the allowance it is asking for', async () => {
+  // The re-drafted entry must not count itself as a prior reply. With the
+  // 2-exchange limit that would leave only one turn left in a conversation where
+  // we have said nothing at all.
+  reset([
+    entry({ id: 'er_real', status: 'answered', answeredAt: new Date(NOW - 20 * DAY).toISOString() }),
+    entry({ status: 'task_created', taskId: 'task_dead' })
+  ], { tasks: [{ id: 'task_dead', status: 'canceled' }] });
+  const res = await post({ id: 'er_target' });
+  assert.strictEqual(res.status, 200, JSON.stringify(res.body) + ' — the dead entry counted as a reply');
+});
+
 test('a second click does not produce a second task', async () => {
   reset([entry()]);
   const first = await post({ id: 'er_target' });

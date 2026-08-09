@@ -121,11 +121,48 @@ function annotateBlocked(store, cfg, nowMs) {
 }
 
 /**
+ * What has ACTUALLY happened to a 'task_created' entry.
+ *
+ * The entry status only records that a task was made for Scribe. It does not
+ * mean an action is waiting for approval, and the panel said "draft queued —
+ * waiting on your approval" for all of them. Three of those tasks had been
+ * CANCELLED on 2026-08-08 and were never going to produce anything, so the
+ * dashboard was pointing at an approval queue that did not contain them.
+ *
+ * The cron's reconcile eventually corrects the entry, but only on its next daily
+ * run and only for states it knows. Reading tasks + actions here means the panel
+ * is right immediately, and right about states reconcile does not cover.
+ *
+ * Returns: 'awaiting_approval' | 'drafting' | 'task_canceled' | 'task_missing'
+ */
+function draftStateFor(entry, taskById, replyActionByTask) {
+  if (!entry || !entry.taskId) return 'task_missing';
+
+  const action = replyActionByTask[entry.taskId];
+  if (action) {
+    const status = (action.approval && action.approval.status) || '';
+    // Only NOW is "waiting on your approval" a true sentence.
+    if (status === 'pending' || !status) return 'awaiting_approval';
+    return 'drafting'; // decided already; reconcile will settle the entry
+  }
+
+  const task = taskById[entry.taskId];
+  if (!task) return 'task_missing';
+
+  const s = String(task.status || '').toLowerCase();
+  if (s === 'canceled' || s === 'cancelled' || s === 'archived') return 'task_canceled';
+  if (s === 'done') return 'task_canceled'; // closed without ever producing a reply
+  return 'drafting';
+}
+
+/**
  * Pure. engagementReplies entries → inbox rows, newest first.
  * `status` is passed through untouched: 'new' means nobody has drafted anything
  * and it is the only status that represents an unanswered human.
  */
-function buildReplyRows(store, sinceMs, limit, blockedById) {
+function buildReplyRows(store, sinceMs, limit, blockedById, taskById, replyActionByTask) {
+  taskById = taskById || {};
+  replyActionByTask = replyActionByTask || {};
   return (Array.isArray(store) ? store : [])
     .filter((e) => e && e.replyUri && e.author)
     .filter((e) => {
@@ -153,6 +190,10 @@ function buildReplyRows(store, sinceMs, limit, blockedById) {
         blocked_reason: b.blocked_reason === undefined ? null : b.blocked_reason,
         can_draft: b.can_draft === undefined ? false : b.can_draft,
         override_blocked_reason: b.override_blocked_reason === undefined ? null : b.override_blocked_reason,
+        // 'task_created' rows only — what really became of that task.
+        draft_state: e.status === 'task_created'
+          ? draftStateFor(e, taskById, replyActionByTask)
+          : null,
         manual_draft: e.manualDraft === true || undefined,
         link: blueskyUrl(e.replyUri),
         our_post_link: blueskyUrl(e.ourPostAtUri)
@@ -234,11 +275,21 @@ module.exports = async function (context, req) {
     // engagementReplies is a companyStorage-direct key, deliberately NOT in
     // company-state's VALID_KEYS (same class as pingLog) — which is exactly why
     // it needed its own reader.
-    const [replyStore, snapshots, systemConfig] = await Promise.all([
+    const [replyStore, snapshots, systemConfig, tasks, actions] = await Promise.all([
       storage.getState('engagementReplies').catch(() => null),
       storage.getState('socialEngagementSnapshots').catch(() => null),
-      storage.getState('systemConfig').catch(() => null)
+      storage.getState('systemConfig').catch(() => null),
+      storage.getState('tasks').catch(() => null),
+      storage.getState('actions').catch(() => null)
     ]);
+
+    // So a "waiting on your approval" claim can be checked instead of assumed.
+    const taskById = {};
+    (Array.isArray(tasks) ? tasks : []).forEach((t) => { if (t && t.id) taskById[t.id] = t; });
+    const replyActionByTask = {};
+    (Array.isArray(actions) ? actions : []).forEach((a) => {
+      if (a && a.type === 'social_post.reply' && a._parentTaskId) replyActionByTask[a._parentTaskId] = a;
+    });
 
     let cfg = {};
     try {
@@ -246,7 +297,7 @@ module.exports = async function (context, req) {
     } catch (e) { /* annotation degrades to "unknown"; the rows still render */ }
 
     const blockedById = annotateBlocked(Array.isArray(replyStore) ? replyStore : [], cfg, Date.now());
-    const replies = buildReplyRows(replyStore, sinceMs, limit, blockedById);
+    const replies = buildReplyRows(replyStore, sinceMs, limit, blockedById, taskById, replyActionByTask);
     const reactions = buildReactionRows(snapshots, sinceMs, limit);
 
     const counts = { new: 0, task_created: 0, answered: 0, skipped: 0 };
@@ -265,7 +316,11 @@ module.exports = async function (context, req) {
           replies: replies.length,
           byStatus: counts,
           // The only number that asks something of a human today.
-          needsAttention: counts.new || 0,
+          // Unanswered from a human's point of view: never drafted, PLUS the
+          // ones whose draft task died and produced nothing. The second group
+          // used to read as healthy and in-queue.
+          needsAttention: (counts.new || 0)
+            + replies.filter((r) => r.draft_state === 'task_canceled' || r.draft_state === 'task_missing').length,
           // Of those, the ones a click can actually put into the pipeline. The
           // rest need you to answer as yourself.
           draftable: replies.filter((r) => r.status === 'new' && r.can_draft).length,

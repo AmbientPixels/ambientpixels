@@ -319,6 +319,23 @@ function buildEngagementReplyTask(entry, scanCommentText, nowMs) {
 
 var _VANISHED_GRACE_MS = 24 * 3600e3;
 
+// Task states from which no reply can ever come. Only 'done' was listed here
+// before, so a CANCELLED draft task left its entry at 'task_created' forever:
+// the dashboard reported "draft queued, waiting on your approval" for something
+// that would never be drafted, AND the dead entry kept counting as a touch, so
+// the per-thread and cooldown guards blocked any retry. Three live
+// conversations sat like that from 2026-08-08, when a bulk cancel closed their
+// tasks in the same second.
+//
+// Anything NOT listed here is treated as in flight and left alone, which is the
+// safe direction: a state we do not recognise stalls rather than resurrects.
+var _TERMINAL_TASK_STATUS = {
+  done: 'closed_without_action',
+  canceled: 'task_canceled',
+  cancelled: 'task_canceled',
+  archived: 'task_archived'
+};
+
 // Terminal-outcome stamping for 'task_created' entries. Action state wins over
 // task state (actions outlive tasks through archive-then-trim). A task that
 // VANISHED young is a concurrent-writer clobber (wholesale tasks saves race
@@ -359,9 +376,10 @@ function reconcileEngagement(store, tasks, actions, nowMs) {
     }
     var t = taskById[e.taskId];
     if (t) {
-      if (t.status === 'done') {
+      var term = _TERMINAL_TASK_STATUS[String(t.status || '').toLowerCase()];
+      if (term) {
         e.status = 'skipped';
-        e.skipReason = 'closed_without_action';
+        e.skipReason = term;
         out.skipped++;
       }
       return; // in flight — leave alone

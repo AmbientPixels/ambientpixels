@@ -122,29 +122,57 @@ module.exports = async function (context, req) {
     const entry = store.find((e) => e && e.id === id);
     if (!entry) return badRequest(context, 404, { error: 'No such reply', id: id });
 
-    // Idempotent by state, not by request id: a double click, or a click on a row
-    // the cron drafted a second earlier, must not produce two tasks for one
-    // person. Answering ok:true with the existing task is friendlier than a 409
-    // for what is almost always an impatient second click.
-    if (entry.status !== 'new') {
+    const tasksNow = (await storage.getState('tasks')) || [];
+    const actionsNow = (await storage.getState('actions')) || [];
+    const taskById = {};
+    (Array.isArray(tasksNow) ? tasksNow : []).forEach((t) => { if (t && t.id) taskById[t.id] = t; });
+    const replyByTask = {};
+    (Array.isArray(actionsNow) ? actionsNow : []).forEach((a) => {
+      if (a && a.type === 'social_post.reply' && a._parentTaskId) replyByTask[a._parentTaskId] = a;
+    });
+
+    // Already answered is final — never re-open a conversation we finished.
+    if (entry.status === 'answered') {
       return badRequest(context, 200, {
-        ok: entry.status === 'task_created',
-        already: true,
-        status: entry.status,
-        taskId: entry.taskId || null,
-        message: entry.status === 'task_created'
-          ? 'A draft already exists for this conversation and is waiting on your approval.'
-          : 'This conversation is already ' + entry.status + '.'
+        ok: false, already: true, status: 'answered', taskId: entry.taskId || null,
+        message: 'This conversation has already been answered.'
       });
+    }
+
+    // A live draft is a real one: idempotent for the impatient second click, and
+    // for a row the cron drafted a second before the click landed.
+    if (entry.status === 'task_created') {
+      const action = replyByTask[entry.taskId];
+      const task = taskById[entry.taskId];
+      const taskDead = !task || ['canceled', 'cancelled', 'archived', 'done']
+        .indexOf(String((task && task.status) || '').toLowerCase()) !== -1;
+      if (action || !taskDead) {
+        return badRequest(context, 200, {
+          ok: true, already: true, status: 'task_created', taskId: entry.taskId || null,
+          message: action
+            ? 'A draft already exists and is waiting on your approval.'
+            : 'Scribe is already drafting this one.'
+        });
+      }
+      // Otherwise the task is dead and produced nothing, so this conversation is
+      // unanswered no matter what the entry says. Fall through and re-draft.
+      // Three live rows sat in exactly this state after a bulk cancel on
+      // 2026-08-08, reported as "waiting on your approval" and unreachable.
+      context.log('[engagementReplyDraft] re-drafting ' + id + ' — prior task ' + entry.taskId + ' is dead');
     }
 
     const nowMs = Date.now();
 
-    // Same rule engine as the cron, age lifted. The subset keeps every non-'new'
-    // entry (they are the history that per-author cooldown, one-per-thread and
-    // today's budget are computed from) plus this one candidate, so the verdict
-    // is about THIS conversation and not whichever one happens to be oldest.
-    const subset = store.filter((e) => e && (e.status !== 'new' || e.id === id));
+    // Same rule engine as the cron, config overridden. The subset is every OTHER
+    // settled entry — the history that per-author cooldown, the per-thread limit
+    // and today's budget are computed from — plus this one candidate, presented
+    // as 'new' because filterCandidates only ever considers that status. Coercing
+    // it also removes the target from its own history, which matters when
+    // re-drafting a dead 'task_created': otherwise it would count as a reply we
+    // never actually sent and spend the allowance it is asking for.
+    const subset = store
+      .filter((e) => e && e.id !== id && e.status !== 'new')
+      .concat([Object.assign({}, entry, { status: 'new' })]);
     const verdict = engagement.filterCandidates(
       subset,
       Object.assign({}, cfg, OVERRIDE_CONFIG),
@@ -163,10 +191,8 @@ module.exports = async function (context, req) {
       });
     }
 
-    const tasks = (await storage.getState('tasks')) || [];
-    const actions = (await storage.getState('actions')) || [];
     const scanCmt = engagement.asksProductQuestion(entry.text)
-      ? engagement.findScanComment(entry, actions, tasks)
+      ? engagement.findScanComment(entry, actionsNow, tasksNow)
       : null;
     const task = engagement.buildEngagementReplyTask(entry, scanCmt, nowMs);
     task.tags = (task.tags || []).concat(['manual-draft']);
@@ -188,7 +214,9 @@ module.exports = async function (context, req) {
       const next = Array.isArray(current) ? current.slice() : [];
       const idx = next.findIndex((e) => e && e.id === id);
       if (idx === -1) return undefined;
-      if (next[idx].status !== 'new') return undefined; // the cron won the race
+      // Only refuse if the cron won the race on a genuinely NEW row. A dead
+      // 'task_created' is what we are deliberately replacing.
+      if (next[idx].status !== 'new' && next[idx].taskId !== entry.taskId) return undefined;
       next[idx] = Object.assign({}, next[idx], {
         status: 'task_created',
         taskId: task.id,
