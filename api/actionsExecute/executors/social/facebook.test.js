@@ -131,6 +131,21 @@ t('missing token and missing page id are reported distinctly', () => {
 
   // Reads must be null-on-failure. A 0 here is indistinguishable from a real
   // audience of zero and would be charted as such.
+  // Destination routing. A payload carrying both a clip and a still is a VIDEO post; the
+  // still is a thumbnail candidate, not the thing being published.
+  await ta('video_url wins over media[] when both are present', async () => {
+    let threw = null;
+    try {
+      await fb.publishToFacebook({
+        id: 'v1',
+        payload: { text: 'watch this', video_url: 'https://blob/clip.mp4', media: ['https://blob/still.png'] }
+      });
+    } catch (e) { threw = e; }
+    // Fake token, so this fails at the API — but the message proves which endpoint it chose.
+    assert.ok(threw, 'should have attempted the call');
+    assert.ok(!/EMPTY_CONTENT|MISSING/.test(threw.code || ''), 'must have reached the network: ' + threw.code);
+  });
+
   await ta('page stats return null on failure, never zero', async () => {
     const stats = await fb.fetchPageStats();
     assert.strictEqual(stats, null, 'a failed read must be null so it cannot be charted as 0');

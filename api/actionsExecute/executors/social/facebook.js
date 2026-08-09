@@ -205,7 +205,12 @@ function _permalink(pageId, returnedId) {
 async function _fetchPermalink(postId, token) {
   try {
     var res = await _request('GET', '/' + postId, { fields: 'permalink_url', access_token: token });
-    return (res && res.permalink_url) || '';
+    var url = (res && res.permalink_url) || '';
+    // Posts come back absolute; VIDEOS come back relative ("/AmbientPixels/videos/123/").
+    // Storing the relative form gives every consumer a broken link, and it is the kind of
+    // thing that looks fine in a receipt and fails only when somebody clicks it.
+    if (url && url.charAt(0) === '/') url = 'https://www.facebook.com' + url;
+    return url;
   } catch (e) {
     _log('permalink-read-failed', { post_id: postId, error: e.message || String(e) });
     return '';
@@ -253,21 +258,40 @@ async function publishToFacebook(action) {
   var firstMedia = media.length
     ? (typeof media[0] === 'string' ? media[0] : (media[0].url || ''))
     : '';
-  var usePhoto = /^https?:\/\//.test(firstMedia);
 
-  var endpoint = usePhoto ? '/' + creds.pageId + '/photos' : '/' + creds.pageId + '/feed';
-  var params = usePhoto
-    ? { url: firstMedia, caption: text, access_token: creds.pageAccessToken }
-    : { message: text, access_token: creds.pageAccessToken };
+  // Three destinations, picked by what the payload carries. video_url wins: a post with
+  // both a clip and a still image is a video post, not a photo post with a spare file.
+  //
+  // /videos takes file_url and fetches the media itself, so nothing is uploaded from here.
+  // That only works because videoEngine writes to a PUBLIC blob container — if that
+  // container ever goes private, this silently starts failing with a Facebook-side fetch
+  // error rather than anything that points back at the container.
+  var videoUrl = String(payload.video_url || '').trim();
+  var useVideo = /^https?:\/\//.test(videoUrl);
+  var usePhoto = !useVideo && /^https?:\/\//.test(firstMedia);
+  var mode = useVideo ? 'video' : (usePhoto ? 'photo' : 'feed');
 
-  _log('publish-start', { pageId: creds.pageId, textLength: text.length, mode: usePhoto ? 'photo' : 'feed' });
+  var endpoint, params;
+  if (useVideo) {
+    endpoint = '/' + creds.pageId + '/videos';
+    params = { file_url: videoUrl, description: text, access_token: creds.pageAccessToken };
+    if (payload.video_title) params.title = String(payload.video_title).slice(0, 255);
+  } else if (usePhoto) {
+    endpoint = '/' + creds.pageId + '/photos';
+    params = { url: firstMedia, caption: text, access_token: creds.pageAccessToken };
+  } else {
+    endpoint = '/' + creds.pageId + '/feed';
+    params = { message: text, access_token: creds.pageAccessToken };
+  }
+
+  _log('publish-start', { pageId: creds.pageId, textLength: text.length, mode: mode });
 
   var result = await retryOn429(
     function () { return _request('POST', endpoint, params); },
     { platform: 'facebook', actionId: action.id || null }
   );
 
-  // /photos returns { id, post_id }; /feed returns { id }.
+  // /photos returns { id, post_id }; /feed and /videos return { id }.
   var postId = result.post_id || result.id || '';
   // Authoritative permalink, with the constructed one only as a fallback.
   var canonical = await _fetchPermalink(postId, creds.pageAccessToken);
@@ -277,11 +301,18 @@ async function publishToFacebook(action) {
     handle: 'AmbientPixels',
     post_id: postId,
     photo_id: usePhoto ? (result.id || '') : '',
-    post_url: canonical || _permalink(creds.pageId, postId),
-    post_url_source: canonical ? 'graph' : 'constructed',
+    video_id: useVideo ? (result.id || '') : '',
+    // A video id is NOT the {page}_{post} composite _permalink() expects, so the constructed
+    // fallback would be wrong rather than merely ugly. Better an empty URL that reads as
+    // "unknown" than a confident link to nothing.
+    post_url: canonical || (useVideo ? '' : _permalink(creds.pageId, postId)),
+    post_url_source: canonical ? 'graph' : (useVideo ? 'unavailable' : 'constructed'),
+    // Facebook transcodes asynchronously: this returns 200 while the post is still
+    // processing, so a successful receipt does NOT mean the clip is watchable yet.
+    processing: useVideo ? true : undefined,
     timestamp: new Date().toISOString(),
     content_hash: hash,
-    api: usePhoto ? 'photos' : 'feed',
+    api: mode === 'video' ? 'videos' : (usePhoto ? 'photos' : 'feed'),
     graph_version: GRAPH_VERSION
   };
 
