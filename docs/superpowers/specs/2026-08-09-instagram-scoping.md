@@ -1,12 +1,39 @@
 # Instagram — scoping, and the blocker that stops it being an afternoon
 
-**Status:** NOT BUILT. Blocked on a credential decision that is the CEO's, not a session's.
+**Status:** NOT BUILT. **Step 1 UNBLOCKED 2026-08-09 — see below.** Now blocked on the
+link-shape decision (step 2), which is the CEO's.
 **Date:** 2026-08-09
 **Prerequisite reading:** `2026-08-09-facebook-and-video-handoff.md`, `2026-08-09-video-pipeline.md`
 
 ---
 
-## The blocker, found by probing before scoping
+## ✅ UNBLOCKED — the account IS reachable
+
+The CEO re-consented with the Instagram scopes. Re-probed with the resulting Page token:
+
+| Probe | Result |
+|---|---|
+| `GET /{page}?fields=instagram_business_account` | **`{"id":"17841442391762826","username":"ambientpixels2022","followers_count":0,"media_count":0}`** |
+| Page token scopes | `instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`, `instagram_manage_insights` (+8 more) |
+| Page token expiry | **NEVER** |
+| `data_access_expires_at` | **2026-11-07T05:18:26Z** — clock restarted on re-consent, as this doc predicted |
+
+So the account was **linked all along** and simply invisible without `instagram_basic` — the
+"unverified, not confirmed absent" call was the right one, and `instagram_accounts` returning
+`{"data":[]}` was indeed the legacy ads edge rather than evidence of no link.
+
+**IG user id `17841442391762826`, `@ambientpixels2022`, 0 followers, 0 media.**
+
+Persisted: new Page token + `INSTAGRAM_USER_ID` + `INSTAGRAM_USERNAME` written to Function App
+app settings and `FB_PAGE_TOKEN.txt`. Production was still holding the pre-consent token, which
+could not have seen Instagram at all.
+
+Everything from "The shape problem" down is now real work. **Step 2, the link-shape question,
+is the remaining gate.**
+
+---
+
+## The blocker, as originally found (kept — the reasoning still stands)
 
 The handoff says *"@ambientpixels2022 is a Business account linked to the Page and the same
 Meta app covers it."* **I could not confirm any part of that, and one part is definitely false.**
