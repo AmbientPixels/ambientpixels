@@ -147,8 +147,29 @@ function _dayKey(iso) { return String(iso || '').substring(0, 10); }
 // (observability — no silent caps). Selections feed the author sets so two
 // comments by the same person in one run can't both pass. Oldest reply first
 // (fairness: longest-waiting conversation gets the slot).
+// Platforms this loop can actually ANSWER. Harvesting and replying are separate
+// capabilities and the store now holds both kinds: socialEngagementPull writes
+// Facebook comments into the same `engagementReplies` blob so the inbox can show
+// them, but buildEngagementReplyTask below hardcodes taskType 'bluesky_reply' and
+// puts entry.replyUri into threadContext.uri, where the executor expects an
+// at:// URI. A Facebook comment id reaching that path would draft a Bluesky reply
+// aimed at an id Bluesky has never heard of.
+//
+// The guard lives HERE rather than in the cron because all three drafting paths
+// funnel through filterCandidates — the automatic loop, the inbox's can_draft
+// annotation, and the CEO's manual draft button. One definition, so the button
+// cannot appear exactly where it will refuse.
+//
+// Facebook replies are deliberately human-only anyway (no fabrication guard on
+// the reply lane), so this is not a temporary gap: replyToComment stays unwired.
+var REPLYABLE_PLATFORMS = ['bluesky'];
+
 function filterCandidates(store, cfg, nowMs) {
-  var drops = { too_old: 0, too_short: 0, author_thread_done: 0, author_cooldown: 0, daily_budget: 0 };
+  // unsupported_platform is FIRST on purpose. Callers report the first drop with
+  // a non-zero count as THE reason, and for a Facebook row every later guard is
+  // beside the point — "aged out" would be a confident wrong answer about a
+  // conversation that was never drafted for an entirely different reason.
+  var drops = { unsupported_platform: 0, too_old: 0, too_short: 0, author_thread_done: 0, author_cooldown: 0, daily_budget: 0 };
   var maxAgeMs = (Number.isFinite(cfg.maxAgeHours) ? cfg.maxAgeHours : 72) * 3600e3;
   var minLen = Number.isFinite(cfg.minTextLength) ? cfg.minTextLength : 15;
   var cooldownMs = (Number.isFinite(cfg.perAuthorCooldownDays) ? cfg.perAuthorCooldownDays : 14) * 86400e3;
@@ -190,6 +211,9 @@ function filterCandidates(store, cfg, nowMs) {
 
   var survivors = [];
   fresh.forEach(function (e) {
+    // Absent platform means Bluesky: every entry written before 2026-08-09 predates
+    // the field, and defaulting those to 'unknown' would silence the whole backlog.
+    if (REPLYABLE_PLATFORMS.indexOf(e.platform || 'bluesky') === -1) { drops.unsupported_platform++; return; }
     var age = nowMs - Date.parse(e.indexedAt || e.discoveredAt || 0);
     if (!Number.isFinite(age) || age > maxAgeMs) { drops.too_old++; return; }
     if (_strippedLength(e.text) < minLen) { drops.too_short++; return; }
@@ -548,5 +572,6 @@ module.exports = {
   findScanComment: findScanComment,
   buildEngagementReplyTask: buildEngagementReplyTask,
   reconcileEngagement: reconcileEngagement,
-  runEngagementReplyLoop: runEngagementReplyLoop
+  runEngagementReplyLoop: runEngagementReplyLoop,
+  REPLYABLE_PLATFORMS: REPLYABLE_PLATFORMS
 };

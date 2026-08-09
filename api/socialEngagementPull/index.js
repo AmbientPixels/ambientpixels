@@ -6,7 +6,11 @@ const linkedinAuth = require('../_utils/linkedinAuth');
 const LOOKBACK_DAYS = 30;
 const MAX_SNAPSHOTS = 50000;
 const MAX_POSTS_PER_CYCLE = 120;
-const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky'];
+// Facebook joined 2026-08-09. It was already accepted by socialMetrics/telemetry.js
+// (which has listed it since the adapter shipped), so execution events were being
+// RECORDED for Facebook posts while this cron filtered every one of them back out —
+// the funnel would have shown a published post that never produced a metrics row.
+const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky', 'facebook'];
 
 function _id(prefix) {
   return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
@@ -168,6 +172,37 @@ async function _pullBlueskyMetrics(postUrl) {
   };
 }
 
+/**
+ * Facebook post metrics, via the adapter (it owns credentials + Graph versioning).
+ *
+ * fetchPostEngagement returns NULL when the read fails and stamps `_cumulative`
+ * when it succeeds. Null is turned into a throw here so the caller records an
+ * error snapshot: returning zeroes would put "0 likes" on the dashboard for a post
+ * we could not read, which is the exact failure the Nov 7 data-access expiry will
+ * cause (publishing keeps working while insights quietly return empty).
+ *
+ * The absolute totals are stored as-is, which is what every other platform here
+ * does — X's like_count and Bluesky's likeCount are lifetime totals too. Snapshots
+ * are point-in-time captures and differencing belongs to whoever reads a series of
+ * them. Do NOT sum these.
+ */
+async function _pullFacebookMetrics(postId) {
+  const facebook = require('../actionsExecute/executors/social/facebook');
+  if (!postId) throw { code: 'PAYLOAD_POST_ID_MISSING', message: 'Missing Facebook post id', status: 400 };
+  const eng = await facebook.fetchPostEngagement(postId);
+  if (!eng) {
+    throw { code: 'FACEBOOK_ENGAGEMENT_LOOKUP_FAILED', status: 502, message: 'Graph read failed or credentials missing for post ' + postId };
+  }
+  return {
+    likes: Number.isFinite(eng.likes) ? eng.likes : 0,
+    comments: Number.isFinite(eng.comments) ? eng.comments : 0,
+    reposts: Number.isFinite(eng.shares) ? eng.shares : 0,
+    quotes: null,
+    views: null,
+    clicks: null
+  };
+}
+
 function _buildSnapshot(base, mode, metrics, errMeta) {
   return {
     id: _id('seg'),
@@ -225,7 +260,8 @@ function _priorTextByPost(snapshots) {
   return out;
 }
 
-function _extractRecentSuccessPosts(events) {
+function _extractRecentSuccessPosts(events, actionsById) {
+  actionsById = actionsById || {};
   const cutoff = Date.now() - (LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
   return (events || [])
     .filter((e) => e && e.event_type === 'execution' && e.result === 'success' && SOCIAL_PLATFORMS.indexOf(e.platform) !== -1)
@@ -242,6 +278,15 @@ function _extractRecentSuccessPosts(events) {
       if (platform === 'x') postId = _extractXPostId(postUrl);
       else if (platform === 'linkedin') postId = _extractLinkedInPostId(postUrl);
       else if (platform === 'bluesky') postId = _extractBlueskyParts(postUrl) ? _extractBlueskyParts(postUrl).rkey : '';
+      else if (platform === 'facebook') {
+        // From the RECEIPT, never parsed from post_url. New Pages publish under an
+        // actor id that is not the Page id, so a composite rebuilt from a URL is a
+        // guess — and Graph answers a wrong-but-well-formed id with someone else's
+        // data or none. Empty here surfaces as PAYLOAD_POST_ID_MISSING on the
+        // snapshot rather than as a silent skip.
+        const _a = actionsById[e.action_id];
+        postId = (_a && _a.execution && _a.execution.receipt && _a.execution.receipt.post_id) || '';
+      }
 
       return {
         post_platform: platform,
@@ -260,8 +305,6 @@ module.exports = async function (context) {
 
   try {
     const events = (await storage.getState('socialMetricsEvents')) || [];
-    const targets = _extractRecentSuccessPosts(events);
-    const snapshots = [];
 
     // Text sources, in order of preference: the live action (fresh posts), then
     // whatever we stamped on this post last time (older posts whose action has
@@ -270,10 +313,18 @@ module.exports = async function (context) {
     const priorTextByPost = _priorTextByPost(existingSnapshots);
     const actions = (await storage.getState('actions')) || [];
     const actionTextMap = {};
+    // Actions are loaded BEFORE targets are picked because Facebook post ids come
+    // from the action receipt, not from the post URL.
+    const actionsById = {};
     for (let i = 0; i < actions.length; i++) {
       const a = actions[i];
-      if (a && a.id && a.payload && a.payload.text) actionTextMap[a.id] = String(a.payload.text).slice(0, 280);
+      if (!a || !a.id) continue;
+      actionsById[a.id] = a;
+      if (a.payload && a.payload.text) actionTextMap[a.id] = String(a.payload.text).slice(0, 280);
     }
+
+    const targets = _extractRecentSuccessPosts(events, actionsById);
+    const snapshots = [];
 
     if (targets.length) {
       for (let i = 0; i < targets.length; i++) {
@@ -292,6 +343,8 @@ module.exports = async function (context) {
           } else if (t.post_platform === 'bluesky') {
             metrics = await _pullBlueskyMetrics(t.post_url);
             if (metrics && metrics.at_uri) t.post_id = metrics.at_uri;
+          } else if (t.post_platform === 'facebook') {
+            metrics = await _pullFacebookMetrics(t.post_id);
           }
 
           snapshots.push(_buildSnapshot(t, mode, metrics, null));
@@ -309,6 +362,38 @@ module.exports = async function (context) {
       const trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
       await storage.setState('socialEngagementSnapshots', trimmed);
       context.log('[socialEngagementPull] Appended snapshots:', snapshots.length, 'mode=', mode);
+    }
+
+    // ── Facebook comment harvest ──
+    //
+    // Hosted here rather than as a new heartbeat module: companyHeartbeat/index.js
+    // is off-limits, and this cron already has the two things the harvest needs —
+    // recent successful posts and the actions store holding their receipts.
+    //
+    // Non-fatal by construction. Comments are a separate concern from metrics, and
+    // a Graph outage must not cost us the snapshot write that already succeeded
+    // above.
+    try {
+      const fbComments = require('./facebook-comments');
+      const facebook = require('../actionsExecute/executors/social/facebook');
+      const summary = await fbComments.pullFacebookComments({
+        storage: storage,
+        log: (m) => context.log(m),
+        nowMs: Date.now(),
+        events: events,
+        actionsById: actionsById,
+        sinceMs: Date.now() - (LOOKBACK_DAYS * 24 * 60 * 60 * 1000),
+        fetchComments: (postId, opts) => facebook.fetchPostComments(postId, opts),
+        getPageId: async () => {
+          const creds = await facebook.getCredentials();
+          return (creds && creds.pageId) || null;
+        }
+      });
+      if (summary && summary.added > 0) {
+        context.log('[socialEngagementPull] Facebook comments added to engagement inbox:', summary.added);
+      }
+    } catch (fbErr) {
+      context.log.warn('[socialEngagementPull] Facebook comment harvest failed (non-fatal):', (fbErr && fbErr.message) || String(fbErr));
     }
 
     await _persistLastPulledAt();

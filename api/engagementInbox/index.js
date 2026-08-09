@@ -454,11 +454,16 @@ module.exports = async function (context, req) {
           answeredNoTimestamp: responseTime.answeredNoTimestamp
         },
         coverage: {
-          replies: ['bluesky'],
-          reactions: ['x', 'linkedin', 'bluesky'],
+          replies: ['bluesky', 'facebook'],
+          reactions: ['x', 'linkedin', 'bluesky', 'facebook'],
           // Said out loud so an empty X section is never read as "nobody
           // replied on X" when it means "we do not read X replies".
-          note: 'Reply text is harvested from Bluesky only (AT Protocol getPostThread). X and LinkedIn contribute counts, not conversation.'
+          //
+          // Harvesting and answering are named separately on purpose: Facebook
+          // comments arrive here but cannot be drafted from here, and a reader who
+          // assumed the Draft button worked everywhere would take our silence on
+          // Facebook for nobody having spoken.
+          note: 'Reply text is harvested from Bluesky (AT Protocol getPostThread) and Facebook (Graph comments). X and LinkedIn contribute counts, not conversation. Drafting is Bluesky-only — Facebook comments are answered by hand on Facebook.'
         },
         meta: {
           days: days,

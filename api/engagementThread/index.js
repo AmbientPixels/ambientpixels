@@ -68,6 +68,27 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // This endpoint speaks AT Protocol and nothing else. A Facebook row reaching
+    // fetchThread below would return 502 "Could not reach Bluesky", which is a
+    // confidently wrong answer: Bluesky is fine, we simply do not read Facebook
+    // threads. The permalink already on the entry is where that conversation lives.
+    const _platform = entry.platform || 'bluesky';
+    if (_platform !== 'bluesky') {
+      context.res = {
+        status: 409,
+        headers: CORS,
+        body: {
+          error: 'Thread view is Bluesky-only',
+          platform: _platform,
+          // So the caller can send the human somewhere real instead of nowhere.
+          permalink: entry.permalink || '',
+          our_post_permalink: entry.ourPostPermalink || '',
+          message: 'This conversation is on ' + _platform + '. We harvest the comment but do not read its thread — open the permalink to see it in context.'
+        }
+      };
+      return;
+    }
+
     // The TRUE thread root. For a comment on one of OUR prospect replies that is
     // the PROSPECT's original post, not ours — starting from ours would return a
     // fragment and present it as the conversation. Older entries pre-date

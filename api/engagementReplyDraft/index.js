@@ -64,6 +64,10 @@ const OVERRIDE_CONFIG = {
 // Human sentences for each rule filterCandidates can drop on. too_old is absent
 // on purpose: this endpoint exists precisely to ignore it.
 const DROP_REASONS = {
+  // Not a bug and not a backlog: this drafter only speaks AT Protocol. Facebook
+  // comments are harvested into the same store so you can see them, but the reply
+  // lane for them is deliberately manual — reply on Facebook itself.
+  unsupported_platform: 'This conversation is not on Bluesky. Drafting only supports Bluesky replies; answer this one on the platform it happened on.',
   too_short: 'There is nothing substantive to answer — the comment is too short.',
   author_thread_done: 'We have already replied to this person twice in this thread. Two exchanges is the limit.',
   author_cooldown: 'We replied to this person within the last 14 days. The cooldown is what stops us pestering someone.',
