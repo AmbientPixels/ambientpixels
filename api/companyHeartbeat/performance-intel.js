@@ -5,6 +5,7 @@
 const { PERFORMANCE_INTEL_FRESHNESS_MS, PERFORMANCE_INTEL_WINDOW_DAYS, AGENT_IDS,
   MAX_PERFORMANCE_INSIGHTS_PER_DAY, MAX_EXPERIMENTS_PER_AGENT,
   EXPERIMENT_MIN_SAMPLES, EXPERIMENT_IMPROVEMENT_THRESHOLD } = require('./constants');
+const { countBlocksByAgent } = require('./_utils/blockCounts');
 
 // ── Content Hook Classifier ──
 // Classifies social post text into hook type for engagement correlation
@@ -266,7 +267,17 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     }
   }
 
-  // ── Block rate from heartbeat runs (perAgent.actionsBlocked) ──
+  // ── Block rate ──
+  // Counted from governanceLog, not perAgent.actionsBlocked. That field sums two partial
+  // counters and misses every gate enforced inside agent-runner.js, so blockRate — which
+  // feeds the agent-performance dashboard's red/yellow banding — was reading near zero for
+  // agents being refused on almost every action. See _utils/blockCounts.js.
+  var _perfBlocks = countBlocksByAgent(governanceLog, { sinceMs: cutoff });
+  Object.keys(_perfBlocks).forEach(function (aid) {
+    if (!agents[aid]) return;
+    agents[aid].actionsBlocked += _perfBlocks[aid].total;
+  });
+
   for (var hb = 0; hb < heartbeatRuns.length; hb++) {
     var run = heartbeatRuns[hb];
     if (!run || !run.perAgent) continue;
@@ -276,7 +287,6 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     Object.keys(perAgent).forEach(function (aid) {
       if (!agents[aid]) return;
       var pa = perAgent[aid];
-      agents[aid].actionsBlocked += (pa.actionsBlocked || 0);
 
       // Time-of-day: track which hour this agent performed in
       if (Number.isFinite(runTs)) {

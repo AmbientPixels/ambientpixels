@@ -38,6 +38,7 @@ const {
   parseBlogDeliverable, capitalizeSentencesLongform, titleSimilarity
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
+const { buildCampaignAvailabilityBlock } = require('./_utils/campaignAvailability');
 const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId } = require('../proposalDecide/materialize');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
 const { evaluateDocQualityGate } = require('./doc-quality-gate'); // shared blog/long-form fact-check decision
@@ -475,7 +476,24 @@ async function runAgentHeartbeat(ctx) {
 
   const _agentRewards = (await storage.getState('agentRewards')) || null; // rewards ledger for the YOUR PROGRESSION block
   const _activeOffers = await _getActiveOffers(); // live offers registry → ACTIVE OFFERS prompt block (content agents)
-  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount };
+  // Which campaigns will actually accept a task this cycle. Computed HERE because both the
+  // full campaign list and the unfiltered task array are in scope, and the cadence/cap
+  // maths needs all of a campaign's tasks — not the per-agent visible subset that reaches
+  // prompt-builders. Built as a finished string so the prompt layer stays a formatter.
+  //
+  // The prompt has said "do NOT create tasks for paused campaigns" as a static rule for
+  // months; agents still hit that gate 100+ times in 7 days, because a rule without the
+  // list is unactionable. This gives them the list.
+  let _campaignAvailabilityBlock = '';
+  try {
+    _campaignAvailabilityBlock = buildCampaignAvailabilityBlock(
+      (campaignCtx && campaignCtx.campaigns) || [], tasks, Date.now()
+    );
+  } catch (_caErr) {
+    context.log('[Heartbeat]', agentId, 'campaign availability block failed (non-fatal):', String(_caErr).substring(0, 160));
+  }
+
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount, campaignAvailabilityBlock: _campaignAvailabilityBlock };
   let prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)

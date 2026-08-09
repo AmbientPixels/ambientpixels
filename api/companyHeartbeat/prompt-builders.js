@@ -303,7 +303,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers, parkedPendingCount } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers, parkedPendingCount, campaignAvailabilityBlock } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -591,6 +591,14 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
     directivesSection = `\n\nACTIVE CAMPAIGNS (strategic priorities — these drive what the company works on):
 ${cmpList}
 IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1 marketing brief", "Audit API cost dashboard"). NEVER create meta-tasks like "Create Tasks for Campaigns" or "Create Individual Tasks for..." — those are wasted actions. If a campaign needs multiple tasks, create each one individually in this heartbeat cycle.`;
+  }
+
+  // Which campaigns will actually accept work RIGHT NOW, precomputed in agent-runner.
+  // Appended outside the activeDirectives guard on purpose: when zero campaigns are active,
+  // "nothing is open" is the single most useful thing an agent can be told, and that is
+  // exactly the case the guard above would have skipped.
+  if (campaignAvailabilityBlock) {
+    directivesSection += '\n\n' + campaignAvailabilityBlock;
   }
 
   // Active Objectives — enriched with task linkage + linked campaigns

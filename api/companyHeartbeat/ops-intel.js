@@ -2,6 +2,7 @@
 // Mirrors social-intel.js pattern: builds digest from raw data, formats into prompt block
 
 var { OPS_INTEL_WINDOW_RUNS } = require('./constants');
+var { countBlocksByAgent, topGateForAgent } = require('./_utils/blockCounts');
 
 // Thresholds: YELLOW = monitor, RED = create ops_breakfix
 var THRESHOLDS = {
@@ -75,6 +76,16 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   else if (prevAvg > 0 && avgDurationMs < prevAvg * 0.8) trend = 'improving';
 
   // Per-agent reliability from recent runs (supports both old agentResults and new perAgent format)
+  //
+  // Blocks come from governanceLog, NOT from perAgent.actionsBlocked. That field is the sum
+  // of two partial counters and misses every gate enforced inside agent-runner.js — measured
+  // at 2 recorded against 26 actual over five runs on 2026-08-09. Feeding Forge the recorded
+  // number told him agents were producing nothing for no reason, when in fact they were
+  // being refused by gates that logged correctly the whole time. See _utils/blockCounts.js.
+  var _recentRunIds = recentRuns.map(function (r) { return r.runId || r.cycleId || r.id || ''; })
+    .filter(function (id) { return !!id; });
+  var _trueBlocks = countBlocksByAgent(govLog, { runIds: _recentRunIds });
+
   var perAgent = {};
   recentRuns.forEach(function (r) {
     var agentData = r.perAgent || r.agentResults;
@@ -88,11 +99,16 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
       perAgent[aid].ran++;
       var ar = agentData[aid];
       if (ar.error) perAgent[aid].failed++;
-      perAgent[aid].blocked += (ar.actionsBlocked || 0);
       var exec = ar.actionsExecuted || ar.actionsAttempted || ar.actions || 0;
       perAgent[aid].executed += exec;
       if (exec === 0 && !ar.error) perAgent[aid].zeroActionRuns++;
     });
+  });
+  // Applied once per agent, not per run: the counts above are already summed across the
+  // whole window, so adding them inside the loop would multiply them by the run count.
+  Object.keys(perAgent).forEach(function (aid) {
+    perAgent[aid].blocked = (_trueBlocks[aid] && _trueBlocks[aid].total) || 0;
+    perAgent[aid].topBlockingGate = topGateForAgent(_trueBlocks, aid);
   });
 
   // Stalled agent detection: agents with 0 actions over 5+ consecutive recent runs
