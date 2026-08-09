@@ -192,7 +192,7 @@ test('a landed review awards 1 XP and ticks the reviews counter', () => {
 
 // ── buildProgressionPromptBlock (Stage 5: the prompt nudge) ──
 test('progression block renders level, next-level, fleet rank, and outcome-only reminder', () => {
-  const rewards = { perAgent: {
+  const rewards = { updatedAt: new Date().toISOString(), perAgent: {
     scribe: { xp: 120, level: 2, rank: 'Rookie', class: 'Scribe the Author', renown: 21, streakDays: 3, achievements: [{ label: 'First Blog Shipped', tier: 'bronze' }] },
     nova:   { xp: 16, level: 1, rank: 'Rookie', class: 'Orchestrator', renown: 10, streakDays: 2, achievements: [] }
   } };
@@ -206,7 +206,7 @@ test('progression block renders level, next-level, fleet rank, and outcome-only 
 });
 
 test('progression block: leader gets a lead message; empty for unknown/no data', () => {
-  const rewards = { perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
+  const rewards = { updatedAt: new Date().toISOString(), perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
   assert.ok(/lead the fleet/i.test(buildProgressionPromptBlock('scribe', rewards)), 'leader message');
   assert.strictEqual(buildProgressionPromptBlock('ghost', rewards), '', 'unknown agent -> empty');
   assert.strictEqual(buildProgressionPromptBlock('nova', null), '', 'no rewards -> empty');
@@ -407,6 +407,10 @@ test('task_done lane cap composes with the global 12/day cap regardless of event
 
 // ── Task 4: season rollover ──
 const mkLedger = (season, perAgent, seasonMeta) => ({
+  // A real ledger always carries updatedAt (applyEvents stamps it). Fixtures must too, or
+  // buildProgressionPromptBlock's staleness guard correctly refuses to render the block —
+  // it fails CLOSED on an unknown age, which is the whole point of it.
+  updatedAt: new Date(AUG).toISOString(),
   season, seasonMeta: seasonMeta || null, perAgent, company: { counters: {} }, processedEventIds: [], assistPairs: {}
 });
 const mkA = (seasonXp, extra) => Object.assign({
@@ -830,6 +834,10 @@ test('prompt block shows season standings, par progress and earning guide', () =
     nova: mkA(0, { seasonXp: 5, level: 1, rank: 'Rookie', xp: 37 })
   }, { par: 40, previousChampion: null });
   led.privileges = { enabled: true, season: '2026-08', tiers: { echo: 'vanguard', scribe: 'line', nova: 'probation' } };
+  // This test reads the block 10 days into the season, so the ledger has to have been
+  // updated around then — mkLedger's default stamp is season-start and would read as
+  // 10 days stale.
+  led.updatedAt = new Date(AUG + 10 * 86400000).toISOString();
   const block = buildProgressionPromptBlock('nova', led, AUG + 10 * 86400000);
   assert.ok(/SEASON/.test(block), 'season header');
   assert.ok(/#3 of 3/.test(block), 'season rank');
@@ -858,7 +866,7 @@ test('non-fleet agent ids render without a season rank line (no rank #0 garbage)
 });
 
 test('bare mid-season ledger degrades cleanly: no ladder line, LINE tier, assists in guide', () => {
-  const led = { perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
+  const led = { updatedAt: new Date(AUG).toISOString(), perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
   const block = buildProgressionPromptBlock('nova', led, AUG);
   assert.ok(!/LADDER:/.test(block), 'no ladder line when no status');
   assert.ok(/LINE/.test(block), 'defaults to LINE tier');
@@ -1120,3 +1128,55 @@ testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but le
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail > 0 ? 1 : 0);
 })();
+
+// ── Staleness guard (2026-08-09) ──
+// rewardsEngineCron was disabled 08-05 → 08-09. For four days every agent was told
+// "36-day streak / 23 days left" from a ledger that had stopped moving, with nothing in
+// the prompt saying so. A stopped engine must not assert live standings.
+{
+  const { buildProgressionPromptBlock, PROGRESSION_STALE_MS } = require('./rewards-engine');
+  const NOW_S = Date.parse('2026-08-09T06:00:00.000Z');
+  const ledgerAt = (iso) => ({
+    updatedAt: iso,
+    season: '2026-08',
+    perAgent: {
+      nova: { xp: 300, level: 4, rank: 'Rookie', streakDays: 36, seasonXp: 40, renown: 12, achievements: [] },
+      echo: { xp: 100, level: 2, rank: 'Rookie', streakDays: 3, seasonXp: 10, renown: 4, achievements: [] }
+    }
+  });
+
+  test('fresh ledger still renders the full progression block', () => {
+    const b = buildProgressionPromptBlock('nova', ledgerAt('2026-08-09T05:30:00.000Z'), NOW_S);
+    assert.ok(/Level 4/.test(b), 'level shown when fresh');
+    assert.ok(/36-day streak/.test(b), 'streak shown when fresh');
+    assert.ok(!/NOT BEING SCORED/.test(b), 'no stale banner when fresh');
+  });
+
+  test('stale ledger omits every number instead of asserting it', () => {
+    const b = buildProgressionPromptBlock('nova', ledgerAt('2026-08-05T01:30:00.000Z'), NOW_S);
+    assert.ok(/NOT BEING SCORED/.test(b), 'must announce it is not scoring');
+    assert.ok(!/Level 4/.test(b), 'no level claim');
+    assert.ok(!/36-day streak/.test(b), 'no streak claim — this is the exact string agents saw for 4 days');
+    assert.ok(!/days left/.test(b), 'no season countdown');
+    assert.ok(!/Rank #/.test(b), 'no standings');
+  });
+
+  test('stale block keeps the earning doctrine — a rule is true whether or not anyone scores', () => {
+    const b = buildProgressionPromptBlock('nova', ledgerAt('2026-08-05T01:30:00.000Z'), NOW_S);
+    assert.ok(/ONLY from outcomes that land/.test(b), 'doctrine survives');
+    assert.ok(/Proposing, commenting, or messaging earns nothing/.test(b), 'anti-activity rule survives');
+  });
+
+  test('missing updatedAt is treated as stale, not as fresh', () => {
+    const led = ledgerAt(undefined);
+    delete led.updatedAt;
+    const b = buildProgressionPromptBlock('nova', led, NOW_S);
+    assert.ok(/NOT BEING SCORED/.test(b), 'unknown age must fail closed');
+  });
+
+  test('threshold is on the safe side of one heartbeat gap', () => {
+    assert.ok(PROGRESSION_STALE_MS > 6 * 3600e3, 'must not fire between 6h heartbeats');
+    const justUnder = new Date(NOW_S - (PROGRESSION_STALE_MS - 60000)).toISOString();
+    assert.ok(!/NOT BEING SCORED/.test(buildProgressionPromptBlock('nova', ledgerAt(justUnder), NOW_S)), 'just under threshold = fresh');
+  });
+}

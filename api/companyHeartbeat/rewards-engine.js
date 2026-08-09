@@ -733,10 +733,40 @@ function computeBudgetPlan(rewards, opts) {
 // competitive nudge orients agents toward shipping real work, never toward gaming.
 function _cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
 
+// How old the ledger may be before its numbers stop being presentable as fact. The engine
+// runs hourly and the heartbeat every 6h, so 26h means "the engine has actually stopped",
+// not "we caught it between runs". Matches the freshness convention the emergence digest
+// already uses.
+var PROGRESSION_STALE_MS = 26 * 60 * 60 * 1000;
+
 function buildProgressionPromptBlock(agentId, rewards, nowMs) {
   if (!agentId || !rewards || !rewards.perAgent) return '';
   var me = rewards.perAgent[agentId];
   if (!me) return '';
+
+  var nowT = nowMs || Date.now();
+
+  // A STOPPED engine must not keep asserting live standings — exactly the reasoning the
+  // ladder kill switch uses below, applied to the whole block.
+  //
+  // rewardsEngineCron was disabled 2026-08-05 → 2026-08-09. For four days every agent was
+  // told, with total confidence, things like "36-day streak" and "23 days left" from a
+  // ledger that had stopped moving. Nothing in the prompt said otherwise, and the token
+  // cost was paid the entire time. A frozen number stated as current is worse than no
+  // number: the agent cannot tell it is reading history.
+  //
+  // The earning doctrine survives because it is a RULE, not a measurement — it stays true
+  // whether or not anyone is keeping score, and it is the part of this block that actually
+  // steers behaviour.
+  var _upd = Date.parse(rewards.updatedAt || '');
+  var _ageMs = Number.isFinite(_upd) ? (nowT - _upd) : Infinity;
+  if (_ageMs > PROGRESSION_STALE_MS) {
+    var _ageTxt = Number.isFinite(_ageMs) ? (Math.floor(_ageMs / 86400000) + 'd') : 'unknown';
+    return '\n═══ YOUR PROGRESSION — NOT BEING SCORED ═══\n' +
+      'The rewards ledger has not updated in ' + _ageTxt + ', so levels, XP, streaks, rank and season standings are STALE and deliberately omitted. Do not quote or act on any progression figure you remember — none of it is current, and no ladder consequence is being enforced.\n' +
+      'What still holds regardless of scoring: you earn credit ONLY from outcomes that land — revenue, CEO-approved work, published content, real engagement, completed peer-reviewed tasks, and assists where the helped work ships. Proposing, commenting, or messaging earns nothing. Ship something that sells.\n';
+  }
+
   var lvl = me.level || 1;
   var xpForNext = 50 + 25 * lvl;
   var cumLvl = 50 * (lvl - 1) + 25 * (lvl - 1) * lvl / 2;
@@ -760,7 +790,6 @@ function buildProgressionPromptBlock(agentId, rewards, nowMs) {
   var recent = Array.isArray(me.achievements) ? me.achievements.slice(-2).map(function (a) { return a.label || a.id; }) : [];
   var recentLine = recent.length ? 'Recent unlocks: ' + recent.join(', ') + '.' : 'No achievements unlocked yet.';
 
-  var nowT = nowMs || Date.now();
   var seasonRanked = Object.keys(rewards.perAgent)
     .filter(function (id) { return _FLEET_SET[id]; })
     .map(function (id) { return { id: id, sx: rewards.perAgent[id].seasonXp || 0 }; })
@@ -1010,5 +1039,6 @@ module.exports = {
   computeBudgetPlan: computeBudgetPlan, computeTrailingRevenueXp: computeTrailingRevenueXp,
   normalizeRewardsConfig: normalizeRewardsConfig,
   runRewardsEngine: runRewardsEngine,
-  SEASON_PAR_CEILING: SEASON_PAR_CEILING, MERIT_MIN_SIGNAL: MERIT_MIN_SIGNAL
+  SEASON_PAR_CEILING: SEASON_PAR_CEILING, MERIT_MIN_SIGNAL: MERIT_MIN_SIGNAL,
+  PROGRESSION_STALE_MS: PROGRESSION_STALE_MS
 };
