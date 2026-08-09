@@ -222,18 +222,40 @@
     });
   }
 
+  // This endpoint is secret-gated, unlike the other hub zones. If the page loads
+  // before CompanyStore has picked up the write key there is nothing to send
+  // yet, so a 403 on the first attempt is a timing problem, not an auth one —
+  // retry once when the store announces itself rather than leaving a permanent
+  // error where the inbox should be.
+  var _retried = false;
+  var _inFlight = false;
+
   function load() {
     var el = document.getElementById(CONTAINER_ID);
-    if (!el) return;
+    if (!el || _inFlight) return;
+    _inFlight = true;
     S.fetchJSON('/api/engagement-inbox?days=' + DAYS + '&limit=50')
       .then(function (data) {
+        _inFlight = false;
         render(data);
         S.publish('engagementInbox.loaded', {
           needsAttention: (data.counts && data.counts.needsAttention) || 0,
           replies: (data.counts && data.counts.replies) || 0
         });
       })
-      .catch(renderError);
+      .catch(function (err) {
+        _inFlight = false;
+        if (!_retried && /\b(401|403)\b/.test(String((err && err.message) || ''))) {
+          _retried = true;
+          el.innerHTML = '<div class="ah-loading">Waiting for credentials&hellip;</div>';
+          // Belt and braces: the event may already have fired before this script
+          // ran. _inFlight makes the double trigger harmless.
+          window.addEventListener('companystoreready', load, { once: true });
+          setTimeout(load, 1500);
+          return;
+        }
+        renderError(err);
+      });
   }
 
   if (document.readyState === 'loading') {

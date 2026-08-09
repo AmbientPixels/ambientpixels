@@ -32,7 +32,32 @@
 
   // ─── Configuration / network (delegated to shared ap-api.js / ap-utils.js) ──
   function apiBase() { return APApi.base().replace(/\/api$/, ''); }
-  var authHeaders = APApi.keyHeaders;
+
+  // BOTH header sets, always.
+  //
+  // This used to send only keyHeaders() — an X-AmbientOS-Key that no API
+  // endpoint validates. It worked by accident, because every zone wired up so
+  // far reads an endpoint with no auth gate at all. The first secret-gated
+  // endpoint added to the hub (engagement-inbox) got a flat 403, and the cause
+  // looked like the endpoint rather than the fetch helper every zone shares.
+  //
+  // secretHeaders() is what the rest of the dashboard authenticates with: it
+  // wraps CompanyStore.getWriteHeaders() and falls back to window.AP_SECRET /
+  // sessionStorage, so it works before CompanyStore.init() has resolved. Merging
+  // is safe — an endpoint that ignores a header is not harmed by receiving it,
+  // and no caller loses anything it had.
+  function authHeaders() {
+    var out = {};
+    try {
+      var k = APApi.keyHeaders() || {};
+      Object.keys(k).forEach(function (n) { out[n] = k[n]; });
+    } catch (e) { /* helper is best-effort */ }
+    try {
+      var s = APApi.secretHeaders() || {};
+      Object.keys(s).forEach(function (n) { out[n] = s[n]; });
+    } catch (e2) { /* helper is best-effort */ }
+    return out;
+  }
 
   function fetchJSON(url, opts) {
     opts = opts || {};

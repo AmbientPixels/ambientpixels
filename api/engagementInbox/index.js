@@ -30,7 +30,10 @@ const storage = require('../_utils/companyStorage');
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret, x-ms-client-principal',
+  // X-AmbientOS-Key is not validated by anything server-side, but the hub's
+  // shared fetch helper can attach it — and a header missing from this list
+  // fails CORS preflight, which surfaces as a dead panel rather than a 403.
+  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret, x-ms-client-principal, X-AmbientOS-Key',
   'Content-Type': 'application/json'
 };
 
