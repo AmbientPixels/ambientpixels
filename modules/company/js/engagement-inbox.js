@@ -97,26 +97,52 @@
     return html;
   }
 
-  function renderReaction(r) {
+  function metricBits(r) {
     var bits = [];
     if (r.likes) bits.push('<span class="ei-metric ei-metric--like"><i class="fas fa-heart"></i> ' + r.likes + '</span>');
     if (r.reposts) bits.push('<span class="ei-metric ei-metric--repost"><i class="fas fa-retweet"></i> ' + r.reposts + '</span>');
     if (r.comments) bits.push('<span class="ei-metric ei-metric--comment"><i class="fas fa-comment"></i> ' + r.comments + '</span>');
+    return bits.join('');
+  }
 
-    var text = r.our_post_text
-      ? esc(r.our_post_text)
-      // Rows captured before socialEngagementPull started stamping post text
-      // cannot recover it. Say that, rather than render an empty line and let it
-      // read as a post with nothing in it.
-      : '<span class="ei-notext">post text not captured (pre-2026-08-09)</span>';
-
+  function renderReaction(r) {
     return '<article class="ei-row ei-row--reaction">' +
       '<div class="ei-row-head">' +
       platformChip(r.platform) +
-      '<span class="ei-reaction-metrics">' + bits.join('') + '</span>' +
-      '<span class="ei-reaction-text">' + text + '</span>' +
+      '<span class="ei-reaction-metrics">' + metricBits(r) + '</span>' +
+      '<span class="ei-reaction-text">' + esc(r.our_post_text) + '</span>' +
       extLink(r.link, 'Open post') +
       '</div>' +
+      '</article>';
+  }
+
+  /**
+   * Posts whose text predates the capture stamp (2026-08-09) cannot recover it.
+   * Rendering them as rows produced seventeen identical lines reading "post text
+   * not captured" — which is the blank-row problem this panel was built to fix,
+   * wearing a label. They collapse into one honest line instead: the engagement
+   * is still counted, the posts are still reachable, and the panel does not
+   * spend most of its height saying nothing.
+   */
+  function renderTextlessRollup(rows) {
+    var likes = 0, reposts = 0;
+    rows.forEach(function (r) { likes += r.likes; reposts += r.reposts; });
+
+    var links = rows
+      .filter(function (r) { return r.link; })
+      .map(function (r, i) {
+        return '<a class="ei-rollup-link" href="' + esc(r.link) + '" target="_blank" rel="noopener">' +
+          platformChip(r.platform) + (i + 1) + '</a>';
+      })
+      .join('');
+
+    return '<article class="ei-row ei-row--rollup">' +
+      '<div class="ei-rollup-head">' +
+      '<span class="ei-reaction-metrics">' + metricBits({ likes: likes, reposts: reposts, comments: 0 }) + '</span>' +
+      '<span class="ei-rollup-text">across ' + rows.length + ' older post' + (rows.length === 1 ? '' : 's') +
+      ' whose text was never captured &mdash; stamping started 2026-08-09</span>' +
+      '</div>' +
+      (links ? '<div class="ei-rollup-links">' + links + '</div>' : '') +
       '</article>';
   }
 
@@ -169,9 +195,13 @@
     }
 
     if (reactions.length) {
+      var readable = reactions.filter(function (r) { return r.our_post_text; });
+      var textless = reactions.filter(function (r) { return !r.our_post_text; });
+
       html += '<div class="ei-section-label">Reactions <span class="ei-section-note">' +
         'no conversation attached — a like is all the platform gives us</span></div>';
-      html += reactions.map(renderReaction).join('');
+      html += readable.map(renderReaction).join('');
+      if (textless.length) html += renderTextlessRollup(textless);
     }
 
     // Never let an absent platform read as a silent one.

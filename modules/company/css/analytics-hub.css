@@ -1321,3 +1321,23 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   .ei-status { margin-left: 0; }
   .ei-context-text, .ei-reaction-text { white-space: normal; }
 }
+
+/* Rolled-up reactions on posts whose text predates capture. One line, not
+   seventeen identical ones saying nothing. */
+.ei-row--rollup { border-left-color: rgba(255,255,255,0.08); opacity: 0.75; }
+.ei-rollup-head { display: flex; align-items: center; gap: 9px; font-size: var(--c-text-xs); flex-wrap: wrap; }
+.ei-rollup-text { opacity: 0.5; }
+.ei-rollup-links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.ei-rollup-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--c-text-xs);
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.45;
+}
+.ei-rollup-link:hover { opacity: 1; border-color: rgba(255,255,255,0.25); }
