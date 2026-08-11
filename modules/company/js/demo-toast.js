@@ -6,11 +6,20 @@
 (function () {
   'use strict';
 
-  var host = window.location.hostname;
+  var host = (window.location.hostname || '').toLowerCase();
 
-  // Only activate on demo SWA (not prod, not localhost)
-  if (host.indexOf('ambientpixels.ai') !== -1) return;
-  if (host === 'localhost' || host === '127.0.0.1') return;
+  // Activate ONLY on the ambientcore-demo SWA.
+  //
+  // This used to activate on anything that was not ambientpixels.ai, which swept in the
+  // PRODUCTION SWA's own default hostname (calm-sky-05cc8e110.6.azurestaticapps.net,
+  // which serves the full authenticated dashboard). Setting __DEMO_MODE there made
+  // actions.html suppress its write-auth banner — including the 401 path — so a write
+  // that never reached the server produced no visible signal at all.
+  //
+  // An allowlist cannot make that mistake; an exclusion list silently catches every
+  // hostname nobody thought of.
+  var DEMO_HOSTS = ['kind-ocean-06c6f7b10.4.azurestaticapps.net'];
+  if (DEMO_HOSTS.indexOf(host) === -1) return;
 
   window.__DEMO_MODE = true;
 

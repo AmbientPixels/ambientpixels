@@ -592,9 +592,13 @@
   <script src="/modules/company/js/quick-chat.js"></script>
   <script>
     var AE = AgentEngine;
-    var API_BASE = window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
+    // CompanyStore owns this decision — do NOT re-derive it from the hostname here.
+    // A POST to /api on any SWA host is a 405, and this page is the one that fires
+    // public posts, so a wrong base means an approved post silently never leaves.
+    // The fallback is the real API, never the relative path.
+    var API_BASE = (typeof CompanyStore !== 'undefined' && CompanyStore.resolveServerBase)
+      ? CompanyStore.resolveServerBase(window.location.hostname)
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api';
 
     // ── View Mode Toggle ──
     var _actViewMode = localStorage.getItem('ap_actions_view_mode') || 'governance';

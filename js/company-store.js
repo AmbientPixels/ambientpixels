@@ -53,13 +53,32 @@ var CompanyStore = (function () {
   Object.keys(KEY_MAP).forEach(function (k) { REVERSE_KEY_MAP[KEY_MAP[k]] = k; });
 
   // ── Init / Probe ──
+  var FUNCTION_APP_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+  // Hosts that proxy /api to a backend of their OWN. Everything else must talk to the
+  // Function App directly, because a POST to /api on an Azure SWA returns 405.
+  var SELF_HOSTED_API_HOSTS = [
+    'localhost', '127.0.0.1',                        // SWA CLI proxies to local functions
+    'kind-ocean-06c6f7b10.4.azurestaticapps.net'     // ambientcore-demo, own DEMO_MODE backend
+  ];
+
+  // Selecting on hostname.includes('ambientpixels.ai') and falling back to '/api' was
+  // wrong in the invisible direction: the PRODUCTION SWA also serves the whole
+  // authenticated dashboard on calm-sky-05cc8e110.6.azurestaticapps.net, and there the
+  // fallback made every write 405 Method Not Allowed. The server was never reached, so
+  // approved actions sat at attempts:0 — and demo-toast.js keyed off the same hostname
+  // test, setting __DEMO_MODE and suppressing the Actions page write banner (including
+  // its 401 path), so a dead write produced no signal at all.
+  //
+  // Recognise the self-hosted cases explicitly and default to the real API. Failing to
+  // the relative path is what made this silent; an allowlist cannot repeat it.
+  function resolveServerBase(hostname) {
+    var h = String(hostname || '').toLowerCase();
+    return SELF_HOSTED_API_HOSTS.indexOf(h) !== -1 ? '/api' : FUNCTION_APP_BASE;
+  }
+
   function _resolveServerBase() {
-    // Direct to Functions App on production (SWA proxy rewrite returns 405 for POST)
-    // Auth handled by _fetchAuthPrincipal passing x-ms-client-principal explicitly
-    if (window.location.hostname.includes('ambientpixels.ai')) {
-      return 'https://ambientpixels-nova-api.azurewebsites.net/api';
-    }
-    return '/api';
+    var h = (typeof window !== 'undefined' && window.location) ? window.location.hostname : '';
+    return resolveServerBase(h);
   }
 
   function init(options) {
@@ -427,6 +446,7 @@ var CompanyStore = (function () {
     getMorningReport: getMorningReport,
     getWriteHeaders: function () { return _serverHeaders(true); },
     getServerBase: function () { return _serverBase; },
+    resolveServerBase: resolveServerBase,
     setWriteKey: setWriteKey,
     getWriteStatus: getWriteStatus,
     get _writeSecret() { return _writeSecret; },
