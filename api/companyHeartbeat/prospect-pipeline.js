@@ -7,6 +7,8 @@
 
 'use strict';
 
+var _BP = require('./_utils/laneBackpressure');
+
 var _URL_RE = /https?:\/\/[^\s"'<>()]+/gi;
 
 function _domainOf(url) {
@@ -380,6 +382,17 @@ async function runProspectPipeline(opts) {
       log('[prospects] discovery skipped — discovered backlog at cap');
     }
     var budget = Math.max(0, (Number.isFinite(cfg.maxScansPerDay) ? cfg.maxScansPerDay : 3) - _countScansToday(prospects, nowMs));
+    // Same backpressure as the roast lane below: both mint bluesky_reply tasks onto
+    // Scribe, so they share one queue and must share one limit. Gating only one of
+    // them would just move the overflow. Prospects that do not fit stay 'discovered'
+    // and are retried next run — and their scan is not burned either, since the scan
+    // job is only created alongside a task.
+    var _asCap = _BP.laneCapacity(tasks, 'scribe', 'bluesky_reply');
+    if (_asCap.remaining < budget) {
+      log('[prospects] backpressure: scribe holds ' + _asCap.open + '/' + _asCap.depth
+        + ' open reply tasks, minting ' + _asCap.remaining + ' instead of ' + budget);
+      budget = _asCap.remaining;
+    }
     var queueCandidates = carried.concat(fresh);
     for (var i = 0; i < queueCandidates.length; i++) {
       var p = queueCandidates[i];
@@ -888,7 +901,21 @@ async function runRoastLane(opts) {
   }
 
   // ── Pass 2: MINT reply tasks (carried backlog first, oldest first) ──
+  // Two limits, and the tighter one wins.
+  //
+  // maxDraftsPerDay is a RATE, and a rate still accumulates whenever the drain rate
+  // dips — which is how Scribe reached 55 open tasks against a drain of ~8/day. The
+  // queue-depth check is the self-correcting half: it only reopens as Scribe actually
+  // finishes things, so the lane slows itself when she is behind and speeds up when
+  // she is not. Prospects are NOT dropped when it bites; they stay 'discovered' and
+  // get minted on a later cycle, oldest first.
+  var _cap = _BP.laneCapacity(tasks, 'scribe', 'bluesky_reply');
   var budget = Math.max(0, (Number.isFinite(cfg.maxDraftsPerDay) ? cfg.maxDraftsPerDay : 4) - _countRoastMintedToday(prospects, nowMs));
+  if (_cap.remaining < budget) {
+    log('[roast-lane] backpressure: scribe holds ' + _cap.open + '/' + _cap.depth
+      + ' open reply tasks, minting ' + _cap.remaining + ' instead of ' + budget);
+    budget = _cap.remaining;
+  }
   var queue = prospects.filter(function (p) { return p && p.lane === 'resumeRoast' && p.status === 'discovered'; });
   for (var i = 0; i < queue.length && budget > 0; i++) {
     var p = queue[i];

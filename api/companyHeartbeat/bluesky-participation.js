@@ -26,6 +26,7 @@
 'use strict';
 
 var { relevanceVerdict } = require('./bluesky-relevance');
+var _BP = require('./_utils/laneBackpressure');
 
 var DEFAULTS = {
   enabled: false,             // OFF until switched on. A new outbound lane never self-starts.
@@ -217,6 +218,22 @@ async function runParticipationLane(deps) {
     if (!picked.survivors.length) {
       log('[participation] nothing drafted. drops: ' + JSON.stringify(picked.drops));
       return { ran: true, drafted: 0, drops: picked.drops };
+    }
+
+    // Backpressure. maxPerDay=2 is small, but this is the third lane feeding the same
+    // Scribe reply queue (roast + AS prospects are the others) and three small rates
+    // still summed to 21 tasks a day against a drain of ~8. Depth is shared because
+    // the queue is shared. Survivors that do not fit keep their 'new' status and are
+    // reconsidered next run, subject to the usual maxAgeHours staleness rule.
+    var _cap = _BP.laneCapacity(tasks, 'scribe', 'bluesky_reply');
+    if (_cap.remaining < picked.survivors.length) {
+      log('[participation] backpressure: scribe holds ' + _cap.open + '/' + _cap.depth
+        + ' open reply tasks, drafting ' + _cap.remaining + ' of ' + picked.survivors.length);
+      picked.survivors = picked.survivors.slice(0, _cap.remaining);
+      if (!picked.survivors.length) {
+        picked.drops.lane_backpressure = (picked.drops.lane_backpressure || 0) + 1;
+        return { ran: true, drafted: 0, drops: picked.drops };
+      }
     }
 
     var created = [];

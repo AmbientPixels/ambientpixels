@@ -11,6 +11,7 @@ const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlock } = require('./social-intel');
 const { buildForgeOpsDigest } = require('./ops-intel');
+const _laneBackpressure = require('./_utils/laneBackpressure');
 const { buildFinanceDigest, applyCampaignRevenue } = require('./finance-intel');
 const { buildResearchDemandDigest } = require('./research-intel');
 const { buildContentDigest } = require('./content-intel');
@@ -182,8 +183,25 @@ module.exports = async function (context) {
     const campaignById = _clResult.campaignById;
     let objectivesChanged = false;
     context.log('[Heartbeat] Goal→Campaign auto-creation DISABLED (CEO-only)');
+    // Stale reply-task sweep (2026-08-22). Runs BEFORE the agents so a cycle is never
+    // spent drafting a reply that cannot ship: actionsScheduler refuses to post any
+    // reply older than 3 days, so a 4-day-old reply task is work whose output the next
+    // stage will discard. 36 of these had accumulated, the oldest 11 days, because the
+    // approval-queue draft expiry closed drafts but nothing closed the tasks behind
+    // them. Non-fatal — a sweep failure must never take the heartbeat down.
+    let _staleReplyTasks = [];
+    try {
+      _staleReplyTasks = _laneBackpressure.expireStaleReplyTasks(tasks, Date.now());
+      if (_staleReplyTasks.length) {
+        context.log('[Heartbeat] Expired ' + _staleReplyTasks.length + ' stale reply task(s) past the '
+          + _laneBackpressure.REPLY_TASK_EXPIRE_DAYS + 'd window');
+      }
+    } catch (_srErr) {
+      context.log('[Heartbeat] Stale reply sweep failed (non-fatal):', String(_srErr).substring(0, 150));
+    }
+
     // Persist auto-replenished tasks immediately so agents see them this cycle
-    if (_clResult.tasksChanged) {
+    if (_clResult.tasksChanged || _staleReplyTasks.length) {
       await storage.setState('tasks', tasks);
       context.log('[Heartbeat] Saved ' + tasks.length + ' tasks (includes auto-replenished)');
     }
