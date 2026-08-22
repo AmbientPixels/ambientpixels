@@ -663,7 +663,13 @@ var _DISTRESS_RE = new RegExp([
   'need this job', 'really need (?:this|a) job', 'last chance', 'running out of time',
   // mental-health vocabulary
   'depress\\w*', 'anxiet\\w*', 'anxious', 'panic attack', 'crying', 'cried', 'in tears',
-  'mental health', 'cope', 'coping', 'struggling', 'struggle'
+  'mental health', 'cope', 'coping', 'struggling', 'struggle',
+  // Fear. Added 2026-08-22 after the first post-gate run: somebody thanking friends
+  // for support wrote "this is a very scary time" and drew a product pitch that
+  // passed every check, because the list had exhaustion, hopelessness and precarity
+  // but no word for being frightened. Common in job-loss posts and cheap to catch —
+  // a false positive costs one suppressed link, a false negative pitches at fear.
+  'scary', 'scared', 'terrif\\w*', 'frighten\\w*', 'dread\\w*', 'nervous', 'freaking out'
 ].join('|'), 'i');
 
 /**

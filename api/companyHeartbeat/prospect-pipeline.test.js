@@ -835,6 +835,23 @@ function mockStorage(initial) {
     assert.strictEqual(t.tone, 'distress');
   });
 
+
+  test('fear language counts as distress', () => {
+    // The first post-gate run pitched at somebody who wrote 'this is a very scary
+    // time' while thanking friends for support. Exhaustion, hopelessness and
+    // precarity were all covered; being frightened was not.
+    assert.strictEqual(PP.targetTone('Thank you to all my friends sending resume feedback. This is a very scary time for me.'), 'distress');
+    assert.strictEqual(PP.targetTone('God I am nervous about my interview tomorrow.'), 'distress');
+    assert.strictEqual(PP.targetTone('I am terrified I will not find anything before my savings run out.'), 'distress');
+  });
+
+  test('fear vocabulary does not swallow neutral job posts', () => {
+    // The whole value of the tier is that it is narrower than 'anything sad'.
+    assert.strictEqual(PP.targetTone(T_NEUTRAL), 'none');
+    assert.strictEqual(PP.targetTone('If you are applying for jobs, use this ATS-friendly resume template.'), 'none');
+    assert.strictEqual(PP.targetTone('I rewrite my resume for every job I apply for, doing this method'), 'none');
+  });
+
   console.log(pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })();

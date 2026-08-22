@@ -3904,6 +3904,43 @@ Write the full deliverable first, then the structured JSON block.`;
         previewImageUrl: _revisedPreviewImage,
         revisionCount: orig.approval.revision_count || 0
       };
+
+      // Gate the REVISED copy (2026-08-22). This branch built its queue entry and
+      // never ran the quality gate, so a revision re-entered the queue with
+      // qualityGate absent entirely — observed on two replies revised after the CEO
+      // asked for the product pitch to be stripped. Both happened to come back
+      // correct, which is luck, not a control.
+      //
+      // A revision is the LAST place to skip this. It is the one path where the CEO
+      // has explicitly said the previous attempt was wrong, so it is exactly where an
+      // agent is most likely to overcorrect, drop a required link, or reintroduce a
+      // claim. Fail-open on error, as everywhere else — a gate that cannot run must
+      // not block the fleet.
+      try {
+        var _revQg = await _validateContentQuality(revisedText, orig.platform || 'social', context);
+        var _revTask = orig._parentTaskId ? tasks.find(function (t) { return t.id === orig._parentTaskId; }) : null;
+        var _revThread = (_revTask && _revTask.threadContext) || null;
+        _revQg = QGV.composeQualityVerdict({
+          llm: _revQg,
+          text: revisedText,
+          platform: orig.platform,
+          telemetryAvailable: !!forgeOpsDigest,
+          grounding: QGV.findUngroundedClaims(revisedText, QGV.buildGroundingText(_revTask, _productFacts, forgeOpsDigest, _revThread))
+        });
+        aqEntry.qualityGate = {
+          pass: !!_revQg.pass,
+          confidence: _revQg.confidence || 0,
+          issues: (_revQg.issues || []).slice(0, 6),
+          deterministicFlags: _revQg.deterministicFlags || null,
+          model: 'claude-haiku-4-5-20251001',
+          checkedAt: new Date().toISOString()
+        };
+        orig.qualityGate = aqEntry.qualityGate;
+        context.log('[QualityGate] REVISION', orig.platform, 'pass:', _revQg.pass, 'confidence:', _revQg.confidence);
+      } catch (_revQgErr) {
+        context.log('[QualityGate] revision check failed (fail-open):', String(_revQgErr).substring(0, 150));
+      }
+
       await storage.mutateState('approvalQueue', function (_fresh) {
         const q = Array.isArray(_fresh) ? _fresh : [];
         const idx = q.findIndex(e => e && e.action_id === orig.id);
