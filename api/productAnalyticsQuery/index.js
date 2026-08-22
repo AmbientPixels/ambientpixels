@@ -13,7 +13,7 @@ const CORS_HEADERS = {
 
 // Must stay a subset of productAnalyticsIngest's VALID_PRODUCTS.
 const VALID_PRODUCTS = ['all', 'pixelagents', 'agentforge', 'resumeroast', 'ambientscore', 'blindspot', 'cardforge', 'storyforge', 'tileforge', 'blog', 'nova', 'dashboard'];
-const VALID_METRICS = ['overview', 'dau', 'funnels', 'events', 'products'];
+const VALID_METRICS = ['overview', 'dau', 'funnels', 'events', 'products', 'sources'];
 
 // In-memory cache: key → { data, ts }
 var _cache = {};
@@ -183,6 +183,68 @@ function computeEvents(events, product) {
   return sorted.slice(0, 50);
 }
 
+// ── Attribution by originating post (2026-08-22) ────────────────────────────
+// Every social post and reply ships with utm_source and utm_content, where
+// utm_content IS the action id that produced it. js/product-analytics.js captures
+// both on landing and replays them onto every later event for that visitor, so a
+// completed roast already carries the id of the exact reply that earned it.
+//
+// Nothing has ever read that. The company shipped 195 posts across four months and
+// could say how many interactions they drew, but not which of them sent anybody who
+// actually used a product — so "does distribution work" stayed an argument instead of
+// a measurement. This groups the funnel by source and by originating action.
+//
+// Counts PEOPLE, not events: a visitor who starts three runs is one person who found
+// us, and event volume is exactly how the 22x KPI inflation happened before.
+function computeSources(events, product) {
+  var filtered = product === 'all' ? events : events.filter(function (e) { return e.product === product; });
+  var bySource = {};
+  var byAction = {};
+  var attributed = new Set();
+  var allPeople = new Set();
+
+  filtered.forEach(function (e) {
+    var who = e.userId || e.sessionId;
+    if (who) allPeople.add(who);
+    var p = e.props || {};
+    var src = p.utm_source ? String(p.utm_source).slice(0, 40) : null;
+    var act = p.utm_content ? String(p.utm_content).slice(0, 120) : null;
+    if (!src && !act) return;
+    if (who) attributed.add(who);
+
+    var sKey = src || '(unknown source)';
+    if (!bySource[sKey]) bySource[sKey] = { source: sKey, people: new Set(), started: new Set(), completed: new Set() };
+    var aKey = act || '(no action id)';
+    if (!byAction[aKey]) byAction[aKey] = { actionId: aKey, source: sKey, people: new Set(), started: new Set(), completed: new Set() };
+
+    [bySource[sKey], byAction[aKey]].forEach(function (bucket) {
+      if (who) bucket.people.add(who);
+      if (who && e.event === 'agent_run_started') bucket.started.add(who);
+      if (who && e.event === 'agent_run_completed') bucket.completed.add(who);
+    });
+  });
+
+  var dump = function (m) {
+    return Object.values(m).map(function (b) {
+      return {
+        source: b.source, actionId: b.actionId,
+        people: b.people.size, started: b.started.size, completed: b.completed.size
+      };
+    }).sort(function (x, y) { return y.people - x.people; });
+  };
+
+  return {
+    // The honest denominator: most visitors carry no UTM at all (direct, organic,
+    // a shared link with the params stripped). Reporting only the attributed slice
+    // would overstate how much of the funnel distribution explains.
+    totalPeople: allPeople.size,
+    attributedPeople: attributed.size,
+    unattributedPeople: allPeople.size - attributed.size,
+    bySource: dump(bySource).map(function (r) { delete r.actionId; return r; }),
+    byAction: dump(byAction).slice(0, 50)
+  };
+}
+
 function computeProducts(events) {
   var byProduct = {};
   events.forEach(function (e) {
@@ -249,6 +311,7 @@ module.exports = async function (context, req) {
       case 'dau': result = computeDAU(events, product); break;
       case 'funnels': result = computeFunnels(events, product); break;
       case 'events': result = computeEvents(events, product); break;
+      case 'sources': result = computeSources(events, product); break;
       case 'products': result = computeProducts(events); break;
       default: result = computeOverview(events, product);
     }
@@ -270,3 +333,8 @@ module.exports = async function (context, req) {
     context.res = { status: 500, headers: CORS_HEADERS, body: { error: 'Query failed', message: err.message } };
   }
 };
+
+// Exported for tests. The Azure handler above is module.exports; attaching the pure
+// helpers to it keeps the function contract unchanged while making them reachable
+// from api/productAnalyticsQuery/index.test.js.
+module.exports._computeSources = computeSources;
