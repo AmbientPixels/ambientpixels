@@ -14,8 +14,11 @@
 //
 // The numbers Forge quoted (14207, 12986) were individual Applebot page loads. There
 // was no latency problem, and the proposed migration would not have touched the metric.
-// Two independent bugs: no bot filter, and a percentile taken over a sample far too
-// small to have a tail. These tests pin both fixes.
+// THREE bugs in total. The first fix attempt introduced the third: the bot filter
+// used Kusto !has, which matches whole tokens, so !has "bot" never matched
+// "Googlebot 2.1" and excluded nothing. Corrected to !contains (n=83 -> n=22), and
+// the sample floor raised 20 -> 100, because n=22 would have cleared a floor of 20
+// and produced a fresh small-sample RED at p95=8963ms.
 const assert = require('assert');
 const { buildForgeOpsDigest, _buildForgeOpsPromptBlock } = require('./ops-intel');
 
@@ -32,37 +35,37 @@ const perfAlertsOf = (d) => (d.alerts || []).filter(a => /page load|latency/i.te
 
 // ── sample floor ────────────────────────────────────────────────────────────
 test('the real incident shape raises NO alert once the sample floor applies', () => {
-  // 11 human pageviews a week is the actual traffic. p95 here is the 1st or 2nd
-  // slowest row, not a percentile.
-  const d = digest({ n: 11, p50: 1155, p95: 14207 });
+  // 22 human pageviews a week is the actual measured traffic once crawlers are
+  // excluded. p95 there is the 2nd slowest row, not a percentile.
+  const d = digest({ n: 22, p50: 1972, p95: 8963 });
   assert.strictEqual(d.errorIntel.perfUnderSampled, true);
   assert.strictEqual(d.errorIntel.perfAlert, null);
-  assert.strictEqual(perfAlertsOf(d).length, 0, 'must not fire RED on 11 samples');
+  assert.strictEqual(perfAlertsOf(d).length, 0, 'must not fire RED on 22 samples');
 });
 
 test('an under-sampled digest still REPORTS the numbers', () => {
   // Suppressing the alert must not hide the data — the agent should be able to see
   // the value and the reason it is not actionable.
-  const d = digest({ n: 11, p50: 1155, p95: 14207 });
-  assert.strictEqual(d.errorIntel.p95, 14207);
-  assert.strictEqual(d.errorIntel.perfSamples, 11);
+  const d = digest({ n: 22, p50: 1972, p95: 8963 });
+  assert.strictEqual(d.errorIntel.p95, 8963);
+  assert.strictEqual(d.errorIntel.perfSamples, 22);
 });
 
 test('a real slowdown on adequate traffic still fires RED', () => {
-  const d = digest({ n: 500, p50: 2500, p95: 9000 });
+  const d = digest({ n: 5000, p50: 2500, p95: 9000 });
   assert.strictEqual(d.errorIntel.perfUnderSampled, false);
   assert.ok(/p95_red/.test(d.errorIntel.perfAlert));
   assert.strictEqual(perfAlertsOf(d).length, 1);
 });
 
 test('healthy page load on adequate traffic raises nothing', () => {
-  const d = digest({ n: 500, p50: 800, p95: 1500 });
+  const d = digest({ n: 5000, p50: 800, p95: 1500 });
   assert.strictEqual(d.errorIntel.perfAlert, null);
   assert.strictEqual(perfAlertsOf(d).length, 0);
 });
 
 test('exactly at the floor is allowed to alert', () => {
-  const d = digest({ n: 20, p50: 900, p95: 9000 });
+  const d = digest({ n: 100, p50: 900, p95: 9000 });
   assert.strictEqual(d.errorIntel.perfUnderSampled, false);
   assert.ok(/p95_red/.test(d.errorIntel.perfAlert));
 });
@@ -76,23 +79,23 @@ test('a perf payload with no count behaves as before (no floor applied)', () => 
 
 // ── labelling ───────────────────────────────────────────────────────────────
 test('the alert says "site page load", never a bare "p95 latency"', () => {
-  const a = perfAlertsOf(digest({ n: 500, p50: 2500, p95: 9000 }))[0];
+  const a = perfAlertsOf(digest({ n: 5000, p50: 2500, p95: 9000 }))[0];
   assert.ok(/site page load/i.test(a.signal), 'signal was: ' + a.signal);
-  assert.ok(/n=500/.test(a.signal), 'sample size must travel with the number');
+  assert.ok(/n=5000/.test(a.signal), 'sample size must travel with the number');
   assert.ok(!/^p95 latency/.test(a.signal), 'the old wording read as backend health');
 });
 
 test('the Forge prompt block names what was measured and warns when under-sampled', () => {
-  const d = digest({ n: 11, p50: 1155, p95: 14207 });
+  const d = digest({ n: 22, p50: 1972, p95: 8963 });
   const block = _buildForgeOpsPromptBlock({ id: 'forge' }, d);
   assert.ok(/HUMAN browsers only/.test(block));
   assert.ok(/not API or function latency/i.test(block));
-  assert.ok(/n=11 pageviews/.test(block));
+  assert.ok(/n=22 pageviews/.test(block));
   assert.ok(/SAMPLE TOO SMALL TO ALERT ON/.test(block), 'must tell the agent not to open ops tasks');
 });
 
 test('the prompt block omits the warning when the sample is adequate', () => {
-  const block = _buildForgeOpsPromptBlock({ id: 'forge' }, digest({ n: 500, p50: 800, p95: 1500 }));
+  const block = _buildForgeOpsPromptBlock({ id: 'forge' }, digest({ n: 5000, p50: 800, p95: 1500 }));
   assert.ok(/HUMAN browsers only/.test(block));
   assert.ok(!/SAMPLE TOO SMALL/.test(block));
 });

@@ -37,7 +37,12 @@ async function _fetchSiteIntel(context, storage) {
         // site's tail, and a p95 over 83 samples is the 4th slowest row, not a
         // percentile. `n` is returned so the alert layer can refuse to fire on a
         // sample too small to mean anything (see SAMPLE_FLOOR in ops-intel.js).
-        'pageViews | where client_Type == "Browser" and client_Browser !has "bot" and client_Browser !has "spider" and client_Browser !has "crawl" and client_Browser !has "Headless" | summarize n = count(), p50 = percentile(duration, 50), p95 = percentile(duration, 95)',
+        // !contains, NOT !has. Kusto's `has` matches whole TOKENS, so `has "bot"`
+        // never matches "Googlebot 2.1" — the token there is "Googlebot". The first
+        // version of this filter used !has, excluded exactly zero crawlers, and the
+        // fleet went right on reporting p95=14207ms from Applebot. Verified against
+        // live App Insights: !has leaves n=83, !contains gives n=22.
+        'pageViews | where client_Type == "Browser" and client_Browser !contains "bot" and client_Browser !contains "spider" and client_Browser !contains "crawl" and client_Browser !contains "headless" | summarize n = count(), p50 = percentile(duration, 50), p95 = percentile(duration, 95)',
         // Errors
         'exceptions | summarize count_ = count() by name = type | top 5 by count_ desc'
       ];

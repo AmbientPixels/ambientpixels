@@ -5,10 +5,19 @@ var { OPS_INTEL_WINDOW_RUNS } = require('./constants');
 var { countBlocksByAgent, topGateForAgent } = require('./_utils/blockCounts');
 
 // Minimum human pageviews before the page-load percentiles are allowed to alert.
-// See the incident note on the perf query in site-intelligence.js: at ~11 human
-// pageviews a week, p95 is the 4th slowest row and a single slow crawler hit pins
-// the fleet to RED indefinitely.
-var SAMPLE_FLOOR = 20;
+//
+// 100, not 20. For a 95th percentile to describe a tail rather than name a row, it
+// needs roughly 100 observations — at n=100 p95 is the 5th slowest, at n=20 it is
+// the 1st or 2nd. The first version of this floor was 20, which the real traffic
+// (n=22 human pageviews in 7 days, p95=8963ms driven by two outliers) would have
+// sailed straight past into another RED. That would have replaced a crawler false
+// alarm with a small-sample one.
+//
+// The practical effect is that this metric stays silent until the site sees ~14
+// human visits a day, and that is the correct behaviour: at 22 visits a WEEK there
+// is no page-load problem worth waking an agent for, and the real signal at this
+// traffic level is the visit count itself, not its distribution.
+var SAMPLE_FLOOR = 100;
 
 // Thresholds: YELLOW = monitor, RED = create ops_breakfix
 var THRESHOLDS = {
