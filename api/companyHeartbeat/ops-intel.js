@@ -4,6 +4,12 @@
 var { OPS_INTEL_WINDOW_RUNS } = require('./constants');
 var { countBlocksByAgent, topGateForAgent } = require('./_utils/blockCounts');
 
+// Minimum human pageviews before the page-load percentiles are allowed to alert.
+// See the incident note on the perf query in site-intelligence.js: at ~11 human
+// pageviews a week, p95 is the 4th slowest row and a single slow crawler hit pins
+// the fleet to RED indefinitely.
+var SAMPLE_FLOOR = 20;
+
 // Thresholds: YELLOW = monitor, RED = create ops_breakfix
 var THRESHOLDS = {
   heartbeatFailureRate:  { yellow: 20, red: 40 },
@@ -200,11 +206,20 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   var totalErrors = errors.reduce(function (s, e) { return s + (e.count || 0); }, 0);
   var perf = telemetry.performance || {};
 
+  // Sample floor (2026-08-22). A percentile over a handful of rows is not a
+  // percentile, it is "the Nth slowest row". This site sees ~11 human pageviews a
+  // week, so p95 was reporting the 4th slowest crawler hit and holding the fleet at
+  // RED for five days. Below the floor we report the numbers but raise no alert.
+  var perfSamples = Number.isFinite(perf.n) ? perf.n : null;
+  var perfUnderSampled = perfSamples !== null && perfSamples < SAMPLE_FLOOR;
+
   var perfAlert = null;
-  if (perf.p95 > THRESHOLDS.p95Latency.red) perfAlert = 'p95_red';
-  else if (perf.p95 > THRESHOLDS.p95Latency.yellow) perfAlert = 'p95_yellow';
-  if (perf.p50 > THRESHOLDS.p50Latency.red) perfAlert = (perfAlert || '') + ' p50_red';
-  else if (perf.p50 > THRESHOLDS.p50Latency.yellow) perfAlert = (perfAlert || '') + ' p50_yellow';
+  if (!perfUnderSampled) {
+    if (perf.p95 > THRESHOLDS.p95Latency.red) perfAlert = 'p95_red';
+    else if (perf.p95 > THRESHOLDS.p95Latency.yellow) perfAlert = 'p95_yellow';
+    if (perf.p50 > THRESHOLDS.p50Latency.red) perfAlert = (perfAlert || '') + ' p50_red';
+    else if (perf.p50 > THRESHOLDS.p50Latency.yellow) perfAlert = (perfAlert || '') + ' p50_yellow';
+  }
 
   // ── Governance ──
   // Two long-standing distortions fixed 2026-08-02:
@@ -254,8 +269,12 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   if (avgDurationMs > THRESHOLDS.heartbeatDurationMs.red) alerts.push({ level: 'RED', signal: 'Heartbeat avg duration ' + Math.round(avgDurationMs / 1000) + 's', threshold: Math.round(THRESHOLDS.heartbeatDurationMs.red / 1000) + 's' });
   else if (avgDurationMs > THRESHOLDS.heartbeatDurationMs.yellow) alerts.push({ level: 'YELLOW', signal: 'Heartbeat avg duration ' + Math.round(avgDurationMs / 1000) + 's', threshold: Math.round(THRESHOLDS.heartbeatDurationMs.yellow / 1000) + 's' });
 
-  if (perf.p95 > THRESHOLDS.p95Latency.red) alerts.push({ level: 'RED', signal: 'p95 latency ' + perf.p95 + 'ms', threshold: THRESHOLDS.p95Latency.red + 'ms' });
-  else if (perf.p95 > THRESHOLDS.p95Latency.yellow) alerts.push({ level: 'YELLOW', signal: 'p95 latency ' + perf.p95 + 'ms', threshold: THRESHOLDS.p95Latency.yellow + 'ms' });
+  // "site page load", never a bare "p95 latency". The old wording read as backend
+  // health, and Forge acted on it as such for five days — attributing a browser
+  // page-load number to FunctionTimeoutExceptions and proposing a Durable Functions
+  // migration that would not have moved it. The label has to say what was measured.
+  if (!perfUnderSampled && perf.p95 > THRESHOLDS.p95Latency.red) alerts.push({ level: 'RED', signal: 'site page load p95 ' + perf.p95 + 'ms (human browsers, n=' + perfSamples + ')', threshold: THRESHOLDS.p95Latency.red + 'ms' });
+  else if (!perfUnderSampled && perf.p95 > THRESHOLDS.p95Latency.yellow) alerts.push({ level: 'YELLOW', signal: 'site page load p95 ' + perf.p95 + 'ms (human browsers, n=' + perfSamples + ')', threshold: THRESHOLDS.p95Latency.yellow + 'ms' });
 
   if (totalErrors > THRESHOLDS.errorCount7d.red) alerts.push({ level: 'RED', signal: totalErrors + ' errors (7d)', threshold: THRESHOLDS.errorCount7d.red });
   else if (totalErrors > THRESHOLDS.errorCount7d.yellow) alerts.push({ level: 'YELLOW', signal: totalErrors + ' errors (7d)', threshold: THRESHOLDS.errorCount7d.yellow });
@@ -302,6 +321,8 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
       totalErrors: totalErrors,
       p50: perf.p50 || 0,
       p95: perf.p95 || 0,
+      perfSamples: perfSamples,
+      perfUnderSampled: perfUnderSampled,
       perfAlert: perfAlert
     },
     governance: {
@@ -384,7 +405,14 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
 
   // Errors & Performance
   lines.push('\nERRORS & PERFORMANCE:');
-  lines.push('- Page load: p50=' + (err.p50 || 0) + 'ms, p95=' + (err.p95 || 0) + 'ms');
+  // Say what this measures and how much of it there is. Forge read the old line as
+  // backend latency and spent five days proposing an architecture migration for a
+  // browser page-load figure. If the sample is too small to alert on, say THAT too,
+  // or a suppressed number just becomes a number an agent reasons about anyway.
+  lines.push('- Site page load, HUMAN browsers only (not API or function latency): p50='
+    + (err.p50 || 0) + 'ms, p95=' + (err.p95 || 0) + 'ms'
+    + (err.perfSamples !== null && err.perfSamples !== undefined ? ', n=' + err.perfSamples + ' pageviews/7d' : '')
+    + (err.perfUnderSampled ? ' — SAMPLE TOO SMALL TO ALERT ON. Do not open ops tasks against this number; a single slow crawler hit moves it several thousand ms.' : ''));
   if ((err.errors || []).length > 0) {
     lines.push('- Errors (7d): ' + (err.totalErrors || 0) + ' total — ' + err.errors.map(function (e) { return e.name + ' (' + e.count + 'x)'; }).join(', '));
   } else {

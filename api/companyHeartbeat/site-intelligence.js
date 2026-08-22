@@ -22,8 +22,22 @@ async function _fetchSiteIntel(context, storage) {
         'pageViews | extend cleanUrl = tostring(split(url, "?")[0]) | summarize views = count() by path = cleanUrl | top 10 by views desc',
         // Top referrers
         'pageViews | extend ref = tostring(customDimensions["refUri"]) | where isnotempty(ref) | extend refHost = tostring(parse_url(ref).Host) | where refHost != "ambientpixels.ai" and refHost != "www.ambientpixels.ai" and refHost != "" | summarize sessions = dcount(session_Id) by referrer = refHost | top 10 by sessions desc',
-        // Performance
-        'pageViews | summarize p50 = percentile(duration, 50), p95 = percentile(duration, 95)',
+        // Performance — HUMAN page loads only, with the sample size carried alongside.
+        //
+        // 2026-08-22: this query had no bot filter and no count, and it drove a RED
+        // p95 alert that Forge escalated every six hours for five days as "a critical
+        // architectural failure" requiring an Azure Durable Functions migration.
+        // Measured that day: 83 pageviews in 7d, of which ~61 were crawlers. Applebot
+        // alone was n=9 with p95=16102ms and WAS the entire alert — the exact figures
+        // Forge kept quoting (14207, 12986) are individual Applebot page loads. Real
+        // function latency over the same window was p95=921ms across 8516 requests,
+        // with 2 FunctionTimeoutExceptions total. There was no latency problem.
+        //
+        // Two things were wrong and both are fixed here: bots dominate a low-traffic
+        // site's tail, and a p95 over 83 samples is the 4th slowest row, not a
+        // percentile. `n` is returned so the alert layer can refuse to fire on a
+        // sample too small to mean anything (see SAMPLE_FLOOR in ops-intel.js).
+        'pageViews | where client_Type == "Browser" and client_Browser !has "bot" and client_Browser !has "spider" and client_Browser !has "crawl" and client_Browser !has "Headless" | summarize n = count(), p50 = percentile(duration, 50), p95 = percentile(duration, 95)',
         // Errors
         'exceptions | summarize count_ = count() by name = type | top 5 by count_ desc'
       ];
@@ -46,7 +60,9 @@ async function _fetchSiteIntel(context, storage) {
       const pages = _parseKusto(results[0]).map(r => ({ path: r.path || '/', views: r.views || 0 }));
       const referrers = _parseKusto(results[1]).map(r => ({ referrer: r.referrer || '', sessions: r.sessions || 0 }));
       const perfRows = _parseKusto(results[2]);
-      const perf = perfRows.length > 0 ? { p50: Math.round(perfRows[0].p50 || 0), p95: Math.round(perfRows[0].p95 || 0) } : null;
+      const perf = perfRows.length > 0
+        ? { n: perfRows[0].n || 0, p50: Math.round(perfRows[0].p50 || 0), p95: Math.round(perfRows[0].p95 || 0) }
+        : null;
       const errors = _parseKusto(results[3]).map(r => ({ name: r.name || 'Unknown', count: r.count_ || 0 }));
 
       si.telemetry = { range: '7d', topPages: pages, topReferrers: referrers, performance: perf, errors: errors };
