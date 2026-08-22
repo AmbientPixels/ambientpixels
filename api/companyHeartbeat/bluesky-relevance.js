@@ -39,7 +39,25 @@ var DOMAIN_TERMS = [
 
 // Anything political, civic or geopolitical. We have no standing there and the
 // downside is unbounded.
-var POLITICS_RE = /\b(trump|biden|obama|harris|maga|republican|democrat|gop|congress|senate|parliament|election|voter|ballot|administration|white house|supreme court|governor|mayor|nycha|policy|legislation|immigration|abortion|gaza|israel|palestin|ukraine|russia|putin|nato|tariff|deportation|ice raid|militar|battleship|megalomaniac|fascis|communis|woke|patriarch)\b/i;
+//
+// Stems carry an explicit \w* (2026-08-22). The trailing \b in this pattern meant
+// every truncated stem silently never fired: for "palestinian", the group matches
+// "palestin" and then \b has to hold between 'n' and 'i' — both word characters, so
+// the boundary fails and the whole alternative is discarded. palestin/fascis/communis/
+// militar were dead entries in a safety filter. \w* absorbs the tail so the trailing
+// \b lands on a real boundary.
+//
+// politic\w* added the same day: the list had `senate` and `democrat` but not the word
+// "politics" itself, so a Maine Senate primary thread ("he's also got a resume in ME
+// politics and knows the drill") cleared the filter and drew a reply — the domain term
+// `resume` matched a track record, not a CV. See _hasResumeIntent in prospect-pipeline.js
+// for the polysemy half of that same miss.
+// NOT in this list, deliberately: candidate/candidates. It is the single most common
+// noun in job-search prose ("still actively seeking candidates meeting his
+// qualifications" — a parent describing their kid's job hunt) and adding it refused a
+// core-domain thread as political. Same reasoning keeps progressive/conservative out:
+// "progressive company" is a job-ad cliché. politic\w* alone catches the real cases.
+var POLITICS_RE = /\b(trump|biden|obama|harris|maga|republican|democrat\w*|gop|congress\w*|senat(?:e|or|ors)|parliament\w*|election\w*|voter\w*|ballot\w*|administration|white house|supreme court|governor|mayor|nycha|politic\w*|campaign trail|policy|legislation|immigration|abortion|gaza|israel\w*|palestin\w*|ukrain\w*|russia\w*|putin|nato|tariff\w*|deportation|ice raid|militar\w*|battleship|megalomaniac|fascis\w*|communis\w*|woke|patriarch\w*)\b/i;
 
 var NSFW_RE = /(\bnsfw\b|🔞|\bnude|\bporn|\bhentai|\bfetish|\bkink\b|\bxxx\b|onlyfans|monsterfucker|artfuck|\bsmut\b|\berotic)/i;
 
@@ -117,4 +135,7 @@ function relevanceVerdict(text) {
   return { ok: true, reason: null, matched: matched };
 }
 
-module.exports = { relevanceVerdict, DOMAIN_TERMS };
+// POLITICS_RE / NSFW_RE / BROADCAST_RE are exported so the roast prospect lane
+// (prospect-pipeline.js) refuses the same topics and shapes from its own filter
+// rather than growing a second, drifting copy of the lists. One place to add a topic.
+module.exports = { relevanceVerdict, DOMAIN_TERMS, POLITICS_RE, NSFW_RE, BROADCAST_RE };

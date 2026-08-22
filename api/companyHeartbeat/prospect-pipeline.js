@@ -607,6 +607,79 @@ function _hasResumeIntent(text) {
   return _RESUME_NOUN_RE.test(t) && _JOB_CONTEXT_RE.test(t);
 }
 
+// ── Target suitability (2026-08-22) ─────────────────────────────────────────
+// buildRoastReplyTask has told Scribe "If the post is venting or grief with no ask
+// for help, output an EMPTY deliverable to decline. Never pitch at raw pain." since
+// the lane opened. Measured against the 22 roast-lane replies sitting in the approval
+// queue on 2026-08-22: 22 of 22 carried a pitch and a link. Zero declines. The rule
+// held for exactly none of them, including a reply to "When I say I'm almost to my
+// limit, I don't say it lightly" (aq-act_1787248864420) and one to somebody describing
+// facing unemployment. A prompt rule the model overrides 100% of the time is not a
+// control; this is the deterministic half.
+//
+// Two tiers, because the right answer is not the same for both:
+//   'crisis'  → do not reply AT ALL. A brand account replying under a post about
+//               self-harm is wrong even with the pitch stripped out.
+//   'distress'→ still reply, with the offer and link suppressed. The best replies the
+//               fleet has produced were exactly this shape and arrived by luck rather
+//               than by rule: "Just remember they wanted to talk to you for a reason.
+//               Hope it goes great tomorrow." — no link, no ask.
+//
+// Deliberately inclusive, unlike the domain filters above it. The costs are asymmetric
+// in the opposite direction here: a false positive costs one suppressed link on a post
+// that could have taken it, while a false negative is a bot reading somebody's despair
+// as buying intent. When in doubt this drops the pitch and keeps the human reply.
+// "end it all" / "end my life", never a bare "end it": \b(?:end it)\b happily matches
+// across a word gap, so "it's mostly just bad luck on my END IT feels" read as suicidal
+// ideation and dropped a plain job-hunt vent. A crisis matcher that fires on ordinary
+// prose is worse than none — it silently deletes reachable people from the lane.
+var _CRISIS_RE = /\b(?:suicid\w*|kill(?:ing)? myself|end(?:ing)? (?:it all|my (?:own )?life)|self[- ]harm|want(?:s|ed)? to die|don'?t want to (?:be here|live)|hurt(?:ing)? myself)\b/i;
+
+var _DISTRESS_RE = new RegExp([
+  // exhaustion and the end of the rope
+  'at (?:my|the) limit', 'almost to my limit', 'breaking point', 'can\'?t (?:do this|take|keep going)',
+  'burn(?:t|ed) out', 'burnout', 'exhaust\\w*', 'drain(?:ed|ing)', 'defeated', 'demoraliz\\w*',
+  // hopelessness
+  'losing hope', 'lost hope', 'hopeless', 'give? up', 'giving up', 'no luck', 'nothing (?:is )?work\\w*',
+  'at a loss', 'nowhere', 'pointless', 'what\'?s the point',
+  // material precarity
+  'can\'?t afford', 'cannot afford', 'behind on rent', 'evict\\w*', 'homeless', 'broke af',
+  'out of (?:money|savings)', 'need(?:s|ed)? (?:the )?money', 'desperat\\w*',
+  'facing unemployment', '(?:going to be|about to be|soon be) unemployed', 'laid off',
+  // acute need / stakes language
+  'need this job', 'really need (?:this|a) job', 'last chance', 'running out of time',
+  // mental-health vocabulary
+  'depress\\w*', 'anxiet\\w*', 'anxious', 'panic attack', 'crying', 'cried', 'in tears',
+  'mental health', 'cope', 'coping', 'struggling', 'struggle'
+].join('|'), 'i');
+
+/**
+ * How much distress is this post carrying?
+ * @returns {'none'|'distress'|'crisis'}
+ */
+function targetTone(text) {
+  var t = String(text || '');
+  if (_CRISIS_RE.test(t)) return 'crisis';
+  if (_DISTRESS_RE.test(t)) return 'distress';
+  return 'none';
+}
+
+// Topics we do not enter, shared with the participation lane so the list lives in
+// one file. The roast lane never consulted these: _hasResumeIntent was the only
+// content gate, which is how a Maine Senate primary thread drew a resume-tool pitch.
+var _REL = require('./bluesky-relevance');
+function _isUnsuitableTopic(text) {
+  var t = String(text || '');
+  if (_REL.NSFW_RE.test(t)) return 'nsfw';
+  if (_REL.POLITICS_RE.test(t)) return 'politics';
+  // Numbered thread openers ("1/2", "3/7") are broadcast content, not conversation —
+  // replying under one is shouting into a lecture. The participation lane has refused
+  // these since it opened; the roast lane pitched under a French "1/2 SEO sur votre
+  // profil LinkedIn" thread (aq-act_1787270436932) because it never asked.
+  if (_REL.BROADCAST_RE.test(t)) return 'broadcast';
+  return null;
+}
+
 // Never prospect ourselves. Our own Resume Roast promo copy ("getting past the
 // ATS... we built a free tool") satisfies _hasResumeIntent by design, so on
 // 2026-08-07 the lane discovered our own post and queued a reply to it. The AS
@@ -653,6 +726,12 @@ function filterRoastProspects(candidates, prospects, cfg, nowMs) {
     if (((c.likeCount || 0) + (c.replyCount || 0)) < minEngagement) continue;
     if (String(c.text || '').trim().length < minPostChars) continue;
     if (!_hasResumeIntent(c.text)) continue;
+    // Topic guard — politics/NSFW are never ours to reply under, resume intent or not.
+    if (_isUnsuitableTopic(c.text)) continue;
+    // Crisis posts are dropped outright; distress posts are kept but flagged so the
+    // task builder produces an empathy-only reply with no offer and no link.
+    var _tone = targetTone(c.text);
+    if (_tone === 'crisis') continue;
     var authorKey = String(c.author).toLowerCase();
     if (seenAuthors[authorKey]) continue;
     seenAuthors[authorKey] = true;
@@ -661,6 +740,7 @@ function filterRoastProspects(candidates, prospects, cfg, nowMs) {
       lane: 'resumeRoast',
       uri: c.uri, cid: c.cid, author: c.author, authorDid: c.authorDid || '',
       postText: String(c.text || '').substring(0, 500),
+      tone: _tone,
       siteUrl: null, domain: null,
       discoveredAt: new Date(nowMs).toISOString(),
       status: 'discovered',
@@ -677,25 +757,46 @@ function filterRoastProspects(candidates, prospects, cfg, nowMs) {
 function buildRoastReplyTask(prospect, cfg, nowMs) {
   var iso = new Date(nowMs).toISOString();
   var dest = cfg.destinationUrl || 'https://ambientpixels.ai/pixel-agents/run.html?agent=resume-roast';
+  // tone is stamped by filterRoastProspects. Absent (older queued prospects, hand-made
+  // fixtures) → re-derive rather than defaulting to 'none', so a distress post that
+  // predates this gate does not get a pitch on its way through.
+  var tone = prospect.tone || targetTone(prospect.postText);
+  var noPitch = (tone === 'distress');
   return {
     id: 'task_' + nowMs + '_roast_' + Math.random().toString(36).substring(2, 6),
-    title: 'Roast-lane reply to @' + prospect.author + ' (resume roast prospect)',
-    description:
-      'PROSPECT FACT SHEET (use ONLY these facts)\n'
-      + '- Their post (verbatim): "' + prospect.postText + '"\n'
-      + '- You are replying AS the AmbientPixels founder account.\n'
-      + '- The offer: our free Resume Roast agent — paste a resume, get an ATS '
-      + 'compatibility score and section-by-section feedback in seconds. Free runs, no signup.\n'
-      + '- Link (copy EXACTLY, never shorten or prettify): ' + dest + '\n\n'
-      + 'RULES:\n'
-      + '- EMPATHY FIRST. Acknowledge their specific situation in their words before any offer.\n'
-      + '- If the post is venting or grief with no ask for help, output an EMPTY deliverable '
-      + 'to decline. Never pitch at raw pain.\n'
-      + '- You have NOT seen their resume. Make NO claims about it — no scores, no findings, '
-      + 'no "your resume probably...". The tool speaks after they run it, not you before.\n'
-      + '- Do NOT mention pricing or paid tiers.\n'
-      + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n\n'
-      + 'Output ONLY the reply text itself. No title, no "Reply:" label, no preamble.',
+    title: 'Roast-lane reply to @' + prospect.author + (noPitch ? ' (support reply — no pitch)' : ' (resume roast prospect)'),
+    description: noPitch
+      // Empathy-only variant. The link is not merely discouraged here, it is absent —
+      // the drafter cannot paste a URL it was never given, and agent-runner's link
+      // repair keys off task.destinationUrl, which this task deliberately omits.
+      ? 'SUPPORT REPLY — THIS POST CARRIES DISTRESS. NO PITCH, NO LINK, NO PRODUCT.\n'
+        + '- Their post (verbatim): "' + prospect.postText + '"\n'
+        + '- You are replying AS the AmbientPixels founder account.\n\n'
+        + 'RULES:\n'
+        + '- Acknowledge their specific situation in their own words. That is the whole reply.\n'
+        + '- Mention NO product, NO tool, NO offer, and include NO link of any kind. There is '
+        + 'nothing to sell here and trying to is the failure this rule exists to prevent.\n'
+        + '- Do not give unsolicited advice. Do not tell them what their resume probably needs.\n'
+        + '- If you cannot say something warm and specific without selling, output an EMPTY '
+        + 'deliverable to decline. Declining is a correct outcome, not a failed task.\n'
+        + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n\n'
+        + 'Output ONLY the reply text itself. No title, no "Reply:" label, no preamble.'
+      : 'PROSPECT FACT SHEET (use ONLY these facts)\n'
+        + '- Their post (verbatim): "' + prospect.postText + '"\n'
+        + '- You are replying AS the AmbientPixels founder account.\n'
+        + '- The offer: our free Resume Roast agent — paste a resume, get an ATS '
+        + 'compatibility score and section-by-section feedback in seconds. Free runs, no signup.\n'
+        + '- Link (copy EXACTLY, never shorten or prettify): ' + dest + '\n\n'
+        + 'RULES:\n'
+        + '- EMPATHY FIRST. Acknowledge their specific situation in their words before any offer.\n'
+        + '- If the post is venting or grief with no ask for help, output an EMPTY deliverable '
+        + 'to decline. Never pitch at raw pain.\n'
+        + '- You have NOT seen their resume. Make NO claims about it — no scores, no findings, '
+        + 'no "your resume probably...". The tool speaks after they run it, not you before.\n'
+        + '- Do NOT mention pricing or paid tiers.\n'
+        + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n\n'
+        + 'Output ONLY the reply text itself. No title, no "Reply:" label, no preamble.',
+    tone: tone,
     taskType: 'bluesky_reply',
     category: 'maintenance',
     status: 'todo',
@@ -709,11 +810,15 @@ function buildRoastReplyTask(prospect, cfg, nowMs) {
     source: 'roastProspectCron',
     created_by: 'roastProspectCron',
     objective_id: 'obj-revenue-engine',
-    destinationUrl: dest,
+    // destinationUrl is the drafter-side link contract: agent-runner's repairReplyLink
+    // GUARANTEES this URL ships in the reply and stamps a UTM after it. A support reply
+    // must therefore not carry one, or the link lands back in the copy no matter what
+    // the prompt said. null, not the dest string.
+    destinationUrl: noPitch ? null : dest,
     createdAt: iso,
     updatedAt: iso,
     dueDate: new Date(nowMs + 3 * 86400e3).toISOString(),
-    tags: ['bluesky-reply', 'roast-prospect'],
+    tags: noPitch ? ['bluesky-reply', 'roast-prospect', 'support-reply'] : ['bluesky-reply', 'roast-prospect'],
     threadContext: {
       uri: prospect.uri, cid: prospect.cid,
       author: prospect.author, authorDid: prospect.authorDid,
@@ -835,6 +940,8 @@ module.exports = {
   filterRoastProspects: filterRoastProspects,
   buildRoastReplyTask: buildRoastReplyTask,
   _hasResumeIntent: _hasResumeIntent,
+  targetTone: targetTone,
+  _isUnsuitableTopic: _isUnsuitableTopic,
   runRoastLane: runRoastLane,
   runProspectPipeline: runProspectPipeline
 };

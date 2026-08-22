@@ -65,7 +65,21 @@ var PLACEHOLDER_PATTERN = /\[(?:link|url|insert|add|blog|image|img|cta|placehold
 var AGENT_PERSONA_PATTERNS = [
   /\b(?:i'?m|my name is|this is)\s+(?:cipher|forge|scribe|echo|nova|quill|pixel|scout)\b/i,
   /\b(?:cipher|forge|scribe|echo|nova|quill|pixel|scout)\s+(?:out|here)[.,!]/i,
-  /\bi (?:handle|manage|run) the (?:money|finances|ops|infrastructure) here\b/i
+  /\bi (?:handle|manage|run) the (?:money|finances|ops|infrastructure) here\b/i,
+  // Internal reward-economy mechanics in public copy (2026-08-22). Two posts reached
+  // the queue announcing "+14 XP" / "Milestone: NOTABLE WEEK" / "I'm apparently a
+  // 'workhorse' now" and "I'm still a rookie agent, but ... I earned +12 XP"
+  // (aq-act_1787184023582, aq-act_1787227373822). The XP ledger is an internal tuning
+  // instrument; to a reader it is a number from a game they are not playing. It also
+  // contradicts the founder voice these same accounts use elsewhere in the same week —
+  // one post is a veteran job-seeker of "years", the next is a "rookie agent".
+  /[+-]\s?\d+\s?XP\b/i,
+  /\b(?:earned|gained|got)\s+\+?\d+\s?XP\b/i,
+  /\bmilestone:\s*[a-z_ ]{3,30}\b/i,
+  /\b(?:i'?m|as)\s+(?:still\s+)?a\s+(?:rookie|junior|senior|veteran)\s+agent\b/i,
+  /\bthe system (?:just )?pinged me\b/i,
+  /\bi'?m apparently a\b/i,
+  /\blevel(?:ed)?[- ]?up\b.{0,24}\b(?:xp|rank|tier)\b/i
 ];
 
 // Per-platform hard length ceilings, checked against the FINAL text (after UTM
@@ -358,8 +372,9 @@ function findUngroundedClaims(text, groundingText) {
   return { ungrounded: ungrounded, grounded: grounded, checked: nums.length };
 }
 
-// Build the grounding corpus from the parent task chain + product facts.
-function buildGroundingText(task, productFacts) {
+// Build the grounding corpus from the parent task chain + product facts + live
+// ops telemetry + (reply lane) the thread we are answering.
+function buildGroundingText(task, productFacts, telemetry, threadContext) {
   var parts = [];
   if (task) {
     parts.push(task.title || '', task.description || '', task.reviewed_copy || '');
@@ -371,7 +386,68 @@ function buildGroundingText(task, productFacts) {
     });
   }
   if (productFacts) { try { parts.push(JSON.stringify(productFacts)); } catch (_) {} }
+  // Live ops telemetry (2026-08-22). The v1 corpus was the task chain + product facts,
+  // which is exactly why ungrounded numbers could only ever be a SOFT warning: Forge's
+  // real p95 reading lives in the ops digest, so every TRUE telemetry number looked
+  // invented and hard-failing would have blocked 4/4 legitimate posts (A1 backtest).
+  // With the digest in the corpus a real number grounds and an invented one does not,
+  // which is what lets detectSystemClaim promote the ungrounded case to a hard fail.
+  // Shape: buildForgeOpsDigest() output (ops-intel.js) — errorIntel.p95, costIntel.*, alerts[].
+  if (telemetry) { try { parts.push(JSON.stringify(telemetry)); } catch (_) {} }
+  // Reply lane: a number the OTHER person stated is grounded by their own post.
+  // Without this, echoing a stranger's stat back to them ("1200 resumes for 2
+  // interviews", aq-act_1787097640941) false-flags as a fabricated statistic.
+  if (threadContext) {
+    if (typeof threadContext === 'string') parts.push(threadContext);
+    else parts.push(threadContext.originalText || '', threadContext.author || '');
+  }
   return parts.join('\n');
+}
+
+// ── System-claim detector (2026-08-22) ──────────────────────────────────────
+// The p95 incident: on 08-18 and 08-19 Echo drafted two public victory posts about
+// a latency fix — "was spiking to 7852ms ... now consistently under 800ms"
+// (aq-act_1787076200188) and "spiked to over 14,000ms ... dropped to under 200ms"
+// (aq-act_1787141056384). Two different before/after pairs for the SAME incident, one
+// day apart, both declaring victory. Forge logged p95 at 12,986-14,207ms RED every six
+// hours across both of those days, and it is STILL 14,207ms. Both posts passed the gate
+// at confidence 95: findUngroundedClaims DID flag 7852/800/14,000/200 as ungrounded and
+// the verdict filed that as a soft warning, because the corpus could not tell an
+// invented number from a real one it simply could not see.
+//
+// A blanket "ungrounded number = fail" is wrong and stays wrong. The same replay flags
+// rhetorical ATS percentages ("is 80% enough? 90%?"), invented EXAMPLE resume bullets
+// ("increased readers by 30%"), and a stranger's own stat quoted back to them. None of
+// those are claims about us. This detector isolates the class that IS: a first-person
+// assertion about OUR system's operational behaviour, where telemetry can settle it.
+//
+// Deliberately scoped to technical ops metrics (latency, uptime, errors, cold starts,
+// throughput) because those are the numbers buildForgeOpsDigest actually carries.
+// Conversion/traffic claims ("our pricing page converted at 1%") are the same failure
+// class but have no telemetry corpus to check against, so v1 leaves them soft rather
+// than fail-closed on every build-in-public anecdote.
+
+// Metric vocabulary — the subject has to be an operational measurement.
+var SYSTEM_METRIC_RE = /\b(?:p50|p95|p99|latenc(?:y|ies)|uptime|downtime|response times?|cold starts?|error rates?|throughput|requests? per second|rps|queue depth|memory usage|cpu usage|build times?|load times?)\b/i;
+
+// Ownership — "our p95", "we shipped a fix", "our agent platform". Without a
+// first-person anchor the post is commentary on someone else's system, which is
+// not ours to ground. "Shipped a fix for our agent platform" anchors on both.
+var SYSTEM_OWNERSHIP_RE = /\b(?:our|ours|we|we've|us|my|i|i've)\b/i;
+
+// Remediation phrasing — the "we fixed it" shape that turns a metric into a claim.
+var SYSTEM_FIX_RE = /\b(?:shipped a fix|fixed|resolved|remediat(?:ed|ion)|dropped (?:from|to)|down to|now (?:consistently )?under|cut (?:it )?to|improved to|brought (?:it )?down|back to normal|no longer)\b/i;
+
+/**
+ * Is this copy asserting something about OUR system's operational behaviour?
+ * @returns {{isClaim:boolean, metric:?string, hasFixLanguage:boolean}}
+ */
+function detectSystemClaim(text) {
+  var t = String(text || '');
+  var m = t.match(SYSTEM_METRIC_RE);
+  if (!m) return { isClaim: false, metric: null, hasFixLanguage: false };
+  if (!SYSTEM_OWNERSHIP_RE.test(t)) return { isClaim: false, metric: null, hasFixLanguage: false };
+  return { isClaim: true, metric: m[0], hasFixLanguage: SYSTEM_FIX_RE.test(t) };
 }
 
 // ── Composition ─────────────────────────────────────────────────────────────
@@ -393,6 +469,15 @@ function composeQualityVerdict(opts) {
   var offer = detectUngroundedOffer(opts.text || '', opts.offers !== undefined ? opts.offers : _FILE_OFFERS, opts.nowMs);
   var fabUrl = detectFabricatedUrl(opts.text || '');
 
+  // System-claim check. opts.telemetryAvailable is an EXPLICIT false only when the
+  // caller tried to read live telemetry and failed; undefined means "not applicable"
+  // (backtest, unit test, a lane with no telemetry wired) and must not fail closed,
+  // or every existing caller starts blocking on day one.
+  var sysClaim = detectSystemClaim(opts.text || '');
+  var telemetryMissing = sysClaim.isClaim && opts.telemetryAvailable === false;
+  var sysClaimUngrounded = sysClaim.isClaim && !telemetryMissing &&
+    !!(grounding && grounding.ungrounded && grounding.ungrounded.length > 0);
+
   var issues = [];
   var deterministicFlags = {
     refusalLeak: !!leaks.refusal,
@@ -405,12 +490,27 @@ function composeQualityVerdict(opts) {
     dailyCap: !!opts.dailyCap,
     ungroundedOffer: !!(offer.claimed && !offer.grounded),
     fabricatedUrl: !!fabUrl.fabricated,
-    ungroundedClaims: grounding ? grounding.ungrounded : []
+    ungroundedClaims: grounding ? grounding.ungrounded : [],
+    systemClaim: !!sysClaim.isClaim,
+    ungroundedSystemClaim: !!sysClaimUngrounded,
+    unverifiableSystemClaim: !!telemetryMissing
   };
 
   issues = issues.concat(leaks.issues || []);
   if (offer.claimed && !offer.grounded) issues.push(offer.issue);
   if (fabUrl.fabricated) issues.push(fabUrl.issue);
+  if (sysClaimUngrounded) {
+    issues.push('Claims about our own ' + sysClaim.metric + ' cite numbers that do not appear in live telemetry: ' +
+      grounding.ungrounded.join(', ') + '. ' +
+      (sysClaim.hasFixLanguage
+        ? 'This post announces a fix — verify the metric actually recovered before it ships. '
+        : '') +
+      'Copy operational numbers from the ops digest; never estimate or round them.');
+  }
+  if (telemetryMissing) {
+    issues.push('This post asserts something about our ' + sysClaim.metric +
+      ', but live telemetry could not be read to verify it. Holding rather than publishing an unverifiable system claim.');
+  }
   // repeat-promo is a creation-time DEFER gate (serialize same-link posts), not a content
   // failure — if the action exists anyway, surface it as information for the AQ badge.
   if (repeatPromo.exceeded) {
@@ -418,7 +518,8 @@ function composeQualityVerdict(opts) {
       (repeatPromo.matchId || 'recent post') + ') — consider deciding that one first.');
   }
 
-  var hardFail = leaks.any || (offer.claimed && !offer.grounded) || fabUrl.fabricated;
+  var hardFail = leaks.any || (offer.claimed && !offer.grounded) || fabUrl.fabricated ||
+    sysClaimUngrounded || telemetryMissing;
 
   // LLM verdict with grounded-stat suppression
   var llmFail = false;
@@ -453,7 +554,7 @@ function composeQualityVerdict(opts) {
     confidence: hardFail ? 100 : llmConfidence,
     issues: issues,
     deterministicFlags: deterministicFlags,
-    source: 'composed-v1'
+    source: 'composed-v2'
   };
 }
 
@@ -470,6 +571,7 @@ module.exports = {
   FILE_OFFERS: _FILE_OFFERS,
   detectUngroundedOffer: detectUngroundedOffer,
   detectFabricatedUrl: detectFabricatedUrl,
+  detectSystemClaim: detectSystemClaim,
   detectContentLeaks: detectContentLeaks,
   looksLikeDocScaffold: looksLikeDocScaffold,
   repeatPromoUrlStatus: repeatPromoUrlStatus,

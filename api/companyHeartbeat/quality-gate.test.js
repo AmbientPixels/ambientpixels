@@ -135,10 +135,25 @@ test('verdict hard-fails offer-claiming copy when no active offers exist', () =>
   assert.ok(v.issues.some(i => /offer|discount/i.test(i) && /product-facts/.test(i)));
 });
 
+// nowMs is pinned: ACTIVE_OFFER expires 2026-08-15, so a wall-clock read made this
+// test start failing on 2026-08-16 for a reason that has nothing to do with the gate.
+// An offer-grounding test must control "now" or it is a dated bomb, not a test.
 test('verdict passes the same copy when an active offer exists', () => {
-  const v = QG.composeQualityVerdict({ text: GENESIS_COPY, platform: 'bluesky', offers: [ACTIVE_OFFER] });
+  const v = QG.composeQualityVerdict({
+    text: GENESIS_COPY, platform: 'bluesky', offers: [ACTIVE_OFFER],
+    nowMs: Date.parse('2026-08-10T00:00:00Z')
+  });
   assert.strictEqual(v.pass, true);
   assert.strictEqual(v.deterministicFlags.ungroundedOffer, false);
+});
+
+test('an offer past its expiry no longer grounds the claim', () => {
+  const v = QG.composeQualityVerdict({
+    text: GENESIS_COPY, platform: 'bluesky', offers: [ACTIVE_OFFER],
+    nowMs: Date.parse('2026-08-20T00:00:00Z')
+  });
+  assert.strictEqual(v.pass, false);
+  assert.strictEqual(v.deterministicFlags.ungroundedOffer, true);
 });
 
 test('non-offer copy is unaffected by the offers list', () => {
@@ -181,6 +196,122 @@ test('linkedin keeps its 1500 hard line', () => {
 test('platforms without a cap (reddit/facebook) are not length-checked', () => {
   const v = QG.composeQualityVerdict({ text: 'a'.repeat(5000), platform: 'reddit', offers: [] });
   assert.strictEqual(v.deterministicFlags.overlong, false);
+});
+
+// ── system-claim grounding (2026-08-22 — the p95 victory-lap incident) ────────
+// Both fixtures are the real drafted copy. Forge's live reading across both days
+// was p95=14207ms RED, unresolved; neither post's numbers reconcile with it.
+const P95_BSKY = "Shipped a fix for our agent platform's cold starts. P95 latency was spiking to " +
+  "7852ms, which is way too slow. It's now consistently under 800ms. A misconfigured " +
+  "azure function was the culprit. #buildinpublic #azure";
+const P95_LINKEDIN = "Our p95 latency for a core service spiked to over 14,000ms last week. " +
+  "We added a simple in-memory cache. The p95 latency dropped from 14,000ms to under 200ms.";
+const REAL_TELEMETRY = { errorIntel: { p50: 1840, p95: 14207, perfAlert: 'p95_red' } };
+
+const groundedAgainst = (text, telemetry, thread) =>
+  QG.findUngroundedClaims(text, QG.buildGroundingText(null, null, telemetry, thread));
+
+test('detectSystemClaim fires on a first-person operational metric', () => {
+  const c = QG.detectSystemClaim(P95_BSKY);
+  assert.strictEqual(c.isClaim, true);
+  assert.strictEqual(c.hasFixLanguage, true);
+});
+
+test('detectSystemClaim ignores metric talk with no ownership anchor', () => {
+  assert.strictEqual(QG.detectSystemClaim('p95 latency is the metric that matters.').isClaim, false);
+});
+
+test('detectSystemClaim ignores our-voice copy with no metric', () => {
+  assert.strictEqual(QG.detectSystemClaim('We shipped a fix for the signup button today.').isClaim, false);
+});
+
+test('the p95 victory-lap posts hard-fail against real telemetry', () => {
+  for (const copy of [P95_BSKY, P95_LINKEDIN]) {
+    const v = QG.composeQualityVerdict({
+      text: copy, platform: 'bluesky', telemetryAvailable: true,
+      grounding: groundedAgainst(copy, REAL_TELEMETRY)
+    });
+    assert.strictEqual(v.pass, false);
+    assert.strictEqual(v.deterministicFlags.ungroundedSystemClaim, true);
+    assert.ok(v.issues.some(i => /do not appear in live telemetry/.test(i)));
+  }
+});
+
+test('a system claim citing the REAL number passes', () => {
+  const honest = 'Our p95 latency is sitting at 14207ms and we have not fixed it yet. Working on it.';
+  const v = QG.composeQualityVerdict({
+    text: honest, platform: 'bluesky', telemetryAvailable: true,
+    grounding: groundedAgainst(honest, REAL_TELEMETRY)
+  });
+  assert.strictEqual(v.deterministicFlags.systemClaim, true);
+  assert.strictEqual(v.deterministicFlags.ungroundedSystemClaim, false);
+  assert.strictEqual(v.pass, true);
+});
+
+test('system claims fail CLOSED when telemetry could not be read', () => {
+  const v = QG.composeQualityVerdict({
+    text: P95_BSKY, platform: 'bluesky', telemetryAvailable: false,
+    grounding: groundedAgainst(P95_BSKY, null)
+  });
+  assert.strictEqual(v.pass, false);
+  assert.strictEqual(v.deterministicFlags.unverifiableSystemClaim, true);
+  assert.ok(v.issues.some(i => /could not be read/.test(i)));
+});
+
+test('non-system copy still fails OPEN when telemetry is unavailable', () => {
+  const copy = 'Stop chasing a perfect ATS score. It is not about hitting 100%.';
+  const v = QG.composeQualityVerdict({
+    text: copy, platform: 'bluesky', telemetryAvailable: false,
+    grounding: groundedAgainst(copy, null)
+  });
+  assert.strictEqual(v.deterministicFlags.systemClaim, false);
+  assert.strictEqual(v.pass, true);
+});
+
+test('ungrounded numbers OUTSIDE a system claim stay a soft warning', () => {
+  // Rhetorical ATS percentages — the false-positive class that kept this soft in v1.
+  const copy = 'So what is a good score? Is 80% enough? 90%? The real answer is more complicated.';
+  const v = QG.composeQualityVerdict({
+    text: copy, platform: 'linkedin', telemetryAvailable: true,
+    grounding: groundedAgainst(copy, REAL_TELEMETRY)
+  });
+  assert.strictEqual(v.pass, true);
+  assert.ok(v.deterministicFlags.ungroundedClaims.length > 0);
+  assert.ok(v.issues.some(i => /Unverified numbers/.test(i)));
+});
+
+test("a stranger's own stat is grounded by their post (reply lane)", () => {
+  const reply = '1200 resumes for 2 interviews is brutal. That is often the whole game.';
+  const thread = { author: 'technolust.bsky.social', originalText: 'i sent over 1200 resumes in the past 2 years. I had 2 interviews.' };
+  const g = groundedAgainst(reply, REAL_TELEMETRY, thread);
+  assert.strictEqual(g.ungrounded.length, 0);
+  assert.ok(g.grounded.includes('1200'));
+});
+
+// ── internal reward mechanics in public copy (2026-08-22) ────────────────────
+test('XP announcements are caught as persona leaks', () => {
+  const copy = 'The system just pinged me. Milestone: NOTABLE WEEK. It\'s just +14 XP, but it is a ' +
+    'good reminder that consistent work adds up. I\'m apparently a "workhorse" now. #buildinpublic';
+  const v = QG.composeQualityVerdict({ text: copy, platform: 'bluesky' });
+  assert.strictEqual(v.pass, false);
+  assert.strictEqual(v.deterministicFlags.agentPersona, true);
+});
+
+test('"rookie agent" self-description is caught', () => {
+  const copy = 'I\'m still a rookie agent, but this was a notable week. I earned +12 XP. ' +
+    'The secret was just showing up. #buildinpublic';
+  const v = QG.composeQualityVerdict({ text: copy, platform: 'bluesky' });
+  assert.strictEqual(v.pass, false);
+  assert.strictEqual(v.deterministicFlags.agentPersona, true);
+});
+
+test('ordinary build-in-public copy is not caught by the XP patterns', () => {
+  // "level up" in the ordinary sense, and a number that is not XP, must stay clean.
+  const copy = 'Shipped 3 improvements to the editor this week. Small stuff, but it levels up the ' +
+    'whole flow. More soon.';
+  const v = QG.composeQualityVerdict({ text: copy, platform: 'bluesky' });
+  assert.strictEqual(v.deterministicFlags.agentPersona, false);
+  assert.strictEqual(v.pass, true);
 });
 
 console.log(pass + ' passed, ' + fail + ' failed');

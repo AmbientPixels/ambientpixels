@@ -122,6 +122,49 @@ function _expireStaleGeneratorProposals(queue, nowMs) {
   return n;
 }
 
+// ── Stale reply-draft expiry (2026-08-22) ───────────────────────────────────
+// A reply is perishable in a way a campaign proposal is not. Measured on the queue
+// that accumulated between the last CEO decision (2026-08-13) and 08-22: 17 of the 30
+// pending Bluesky replies had aged past four days, including several genuinely good
+// ones — an apology to somebody who had called the account spam, encouragement to
+// somebody nervous before an interview the next morning, a reply to a person who had
+// sent 2,000 applications for zero offers. None of them were wrong. All of them had
+// simply rotted: arriving under a week-old post, a reply reads as strange rather than
+// helpful, and the interview it wished luck for has already happened.
+//
+// The quality gates stop bad content. Nothing stopped good content expiring silently,
+// so this converts the rot into a visible event: the draft withdraws itself, the queue
+// stops growing, and the governance log shows how many replies the approval delay cost.
+// That count is the signal — a rising number here means the queue is unattended, which
+// is not something any content gate can tell you.
+//
+// Three days, not seven: the useful window on a reply is shorter than on a proposal.
+var REPLY_EXPIRE_DAYS = 3;
+
+// Flip still-pending reply drafts to 'expired' once they pass REPLY_EXPIRE_DAYS.
+// Returns the expired entries (not just a count) so the caller can log which
+// conversations were lost and close the parent tasks. Mutates entries in place.
+function _expireStaleReplyDrafts(queue, nowMs, maxDays) {
+  var days = Number.isFinite(maxDays) ? maxDays : REPLY_EXPIRE_DAYS;
+  var cutoff = nowMs - days * 86400000;
+  var out = [];
+  (queue || []).forEach(function (q) {
+    if (!q || q.status !== 'pending') return;
+    if (q.kind !== 'bluesky_reply') return;
+    // submittedAt is the reply-lane stamp; fall back so a differently-shaped entry
+    // is not treated as age zero forever.
+    var ts = Date.parse(q.submittedAt || q.timestamp || q.createdAt || '') || 0;
+    if (ts === 0 || ts >= cutoff) return;
+    q.status = 'expired';
+    q.expiredAt = new Date(nowMs).toISOString();
+    q.expiryReason = 'stale_reply_window';
+    q.expiryNote = 'Reply drafted ' + Math.round((nowMs - ts) / 86400000) + 'd ago and never decided. ' +
+      'Replying under a thread this old reads as odd, so the draft withdrew itself rather than shipping late.';
+    out.push(q);
+  });
+  return out;
+}
+
 // Queue hygiene: resolved campaign/objective proposals now REMAIN in the queue
 // (status approved/rejected/expired) so the reject-cooldown, emergence reject-rate
 // and the propose→decide funnel can read them. Prune them after 30d (matches the
@@ -691,13 +734,19 @@ async function runProposalGenerator(opts) {
     // lines are buffered so a retry doesn't emit a misleading duplicate trail.
     var candidates = proposals;
     var expired = 0, pruned = 0, healed = 0;
+    var staleReplies = [];
     var accepted = [];
     var notes = [];
     await storage.mutateState('approvalQueue', function (fresh) {
       var queue = Array.isArray(fresh) ? fresh : [];
-      expired = 0; pruned = 0; healed = 0; accepted = []; notes = [];
+      expired = 0; pruned = 0; healed = 0; staleReplies = []; accepted = []; notes = [];
 
       expired = _expireStaleGeneratorProposals(queue, nowMs);
+      staleReplies = _expireStaleReplyDrafts(queue, nowMs);
+      if (staleReplies.length) {
+        notes.push('[proposalGenerator] Expired ' + staleReplies.length + ' reply draft(s) older than ' +
+          REPLY_EXPIRE_DAYS + 'd: ' + staleReplies.map(function (q) { return q.taskTitle || q.id; }).join(', '));
+      }
       pruned = _pruneResolvedProposals(queue, nowMs);
       if (pruned) notes.push('[proposalGenerator] Pruned ' + pruned + ' resolved proposal(s) older than ' + RESOLVED_RETENTION_DAYS + 'd.');
       healed = _reconcileMaterializedProposals(queue, state.campaigns, state.objectives, nowMs);
@@ -779,6 +828,8 @@ module.exports = {
   detectSignals: detectSignals,
   runProposalGenerator: runProposalGenerator,
   _expireStaleGeneratorProposals: _expireStaleGeneratorProposals,
+  _expireStaleReplyDrafts: _expireStaleReplyDrafts,
+  REPLY_EXPIRE_DAYS: REPLY_EXPIRE_DAYS,
   _pruneResolvedProposals: _pruneResolvedProposals,
   _reconcileMaterializedProposals: _reconcileMaterializedProposals,
   _isPlaceholderObjective: _isPlaceholderObjective,

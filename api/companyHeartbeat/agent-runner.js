@@ -3452,7 +3452,12 @@ Write the full deliverable first, then the structured JSON block.`;
             text: _postText,
             platform: newAction.platform,
             offers: QGV.FILE_OFFERS.concat(Array.isArray(_rtOffers) ? _rtOffers : []),
-            grounding: QGV.findUngroundedClaims(_postText, QGV.buildGroundingText(_qgvTask, _productFacts))
+            // Live ops telemetry grounds claims about our OWN system (p95, uptime,
+            // cold starts). Without it the 2026-08-18/19 p95 victory-lap posts passed
+            // at confidence 95 while Forge logged the metric RED and unresolved.
+            // A null digest means the read failed → system claims fail CLOSED.
+            telemetryAvailable: !!forgeOpsDigest,
+            grounding: QGV.findUngroundedClaims(_postText, QGV.buildGroundingText(_qgvTask, _productFacts, forgeOpsDigest))
           });
         } catch (_qgvErr) {
           context.log('[QualityGate] compose error (LLM-only fallback):', String(_qgvErr).substring(0, 150));
@@ -3671,6 +3676,10 @@ Write the full deliverable first, then the structured JSON block.`;
           pass: !!_qgResult.pass,
           confidence: _qgResult.confidence || 0,
           issues: _qgResult.issues || [],
+          // Carry the deterministic flags into the queue entry. Without this the AQ
+          // badge showed a bare "95% pass" for every social post while the reply lane
+          // showed its flags — so the p95 posts looked as clean as everything else.
+          deterministicFlags: _qgResult.deterministicFlags || null,
           model: 'claude-haiku-4-5-20251001',
           checkedAt: new Date().toISOString()
         };

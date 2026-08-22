@@ -3624,7 +3624,11 @@ module.exports = async function (context) {
               text: _finalPostText,
               platform: _platform,
               offers: QGV.FILE_OFFERS.concat(Array.isArray(_systemConfig.offers) ? _systemConfig.offers : []),
-              grounding: QGV.findUngroundedClaims(_finalPostText, QGV.buildGroundingText(_pt, productFacts))
+              // Live ops telemetry grounds claims about our OWN system; a null digest
+              // means the read failed, so system claims fail CLOSED here (see the
+              // 2026-08-18/19 p95 victory-lap incident in quality-gate.js).
+              telemetryAvailable: !!forgeOpsDigest,
+              grounding: QGV.findUngroundedClaims(_finalPostText, QGV.buildGroundingText(_pt, productFacts, forgeOpsDigest))
             });
             context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence, 'det:', JSON.stringify(_aqQualityGate.deterministicFlags || {}));
           } catch (_qgvErr) {

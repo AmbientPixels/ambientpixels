@@ -735,6 +735,106 @@ function mockStorage(initial) {
     assert.strictEqual(kept[0].actionId, 'act_r1');
   });
 
+  // ── target suitability (2026-08-22) ────────────────────────────────────────
+  // Fixtures are the verbatim posts the lane actually replied to, from the 30
+  // roast/participation replies pending approval on 2026-08-22.
+  const T_AT_LIMIT = 'What kind of a day was it? I started out positive and motivated. After work I spent two hours updating my resume and applying for four jobs. When I say I’m almost to my limit, I don’t say it lightly.';
+  const T_LOST_HOPE = 'I’ve had no luck finding work. It’s an exhausting process and I’ve only had a handful of interviews, none of which went far. I’ve had feedback on my interviewing skills, CV, and all that, but it’s mostly just bad luck on my end it feels. I’ve not been looking hard lately as I have lost hope.';
+  const T_NEUTRAL = 'I just updated my resume. Not in the mood for retail anymore so, job hunting is going to start tomorrow.';
+  const T_POLITICS = 'supposedly people wanted a solid working class white guy with progressive positions, and more than Platner, he fits that bill. unlike Platner he’s also got a resume in ME politics and knows the drill, and doesn’t seem to have major scandals.';
+  const T_JOB_CANDIDATES = 'for which he applied is still actively seeking candidates meeting his qualifications. He was getting frustrated and we were discussing it on the phone. Hesitant to be condescending to my professional child, I never offered "send me your resume so I can review it".';
+  const T_BROADCAST = '1/2 SEO sur votre profil LinkedIn (pour etre trouve par ATS et recruteurs) : 5 zones a optimiser. Titre : mots-cles prioritaires. Resume : repetez les mots-cles.';
+
+  test('distress: "almost to my limit" is flagged, not dropped', () => {
+    assert.strictEqual(PP.targetTone(T_AT_LIMIT), 'distress');
+  });
+
+  test('distress: "lost hope" is flagged', () => {
+    assert.strictEqual(PP.targetTone(T_LOST_HOPE), 'distress');
+  });
+
+  test('crisis matcher does NOT fire on "on my end it feels"', () => {
+    // A bare /\bend it\b/ matched across the word gap in "on my end it feels" and
+    // classified an ordinary job-hunt vent as suicidal ideation, deleting a reachable
+    // person from the lane. This is the regression guard for that.
+    assert.notStrictEqual(PP.targetTone(T_LOST_HOPE), 'crisis');
+  });
+
+  test('crisis: explicit ideation IS caught', () => {
+    assert.strictEqual(PP.targetTone('job hunting for 8 months and honestly I want to die'), 'crisis');
+  });
+
+  test('a neutral job-search post carries no tone', () => {
+    assert.strictEqual(PP.targetTone(T_NEUTRAL), 'none');
+  });
+
+  test('topic guard refuses a political thread that mentions a resume', () => {
+    assert.strictEqual(PP._isUnsuitableTopic(T_POLITICS), 'politics');
+  });
+
+  test('topic guard does NOT treat job "candidates" as politics', () => {
+    // "candidates" is the most common noun in job-search prose; listing it as a
+    // political term refused a core-domain thread (a parent describing their kid's
+    // job hunt) as if it were an election post.
+    assert.strictEqual(PP._isUnsuitableTopic(T_JOB_CANDIDATES), null);
+  });
+
+  test('topic guard refuses numbered broadcast threads', () => {
+    assert.strictEqual(PP._isUnsuitableTopic(T_BROADCAST), 'broadcast');
+  });
+
+  test('a plain job-search post is a suitable topic', () => {
+    assert.strictEqual(PP._isUnsuitableTopic(T_NEUTRAL), null);
+  });
+
+  test('filterRoastProspects drops unsuitable topics and stamps tone', () => {
+    const mk = (author, text) => ({
+      uri: 'at://' + author + '/p/1', cid: 'cid-' + author, author, text,
+      indexedAt: new Date(Date.parse('2026-08-22T00:00:00Z') - 3600e3).toISOString(),
+      likeCount: 5, replyCount: 1
+    });
+    const out = PP.filterRoastProspects(
+      [mk('a.bsky.social', T_NEUTRAL), mk('b.bsky.social', T_AT_LIMIT), mk('c.bsky.social', T_POLITICS)],
+      [], { ownHandles: [], ownDomains: [], maxQueuedProspects: 15 },
+      Date.parse('2026-08-22T00:00:00Z')
+    );
+    assert.strictEqual(out.length, 2, 'political thread should be refused');
+    assert.strictEqual(out.find(p => p.author === 'a.bsky.social').tone, 'none');
+    assert.strictEqual(out.find(p => p.author === 'b.bsky.social').tone, 'distress');
+  });
+
+  test('a distress prospect builds a support task with NO link and NO destinationUrl', () => {
+    const t = PP.buildRoastReplyTask(
+      { author: 'coatsee.bsky.social', postText: T_AT_LIMIT, uri: 'at://x/p/1', cid: 'c1', tone: 'distress' },
+      { destinationUrl: 'https://ambientpixels.ai/resume-roast/' }, Date.parse('2026-08-22T00:00:00Z')
+    );
+    assert.strictEqual(t.destinationUrl, null, 'link contract must be absent or repair re-injects it');
+    assert.ok(!/https?:\/\//.test(t.description), 'no URL anywhere in the brief');
+    assert.ok(/NO PITCH, NO LINK/.test(t.description));
+    assert.ok(t.tags.includes('support-reply'));
+    assert.strictEqual(t.tone, 'distress');
+  });
+
+  test('a neutral prospect still builds the normal pitch task', () => {
+    const t = PP.buildRoastReplyTask(
+      { author: 'simployed.bsky.social', postText: T_NEUTRAL, uri: 'at://y/p/1', cid: 'c2', tone: 'none' },
+      { destinationUrl: 'https://ambientpixels.ai/resume-roast/' }, Date.parse('2026-08-22T00:00:00Z')
+    );
+    assert.strictEqual(t.destinationUrl, 'https://ambientpixels.ai/resume-roast/');
+    assert.ok(/PROSPECT FACT SHEET/.test(t.description));
+    assert.ok(!t.tags.includes('support-reply'));
+  });
+
+  test('a prospect queued before this gate existed still re-derives its tone', () => {
+    // Older entries carry no `tone`; defaulting to 'none' would pitch at them.
+    const t = PP.buildRoastReplyTask(
+      { author: 'legacy.bsky.social', postText: T_AT_LIMIT, uri: 'at://z/p/1', cid: 'c3' },
+      { destinationUrl: 'https://ambientpixels.ai/resume-roast/' }, Date.parse('2026-08-22T00:00:00Z')
+    );
+    assert.strictEqual(t.destinationUrl, null);
+    assert.strictEqual(t.tone, 'distress');
+  });
+
   console.log(pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })();

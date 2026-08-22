@@ -1,7 +1,8 @@
 // Run with: node api/companyHeartbeat/proposal-generator.test.js
 // Pure-function tests for the deterministic proposal generator (computeProposals).
 const assert = require('assert');
-const { computeProposals, _expireStaleGeneratorProposals } = require('./proposal-generator');
+const PG = require('./proposal-generator');
+const { computeProposals, _expireStaleGeneratorProposals } = PG;
 
 const NOW = Date.UTC(2026, 5, 20, 12, 0, 0); // 2026-06-20T12:00:00Z
 const daysAgo = (n) => new Date(NOW - n * 86400000).toISOString();
@@ -647,6 +648,65 @@ test('titleSimilarity: unrelated objectives stay below 0.6', () => {
 test('titleSimilarity: empty/short inputs return 0', () => {
   assert.strictEqual(titleSimilarity('', 'Anything Here'), 0);
   assert.strictEqual(titleSimilarity('a to', 'the of'), 0);
+});
+
+// ── stale reply-draft expiry (2026-08-22) ────────────────────────────────────
+const NOW_R = Date.parse('2026-08-22T02:00:00Z');
+const mkReply = (id, daysAgo, status) => ({
+  id, kind: 'bluesky_reply', status: status || 'pending',
+  taskTitle: 'Bluesky reply to @' + id,
+  submittedAt: new Date(NOW_R - daysAgo * 86400000).toISOString()
+});
+
+test('reply drafts past the window expire', () => {
+  const q = [mkReply('old', 8), mkReply('fresh', 1)];
+  const out = PG._expireStaleReplyDrafts(q, NOW_R);
+  assert.strictEqual(out.length, 1);
+  assert.strictEqual(q[0].status, 'expired');
+  assert.strictEqual(q[0].expiryReason, 'stale_reply_window');
+  assert.ok(/withdrew itself/.test(q[0].expiryNote));
+  assert.strictEqual(q[1].status, 'pending');
+});
+
+test('expiry leaves non-reply queue entries alone', () => {
+  const q = [{ id: 'p1', type: 'campaign_proposal', status: 'pending', createdAt: new Date(NOW_R - 30 * 86400000).toISOString() },
+             { id: 'a1', kind: 'action', status: 'pending', submittedAt: new Date(NOW_R - 30 * 86400000).toISOString() }];
+  assert.strictEqual(PG._expireStaleReplyDrafts(q, NOW_R).length, 0);
+  assert.strictEqual(q[0].status, 'pending');
+  assert.strictEqual(q[1].status, 'pending');
+});
+
+test('expiry never re-touches an already-resolved reply', () => {
+  const q = [mkReply('done', 9, 'approved'), mkReply('nope', 9, 'rejected')];
+  assert.strictEqual(PG._expireStaleReplyDrafts(q, NOW_R).length, 0);
+  assert.strictEqual(q[0].status, 'approved');
+});
+
+test('an entry with no usable timestamp is not expired as age-zero-forever', () => {
+  // Date.parse('') is NaN → 0. Treating that as epoch would expire every malformed
+  // entry on sight; treating it as "now" would never expire it. Skip it explicitly.
+  const q = [{ id: 'x', kind: 'bluesky_reply', status: 'pending' }];
+  assert.strictEqual(PG._expireStaleReplyDrafts(q, NOW_R).length, 0);
+  assert.strictEqual(q[0].status, 'pending');
+});
+
+test('the window is configurable per call', () => {
+  const q = [mkReply('two-days', 2)];
+  assert.strictEqual(PG._expireStaleReplyDrafts(q, NOW_R, 7).length, 0, '7d window keeps it');
+  assert.strictEqual(PG._expireStaleReplyDrafts(q, NOW_R, 1).length, 1, '1d window expires it');
+});
+
+test('the real 30-reply queue would have expired 20 at the 3d window', () => {
+  // The actual pending queue on 2026-08-22, ages in days. 20 of 30 sat past the
+  // 3-day window — two thirds of the lane's output for the period. (The 08-22 manual
+  // triage used a laxer 4-day line and killed 17; this window is the automatic one
+  // and is deliberately tighter, so the two counts are expected to differ.)
+  const ages = [8.1,7.8,7.3,7.1,6.8,6.6,6.3,6.1,5.8,5.6,5.6,5.3,5.1,5.1,4.8,4.3,4.1,3.8,3.6,3.1,2.6,2.3,2.1,1.8,1.6,1.3,1.3,1.1,0.8,0.6];
+  // A fresh queue per call: the sweep mutates entries to 'expired' in place, so a
+  // second pass over the same array correctly finds nothing left pending.
+  const fresh = () => ages.map((d, n) => mkReply('r' + n, d));
+  assert.strictEqual(PG._expireStaleReplyDrafts(fresh(), NOW_R).length, 20);
+  assert.strictEqual(PG._expireStaleReplyDrafts(fresh(), NOW_R, 4).length, 17, 'the 4d triage line');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
