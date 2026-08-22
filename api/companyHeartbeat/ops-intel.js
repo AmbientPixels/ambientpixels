@@ -222,6 +222,21 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   var perfSamples = Number.isFinite(perf.n) ? perf.n : null;
   var perfUnderSampled = perfSamples !== null && perfSamples < SAMPLE_FLOOR;
 
+  // Error rate needs a denominator to mean anything (2026-08-22). Forge escalated
+  // "10 timeout exceptions in 7 days" as a stability crisis and proposed an
+  // architecture migration; the same window served 9363 requests with 5 failures, so
+  // the exception rate was 0.107% and the request failure rate 0.053%. Neither came
+  // close to the 50/7d YELLOW threshold — the alert never fired, and Forge escalated
+  // on the raw figure anyway. errorsNormal is the explicit verdict the prompt needs:
+  // an agent shown a bare count will always find a reason to act on it.
+  var reqs = telemetry.requests || {};
+  var requestCount = Number.isFinite(reqs.n) ? reqs.n : null;
+  var requestsFailed = Number.isFinite(reqs.failed) ? reqs.failed : null;
+  var errorRatePct = (requestCount && requestCount > 0)
+    ? Math.round((totalErrors / requestCount) * 10000) / 100
+    : null;
+  var errorsNormal = totalErrors < THRESHOLDS.errorCount7d.yellow;
+
   var perfAlert = null;
   if (!perfUnderSampled) {
     if (perf.p95 > THRESHOLDS.p95Latency.red) perfAlert = 'p95_red';
@@ -332,6 +347,10 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
       p95: perf.p95 || 0,
       perfSamples: perfSamples,
       perfUnderSampled: perfUnderSampled,
+      requestCount: requestCount,
+      requestsFailed: requestsFailed,
+      errorRatePct: errorRatePct,
+      errorsNormal: errorsNormal,
       perfAlert: perfAlert
     },
     governance: {
@@ -422,10 +441,21 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
     + (err.p50 || 0) + 'ms, p95=' + (err.p95 || 0) + 'ms'
     + (err.perfSamples !== null && err.perfSamples !== undefined ? ', n=' + err.perfSamples + ' pageviews/7d' : '')
     + (err.perfUnderSampled ? ' — SAMPLE TOO SMALL TO ALERT ON. Do not open ops tasks against this number; a single slow crawler hit moves it several thousand ms.' : ''));
+  // Denominator and verdict, for the same reason the page-load line carries them.
+  // "10 errors" alone reads as a crisis; "10 errors across 9363 requests (0.11%),
+  // below the attention threshold" reads as a healthy system, which is what it is.
+  var _errDenom = (err.requestCount ? ' across ' + err.requestCount + ' requests'
+    + (err.errorRatePct !== null && err.errorRatePct !== undefined ? ' (' + err.errorRatePct + '%)' : '')
+    + (err.requestsFailed !== null && err.requestsFailed !== undefined ? ', ' + err.requestsFailed + ' failed requests' : '')
+    : '');
+  var _errVerdict = err.errorsNormal
+    ? ' — BELOW the ' + THRESHOLDS.errorCount7d.yellow + '/7d attention threshold. NORMAL at this volume; do not open ops tasks or propose architecture changes against it.'
+    : ' — ABOVE the ' + THRESHOLDS.errorCount7d.yellow + '/7d attention threshold.';
   if ((err.errors || []).length > 0) {
-    lines.push('- Errors (7d): ' + (err.totalErrors || 0) + ' total — ' + err.errors.map(function (e) { return e.name + ' (' + e.count + 'x)'; }).join(', '));
+    lines.push('- Errors (7d): ' + (err.totalErrors || 0) + ' total' + _errDenom + ' — '
+      + err.errors.map(function (e) { return e.name + ' (' + e.count + 'x)'; }).join(', ') + _errVerdict);
   } else {
-    lines.push('- Errors (7d): ' + (err.totalErrors || 0) + ' total');
+    lines.push('- Errors (7d): ' + (err.totalErrors || 0) + ' total' + _errDenom + _errVerdict);
   }
 
   // Governance

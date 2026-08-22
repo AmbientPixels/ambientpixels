@@ -44,7 +44,13 @@ async function _fetchSiteIntel(context, storage) {
         // live App Insights: !has leaves n=83, !contains gives n=22.
         'pageViews | where client_Type == "Browser" and client_Browser !contains "bot" and client_Browser !contains "spider" and client_Browser !contains "crawl" and client_Browser !contains "headless" | summarize n = count(), p50 = percentile(duration, 50), p95 = percentile(duration, 95)',
         // Errors
-        'exceptions | summarize count_ = count() by name = type | top 5 by count_ desc'
+        'exceptions | summarize count_ = count() by name = type | top 5 by count_ desc',
+        // Request volume — the DENOMINATOR for the error count above (2026-08-22).
+        // Without it the digest reported "10 errors" as a bare figure and Forge
+        // escalated it as a stability crisis; against 9363 requests it is 0.107%,
+        // and the request failure rate is 0.053%. A count with no denominator is
+        // not a signal, it is a number an agent will find a reason to act on.
+        'requests | summarize n = count(), failed = countif(success == false)'
       ];
       const results = await Promise.all(queries.map(q =>
         fetch(kustoUrl, {
@@ -69,8 +75,12 @@ async function _fetchSiteIntel(context, storage) {
         ? { n: perfRows[0].n || 0, p50: Math.round(perfRows[0].p50 || 0), p95: Math.round(perfRows[0].p95 || 0) }
         : null;
       const errors = _parseKusto(results[3]).map(r => ({ name: r.name || 'Unknown', count: r.count_ || 0 }));
+      const reqRows = _parseKusto(results[4]);
+      const requests = reqRows.length > 0
+        ? { n: reqRows[0].n || 0, failed: reqRows[0].failed || 0 }
+        : null;
 
-      si.telemetry = { range: '7d', topPages: pages, topReferrers: referrers, performance: perf, errors: errors };
+      si.telemetry = { range: '7d', topPages: pages, topReferrers: referrers, performance: perf, errors: errors, requests: requests };
     } catch (telErr) {
       context.log('[Heartbeat] Telemetry fetch failed (non-fatal):', telErr.message);
     }

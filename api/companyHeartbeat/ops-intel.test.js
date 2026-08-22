@@ -29,8 +29,8 @@ function test(name, fn) {
 }
 
 const NOW = Date.parse('2026-08-22T04:00:00Z');
-const siteIntel = (performance) => ({ telemetry: { performance, errors: [], topPages: [], topReferrers: [] } });
-const digest = (performance) => buildForgeOpsDigest([], [], [], siteIntel(performance), NOW);
+const siteIntel = (performance, errors, requests) => ({ telemetry: { performance, errors: errors || [], requests: requests || null, topPages: [], topReferrers: [] } });
+const digest = (performance, errors, requests) => buildForgeOpsDigest([], [], [], siteIntel(performance, errors, requests), NOW);
 const perfAlertsOf = (d) => (d.alerts || []).filter(a => /page load|latency/i.test(a.signal || ''));
 
 // ── sample floor ────────────────────────────────────────────────────────────
@@ -98,6 +98,54 @@ test('the prompt block omits the warning when the sample is adequate', () => {
   const block = _buildForgeOpsPromptBlock({ id: 'forge' }, digest({ n: 5000, p50: 800, p95: 1500 }));
   assert.ok(/HUMAN browsers only/.test(block));
   assert.ok(!/SAMPLE TOO SMALL/.test(block));
+});
+
+// ── error rate needs a denominator (2026-08-22, the second false escalation) ──
+// With the fake p95 gone, Forge escalated the NEXT bare number it was shown:
+// "chronic p95 latency and associated timeout exceptions (10 in 7 days)", and again
+// proposed the Durable Functions migration. The same window served 9363 requests with
+// 5 failures — 0.107% exceptions, 0.053% request failures. The alert never fired,
+// because 10 is far below the 50/7d threshold. So this was never an alert problem; it
+// was a bare count with no denominator, and an agent shown one will find a reason to
+// act on it. Every number in this digest now carries a denominator and a verdict.
+const REAL_ERRORS = [
+  { name: 'System.Threading.Tasks.TaskCanceledException', count: 8 },
+  { name: 'Microsoft.Azure.WebJobs.Host.FunctionTimeoutException', count: 2 }
+];
+const REAL_REQUESTS = { n: 9363, failed: 5 };
+const REAL_PERF = { n: 22, p50: 1972, p95: 8963 };
+
+test('the real error volume computes as a fraction of a percent', () => {
+  const d = digest(REAL_PERF, REAL_ERRORS, REAL_REQUESTS);
+  assert.strictEqual(d.errorIntel.totalErrors, 10);
+  assert.strictEqual(d.errorIntel.requestCount, 9363);
+  assert.strictEqual(d.errorIntel.errorRatePct, 0.11);
+  assert.strictEqual(d.errorIntel.errorsNormal, true);
+});
+
+test('the prompt tells Forge the error count is normal, in words', () => {
+  const b = _buildForgeOpsPromptBlock({ id: 'forge' }, digest(REAL_PERF, REAL_ERRORS, REAL_REQUESTS));
+  assert.ok(/across 9363 requests/.test(b), 'denominator must be present');
+  assert.ok(/0\.11%/.test(b));
+  assert.ok(/NORMAL at this volume/.test(b));
+  assert.ok(/do not open ops tasks or propose architecture changes/.test(b));
+});
+
+test('a genuinely high error count is NOT called normal', () => {
+  const d = digest({ n: 5000, p50: 800, p95: 1500 }, [{ name: 'Boom', count: 300 }], { n: 1000, failed: 300 });
+  assert.strictEqual(d.errorIntel.errorsNormal, false);
+  const b = _buildForgeOpsPromptBlock({ id: 'forge' }, d);
+  assert.ok(/ABOVE the 50\/7d attention threshold/.test(b));
+  assert.ok(!/NORMAL at this volume/.test(b));
+});
+
+test('missing request telemetry degrades to no denominator, not a wrong one', () => {
+  const d = digest({ n: 5000, p50: 800, p95: 1500 }, REAL_ERRORS, null);
+  assert.strictEqual(d.errorIntel.requestCount, null);
+  assert.strictEqual(d.errorIntel.errorRatePct, null);
+  const b = _buildForgeOpsPromptBlock({ id: 'forge' }, d);
+  assert.ok(!/across null/.test(b), 'must not print a null denominator');
+  assert.ok(/NORMAL at this volume/.test(b), '10 errors is still below threshold without a denominator');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
