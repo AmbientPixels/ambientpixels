@@ -4534,7 +4534,7 @@ module.exports = async function (context) {
 
     const activeTasksNow = tasks.filter(function (t) {
       var st = String((t && t.status) || '').toLowerCase();
-      return st !== 'done' && st !== 'archived';
+      return st !== 'done' && st !== 'archived' && st !== 'canceled';
     });
     const overdueTasks = activeTasksNow.filter(function (t) {
       if (!t || !t.dueDate) return false;

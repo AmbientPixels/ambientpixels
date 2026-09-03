@@ -1459,7 +1459,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
     if (action.type === 'create-task' && action.task) {
       // SERVER-SIDE GUARD: active task ceiling — prevent unbounded task growth
-      const _activeTaskCount = tasks.filter(t => t.status !== 'done' && t.status !== 'archived').length;
+      const _activeTaskCount = tasks.filter(t => t.status !== 'done' && t.status !== 'archived' && t.status !== 'canceled').length;
       if (_activeTaskCount >= GUARDRAILS.maxActiveTasks) {
         result.guardrails.taskCeilingBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: active task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ')');

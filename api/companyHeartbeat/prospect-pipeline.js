@@ -614,10 +614,34 @@ function findBlockingReply(actions, taskId) {
 var _RESUME_POSSESSIVE_RE = /\b(?:my|our|his|her|their|your)\s+(?:resume|r[eé]sum[eé]|cv)(?![a-z])/i;
 var _RESUME_NOUN_RE = /\b(?:resume|r[eé]sum[eé]|cv)(?![a-z])/i;
 var _JOB_CONTEXT_RE = /\b(?:job|jobs|hiring|hired|interview|interviews|applicat\w*|career|laid off|layoff|recruiter|recruiting|ats|cover letter|unemploy\w*|job hunt\w*|job search\w*)\b/i;
+
+// The noun+job-context pair above is not enough on its own, because the VERB keeps the
+// worst possible company: it is almost always followed by the thing being resumed, and
+// "job" is the most common such thing. On 2026-09-02 the lane drafted a sales pitch under
+//   "I would like to take a year off of having a job so I can fix my house ... And I
+//    should get to resume my job in exactly one year."
+// — a joke about wanting a sabbatical. _RESUME_NOUN_RE matched 'resume', _JOB_CONTEXT_RE
+// matched 'job' four words later, and the punchline read as buying intent. The 605-line
+// comment above already knew about "regular service will now resume"; requiring a job word
+// nearby does not separate the senses, it actively couples them.
+//
+// So: neutralise verb usages, THEN ask whether a resume noun survives. Possessive usage
+// ("my resume") is noun by construction and short-circuits before any of this.
+var _RESUME_VERB_RE = new RegExp(
+  // modal / infinitive frames: "to resume", "get to resume", "will resume", "can resume"
+  '\\b(?:to|can|could|will|would|should|shall|must|may|might|gonna|able to|get to|let\'?s)\\s+resum(?:e|es|ed|ing)\\b'
+  + '|'
+  // transitive frames: "resume my job", "resume normal service", "resume operations"
+  + '\\bresum(?:e|es|ed|ing)\\s+(?:my|your|his|her|their|our|its|the|a|an|normal|regular|business|work|operations?|service|play|duties|activities|posting|training)\\b',
+  'i');
+
 function _hasResumeIntent(text) {
   var t = String(text || '');
   if (_RESUME_POSSESSIVE_RE.test(t)) return true;
-  return _RESUME_NOUN_RE.test(t) && _JOB_CONTEXT_RE.test(t);
+  // Blank out verb spans before testing for the noun. A post that uses 'resume' ONLY as a
+  // verb has no noun left to match and drops out, however much job vocabulary surrounds it.
+  var nounOnly = t.replace(_RESUME_VERB_RE, ' ');
+  return _RESUME_NOUN_RE.test(nounOnly) && _JOB_CONTEXT_RE.test(t);
 }
 
 // ── Target suitability (2026-08-22) ─────────────────────────────────────────
@@ -683,6 +707,40 @@ function targetTone(text) {
   return 'none';
 }
 
+// ── Need already met (2026-09-03) ───────────────────────────────────────────
+// Every gate before this one asks whether a post is SAFE to pitch under. None asked the
+// prior question: does this person still have the problem? Resume intent is loudest at
+// the moment it stops being a need — people announce the ending, not the middle.
+//
+// Three of the eleven replies pending on 2026-09-03 went to people who had just said,
+// in the post we mined, that it worked out:
+//   "I JUST got accepted to a decent job after looking for 4 + months"
+//   "I already had a screening call with a recruiter today! It went well."
+//   "well I just got my first interview from that service"
+// All three drew a pitch for a resume scorer. That is not merely wasted outreach — it
+// reads as a bot that did not finish reading the sentence it is replying to.
+//
+// Deliberately keyed on COMPLETION verbs (got / landed / accepted / signed / had), never
+// on the bare nouns. "It may not help me get a job" and "looking for work while employed
+// full time" are both live prospects and must survive this gate; they do, because neither
+// claims an outcome.
+var _RESOLVED_RE = new RegExp([
+  // an offer or a job, already in hand
+  '\\b(?:just\\s+)?(?:got|landed|accepted|received|signed)\\s+(?:a\\s|an\\s|the\\s|my\\s)?(?:new\\s)?(?:job|offer|position|role|gig|contract)\\b',
+  '\\bgot\\s+(?:accepted|hired)\\b', '\\b(?:was|got|been)\\s+hired\\b',
+  '\\bstart(?:s|ed|ing)?\\s+(?:my\\s|a\\s|the\\s)?new\\s+(?:job|role|position)\\b',
+  '\\bfirst day (?:at|on|of)\\b',
+  // an interview or screen, already secured or already survived
+  '\\b(?:just\\s+)?(?:got|landed|had|scored)\\s+(?:my\\s|a\\s|an\\s|the\\s)?(?:first\\s)?(?:interview|callback|call back|screening call|phone screen)\\b',
+  '\\binterview\\s+went\\s+(?:well|great)\\b', '\\bit went well\\b'
+].join('|'), 'i');
+
+/**
+ * Has this person already got what the product would help them get?
+ * @returns {boolean}
+ */
+function needAlreadyMet(text) { return _RESOLVED_RE.test(String(text || '')); }
+
 // Topics we do not enter, shared with the participation lane so the list lives in
 // one file. The roast lane never consulted these: _hasResumeIntent was the only
 // content gate, which is how a Maine Senate primary thread drew a resume-tool pitch.
@@ -695,7 +753,9 @@ function _isUnsuitableTopic(text) {
   // replying under one is shouting into a lecture. The participation lane has refused
   // these since it opened; the roast lane pitched under a French "1/2 SEO sur votre
   // profil LinkedIn" thread (aq-act_1787270436932) because it never asked.
-  if (_REL.BROADCAST_RE.test(t)) return 'broadcast';
+  // isBroadcastThread, not BROADCAST_RE: the bare regex is start-anchored and let an
+  // ATS-vendor thread marked "(1/6)" at the END through on 2026-09-02.
+  if (_REL.isBroadcastThread(t)) return 'broadcast';
   return null;
 }
 
@@ -760,6 +820,9 @@ function filterRoastProspects(candidates, prospects, cfg, nowMs) {
       uri: c.uri, cid: c.cid, author: c.author, authorDid: c.authorDid || '',
       postText: String(c.text || '').substring(0, 500),
       tone: _tone,
+      // Stamped at discovery like tone, and re-derived in buildRoastReplyTask for
+      // prospects queued before this gate existed.
+      resolved: needAlreadyMet(c.text),
       siteUrl: null, domain: null,
       discoveredAt: new Date(nowMs).toISOString(),
       status: 'discovered',
@@ -780,22 +843,40 @@ function buildRoastReplyTask(prospect, cfg, nowMs) {
   // fixtures) → re-derive rather than defaulting to 'none', so a distress post that
   // predates this gate does not get a pitch on its way through.
   var tone = prospect.tone || targetTone(prospect.postText);
-  var noPitch = (tone === 'distress');
+  // Same re-derivation rule as tone: absent (older queued prospects, hand-made fixtures)
+  // means never judged, not judged safe.
+  var resolved = (typeof prospect.resolved === 'boolean')
+    ? prospect.resolved
+    : needAlreadyMet(prospect.postText);
+  var noPitch = (tone === 'distress') || resolved;
   return {
     id: 'task_' + nowMs + '_roast_' + Math.random().toString(36).substring(2, 6),
-    title: 'Roast-lane reply to @' + prospect.author + (noPitch ? ' (support reply — no pitch)' : ' (resume roast prospect)'),
+    title: 'Roast-lane reply to @' + prospect.author
+      + (resolved ? ' (congratulations — no pitch)'
+        : noPitch ? ' (support reply — no pitch)'
+        : ' (resume roast prospect)'),
     description: noPitch
       // Empathy-only variant. The link is not merely discouraged here, it is absent —
       // the drafter cannot paste a URL it was never given, and agent-runner's link
       // repair keys off task.destinationUrl, which this task deliberately omits.
-      ? 'SUPPORT REPLY — THIS POST CARRIES DISTRESS. NO PITCH, NO LINK, NO PRODUCT.\n'
+      ? (resolved
+          ? 'CONGRATULATIONS REPLY — THEY ALREADY GOT WHAT WE SELL. NO PITCH, NO LINK, NO PRODUCT.\n'
+          : 'SUPPORT REPLY — THIS POST CARRIES DISTRESS. NO PITCH, NO LINK, NO PRODUCT.\n')
         + '- Their post (verbatim): "' + prospect.postText + '"\n'
         + '- You are replying AS the AmbientPixels founder account.\n\n'
         + 'RULES:\n'
-        + '- Acknowledge their specific situation in their own words. That is the whole reply.\n'
-        + '- Mention NO product, NO tool, NO offer, and include NO link of any kind. There is '
-        + 'nothing to sell here and trying to is the failure this rule exists to prevent.\n'
-        + '- Do not give unsolicited advice. Do not tell them what their resume probably needs.\n'
+        + (resolved
+          ? '- They announced a job, an offer or an interview. Be glad for them, in one line, about '
+            + 'the specific thing they said. That is the whole reply.\n'
+            + '- Mention NO product, NO tool, NO offer, and include NO link of any kind. They already '
+            + 'solved this. Selling into good news is how a brand account reads as a bot that did not '
+            + 'finish reading the post.\n'
+            + '- Do NOT offer to help with the next one, the salary negotiation, or the interview '
+            + 'itself. A deferred pitch is still a pitch.\n'
+          : '- Acknowledge their specific situation in their own words. That is the whole reply.\n'
+            + '- Mention NO product, NO tool, NO offer, and include NO link of any kind. There is '
+            + 'nothing to sell here and trying to is the failure this rule exists to prevent.\n'
+            + '- Do not give unsolicited advice. Do not tell them what their resume probably needs.\n')
         + '- If you cannot say something warm and specific without selling, output an EMPTY '
         + 'deliverable to decline. Declining is a correct outcome, not a failed task.\n'
         + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n\n'
@@ -974,6 +1055,7 @@ module.exports = {
   buildRoastReplyTask: buildRoastReplyTask,
   _hasResumeIntent: _hasResumeIntent,
   targetTone: targetTone,
+  needAlreadyMet: needAlreadyMet,
   _isUnsuitableTopic: _isUnsuitableTopic,
   runRoastLane: runRoastLane,
   runProspectPipeline: runProspectPipeline

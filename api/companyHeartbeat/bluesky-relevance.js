@@ -61,8 +61,31 @@ var POLITICS_RE = /\b(trump|biden|obama|harris|maga|republican|democrat\w*|gop|c
 
 var NSFW_RE = /(\bnsfw\b|🔞|\bnude|\bporn|\bhentai|\bfetish|\bkink\b|\bxxx\b|onlyfans|monsterfucker|artfuck|\bsmut\b|\berotic)/i;
 
-// Numbered thread openers ("1/5", "2/6"). Broadcast content, not conversation.
-var BROADCAST_RE = /^\s*\d{1,2}\s*\/\s*\d{1,2}\b/;
+// Numbered thread markers ("1/5", "2/6"). Broadcast content, not conversation.
+//
+// Originally start-anchored only, which is half the convention. On 2026-09-02 the roast
+// lane drafted a product pitch under an ATS-vendor thread that closed with "(1/6)" — the
+// gate written for exactly this case never fired, because the marker was trailing. Both
+// placements are the same signal and both are now refused.
+//
+// The trailing form is deliberately narrower than the leading one. A post ENDING in a
+// bare "7/10" is far more likely a rating or a date than a thread index, so the trailing
+// branch requires either brackets, or an index that does not exceed its total. Cost of a
+// miss here is one skipped prospect; cost of a false positive is the same. Neither is
+// dangerous, so this optimises for not refusing real conversation.
+var BROADCAST_RE = /^\s*\d{1,2}\s*\/\s*\d{1,2}\b|[([]\s*\d{1,2}\s*\/\s*\d{1,2}\s*[)\]]\s*$/;
+
+// Bare trailing markers ("... more soon 2/7") carry no brackets to key on, so they are
+// checked separately with the index<=total rule that keeps "7/10" out.
+var _BARE_TRAILING_THREAD_RE = /(?:^|\s)(\d{1,2})\s*\/\s*(\d{1,2})\s*$/;
+function isBroadcastThread(text) {
+  var s = String(text || '');
+  if (BROADCAST_RE.test(s)) return true;
+  var m = _BARE_TRAILING_THREAD_RE.exec(s);
+  if (!m) return false;
+  var idx = parseInt(m[1], 10), total = parseInt(m[2], 10);
+  return total > 1 && idx >= 1 && idx <= total;
+}
 
 // Meme scaffolding and truncated setups whose payload is an image we cannot read.
 var MEME_RE = /(^|\n)\s*(me|them|the person|nobody|everyone|my brain|society)\s*:\s*$/im;
@@ -114,7 +137,7 @@ function relevanceVerdict(text) {
   if (NSFW_RE.test(s)) return { ok: false, reason: 'nsfw', matched: [] };
   if (POLITICS_RE.test(s)) return { ok: false, reason: 'politics', matched: [] };
   if (words.length < 12) return { ok: false, reason: 'too_short', matched: [] };
-  if (BROADCAST_RE.test(s)) return { ok: false, reason: 'broadcast_thread', matched: [] };
+  if (isBroadcastThread(s)) return { ok: false, reason: 'broadcast_thread', matched: [] };
   if (MEME_RE.test(s) || /:\s*$/.test(s.trim())) return { ok: false, reason: 'low_substance', matched: [] };
 
   // A wall of tags with barely any prose left once they are stripped.
@@ -138,4 +161,4 @@ function relevanceVerdict(text) {
 // POLITICS_RE / NSFW_RE / BROADCAST_RE are exported so the roast prospect lane
 // (prospect-pipeline.js) refuses the same topics and shapes from its own filter
 // rather than growing a second, drifting copy of the lists. One place to add a topic.
-module.exports = { relevanceVerdict, DOMAIN_TERMS, POLITICS_RE, NSFW_RE, BROADCAST_RE };
+module.exports = { relevanceVerdict, DOMAIN_TERMS, POLITICS_RE, NSFW_RE, BROADCAST_RE, isBroadcastThread };
