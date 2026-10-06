@@ -50,8 +50,12 @@ module.exports = async function (context, myTimer) {
     var heartbeatRuns = (await storage.getState('heartbeatRuns')) || [];
     var approvalQueue = (await storage.getState('approvalQueue')) || [];
     var ceoActionList = (await vs.getVale('ceoActionList')) || [];
+    // Board minute inputs (2026-10-06): north-star reading + bet ledger. Non-fatal.
+    var objectives = [], outcomeDigest = null;
+    try { objectives = (await storage.getState('objectives')) || []; } catch (e) { objectives = []; }
+    try { var rt = (await storage.getState('runtimeMemory')) || {}; outcomeDigest = rt.outcomeDigest || null; } catch (e) { outcomeDigest = null; }
 
-    var facts = brief.buildBriefFacts({ heartbeatRuns: heartbeatRuns, approvalQueue: approvalQueue, ceoActionList: ceoActionList }, Date.now());
+    var facts = brief.buildBriefFacts({ heartbeatRuns: heartbeatRuns, approvalQueue: approvalQueue, ceoActionList: ceoActionList, objectives: objectives, outcomeDigest: outcomeDigest }, Date.now());
     var text = await narrate(facts, kind);
     var delivered = await postToDiscord(text);
 

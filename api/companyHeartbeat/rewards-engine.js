@@ -9,7 +9,7 @@
 //
 // Pure cores (unit-tested):
 //   extractEvents(state, prevRewards) -> normalized event list (stable ids)
-//   applyEvents(events, prevRewards, nowMs) -> { rewards, newAwards }
+//   applyEvents(events, prevRewards, nowMs, opts) -> { rewards, newAwards }   (opts.activityXp: pay task_done/assist; default false)
 //   applyCompany(rewards, stats, nowMs) -> rewards   (followers/revenue track)
 //   levelFromXp / rankFromLevel / classFor  (helpers)
 // IO:
@@ -24,9 +24,14 @@ const XP = {
   blog_ship: 6,
   social_ship: 2,
   doc_ship: 3,
-  task_done: 1,
-  review_done: 1   // reviewer credit, only when the reviewed task lands (CEO-approved 2026-07-17)
+  task_done: 1,     // paid only with opts.activityXp (default OFF since 2026-10-06, see _baseXpFor)
+  review_done: 1,   // reviewer credit, only when the reviewed task lands (CEO-approved 2026-07-17)
+  // Outcome lane (2026-10-06): the only XP that reads a real person.
+  bet_won: 40,      // a campaign bet whose verdict is `won` (bet-ledger.js) — to the proposer
+  bet_scored: 5,    // a bet scored lost/killed/inconclusive with calibration error < 0.5: honest forecasting pays a little
+  qualified_use: 10 // one real person used a free offer after clicking this agent's post (outcomeSnapshots.downstream.qualifiedUses)
 };
+const BET_SCORED_MAX_CALIBRATION_ERROR = 0.5;
 const ENGAGEMENT_PER = 25;        // +1 XP per 25 engagements
 const ENGAGEMENT_XP_CAP = 8;      // cap engagement XP per post
 const ASSIST_BASE = 5;
@@ -54,9 +59,11 @@ const UNATTRIBUTED_SHARE = 0.5;   // organic conversions: half pays the fallback
 const { parseInternalEmails: _parseInternalEmails, isInternalEntry: _isInternalEntry } = require('../_lib/stripe/revenueLedger');
 
 const POSITIVE_SALE_TYPES = { one_time: true, subscription_initial: true, subscription_renewal: true };
-const CAP_EXEMPT_TYPES = { revenue_sale: true, funnel_lead: true };
+const CAP_EXEMPT_TYPES = { revenue_sale: true, funnel_lead: true, bet_won: true, bet_scored: true, qualified_use: true };
 const TASK_DONE_DAILY_XP_CAP = 3;
-const REVENUE_LANE_TYPES = { revenue_sale: true, funnel_lead: true, funnel_scan: true };
+// Season standings and privilege tiers read seasonRevenueXp, so the outcome lane belongs
+// here: a bet won or a person who used an offer moves the ladder; a completed task does not.
+const REVENUE_LANE_TYPES = { revenue_sale: true, funnel_lead: true, funnel_scan: true, bet_won: true, bet_scored: true, qualified_use: true };
 const REVENUE_RECENT_CAP = 300;
 
 const SEASON_PAR_FLOOR = 40;
@@ -134,6 +141,8 @@ const ACHIEVEMENTS = [
   { id: 'level_50', label: 'Reached Level 50', tier: 'platinum', test: a => a.level >= 50 },
   { id: 'first_lead', label: 'First Lead Captured', tier: 'bronze', test: a => (a.counters.leads || 0) >= 1 },
   { id: 'first_sale', label: 'First Blood — Attributed Sale', tier: 'platinum', test: a => (a.counters.sales || 0) >= 1 },
+  { id: 'first_bet_won', label: 'Called It — First Bet Won', tier: 'gold', test: a => (a.counters.betsWon || 0) >= 1 },
+  { id: 'first_qualified_use', label: 'A Stranger Used It', tier: 'gold', test: a => (a.counters.qualifiedUses || 0) >= 1 },
   { id: 'sales_10', label: '10 Attributed Sales', tier: 'platinum', test: a => (a.counters.sales || 0) >= 10 }
 ];
 
@@ -234,13 +243,22 @@ function _initRewards(prev, nowMs) {
 function _streakMult(streakDays) { return 1 + Math.min(0.25, 0.02 * (streakDays || 0)); }
 function _overflowRenown(lost) { return lost > 0 ? Math.ceil(lost / OVERFLOW_RENOWN_DIVISOR) : 0; }
 
-function _baseXpFor(e) {
+// opts.activityXp (default false, 2026-10-06): task_done and assist pay XP only when a
+// caller opts in. Scribe reached Level 8 champion on 943 task completions that the
+// fleet minted for itself (Milestone Herald, roast prospect tasks). Counters, streaks
+// and assist-pair caps still tick — only the XP is withheld.
+function _baseXpFor(e, opts) {
   if (e.type === 'engagement') return Math.min(ENGAGEMENT_XP_CAP, Math.floor((e.amount || 0) / ENGAGEMENT_PER));
-  if (e.type === 'assist') return Math.round(ASSIST_BASE * ASSIST_RATIO);
+  if (e.type === 'assist') return (opts && opts.activityXp) ? Math.round(ASSIST_BASE * ASSIST_RATIO) : 0;
+  if (e.type === 'task_done') return (opts && opts.activityXp) ? XP.task_done : 0;
+  if (e.type === 'qualified_use') return XP.qualified_use * Math.max(1, Number(e.amount) || 1);
   return XP[e.type] || 0;
 }
 function _bumpCounters(A, e) {
   switch (e.type) {
+    case 'bet_won': A.counters.betsWon = (A.counters.betsWon || 0) + 1; A.counters.betsScored = (A.counters.betsScored || 0) + 1; break;
+    case 'bet_scored': A.counters.betsScored = (A.counters.betsScored || 0) + 1; break;
+    case 'qualified_use': A.counters.qualifiedUses = (A.counters.qualifiedUses || 0) + Math.max(1, Number(e.amount) || 1); break;
     case 'proposal_approved': case 'action_approved': A.counters.approvals++; break;
     case 'blog_ship': A.counters.blogs++; break;
     case 'social_ship': A.counters.socialPosts++; break;
@@ -277,7 +295,8 @@ function _updateStreak(A, day) {
 }
 
 // ── applyEvents: the economy core ─────────────────────────────────────────────
-function applyEvents(events, prevRewards, nowMs) {
+function applyEvents(events, prevRewards, nowMs, opts) {
+  opts = opts || {};
   var rewards = _initRewards(prevRewards, nowMs);
   var newAwards = [];
   var processed = {};
@@ -304,7 +323,10 @@ function applyEvents(events, prevRewards, nowMs) {
     if (A.dailyXpDay !== day) { A.dailyXp = 0; A.dailyTaskXp = 0; A.dailyXpDay = day; }
 
     var hasOverride = e.xpOverride != null && Number.isFinite(Number(e.xpOverride));
-    var computed = hasOverride ? Number(e.xpOverride) : Math.round(_baseXpFor(e) * _streakMult(A.streakDays));
+    // Outcome-lane events pay face value: a person who used the product is worth the
+    // same on day 1 of a streak as on day 30 (same rule as revenue shares).
+    var _exact = hasOverride || REVENUE_LANE_TYPES[e.type];
+    var computed = hasOverride ? Number(e.xpOverride) : (_exact ? _baseXpFor(e, opts) : Math.round(_baseXpFor(e, opts) * _streakMult(A.streakDays)));
     var granted, lost = 0;
     if (e.type === 'task_done') {
       // Churn nerf: task lane pays at most 3 XP/day, AND still sits inside the global 12/day cap.
@@ -450,6 +472,11 @@ function _emitSplit(ev, idBase, type, totalXp, at, utmContent, ctx, state, nowMs
   var who = resolveContributors(utmContent, ctx);
   var xp = totalXp;
   if (!who.length) {
+    // Fallback credit is OFF by default (2026-10-06). It paid every agent who had
+    // touched a "conversion" campaign in 30 days half of any anonymous scan — Echo's
+    // scansAttributed: 35 was almost entirely this. Credit without attribution is a
+    // leaderboard for noise. A caller may re-enable it explicitly (state._allowFallbackCredit).
+    if (!(state && state._allowFallbackCredit === true)) return;
     who = conversionFallbackAgents(state, nowMs);
     xp = Math.floor(totalXp * UNATTRIBUTED_SHARE);
   }
@@ -541,6 +568,37 @@ function extractEvents(state, prevRewards) {
     _emitSplit(ev, 'scan_' + s.reportId, 'funnel_scan', REVENUE_XP.scan, s.timestamp, null, ctx, state, nowMs);
   });
 
+  // ── Outcome lane (2026-10-06) ────────────────────────────────────────────────
+  // Scored bets (bet-ledger.js stamps campaign.verdict). Won pays the proposer;
+  // any other honest verdict with a small calibration error pays a little, so an
+  // agent that forecast "3 people" and got 2 is not punished for being measurable.
+  // Unmeasured verdicts pay nothing: that is a pipe failure, not a forecast.
+  _arr(state.campaigns).forEach(function (c) {
+    if (!c || !c.id || !c.bet || !c.verdict || !c.verdict.result) return;
+    var proposer = String(c.bet.proposedBy || '').toLowerCase();
+    if (!_FLEET_SET[proposer]) return;
+    var v = c.verdict;
+    if (v.result === 'won') {
+      ev.push({ id: 'betwon_' + c.id, type: 'bet_won', agentId: proposer, at: v.scoredAt || '' });
+    } else if (v.result !== 'unmeasured' && Number.isFinite(v.calibrationError) && v.calibrationError < BET_SCORED_MAX_CALIBRATION_ERROR) {
+      ev.push({ id: 'betscored_' + c.id, type: 'bet_scored', agentId: proposer, at: v.scoredAt || '' });
+    }
+  });
+  // People who used a free offer after clicking a post: outcomeRefresh writes
+  // downstream.qualifiedUses per snapshot from utm_content-attributed events. One
+  // event per snapshot carrying the count, so a later rise re-pays only the difference
+  // (the id carries the count paid so far via the ledger's processedEventIds).
+  Object.keys(snaps).forEach(function (actionId) {
+    var s = snaps[actionId];
+    var n = s && s.downstream && Number(s.downstream.qualifiedUses);
+    if (!Number.isFinite(n) || n <= 0) return;
+    var author = String(s.createdBy || '').toLowerCase();
+    if (!_FLEET_SET[author]) return;
+    for (var k = 1; k <= n; k++) {
+      ev.push({ id: 'quse_' + actionId + '_' + k, type: 'qualified_use', agentId: author, amount: 1, at: s.publishedAt || '' });
+    }
+  });
+
   return ev;
 }
 
@@ -615,6 +673,9 @@ function rolloverSeason(prev, nowMs, opts) {
     if (par == null || spread <= 0) { tiers[row.id] = 'line'; return; }
     var probation = fleet.length >= 6 && i >= ranked.length - PROBATION_RANKS;
     if (probation && TIER_FLOOR_AGENTS[row.id]) probation = false;   // floored, never crippled
+    // Support roles are ranked on judgement, not volume (same reasoning as the
+    // retirement exemption). Vale sat on probation for having never been given work.
+    if (probation && RETIREMENT_EXEMPT_AGENTS[row.id]) probation = false;
     tiers[row.id] = i < VANGUARD_RANKS ? 'vanguard' : (probation ? 'probation' : 'line');
   });
 

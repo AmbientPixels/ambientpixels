@@ -109,6 +109,12 @@ test('qualified uses exclude internal sessions, agent-minted and failed scans, a
   assert.strictEqual(isQualified(null), false);
 });
 
+test('every product\'s first-value event counts as a qualified use (decision 8)', () => {
+  const s = store();
+  backfill(s, [], [], [qev('quickbuild_completed', POST_ID), qev('adventure_started', POST_ID), qev('card_created', POST_ID), qev('agent_submitted', POST_ID), qev('page_view', POST_ID)]);
+  assert.strictEqual(s.b.downstream.qualifiedUses, 4, 'page views are not uses');
+});
+
 test('server-side run_delivered carries no UTM and is not mapped — an unattributed use is unmeasured, not credited', () => {
   const s = store();
   backfill(s, [], [], [qev('run_delivered', POST_ID), qev('scan_completed', null)]);

@@ -71,13 +71,20 @@ const METRIC_RESOLVERS = {
   // qualified_visitors_week, which read AmbientScore only and counted failed
   // scans. Null if EITHER half is unmeasured: a partial count would read as a
   // drop the moment one pipe broke.
+  // CEO decision 8 (2026-10-06): widened from "AmbientScore scans + Resume Roast runs"
+  // to every product's first-value event — any Pixel Agents run delivered (Resume
+  // Roast is one of the 24 agents), a CardForge quick build, a StoryForge adventure
+  // started, a Blindspot card created, an Agent Forge agent submitted — plus the
+  // AmbientScore scans counted from cc_analytics (pa-metrics.countQualifiedUsesInEvents
+  // deliberately excludes scan_completed so a scan is never counted twice).
+  // Still null if EITHER half is unmeasured.
   qualified_uses_week: function (entry, sources) {
     const f = sources && sources.funnel;
     const scans = f ? Number(f.qualifiedScans7d) : NaN;
-    const rr = sources ? sources.resumeRoastRuns7d : null;
-    if (!Number.isFinite(scans) || rr === null || rr === undefined) return null;
-    const runs = Number(rr);
-    return Number.isFinite(runs) ? scans + runs : null;
+    const pa = sources ? sources.qualifiedPaUses7d : null;
+    if (!Number.isFinite(scans) || pa === null || pa === undefined) return null;
+    const uses = Number(typeof pa === 'object' ? pa.total : pa);
+    return Number.isFinite(uses) ? scans + uses : null;
   },
   resume_roast_runs_14d: function (entry, sources) {
     if (!sources || sources.resumeRoastRuns14d === null || sources.resumeRoastRuns14d === undefined) return null;

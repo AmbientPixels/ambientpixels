@@ -18,6 +18,8 @@ const { buildContentDigest } = require('./content-intel');
 const { buildStrategicDigest } = require('./strategic-intel');
 const { buildPerformanceDigest } = require('./performance-intel');
 const { harvestCeoFeedback } = require('./ceo-feedback-intel');
+const betLedger = require('./bet-ledger');
+const { mintScoutMechanismTask } = require('./scout-mechanism-task');
 const { buildOutcomeDigest, buildActionAttributionMap, attributeRevenue, applyRevenueToOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
@@ -422,7 +424,41 @@ module.exports = async function (context) {
       const _outcomeSnaps = (await storage.getState('outcomeSnapshots')) || {};
       outcomeDigest = buildOutcomeDigest(_outcomeSnaps, allActions, campaigns, agentExperiments, Date.now(),
         { tasks: tasks, attributionIndex: _archAttrIndex });
+      // Bet ledger (2026-10-06): kill / scale rules on the per-campaign number, verdicts
+      // for campaigns that reached a terminal state, and the ledger every proposer
+      // reads. `killed` is terminal (the lifecycle reactivation loop only touches
+      // `complete`). Verdict memories are pushed here, BEFORE the agentMemories save.
+      // Fail-open: a ledger error must never take the heartbeat down.
+      try {
+        const _betEval = betLedger.evaluateBets(campaigns, outcomeDigest, Date.now());
+        const _betScore = betLedger.scoreBets(campaigns, outcomeDigest, _agentMemoryStore, Date.now());
+        if (_betEval.changed || _betScore.changed) campaignsChanged = true;
+        _betEval.govEvents.concat(_betScore.govEvents).forEach(function (e) { campaignGovEvents.push(e); });
+        if (_betEval.killed.length) context.log('[Heartbeat] Bet kill rule fired:', _betEval.killed.join(', '));
+        if (_betEval.measurementGaps.length) context.log('[Heartbeat] Bet measurement gap (unmeasured, NOT killed):', _betEval.measurementGaps.join(', '));
+        if (_betScore.scored.length) context.log('[Heartbeat] Bets scored:', _betScore.scored.map(function (s) { return s.campaignId + '=' + s.result; }).join(', '), '| memories', _betScore.memoriesWritten);
+        if (outcomeDigest) outcomeDigest.betLedger = betLedger.buildLedger(campaigns, Date.now());
+      } catch (_betErr) {
+        context.log('[Heartbeat] Bet ledger failed (non-fatal):', String(_betErr).substring(0, 200));
+      }
       if (outcomeDigest) runtimeMemory.outcomeDigest = outcomeDigest;
+      // Scout's lane (2026-10-06): once a week, one task asking for one bet on a
+      // mechanism the ledger has never seen. Saved with the cycle's tasks write.
+      try {
+        const _scoutMint = mintScoutMechanismTask({
+          tasks: tasks,
+          ledger: outcomeDigest && outcomeDigest.betLedger,
+          objectiveId: (objectives.find(function (o) { return o && o.status === 'active' && o.northStarMetric === 'qualified_uses_week'; }) || {}).id || null,
+          scoutActive: AGENT_IDS.indexOf('scout') !== -1,
+          nowMs: Date.now()
+        });
+        if (_scoutMint.task) {
+          tasks.push(_scoutMint.task);
+          context.log('[Heartbeat] Scout mechanism-discovery task minted:', _scoutMint.task.id, _scoutMint.mechanism);
+        }
+      } catch (_smErr) {
+        context.log('[Heartbeat] Scout mechanism task failed (non-fatal):', String(_smErr).substring(0, 200));
+      }
       context.log('[heartbeat] Outcome digest: snapshots=', outcomeDigest.totals.snapshots, 'complete=', outcomeDigest.totals.complete, 'linkedinPending=', outcomeDigest.totals.linkedinPendingCount);
     } catch (_e) { context.log('[heartbeat] Outcome digest failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : ''); }
 
@@ -3899,13 +3935,19 @@ module.exports = async function (context) {
       try { _rrRuns14d = await require('./pa-metrics').countResumeRoastRuns14d(Date.now()); } catch (_pm) { /* unmeasured */ }
       let _rrRuns7d = null;
       try { _rrRuns7d = await require('./pa-metrics').countResumeRoastRuns7d(Date.now()); } catch (_pm7) { /* unmeasured */ }
+      // Decision 8 (2026-10-06): qualified_uses_week counts every product's first-value
+      // event, not only Resume Roast runs. null = unmeasured.
+      let _paUses7d = null;
+      try { _paUses7d = await require('./pa-metrics').countQualifiedPaUses7d(Date.now()); } catch (_pmq) { /* unmeasured */ }
+      if (_paUses7d && typeof _paUses7d === 'object') context.log('[Heartbeat] Qualified PA uses 7d:', _paUses7d.total, JSON.stringify(_paUses7d.byProduct));
       const _se2 = evaluateObjectives(objectives, {
         socialAccountStats: socialAccountStats,
         blogPostViews: _blogPostViewsForDigest,
         revenueDigest: revenueDigest,
         funnel: costIntel && costIntel.funnel,
         resumeRoastRuns14d: _rrRuns14d,
-        resumeRoastRuns7d: _rrRuns7d
+        resumeRoastRuns7d: _rrRuns7d,
+        qualifiedPaUses7d: _paUses7d
       }, Date.now());
       if (_se2.changed) objectivesChanged = true;
       for (const _evt of _se2.govEvents) campaignGovEvents.push(_evt);

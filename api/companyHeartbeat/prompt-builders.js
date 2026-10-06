@@ -170,9 +170,14 @@ const _PROPOSAL_AGENT_GUIDE = {
   pixel:  { kinds: 'campaign',              triggers: 'design-gap (a product with a design-asset gap AND real page traffic)' }
 };
 
-function _buildProposalPromptBlock(agent, approvalQueue) {
+function _buildProposalPromptBlock(agent, approvalQueue, outcomeDigest) {
   var g = agent && _PROPOSAL_AGENT_GUIDE[agent.id];
   if (!g) return '';
+  // Evidence block (2026-10-06): the bet ledger, built by code from scored campaigns,
+  // injected for every proposer. It is the same text for all of them, which is how a
+  // lesson Echo paid for reaches Scout without passing through anyone's memory.
+  var evidenceBlock = '';
+  try { evidenceBlock = buildEvidenceBlock(outcomeDigest && outcomeDigest.betLedger, outcomeDigest, agent.id) || ''; } catch (_ebErr) { evidenceBlock = ''; }
   // Pending-awareness: agents previously could not see queued campaign/objective
   // proposals and double-proposed into the exact-name dedup gate.
   var _aq = Array.isArray(approvalQueue) ? approvalQueue : [];
@@ -204,11 +209,13 @@ function _buildProposalPromptBlock(agent, approvalQueue) {
   return '\n\nPROPOSE NEW WORK (optional, only when warranted):\n' +
     pendingLine +
     decisionsLine +
+    evidenceBlock +
     'You may propose a ' + g.kinds + ' when ONE of these data triggers is true RIGHT NOW. ' +
     'Do not propose otherwise. Cite the specific number/signal in rationale.\n' +
     'Your valid triggers: ' + g.triggers + '.\n' +
-    'Put the action object in your taskUpdates array (it is an ACTION, NOT a schema-v1 proposal — do NOT put it in the proposals array, or it will be discarded). For a campaign:\n' +
-    '{"type":"propose-campaign","campaign":{"name":"...","description":"...","rationale":"<cite the trigger + number>","trigger":"<one trigger key above>","product":"...","platforms":["social_bluesky"],"frequency":3,"cadence":"weekly","duration":"30 days","kpiTarget":"...","northStarMetric":"<an existing north-star metric or omit>"}}\n' +
+    'Put the action object in your taskUpdates array (it is an ACTION, NOT a schema-v1 proposal — do NOT put it in the proposals array, or it will be discarded). For a campaign — the `bet` object is REQUIRED and validated in code; a proposal without a complete bet is blocked:\n' +
+    '{"type":"propose-campaign","campaign":{"name":"...","description":"...","rationale":"<cite the trigger + number>","trigger":"<one trigger key above>","product":"...","platforms":["social_bluesky"],"frequency":3,"cadence":"weekly","duration":"30 days","kpiTarget":"...","northStarMetric":"<the CURRENT north-star metric, exact name>",' +
+    '"bet":{"mechanism":"<search_page|directory_listing|community_reply|broadcast_post|weekly_scoreboard|tool_or_utility|partnership|email|copy_variant>","product":"...","channel":"<platform or source, e.g. google, social_bluesky, producthunt>","audience":"<who, optional>","hypothesis":"<one sentence: who will use a free offer because of what, and why>","evidence":[{"metric":"<what you measured>","k":<numerator>,"n":<denominator>,"window":"30d","source":"<where the number comes from>","asOf":"YYYY-MM-DD"}],"expected":{"metric":"qualified_uses_week","delta":<people per week you expect to add>,"byDay":28},"kill":{"metric":"campaign_qualified_uses","below":<min people, >= 1>,"byDay":14},"scale":{"metric":"campaign_qualified_uses","above":<people>,"byDay":14}}}}\n' +
     'For an objective:\n' +
     '{"type":"propose-objective","objective":{"title":"...","description":"...","rationale":"<cite the trigger + number>","trigger":"<one trigger key above>","successCriteria":"...","timeHorizon":"60 days","northStarMetric":"<existing metric or omit>"}}\n' +
     'Limits: at most 1 proposal per day; only the highest-severity few across the fleet reach the CEO. A missing/invalid trigger gets flagged for CEO scrutiny.';
@@ -219,6 +226,7 @@ const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock } = require('./performance-intel');
 const { selectMemoriesForPrompt, selectCalloutMemories } = require('./memory-select');
+const { buildEvidenceBlock } = require('./bet-ledger');
 const { _buildReflectionPromptBlock } = require('./reflection-intel');
 const { _buildStrategyPromptBlock } = require('./strategy-intel');
 const { _buildWorldStatePromptBlock } = require('./world-state-intel');
@@ -1595,7 +1603,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const contentSection = _buildContentPromptBlock(agent, contentDigest);
   const strategicSection = _buildStrategicPromptBlock(agent, strategicDigest);
   const productLifecycleSection = _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDigest, productFacts, approvalQueue);
-  const proposalSection = _buildProposalPromptBlock(agent, approvalQueue);
+  const proposalSection = _buildProposalPromptBlock(agent, approvalQueue, outcomeDigest);
 
   // Weekly report cadence nudge — Nova, Cipher, Forge do role-specific strategic weekly reports.
   // Bootstrap fallback: no prior `weekly_report` memory = treat as overdue immediately,
@@ -2265,7 +2273,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Max 2-3 social variants per run.
 - DISTRIBUTION OWNER (Echo):
   You own getting real people to a free offer. The north star and its current reading are in the COMPANY STRATEGY block above — serve THAT metric by its exact name; never a retired one. Every cycle, ask first: "Did a stranger use a free offer because of something we published? If not, which mechanism have we not tried?"
-  - Free offers a stranger can use in one sitting: the AmbientScore instant scan (https://ambientpixels.ai/ambientscore/) and Resume Roast (https://www.ambientpixels.ai/resume-roast/). A paid upsell exists behind each; it is not your lever.
+  - Free offers a stranger can use in one sitting: the AmbientScore instant scan, any of the 24 Pixel Agents (Resume Roast is one of them), CardForge, StoryForge, Blindspot, Agent Forge — URLs and facts are in the PRODUCT FACTS block, which lists all eight products; never assume there are only two. The north star currently COUNTS AmbientScore scans and Resume Roast runs; a person using another free offer is still a person and is evidence to cite. Paid upsells are not your lever.
   - What is measured, in order: people who used an offer after clicking (qualifiedUses in YOUR RECENT OUTCOMES, per post and per campaign), then clicks. Likes, follower counts and post volume are not goals; broadcast volume on this account is measured at ~0 people and is DISPROVEN as a lever.
   - Prefer mechanisms over more posts: search-intent pages, directory listings, replies into threads where someone is actually asking (replies to named people always go to the CEO), one weekly scoreboard post instead of daily broadcast.
   - Every proposal is a testable bet: hypothesis, evidence with a denominator (k of n, window, source), expected effect on the north star, and a kill rule. A proposal that repeats a lost bet without newer evidence is blocked.${costIntel && costIntel.funnel ? `

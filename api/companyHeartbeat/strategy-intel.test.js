@@ -91,19 +91,21 @@ console.log('qualified_uses_week');
 const quw = METRIC_RESOLVERS.qualified_uses_week;
 const isQS = require('./strategy-intel').isQualifiedScan;
 
-t('sums qualified scans and delivered roasts', function () {
-  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 2 }, resumeRoastRuns7d: 3 }), 5);
+t('sums qualified scans and every other product\'s first-value uses (decision 8, 2026-10-06)', function () {
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: { total: 3, byProduct: { pixelagents: 2, cardforge: 1 } } }), 5);
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: 3 }), 5, 'a bare number is accepted too');
 });
 
 t('real zero when both pipes report zero', function () {
-  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 0 }, resumeRoastRuns7d: 0 }), 0);
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 0 }, qualifiedPaUses7d: { total: 0, byProduct: {} } }), 0);
 });
 
 t('null when EITHER half is unmeasured — a broken pipe must not read as a drop', function () {
-  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 4 }, resumeRoastRuns7d: null }), null);
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 4 }, qualifiedPaUses7d: null }), null);
   assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 4 } }), null);
-  assert.strictEqual(quw({}, { funnel: {}, resumeRoastRuns7d: 2 }), null);
-  assert.strictEqual(quw({}, { resumeRoastRuns7d: 2 }), null);
+  assert.strictEqual(quw({}, { funnel: {}, qualifiedPaUses7d: { total: 2 } }), null);
+  assert.strictEqual(quw({}, { qualifiedPaUses7d: { total: 2 } }), null);
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 4 }, resumeRoastRuns7d: 3 }), null, 'the old Resume-Roast-only source no longer counts as the second half');
 });
 
 t('isQualifiedScan drops agent-minted, failed and own-site scans', function () {

@@ -309,7 +309,13 @@ function backfillDownstream(store, blogViews, formIntakeEvents, analyticsEvents)
     report_unlocked: 'reportUnlocked',
     email_captured: 'emailCaptured',
     scan_completed: 'qualifiedUses',
-    agent_run_completed: 'qualifiedUses'
+    agent_run_completed: 'qualifiedUses',
+    // Decision 8 (2026-10-06): every product's first-value event (mirrors
+    // pa-metrics.QUALIFIED_USE_EVENTS; all browser-emitted, so they carry the UTM).
+    quickbuild_completed: 'qualifiedUses',
+    adventure_started: 'qualifiedUses',
+    card_created: 'qualifiedUses',
+    agent_submitted: 'qualifiedUses'
   };
   for (let i = 0; i < (analyticsEvents || []).length; i++) {
     const e = analyticsEvents[i];

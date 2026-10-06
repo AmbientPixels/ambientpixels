@@ -87,4 +87,59 @@ async function countResumeRoastRuns7d(nowMs, readEventRange) {
   }
 }
 
-module.exports = { countResumeRoastRuns14d, countResumeRoastRuns7d, countRunsInEvents };
+// ── Qualified uses across every product (CEO decision 8, 2026-10-06) ───────────
+// A "use" is a product's first-value event by a real person. AmbientScore is NOT
+// counted here: its scans live in cc_analytics and are counted by isQualifiedScan,
+// so counting scan_completed too would double it. Pixel Agents covers all 24
+// agents (Resume Roast among them): DISTINCT runIds across the delivered pair,
+// same rule as countRunsInEvents. Internal sessions never count.
+var QUALIFIED_USE_EVENTS = {
+  pixelagents: { agent_run_completed: true, run_delivered: true },
+  resumeroast: { agent_run_completed: true, run_delivered: true },
+  cardforge: { quickbuild_completed: true },
+  storyforge: { adventure_started: true },
+  blindspot: { card_created: true },
+  agentforge: { agent_submitted: true }
+};
+var RUN_KEYED_PRODUCTS = { pixelagents: true, resumeroast: true };
+
+// Pure. Returns { total, byProduct }.
+function countQualifiedUsesInEvents(events) {
+  var byProduct = {};
+  var seenRuns = new Set();
+  (Array.isArray(events) ? events : []).forEach(function (e) {
+    if (!e || e.internal === true) return;
+    var p = String(e.product || '').toLowerCase();
+    var allowed = QUALIFIED_USE_EVENTS[p];
+    if (!allowed || !allowed[e.event]) return;
+    if (RUN_KEYED_PRODUCTS[p]) {
+      var runId = e.props && e.props.runId;
+      if (typeof runId === 'string' && runId) {
+        if (seenRuns.has(runId)) return;
+        seenRuns.add(runId);
+      }
+    }
+    byProduct[p] = (byProduct[p] || 0) + 1;
+  });
+  var total = Object.keys(byProduct).reduce(function (s, k) { return s + byProduct[k]; }, 0);
+  return { total: total, byProduct: byProduct };
+}
+
+// null = unmeasured (reader failed), never 0.
+async function countQualifiedPaUses7d(nowMs, readEventRange) {
+  const read = readEventRange || pa.readEventRange;
+  const now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const cutoff = now - 7 * 24 * 60 * 60 * 1000;
+  try {
+    const events = await read(_utcDate(cutoff), _utcDate(now));
+    const inWindow = (Array.isArray(events) ? events : []).filter(function (e) {
+      const t = Date.parse((e && e.ts) || '');
+      return !Number.isFinite(t) || (t >= cutoff && t <= now);
+    });
+    return countQualifiedUsesInEvents(inWindow);
+  } catch (e) {
+    return null;
+  }
+}
+
+module.exports = { countResumeRoastRuns14d, countResumeRoastRuns7d, countRunsInEvents, countQualifiedUsesInEvents, countQualifiedPaUses7d, QUALIFIED_USE_EVENTS };

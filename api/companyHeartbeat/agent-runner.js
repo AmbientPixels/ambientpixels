@@ -38,6 +38,7 @@ const {
   parseBlogDeliverable, capitalizeSentencesLongform, titleSimilarity
 } = require('./helpers');
 const { isPlaceholderText } = require('./memory-select');
+const { validateBet, checkBetKeyAgainst, newestEvidenceAsOf } = require('./bet-schema');
 const { appendDecision } = require('./_utils/decisionLog');
 const { buildCampaignAvailabilityBlock } = require('./_utils/campaignAvailability');
 const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId } = require('../proposalDecide/materialize');
@@ -5702,33 +5703,36 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
-      // Semantic dedup (parity with propose-objective) — exact-name matching is how six
-      // near-identical conversion campaigns piled up before the 2026-07-24 consolidation.
-      // Fuzzy-match the name against ACTIVE + PAUSED campaigns and pending proposals.
-      // Paused counts: "Founding Partner Initiative" was minted while its near-twin
-      // "Founding Partner Program" sat paused (2026-07-28) — resume exists for that.
-      // activeDirectives is pre-filtered to active (index.js ~1017), so read the full
-      // list from storage — one extra get on a rare action path.
-      var _pcSemHit = null;
+      // Bet contract (2026-10-06): every campaign proposal is a pre-registered bet.
+      // Replaces title-similarity dedup (>= 0.6 against active/paused campaigns and
+      // pending proposals) as the primary gate. A reworded title dodged similarity —
+      // 13 near-identical AmbientScore proposals reached the queue in 18 days — and
+      // similarity also blocked genuinely new mechanisms whose titles shared a product
+      // name. The betKey fingerprint (mechanism|product|channel|audience) cannot be
+      // reworded, and a key that LOST or was KILLED in the last 60 days needs evidence
+      // dated after the verdict (bet-schema.checkBetKeyAgainst).
+      var _pcBetCheck = validateBet(_pc.bet, { nowMs: Date.now() });
+      if (!_pcBetCheck.ok) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — bet contract: ' + _pcBetCheck.errors.slice(0, 3).join(' | '));
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: bet contract (' + _pcBetCheck.errors.length + ' error' + (_pcBetCheck.errors.length === 1 ? '' : 's') + ')', cycleId,
+          { gate: 'proposal_bet_invalid', name: _pcName, errors: _pcBetCheck.errors.slice(0, 6) });
+        continue;
+      }
+      var _pcBet = _pcBetCheck.bet;
+      _pcBet.proposedBy = agentId;
+      _pcBet.proposedAt = new Date().toISOString();
       var _pcAllCamps = [];
       try { _pcAllCamps = (await storage.getState('campaigns')) || []; } catch (_pcCErr) { _pcAllCamps = activeDirectives || []; }
-      var _pcActive = _pcAllCamps.filter(function (c) { return c && !c.deletedAt && (c.status === 'active' || c.status === 'paused'); });
-      for (var _pci = 0; _pci < _pcActive.length && !_pcSemHit; _pci++) {
-        if (titleSimilarity(_pcName, _pcActive[_pci].title || _pcActive[_pci].name) >= 0.6) {
-          _pcSemHit = { why: 'name ~ active campaign', id: _pcActive[_pci].id, other: _pcActive[_pci].title || _pcActive[_pci].name };
-        }
+      var _pcLedgerRows = (outcomeDigest && outcomeDigest.betLedger && outcomeDigest.betLedger.rows) || [];
+      var _pcKeyGate = checkBetKeyAgainst(_pcBet.betKey, newestEvidenceAsOf(_pcBet), _pcAllCamps, _pcLedgerRows, Date.now());
+      if (!_pcKeyGate.blocked) {
+        var _pcPendKey = _pcAQ.find(function (q) { return q.type === 'campaign_proposal' && q.status === 'pending' && q.bet && q.bet.betKey === _pcBet.betKey; });
+        if (_pcPendKey) _pcKeyGate = { blocked: true, reason: 'betkey_pending', matchId: _pcPendKey.id };
       }
-      if (!_pcSemHit) {
-        var _pcPendSem = _pcAQ.find(function (q) {
-          return q.type === 'campaign_proposal' && q.status === 'pending' && q.name &&
-            titleSimilarity(_pcName, q.name) >= 0.6;
-        });
-        if (_pcPendSem) _pcSemHit = { why: 'name ~ pending proposal', id: _pcPendSem.id, other: _pcPendSem.name };
-      }
-      if (_pcSemHit) {
-        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — semantic duplicate (' + _pcSemHit.why + '):', _pcSemHit.id);
-        await logEvent('policy-violation', agentId, 'propose-campaign blocked: semantic duplicate of ' + _pcSemHit.id, cycleId,
-          { gate: 'proposal_semantic_dup', name: _pcName, matched: _pcSemHit.id, matchedTitle: String(_pcSemHit.other || '').substring(0, 80), why: _pcSemHit.why });
+      if (_pcKeyGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — ' + _pcKeyGate.reason + ' (' + _pcBet.betKey + ')', _pcKeyGate.matchId || '');
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: ' + _pcKeyGate.reason + ' ' + _pcBet.betKey, cycleId,
+          { gate: 'proposal_' + _pcKeyGate.reason, name: _pcName, betKey: _pcBet.betKey, matched: _pcKeyGate.matchId || null, scoredAt: _pcKeyGate.scoredAt || null });
         continue;
       }
 
@@ -5790,6 +5794,8 @@ Write the full deliverable first, then the structured JSON block.`;
         kpiTarget: (_pc.kpiTarget || '').substring(0, 200),
         northStarMetric: _pcNSValid ? _pcNS : null,
         strategyFlag: (strategyDigest && !_pcNSValid) ? 'no-north-star-metric' : null,
+        bet: _pcBet,
+        betKey: _pcBet.betKey,
         createdAt: new Date().toISOString()
       };
 

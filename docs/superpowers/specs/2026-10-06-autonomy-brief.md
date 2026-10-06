@@ -10,8 +10,15 @@
 AmbientPixels is a one-person studio. The founder is the "CEO" and has a day job and a busy life, so attention comes in bursts with gaps of weeks. The company runs **AmbientOS**, a fleet of 9 LLM agents that wake every 6 hours to plan, write, and publish. It sells or gives away small web products:
 
 - **AmbientScore:** a $29 AI conversion audit of a landing page, with a free instant scan.
-- **Resume Roast:** a free AI résumé critique with a $9 rewrite upsell.
-- A few hobby products (games, card creator) that are out of scope here.
+- **Pixel Agents:** a catalog of 24 free AI agents a stranger can run in one sitting. **Resume Roast is one of them** (free résumé critique, $9 rewrite upsell), not a separate product.
+- **Agent Forge:** the builder for Pixel Agents (community agents, gated review).
+- **CardForge:** an RPG card creator with a quick-build wizard, decks and a gallery.
+- **StoryForge:** AI interactive fiction (genres, characters, dice).
+- **Blindspot:** an arena combat game (cards, battles, bosses).
+- **Pulse:** the public live status page for the company and fleet.
+- **AmbientOS:** the agent platform itself, the public thesis of the brand.
+
+Eight products. Product-facts (`api/_data/product-facts.json`) is the source of truth and lists all of them. *Correction 2026-10-06: an earlier version of this brief named only AmbientScore and Resume Roast and called the rest out of scope; the CEO's direction is that every product's free offer counts.* Thirty-day product-analytics users at the time of the correction: Pixel Agents 20 page views / 1 run delivered, CardForge 2 / 1 quick build, Blindspot 14 / 0 cards, StoryForge 3 / 0 adventures, Agent Forge 3 / 0 submissions, AmbientScore 0 scans, Resume Roast 0 runs.
 
 External revenue to date: **$0.** The stated thesis of the brand is "agents run the company; products ship in public."
 

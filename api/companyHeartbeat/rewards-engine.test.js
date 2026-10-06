@@ -44,10 +44,16 @@ test('classFor returns role archetype with no specialization on a fresh agent', 
 });
 
 // ── applyEvents: single award ──
-test('a completed task awards 1 XP and ticks the counter', () => {
+test('a completed task ticks the counter but pays NO XP by default (2026-10-06: activity is not an outcome)', () => {
   const { rewards } = applyEvents([{ id: 'task_1', type: 'task_done', agentId: 'scribe', at: at(0) }], null, NOW);
-  assert.strictEqual(agent(rewards, 'scribe').xp, 1);
+  assert.strictEqual(agent(rewards, 'scribe').xp, 0);
   assert.strictEqual(agent(rewards, 'scribe').counters.tasksDone, 1);
+  assert.strictEqual(agent(rewards, 'scribe').streakDays, 1, 'streak still ticks');
+});
+
+test('a completed task awards 1 XP only when the caller opts into activity XP', () => {
+  const { rewards } = applyEvents([{ id: 'task_1', type: 'task_done', agentId: 'scribe', at: at(0) }], null, NOW, { activityXp: true });
+  assert.strictEqual(agent(rewards, 'scribe').xp, 1);
 });
 
 test('an approved proposal awards 8 XP and unlocks first_approval (renown, not XP)', () => {
@@ -264,6 +270,7 @@ test('conversionFallbackAgents = assignees of recent tasks on active conversion 
 const REV_STATE = () => ({
   approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [],
   _nowMs: NOW, // extractEvents has no nowMs param; fallback attribution reads state._nowMs
+  _allowFallbackCredit: true, // these tests exercise the fallback machinery; production default is OFF (2026-10-06)
   tasks: [{ id: 'tk1', assignee: 'echo', reviewer: 'quill', campaign_id: 'camp-conv', updatedAt: at(-1) }],
   campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
   actionsById: { act_1: { id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' } },
@@ -359,7 +366,7 @@ test('revenue_sale is exempt from the daily cap and accrues season + revenue XP'
 
 test('task_done lane-caps at 3 XP/day: 4th task pays nothing and mints no renown', () => {
   const evs = [1, 2, 3, 4].map(n => ({ id: 'tk_lane_' + n, type: 'task_done', agentId: 'scribe', at: at(0, n) }));
-  const { rewards } = applyEvents(evs, null, NOW);
+  const { rewards } = applyEvents(evs, null, NOW, { activityXp: true });
   const a = agent(rewards, 'scribe');
   assert.strictEqual(a.xp, 3, 'lane cap 3');
   assert.strictEqual(a.renown, 0, 'no renown from lane overflow');
@@ -401,7 +408,7 @@ test('task_done lane cap composes with the global 12/day cap regardless of event
     { id: 'tk_o2', type: 'task_done', agentId: 'scout', at: at(0, 4) },
     { id: 'tk_o3', type: 'task_done', agentId: 'scout', at: at(0, 5) }
   ];
-  const { rewards } = applyEvents(evs, null, NOW);
+  const { rewards } = applyEvents(evs, null, NOW, { activityXp: true });
   assert.strictEqual(agent(rewards, 'scout').xp, 12, 'global daily cap holds regardless of order');
 });
 
@@ -476,7 +483,7 @@ test('at-or-above-par season resets misses; privilege tiers derive from final ra
   assert.strictEqual(tiers.scribe, 'vanguard');
   assert.strictEqual(tiers.nova, 'line');
   assert.strictEqual(tiers.forge, 'line');
-  assert.strictEqual(tiers.quill, 'probation');
+  assert.strictEqual(tiers.quill, 'line', 'support roles (retirement-exempt) are never put on probation (2026-10-06)');
   assert.strictEqual(tiers.pixel, 'probation');
 });
 
@@ -621,7 +628,7 @@ test('merit budget needs a minimum signal before it reallocates', () => {
 // ── Payout idempotence across fallback-set drift (final-review hardening) ──
 test('an unattributed event pays ONCE — a later fallback-set change never re-pays it', () => {
   const mkState = (assignees) => ({
-    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], _nowMs: NOW,
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], _nowMs: NOW, _allowFallbackCredit: true,
     campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
     tasks: assignees.map((a, i) => ({ id: 'tk' + i, campaign_id: 'camp-conv', assignee: a, updatedAt: at(-2) })),
     actionsById: {}, attributionIndex: {},
@@ -1178,5 +1185,76 @@ testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but le
     assert.ok(PROGRESSION_STALE_MS > 6 * 3600e3, 'must not fire between 6h heartbeats');
     const justUnder = new Date(NOW_S - (PROGRESSION_STALE_MS - 60000)).toISOString();
     assert.ok(!/NOT BEING SCORED/.test(buildProgressionPromptBlock('nova', ledgerAt(justUnder), NOW_S)), 'just under threshold = fresh');
+  });
+}
+
+// ── Outcome lane (2026-10-06): the only XP that reads a real person ──
+{
+  const OUT_STATE = () => ({
+    approvalQueue: [], blogPosts: [], tasks: [], tasksArchive: [], _nowMs: NOW,
+    actionsById: {}, attributionIndex: {}, revenueLedgerEntries: [], asLeads: [], scans: [],
+    outcomeSnapshots: {},
+    campaigns: []
+  });
+
+  test('fallback credit is OFF by default: an unattributed scan pays nobody', () => {
+    const s = OUT_STATE();
+    s.campaigns = [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }];
+    s.tasks = [{ id: 'tk1', assignee: 'echo', campaign_id: 'camp-conv', updatedAt: at(-1) }];
+    s.scans = [{ reportId: 'ccr_anon', tier: 'free', timestamp: at(0) }];
+    assert.strictEqual(extractEvents(s, null).filter(e => e.type === 'funnel_scan').length, 0, 'no credit without attribution');
+  });
+
+  test('a won bet pays its proposer 40 XP, cap-exempt, and counts toward the season revenue lane', () => {
+    const s = OUT_STATE();
+    s.campaigns = [{ id: 'camp-w', bet: { betKey: 'search_page|rr|google|any', proposedBy: 'scout' }, verdict: { result: 'won', calibrationError: 0.33, scoredAt: at(0) } }];
+    const evs = extractEvents(s, null);
+    const won = evs.find(e => e.type === 'bet_won');
+    assert.ok(won && won.agentId === 'scout' && won.id === 'betwon_camp-w');
+    const { rewards } = applyEvents([
+      { id: 'appr_f1', type: 'proposal_approved', agentId: 'scout', at: at(0, 1) },
+      { id: 'appr_f2', type: 'proposal_approved', agentId: 'scout', at: at(0, 2) },   // fills the 12/day cap
+      won
+    ], null, NOW);
+    const a = agent(rewards, 'scout');
+    assert.strictEqual(a.xp, 12 + 40, 'bet_won is exempt from the daily cap');
+    assert.strictEqual(a.seasonRevenueXp, 40, 'moves the ladder');
+    assert.strictEqual(a.counters.betsWon, 1);
+    assert.ok(a.achievements.some(x => x.id === 'first_bet_won'));
+  });
+
+  test('an honestly scored loss pays 5 XP only when the forecast was close; unmeasured pays nothing', () => {
+    const s = OUT_STATE();
+    s.campaigns = [
+      { id: 'c-close', bet: { proposedBy: 'echo' }, verdict: { result: 'lost', calibrationError: 0.4, scoredAt: at(0) } },
+      { id: 'c-far', bet: { proposedBy: 'echo' }, verdict: { result: 'lost', calibrationError: 1, scoredAt: at(0) } },
+      { id: 'c-unm', bet: { proposedBy: 'echo' }, verdict: { result: 'unmeasured', calibrationError: null, scoredAt: at(0) } },
+      { id: 'c-nobody', bet: { proposedBy: 'ceo' }, verdict: { result: 'won', calibrationError: 0, scoredAt: at(0) } }
+    ];
+    const evs = extractEvents(s, null).filter(e => e.type === 'bet_scored' || e.type === 'bet_won');
+    assert.deepStrictEqual(evs.map(e => e.id), ['betscored_c-close']);
+    const { rewards } = applyEvents(evs, null, NOW);
+    assert.strictEqual(agent(rewards, 'echo').xp, 5);
+    assert.strictEqual(agent(rewards, 'echo').counters.betsScored, 1);
+  });
+
+  test('each attributed qualified use pays the post author 10 XP, once, and a later rise pays only the difference', () => {
+    const s = OUT_STATE();
+    s.outcomeSnapshots = { act_q: { actionId: 'act_q', createdBy: 'scribe', publishedAt: at(-3), downstream: { qualifiedUses: 2 } } };
+    const first = extractEvents(s, null).filter(e => e.type === 'qualified_use');
+    assert.deepStrictEqual(first.map(e => e.id), ['quse_act_q_1', 'quse_act_q_2']);
+    let { rewards } = applyEvents(first, null, NOW);
+    assert.strictEqual(agent(rewards, 'scribe').xp, 20);
+    assert.strictEqual(agent(rewards, 'scribe').counters.qualifiedUses, 2);
+    assert.ok(agent(rewards, 'scribe').achievements.some(x => x.id === 'first_qualified_use'));
+    s.outcomeSnapshots.act_q.downstream.qualifiedUses = 3;
+    ({ rewards } = applyEvents(extractEvents(s, rewards).filter(e => e.type === 'qualified_use'), rewards, NOW));
+    assert.strictEqual(agent(rewards, 'scribe').xp, 30, 'third use paid once; first two deduped by id');
+  });
+
+  test('a qualified use on a snapshot without a fleet author pays nobody', () => {
+    const s = OUT_STATE();
+    s.outcomeSnapshots = { act_c: { actionId: 'act_c', createdBy: 'ceo', downstream: { qualifiedUses: 1 } }, act_n: { actionId: 'act_n', downstream: { qualifiedUses: 0 } } };
+    assert.strictEqual(extractEvents(s, null).filter(e => e.type === 'qualified_use').length, 0);
   });
 }

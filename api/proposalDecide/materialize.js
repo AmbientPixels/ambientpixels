@@ -156,6 +156,9 @@ function materializeFromProposal(proposal, nowIso, context) {
       frequency: p.frequency || 2,
       cadence: p.cadence || 'weekly',
       northStarMetric: p.northStarMetric || null,
+      // The pre-registered bet (bet-schema.js) travels with the campaign so the kill
+      // rule, scoring and the ledger can read it. Older proposals carry none.
+      bet: (p.bet && typeof p.bet === 'object') ? Object.assign({}, p.bet, { proposedBy: p.bet.proposedBy || p.proposedBy || null }) : null,
       objective_id: od.objectiveId,
       objectiveLinkVia: od.via || null,
       pendingObjectiveProposalId: od.deferredToProposalId || null,
