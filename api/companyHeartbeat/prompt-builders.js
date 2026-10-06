@@ -217,7 +217,8 @@ function _buildProposalPromptBlock(agent, approvalQueue) {
 const { _buildContentPromptBlock } = require('./content-intel');
 const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
-const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
+const { _buildPerformancePromptBlock } = require('./performance-intel');
+const { selectMemoriesForPrompt, selectCalloutMemories } = require('./memory-select');
 const { _buildReflectionPromptBlock } = require('./reflection-intel');
 const { _buildStrategyPromptBlock } = require('./strategy-intel');
 const { _buildWorldStatePromptBlock } = require('./world-state-intel');
@@ -1390,7 +1391,10 @@ You must remain within your assigned authority tier. Doctrine influences your st
   // Inject agent memory (persistent across heartbeat cycles)
   const _agentNameLower = agent.name.toLowerCase();
   const _allAgentMems = _agentMemoryStore[_agentNameLower] || [];
-  const agentMem = _allAgentMems.slice(-10);
+  // 2026-10-06: type-priority selection (CEO corrections and scored bets first, then
+  // durable knowledge, then synthesis, feedback capped at 2; rate-limit notices never).
+  // The old `slice(-10)` gave Echo a memory block of nine rate-limit beliefs.
+  const agentMem = selectMemoriesForPrompt(_allAgentMems, 10);
   let memoryBlock = '';
   if (agentMem.length > 0) {
     const memLines = agentMem.map(function (m) {
@@ -1404,9 +1408,9 @@ You must remain within your assigned authority tier. Doctrine influences your st
   // written into memory but blended into the list and lost weight. Now they get a dedicated block
   // so the agent can't miss them on the next pass.
   let reflectionCalloutBlock = '';
-  const _reflectionMems = _allAgentMems
-    .filter(function (m) { return m && typeof m.source === 'string' && m.source.indexOf('auto:') === 0; })
-    .slice(-2);
+  // Only real corrections qualify (CEO edits/revisions, scored bets, quality-gate
+  // rejections). A rate-limit notice is not a mistake to internalize.
+  const _reflectionMems = selectCalloutMemories(_allAgentMems, 2);
   if (_reflectionMems.length > 0) {
     const _rLines = _reflectionMems.map(function (m) {
       return '- ' + (m.text || '').substring(0, 250);
@@ -1487,10 +1491,13 @@ You must remain within your assigned authority tier. Doctrine influences your st
   // Self-Awareness Phase 3: YOUR SELF-REFLECTION block — deterministic format of
   // decisionPatterns + strategyFatigue + roleAdherence + repeatedFailures.
   // The agent interprets; we only supply data.
+  // 2026-10-06: the block is no longer injected. In production its inputs were empty
+  // for 8 of 9 agents (decisionPatterns [], strategyFatigue [], repeatedFailures [])
+  // and its "core question" was the stale paying-customer doctrine, so it manufactured
+  // confident narrative from nothing. The digest is still built for monitoring
+  // (role drift in awareness.html); the builder stays importable for that page.
   let reflectionPromptBlock = '';
-  try {
-    reflectionPromptBlock = _buildReflectionPromptBlock(agent.id, reflectionDigest) || '';
-  } catch (_refErr) { reflectionPromptBlock = ''; }
+  void _buildReflectionPromptBlock;
 
   // Shared World Model (System 11): injected at the TOP of the prompt.
   // Same text for every agent. Builds a 1-1.5KB block from worldState digest.
@@ -1574,7 +1581,10 @@ You must remain within your assigned authority tier. Doctrine influences your st
 
   const socialIntelSection = _buildSocialIntelPromptBlock(agent, socialIntel);
   const performanceSection = _buildPerformancePromptBlock(agent, performanceDigest);
-  const experimentSection = _buildExperimentPromptBlock((agent.name || '').toLowerCase(), agentExperiments);
+  // 2026-10-06: the approval-rate experiment block is gone (see performance-intel.js).
+  // Honest experiment numbers live in YOUR RECENT OUTCOMES (outcomeDigest.perExperiment).
+  const experimentSection = '';
+  void agentExperiments;
   const forgeOpsSection = _buildForgeOpsPromptBlock(agent, forgeOpsDigest);
   const fleetHealthSection = _buildFleetHealthPromptBlock(agent, reflectionDigest, financeDigest, allocationDigest, approvalQueue);
   // Emergence signals (System 15) — Forge-only block, fed from runtime cache
@@ -2253,14 +2263,12 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Social/publishing output routes through CEO approval automatically: use create-social-action on tasks with reviewed_copy.
   - Campaign pitches use the propose-campaign action in taskUpdates.
   - Max 2-3 social variants per run.
-- CONVERSION OWNER (Echo — the company's #1 mandate):
-  You own the paying_customers north star. The company has NEVER made a sale. Every cycle, ask first: "Did we add a paying customer? If not, what am I doing about it RIGHT NOW?"
-  - Focus funnel: AmbientScore — https://ambientpixels.ai/ambientscore/ — a $29 conversion audit with a free instant scan, no login. It is the only checkout a stranger can complete in one session.
-  - Your conversion levers, in order of expected impact:
-    1. OUTBOUND REPLIES: Scout's Bluesky discovery hunts buyer-intent threads (people asking for landing page feedback, complaining their site doesn't convert, launching something). A reply into one of those threads beats a broadcast post to our tiny following every time. Prioritize reply work.
-    2. CONVERSION CTA: every AmbientScore post or reply carries the direct funnel link. Briefs lead with the READER'S problem (their site isn't converting), not our product story.
-    3. CONVERSION CAMPAIGNS: until the first sale lands, propose-campaign should serve northStarMetric paying_customers, not follower counts.
-  - Measure what matters: scans started, scan-to-purchase, paying customers (see the REVENUE line in WORLD STATE and the COMPANY STRATEGY block). Followers are a means, not the goal.${costIntel && costIntel.funnel ? `
+- DISTRIBUTION OWNER (Echo):
+  You own getting real people to a free offer. The north star and its current reading are in the COMPANY STRATEGY block above — serve THAT metric by its exact name; never a retired one. Every cycle, ask first: "Did a stranger use a free offer because of something we published? If not, which mechanism have we not tried?"
+  - Free offers a stranger can use in one sitting: the AmbientScore instant scan (https://ambientpixels.ai/ambientscore/) and Resume Roast (https://www.ambientpixels.ai/resume-roast/). A paid upsell exists behind each; it is not your lever.
+  - What is measured, in order: people who used an offer after clicking (qualifiedUses in YOUR RECENT OUTCOMES, per post and per campaign), then clicks. Likes, follower counts and post volume are not goals; broadcast volume on this account is measured at ~0 people and is DISPROVEN as a lever.
+  - Prefer mechanisms over more posts: search-intent pages, directory listings, replies into threads where someone is actually asking (replies to named people always go to the CEO), one weekly scoreboard post instead of daily broadcast.
+  - Every proposal is a testable bet: hypothesis, evidence with a denominator (k of n, window, source), expected effect on the north star, and a kill rule. A proposal that repeats a lost bet without newer evidence is blocked.${costIntel && costIntel.funnel ? `
   - LIVE CONVERSION FUNNEL (7d): ${costIntel.funnel.scans7d} scans → ${costIntel.funnel.leads7d} leads → ${costIntel.funnel.sales7d} sales (lifetime: ${costIntel.funnel.scansTotal} scans, ${costIntel.funnel.leadsTotal} leads, ${costIntel.funnel.salesTotal} sales). This funnel IS your scoreboard. If leads = 0, your next experiment targets the conversion step — lead capture, distribution into buyer-intent spaces, or the offer — NOT more post volume into small follower counts.` : ''}
   - YOUR SCAN TOOL — arm outreach with real findings: { "type": "run-ambientscore-scan", "scan": { "url": "https://prospect-site.com", "taskId": "<the reply/post task the results should land on>", "note": "why this prospect" } }
     Queues a free audit of a prospect's site; within ~10-20 min the results (score, top findings, shareable report link) arrive as a system comment on that task, so Scribe can cite REAL findings in the reply. Daily cap applies — spend scans on threads where someone is actively asking for site/landing-page feedback.
@@ -2359,7 +2367,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Only change ONE variable per experiment (hook style, post length, CTA type, platform, etc.)
       - Tag consistently — use the same experiment_tag for all posts in the same test.
       - Apply KEEP results to all future posts. Stop using DISCARD approaches.
-      - MANDATORY: If ZERO experiments are running, your FIRST action MUST be to start one. Save a remember with experiment_tag. Test a specific hypothesis (hook style, post length, CTA type). Do NOT skip this — experimentation is how you improve.
+      - Start an experiment only inside an approved campaign with enough volume to reach the sample floor (≥5 posts per arm, ≥20 attributed people before any KEEP). On this account that is rare; an experiment without a published treatment arm is not an experiment. Never start one just because none is running.
   - CAMPAIGN PROPOSALS:
     When you identify a marketing opportunity that no current campaign covers, use propose-campaign to pitch it to the CEO.
     Your proposal goes to the CEO approval queue. CEO can approve, edit, or reject it.

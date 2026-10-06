@@ -181,5 +181,50 @@ test('outbound: zero clicks reports honestly rather than vanishing', () => {
   assert.strictEqual(d.outbound.scribe.reportViews, 0);
 });
 
+// ── perCampaign (2026-10-06): resolve campaign via parent task; count qualified uses ──
+const snap = (id, over) => Object.assign({
+  actionId: id, platform: 'bluesky', createdBy: 'echo', campaignId: null, complete: true, publishedAt: '2026-09-01T00:00:00Z',
+  samples: [{ lag: 't7', likes: 1, comments: 0, reposts: 0, views: 0, clicks: 0 }]
+}, over || {});
+
+test('perCampaign: a post whose snapshot has no campaignId still attributes through action → task → campaign', () => {
+  // In production campaignId was null on 168 of 168 snapshots, so every campaign read 0 posts.
+  const snaps = { a: snap('act_1'), b: snap('act_2'), c: snap('act_3') };
+  const actions = [{ id: 'act_1', created_by: 'echo', _parentTaskId: 't1' }, { id: 'act_2', created_by: 'echo', _parentTaskId: 't2' }];
+  const tasks = [{ id: 't1', campaign_id: 'camp-A' }, { id: 't2', campaign_id: 'camp-A' }];
+  const d = buildOutcomeDigest(snaps, actions, [{ id: 'camp-A', title: 'A' }, { id: 'camp-B', title: 'B' }], [], Date.now(), { tasks: tasks });
+  const a = d.perCampaign.find(c => c.campaignId === 'camp-A');
+  const b = d.perCampaign.find(c => c.campaignId === 'camp-B');
+  assert.strictEqual(a.postsPublished, 2);
+  assert.strictEqual(b.postsPublished, 0);
+});
+
+test('perCampaign: archived attribution index resolves posts whose action is already trimmed', () => {
+  const snaps = { a: snap('act_old') };
+  const d = buildOutcomeDigest(snaps, [], [{ id: 'camp-Z', title: 'Z' }], [], Date.now(), { attributionIndex: { map: { act_old: { agent: 'echo', campaignId: 'camp-Z' } } } });
+  assert.strictEqual(d.perCampaign[0].postsPublished, 1);
+});
+
+test('perCampaign: qualifiedUsesAttributed sums measured posts and is null when nothing was measured', () => {
+  const snaps = {
+    a: snap('act_1', { campaignId: 'camp-A', downstream: { qualifiedUses: 2 } }),
+    b: snap('act_2', { campaignId: 'camp-A', downstream: { qualifiedUses: 0 } }),
+    c: snap('act_3', { campaignId: 'camp-A' }),                       // outcomeRefresh has not run over it
+    d: snap('act_4', { campaignId: 'camp-B' })
+  };
+  const d = buildOutcomeDigest(snaps, [], [{ id: 'camp-A', title: 'A' }, { id: 'camp-B', title: 'B' }], [], Date.now());
+  const a = d.perCampaign.find(c => c.campaignId === 'camp-A');
+  const b = d.perCampaign.find(c => c.campaignId === 'camp-B');
+  assert.strictEqual(a.qualifiedUsesAttributed, 2);
+  assert.strictEqual(a.qualifiedUsesMeasuredPosts, 2, 'the unmeasured post is not in the denominator');
+  assert.strictEqual(b.qualifiedUsesAttributed, null, 'a campaign nobody measured is unmeasured, never zero');
+  assert.strictEqual(b.qualifiedUsesMeasuredPosts, 0);
+});
+
+test('perCampaign: without opts the call still works (old signature)', () => {
+  const d = buildOutcomeDigest({ a: snap('act_1', { campaignId: 'camp-A' }) }, [], [{ id: 'camp-A' }], [], Date.now());
+  assert.strictEqual(d.perCampaign[0].postsPublished, 1);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

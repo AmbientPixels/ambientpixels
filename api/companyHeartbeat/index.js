@@ -16,7 +16,8 @@ const { buildFinanceDigest, applyCampaignRevenue } = require('./finance-intel');
 const { buildResearchDemandDigest } = require('./research-intel');
 const { buildContentDigest } = require('./content-intel');
 const { buildStrategicDigest } = require('./strategic-intel');
-const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
+const { buildPerformanceDigest } = require('./performance-intel');
+const { harvestCeoFeedback } = require('./ceo-feedback-intel');
 const { buildOutcomeDigest, buildActionAttributionMap, attributeRevenue, applyRevenueToOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
@@ -413,9 +414,14 @@ module.exports = async function (context) {
     // Outcome Attribution digest (Phase 3): per-agent / per-experiment / per-hook / per-campaign
     // engagement rollups. Built before financeDigest so Cipher's campaignROI can consume it.
     var outcomeDigest = null;
+    // Archived action→campaign index (actionsArchiver). Loaded once here; the revenue
+    // lane below reuses it. Lets perCampaign resolve posts whose action is already trimmed.
+    var _archAttrIndex = null;
+    try { _archAttrIndex = await storage.getState('actionAttributionIndex'); } catch (_aiErr) { /* non-fatal */ }
     try {
       const _outcomeSnaps = (await storage.getState('outcomeSnapshots')) || {};
-      outcomeDigest = buildOutcomeDigest(_outcomeSnaps, allActions, campaigns, agentExperiments, Date.now());
+      outcomeDigest = buildOutcomeDigest(_outcomeSnaps, allActions, campaigns, agentExperiments, Date.now(),
+        { tasks: tasks, attributionIndex: _archAttrIndex });
       if (outcomeDigest) runtimeMemory.outcomeDigest = outcomeDigest;
       context.log('[heartbeat] Outcome digest: snapshots=', outcomeDigest.totals.snapshots, 'complete=', outcomeDigest.totals.complete, 'linkedinPending=', outcomeDigest.totals.linkedinPendingCount);
     } catch (_e) { context.log('[heartbeat] Outcome digest failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : ''); }
@@ -500,8 +506,6 @@ module.exports = async function (context) {
       // >RETENTION_DAYS after the originating post still attribute. Fail-open.
       try {
         if (outcomeDigest && _revLedger) {
-          var _archAttrIndex = null;
-          try { _archAttrIndex = await storage.getState('actionAttributionIndex'); } catch (_aiErr) { /* non-fatal */ }
           var _actionAttrMap = buildActionAttributionMap(allActions, tasks, _archAttrIndex);
           var _revAttr = attributeRevenue(_revLedger.entries, _actionAttrMap);
           applyRevenueToOutcomeDigest(outcomeDigest, _revAttr);
@@ -4094,6 +4098,14 @@ module.exports = async function (context) {
       if (_govChanged) await storage.setState('governanceLog', govLog);
     }
     await storage.setState('agentConfigs', configs);
+    // CEO corrections → permanent constraint memories (2026-10-06). The written reason on
+    // a rejected / sent-back item is the fleet's only reasoning-bearing training signal;
+    // until now it lived 7 days in a prompt line. Must run BEFORE this save.
+    try {
+      const _cfAQ = (await storage.getState('approvalQueue')) || [];
+      const _cf = harvestCeoFeedback({ actions: allActions, approvalQueue: _cfAQ, memoryStore: _agentMemoryStore, nowMs: Date.now() });
+      if (_cf.written > 0) context.log('[Heartbeat] CEO feedback harvested into memory:', JSON.stringify(_cf.byAgent));
+    } catch (_cfErr) { context.log('[Heartbeat] CEO feedback harvest failed (non-fatal):', String(_cfErr).substring(0, 200)); }
     await storage.setState('agentMemories', _agentMemoryStore);
     // Persist agent messages (Phase 4A) — cap archive at 50, keep only unconsumed pending
     var _finalPending = _activeMsgs.filter(function (m) { return !m.consumed && !m.expired; });
@@ -4132,48 +4144,16 @@ module.exports = async function (context) {
 
     // ── Agent Performance: reflective insights + experiment evaluation (AutoResearch loop) ──
     {
-      const _perfPrev = _existingPerf || null;
-      const _todayKey = new Date().toISOString().slice(0, 10);
-      for (let _pi = 0; _pi < AGENT_IDS.length; _pi++) {
-        const _perfAgent = AGENT_IDS[_pi];
-        const _perfMem = _agentMemoryStore[_perfAgent] || [];
-        // Rate-limit: 1 insight per agent per day
-        const _hasInsightToday = _perfMem.some(function (m) {
-          return m.source === 'auto:performance-reflection' && (m.timestamp || '').slice(0, 10) === _todayKey;
-        });
-        if (!_hasInsightToday) {
-          const _insights = generatePerformanceInsights(_perfAgent, performanceDigest, _perfPrev);
-          for (let _ii = 0; _ii < _insights.length; _ii++) {
-            if (!_agentMemoryStore[_perfAgent]) _agentMemoryStore[_perfAgent] = [];
-            _agentMemoryStore[_perfAgent].push({
-              id: 'mem-perf-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-              type: 'verified_fact',
-              text: _insights[_ii],
-              source: 'auto:performance-reflection',
-              timestamp: new Date().toISOString()
-            });
-          }
-        }
-      }
-      // Evaluate active experiments
-      agentExperiments = evaluateExperiments(agentExperiments, performanceDigest, allActions, Date.now());
-      // Persist experiment conclusions as agent memories
-      for (let _ei = 0; _ei < agentExperiments.length; _ei++) {
-        const _exp = agentExperiments[_ei];
-        if (_exp.status === 'concluded' && _exp.result && !_exp._memoryLogged) {
-          const _expAgent = _exp.agentId;
-          if (!_agentMemoryStore[_expAgent]) _agentMemoryStore[_expAgent] = [];
-          var _expLabel = _exp.result === 'keep' ? 'KEEP' : (_exp.result === 'discard' ? 'DISCARD' : 'INCONCLUSIVE');
-          _agentMemoryStore[_expAgent].push({
-            id: 'mem-exp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-            type: 'verified_fact',
-            text: 'Experiment "' + _exp.hypothesis + '": ' + _expLabel + '. ' + (_exp.description || ''),
-            source: 'auto:experiment-conclusion',
-            timestamp: new Date().toISOString()
-          });
-          _exp._memoryLogged = true;
-        }
-      }
+      // 2026-10-06: two writers removed here.
+      //  - generatePerformanceInsights memories ("CEO approval rate dropped to 0%") were
+      //    built on a rate that reads an absent CEO as a failing agent, and on a likes
+      //    average that summed cumulative poll rows. Not honest; not injected.
+      //  - evaluateExperiments (approval-rate verdict over n=3 tagged actions) produced
+      //    27 "discard" verdicts for approaches that were never published. The
+      //    engagement-based auto-conclude below is the only experiment verdict now.
+      // Both pushed into _agentMemoryStore AFTER the agentMemories save above, so in
+      // 6 months neither ever reached storage — the second save at the end of this
+      // block fixes that for the verdicts that remain.
       // Outcome Attribution Phase 4b: engagement-based auto-conclude. Supersedes
       // the legacy approval-rate evaluator above when outcomeDigest has data.
       // 4-gate check: samples>=10, per-arm>=5, |effectSize|>=0.15, verdict in {promote,discard}.
@@ -4267,6 +4247,18 @@ module.exports = async function (context) {
       }
 
       try { await storage.setState('agentExperiments', agentExperiments); } catch (_expSaveErr) { context.log('[Heartbeat] WARN: failed to save agentExperiments:', _expSaveErr.message); }
+      // Second agentMemories save (2026-10-06): the experiment-verdict memory above is
+      // pushed after the cycle's main save, and the experiment's status is persisted
+      // here, so without this save the verdict was lost and never retried. Cap per agent
+      // as the prune pass does. Non-fatal: a failure here loses one memory, not the run.
+      try {
+        Object.keys(_agentMemoryStore).forEach(function (_aid) {
+          if (Array.isArray(_agentMemoryStore[_aid]) && _agentMemoryStore[_aid].length > MAX_MEMORIES_PER_AGENT) {
+            _agentMemoryStore[_aid] = _agentMemoryStore[_aid].slice(-MAX_MEMORIES_PER_AGENT);
+          }
+        });
+        await storage.setState('agentMemories', _agentMemoryStore);
+      } catch (_memSave2Err) { context.log('[Heartbeat] WARN: second agentMemories save failed:', String(_memSave2Err).substring(0, 200)); }
     }
 
     await storage.setState('runtimeMemory', runtimeMemory);

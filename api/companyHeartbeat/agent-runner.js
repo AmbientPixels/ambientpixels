@@ -37,6 +37,7 @@ const {
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
   parseBlogDeliverable, capitalizeSentencesLongform, titleSimilarity
 } = require('./helpers');
+const { isPlaceholderText } = require('./memory-select');
 const { appendDecision } = require('./_utils/decisionLog');
 const { buildCampaignAvailabilityBlock } = require('./_utils/campaignAvailability');
 const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId } = require('../proposalDecide/materialize');
@@ -5395,6 +5396,15 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
           });
         }
+        // Placeholder text (2026-10-06): the literal "string" reached storage, was
+        // consolidated 5x into a 90-day belief reading "Core belief: string", and was
+        // injected into the prompt for weeks. A memory under 20 chars carries nothing.
+        else if (isPlaceholderText(_memTextTrim)) {
+          _memBlockedReason = 'placeholder_text';
+          await logEvent('policy-violation', agentId, 'Memory write blocked: placeholder text', cycleId, {
+            runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'placeholder_text', textPreview: _memTextTrim.substring(0, 40)
+          });
+        }
         // Evidence requirement for ALL L4 memory types except structural aggregation types
         // (weekly_report, reflection, consolidated_belief — see L4_STRUCTURAL_TYPES). These
         // synthesize a window of prior activity into a conclusion rather than asserting a single
@@ -5744,7 +5754,14 @@ Write the full deliverable first, then the structured JSON block.`;
       var _pcNSValid = !!(strategyDigest && Array.isArray(strategyDigest.northStar) &&
         strategyDigest.northStar.some(function (n) { return n.metric === _pcNS; }));
       if (strategyDigest && !_pcNSValid) {
-        context.log('[Heartbeat]', agentId, 'propose-campaign missing/unknown northStarMetric ("' + _pcNS + '") — flagging for CEO scrutiny');
+        // 2026-10-06: block, not flag. After the north star was retargeted, every
+        // proposal still named `paying_customers` (62 of 100 runs) because four
+        // doctrine sources were stale and a flag never stopped anything.
+        var _pcNSList = strategyDigest.northStar.map(function (n) { return n.metric; }).join(', ');
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — northStarMetric "' + _pcNS + '" is not a current north star (' + _pcNSList + ')');
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: northStarMetric "' + _pcNS + '" is not current', cycleId,
+          { runId: cycleId, gate: 'proposal_northstar_invalid', kind: 'campaign', named: _pcNS, current: _pcNSList, name: _pcName });
+        continue;
       }
 
       // Optional explicit parent goal — lets Nova propose a campaign FOR a specific
@@ -5934,7 +5951,12 @@ Write the full deliverable first, then the structured JSON block.`;
       var _poNSValid = !!(strategyDigest && Array.isArray(strategyDigest.northStar) &&
         strategyDigest.northStar.some(function (n) { return n.metric === _poNS; }));
       if (strategyDigest && !_poNSValid) {
-        context.log('[Heartbeat]', agentId, 'propose-objective missing/unknown northStarMetric ("' + _poNS + '") — flagging for CEO scrutiny');
+        // 2026-10-06: block, not flag (same reason as propose-campaign above).
+        var _poNSList = strategyDigest.northStar.map(function (n) { return n.metric; }).join(', ');
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — northStarMetric "' + _poNS + '" is not a current north star (' + _poNSList + ')');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: northStarMetric "' + _poNS + '" is not current', cycleId,
+          { runId: cycleId, gate: 'proposal_northstar_invalid', kind: 'objective', named: _poNS, current: _poNSList, name: _poTitle });
+        continue;
       }
       // SE-2: optional structured target so CEO approval can mint a measurable
       // objective (criteria object). Both-or-neither: a target without a parseable
@@ -6928,26 +6950,16 @@ Write the full deliverable first, then the structured JSON block.`;
   // so the agent sees it next heartbeat (via the memory block in their prompt). This closes
   // the learning loop without a separate channel. Uses `type: 'feedback'` + source tag so
   // the reflection-callout path in prompt-builders.js also surfaces it prominently.
+  // 2026-10-06: no longer written as a memory. Thirteen of the fleet's 57 memories were
+  // this notice, and consolidation turned clusters of them into 90-day "core beliefs"
+  // about the action cap. The cap is already stated in every prompt; the drop is logged
+  // to governance (below) where it can be counted without teaching anything.
   if (result.rateLimitDropped && result.rateLimitDropped > 0) {
     try {
-      if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
-      const _rlNow = new Date();
-      _agentMemoryStore[agentId].push({
-        id: 'mem_' + Date.now() + '_rl_' + Math.random().toString(36).substr(2, 4),
-        type: 'feedback',
-        text: 'I emitted more than ' + GUARDRAILS.maxActionsPerCyclePerAgent + ' actions last cycle; ' +
-          result.rateLimitDropped + ' were dropped by the rate limit. Prioritize and batch next time — the cap is '
-          + GUARDRAILS.maxActionsPerCyclePerAgent + ' actions per heartbeat.',
-        source: 'auto:rate-limit',
-        timestamp: _rlNow.toISOString(),
-        expiresAt: new Date(_rlNow.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      });
-      if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
-        _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
-      }
-      context.log('[Heartbeat]', agentId, 'Rate-limit feedback memory written (' + result.rateLimitDropped + ' drops)');
+      await logEvent('policy-violation', agentId, 'Rate limit dropped ' + result.rateLimitDropped + ' action(s)', cycleId,
+        { runId: cycleId, gate: 'rate_limit', dropped: result.rateLimitDropped, cap: GUARDRAILS.maxActionsPerCyclePerAgent });
     } catch (_rlErr) {
-      context.log('[Heartbeat]', agentId, 'Rate-limit auto-memory failed (non-fatal):', String(_rlErr).substring(0, 200));
+      context.log('[Heartbeat]', agentId, 'Rate-limit governance log failed (non-fatal):', String(_rlErr).substring(0, 200));
     }
   }
 

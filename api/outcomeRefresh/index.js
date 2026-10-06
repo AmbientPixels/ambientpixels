@@ -277,6 +277,18 @@ function computeEngagementRate(sample) {
 //
 // Attribution lives in props.utm_content: productAnalyticsIngest sanitises events
 // to an explicit top-level field list but passes props through untouched.
+// A north-star event counts only when a stranger got a result. Mirrors
+// strategy-intel.isQualifiedScan: not our own site, not an agent-minted or failed
+// tier, and not flagged internal by the ingest (fleet / CEO sessions).
+const _OWN_DOMAIN_RE = /(^|\.|\/\/)ambientpixels\.ai(\/|$|:|\?)/i;
+function isQualifiedUseEvent(e) {
+  if (!e || e.internal === true) return false;
+  const p = e.props || {};
+  if (p.internal === true || p.tier === 'agent' || p.tier === 'failed') return false;
+  if (e.event === 'scan_completed' && _OWN_DOMAIN_RE.test(String(p.url || p.target_url || ''))) return false;
+  return true;
+}
+
 function backfillDownstream(store, blogViews, formIntakeEvents, analyticsEvents) {
   const byActionBV = {};
   const byActionFS = {};
@@ -284,16 +296,26 @@ function backfillDownstream(store, blogViews, formIntakeEvents, analyticsEvents)
   const byActionPA = {};
 
   // ProductAnalytics event name -> the downstream counter it feeds.
+  //
+  // qualifiedUses (2026-10-06): the two events that define the company north star
+  // (qualified_uses_week = delivered Resume Roasts + successful public AmbientScore
+  // scans). Until now they were not mapped, so the one number the company is judged
+  // on could never be attributed to the post that earned it. Both are browser-emitted,
+  // so props.utm_content carries the first-touch action id (js/product-analytics.js).
+  // Server-side run_delivered carries no UTM and is deliberately not listed.
   const PA_EVENT_MAP = {
     paywall_shown: 'reportViews',
     checkout_started: 'checkoutStarted',
     report_unlocked: 'reportUnlocked',
-    email_captured: 'emailCaptured'
+    email_captured: 'emailCaptured',
+    scan_completed: 'qualifiedUses',
+    agent_run_completed: 'qualifiedUses'
   };
   for (let i = 0; i < (analyticsEvents || []).length; i++) {
     const e = analyticsEvents[i];
     const field = e && PA_EVENT_MAP[e.event];
     if (!field) continue;
+    if (field === 'qualifiedUses' && !isQualifiedUseEvent(e)) continue;
     const actId = e.props && e.props.utm_content;
     if (!actId) continue;
     if (!byActionPA[actId]) byActionPA[actId] = {};
@@ -328,6 +350,7 @@ function backfillDownstream(store, blogViews, formIntakeEvents, analyticsEvents)
     s.downstream.checkoutStarted = pa.checkoutStarted || 0;
     s.downstream.reportUnlocked = pa.reportUnlocked || 0;
     s.downstream.emailCaptured = pa.emailCaptured || 0;
+    s.downstream.qualifiedUses = pa.qualifiedUses || 0;
   }
 }
 
@@ -515,3 +538,4 @@ module.exports = async function (context) {
 
 // Exposed for unit tests — the Azure binding still uses the default export.
 module.exports._backfillDownstream = backfillDownstream;
+module.exports._isQualifiedUseEvent = isQualifiedUseEvent;

@@ -68,7 +68,7 @@ function mean(arr) {
   return sum / arr.length;
 }
 
-function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, nowMs) {
+function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, nowMs, opts) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
   const snaps = outcomeSnapshots && typeof outcomeSnapshots === 'object'
     ? Object.values(outcomeSnapshots).filter(Boolean) : [];
@@ -178,13 +178,29 @@ function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, n
   perHook.sort((a, b) => b.medianEngagement - a.medianEngagement);
 
   // ── Per campaign ──
+  // 2026-10-06: snapshot.campaignId was null on 168 of 168 production snapshots (the
+  // capture path only sees action.campaign_id, which social actions never carry), so
+  // every campaign read "0 posts" forever. Resolve action → parent task → campaign_id
+  // with the same map the revenue lane uses. opts.tasks / opts.attributionIndex are
+  // optional; without them the old field is the only source and the result is the same
+  // as before (unmeasured, not wrong).
+  const _opts = opts || {};
+  const _attrMap = buildActionAttributionMap(actions, _opts.tasks, _opts.attributionIndex);
+  const campaignOf = s => s.campaignId || ((_attrMap[s.actionId] || {}).campaignId) || null;
   const campList = Array.isArray(campaigns) ? campaigns : [];
   const perCampaign = campList.filter(c => c && c.id).map(c => {
-    const list = snaps.filter(s => s.campaignId === c.id);
+    const list = snaps.filter(s => campaignOf(s) === c.id);
     const completeList = list.filter(s => s.complete);
     const totalEng = completeList.reduce((sum, s) => sum + totalEngagement(getT7(s)), 0);
     const blogViewsAttributed = list.reduce((sum, s) => sum + ((s.downstream && s.downstream.blogViews) || 0), 0);
     const formSubmitsAttributed = list.reduce((sum, s) => sum + ((s.downstream && s.downstream.formSubmits) || 0), 0);
+    // People who USED a free offer after clicking a post in this campaign — the
+    // north-star unit. null when no snapshot in the campaign carries a downstream block
+    // yet (outcomeRefresh has not run over it), so a kill rule can never fire on a zero
+    // nobody measured.
+    const measured = list.filter(s => s.downstream && typeof s.downstream.qualifiedUses === 'number');
+    const qualifiedUsesAttributed = measured.length
+      ? measured.reduce((sum, s) => sum + (s.downstream.qualifiedUses || 0), 0) : null;
     return {
       campaignId: c.id,
       title: (c.title || c.id).substring(0, 60),
@@ -192,7 +208,9 @@ function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, n
       postsComplete: completeList.length,
       totalEngagements: totalEng,
       blogViewsAttributed: blogViewsAttributed,
-      formSubmitsAttributed: formSubmitsAttributed
+      formSubmitsAttributed: formSubmitsAttributed,
+      qualifiedUsesAttributed: qualifiedUsesAttributed,
+      qualifiedUsesMeasuredPosts: measured.length
     };
   });
 

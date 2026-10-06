@@ -79,8 +79,40 @@ test('a snapshot with no matching events still gets a well-formed downstream blo
   backfill(s, [], [], []);
   assert.deepStrictEqual(s.a.downstream, {
     blogViews: 0, formSubmits: 0, submissionTypes: {},
-    reportViews: 0, checkoutStarted: 0, reportUnlocked: 0, emailCaptured: 0
+    reportViews: 0, checkoutStarted: 0, reportUnlocked: 0, emailCaptured: 0, qualifiedUses: 0
   });
+});
+
+// ── qualifiedUses (2026-10-06): the north-star unit, attributed per action ──
+const isQualified = require('./index')._isQualifiedUseEvent;
+const qev = (event, utm, props, top) => Object.assign({ event: event, props: Object.assign(utm ? { utm_content: utm } : {}, props || {}) }, top || {});
+
+test('a completed scan and a completed roast run both count as one qualified use on the post that earned them', () => {
+  const s = store();
+  backfill(s, [], [], [qev('scan_completed', POST_ID), qev('agent_run_completed', POST_ID), qev('scan_completed', REPLY_ID)]);
+  assert.strictEqual(s.b.downstream.qualifiedUses, 2);
+  assert.strictEqual(s.a.downstream.qualifiedUses, 1);
+});
+
+test('qualified uses exclude internal sessions, agent-minted and failed scans, and scans of our own site', () => {
+  const s = store();
+  backfill(s, [], [], [
+    qev('scan_completed', POST_ID, {}, { internal: true }),
+    qev('scan_completed', POST_ID, { tier: 'agent' }),
+    qev('scan_completed', POST_ID, { tier: 'failed' }),
+    qev('scan_completed', POST_ID, { url: 'https://www.ambientpixels.ai/ambientscore/' }),
+    qev('scan_completed', POST_ID, { url: 'https://someone-elses-site.com/' })
+  ]);
+  assert.strictEqual(s.b.downstream.qualifiedUses, 1, 'only the stranger\'s scan counts');
+  assert.strictEqual(isQualified({ event: 'agent_run_completed', props: {} }), true);
+  assert.strictEqual(isQualified({ event: 'scan_completed', props: { url: 'https://ambientpixels.ai' } }), false);
+  assert.strictEqual(isQualified(null), false);
+});
+
+test('server-side run_delivered carries no UTM and is not mapped — an unattributed use is unmeasured, not credited', () => {
+  const s = store();
+  backfill(s, [], [], [qev('run_delivered', POST_ID), qev('scan_completed', null)]);
+  assert.strictEqual(s.b.downstream.qualifiedUses, 0);
 });
 
 test('garbage events do not throw', () => {

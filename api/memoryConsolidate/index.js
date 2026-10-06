@@ -22,6 +22,7 @@ const MIN_CLUSTER_SIZE = 5;
 const MIN_AGE_DAYS = 7;
 const CONSOLIDATED_TTL_DAYS = 90;
 const MAX_CONSOLIDATIONS_PER_AGENT_PER_RUN = 3;
+const MIN_TEXT_CHARS = 20;
 const PROTECTED_SOURCES = new Set(['auto:experiment-verdict', 'auto:ceo-edit']);
 const PROTECTED_TYPES = new Set(['reflection', 'weekly_report', 'consolidated_belief']);
 
@@ -78,6 +79,12 @@ module.exports = async function (context) {
     // Candidates: not protected type/source, older than 7 days, has text
     const candidates = list.filter(m => {
       if (!m || !m.text) return false;
+      // 2026-10-06: system-written notices are logs, not beliefs. Consolidating five
+      // "I emitted more than 3 actions" rate-limit notices produced a 90-day "core
+      // belief" about the action cap — 7 of Echo's 11 consolidated beliefs were that.
+      // Two more read "Core belief: string" because a placeholder text passed through.
+      if (m.source && String(m.source).indexOf('auto:') === 0) return false;
+      if (String(m.text).trim().length < MIN_TEXT_CHARS) return false;
       if (PROTECTED_TYPES.has((m.type || '').toLowerCase())) return false;
       if (m.source && PROTECTED_SOURCES.has(m.source)) return false;
       const ts = Date.parse(m.timestamp || 0);

@@ -340,9 +340,15 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       };
     }
     var m = snap.metrics || {};
-    agentPostEngagement[snapAgent][postKey].likes += (Number.isFinite(m.likes) ? m.likes : 0);
-    agentPostEngagement[snapAgent][postKey].comments += (Number.isFinite(m.comments) ? m.comments : 0);
-    agentPostEngagement[snapAgent][postKey].reposts += (Number.isFinite(m.reposts) ? m.reposts : 0);
+    // Each snapshot row is the post's CUMULATIVE lifetime count at poll time, and the
+    // poller samples a post ~22x/week. Summing rows measured the cron schedule, not the
+    // post (Echo read avg 35 / top 404 likes against a best-ever post of 4 — the same
+    // 22x inflation fixed in socialEngagement on 2026-08-09). A post's lifetime count
+    // is the LARGEST sample seen, never the sum. A failed pull (null) is unknown, not 0.
+    var _pe = agentPostEngagement[snapAgent][postKey];
+    if (Number.isFinite(m.likes)) _pe.likes = Math.max(_pe.likes, m.likes);
+    if (Number.isFinite(m.comments)) _pe.comments = Math.max(_pe.comments, m.comments);
+    if (Number.isFinite(m.reposts)) _pe.reposts = Math.max(_pe.reposts, m.reposts);
   }
 
   // Match engagement to hook types via action cross-reference
@@ -665,10 +671,11 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
   var lines = [];
   lines.push('\n\nYOUR PERFORMANCE SCORECARD (' + performanceDigest.windowDays + '-day rolling window):');
 
-  // Quality score + trend
-  var trendArrow = data.qualityTrend === 'improving' ? ' (up from ' + data.previousScore + ')' :
-    (data.qualityTrend === 'declining' ? ' (down from ' + data.previousScore + ')' : '');
-  lines.push('- Quality Score: ' + data.qualityScore + '/100' + trendArrow + ' — ' + data.qualityTrend);
+  // 2026-10-06: qualityScore and ceoApprovalRate are NOT shown. A pending item counts
+  // as "submitted, not approved", so an absent CEO reads as a 0% agent — Scribe wrote
+  // three reflections blaming itself for "0% CEO approval" during a 6-week CEO absence.
+  // The quality score blends that rate with engagement, so it inherits the same lie.
+  // Revision/rejection COUNTS and the CEO's written notes stay: those are real decisions.
 
   // CEO star rating
   if (data.ceoAvgStarRating > 0) {
@@ -682,19 +689,12 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
       (data.peerReviewChangesRequested > 0 ? ' — ' + data.peerReviewChangesRequested + ' changes-requested' : ''));
   }
 
-  // CEO approval
-  if (data.ceoActionsSubmitted > 0) {
-    var ceoLine = '- CEO Approval: ' + data.ceoApproved + '/' + data.ceoActionsSubmitted +
-      ' approved (' + Math.round(data.ceoApprovalRate * 100) + '%)';
-    if (data.ceoRevisionRequested > 0) ceoLine += ' — ' + data.ceoRevisionRequested + ' revision requests';
+  // CEO decisions — counts of actual decisions only, never a rate over pending items
+  if (data.ceoRevisionRequested > 0 || data.ceoRejected > 0) {
+    var ceoLine = '- CEO decisions on your work: ' + data.ceoApproved + ' approved';
+    if (data.ceoRevisionRequested > 0) ceoLine += ', ' + data.ceoRevisionRequested + ' sent back for revision';
     if (data.ceoRejected > 0) ceoLine += ', ' + data.ceoRejected + ' rejected';
     lines.push(ceoLine);
-    if (data.avgRevisionsBeforeApproval > 0) {
-      lines.push('- Avg revisions before approval: ' + data.avgRevisionsBeforeApproval);
-    }
-    if (data.avgApprovalWaitHours > 0) {
-      lines.push('- Avg CEO decision time: ' + data.avgApprovalWaitHours + 'h (lower = CEO trusts your work more)');
-    }
   }
 
   // Block rate
@@ -708,25 +708,12 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
       ' passed first review (' + Math.round(data.handoffFirstPassRate * 100) + '%)');
   }
 
-  // Social engagement
+  // Social: post COUNT only. Likes are not shown here — 195 posts earned 65 interactions
+  // in 4 months, so a likes average is noise with a decimal point, and the Outcome
+  // Attribution block (YOUR RECENT OUTCOMES) already carries the honest, differenced
+  // per-post numbers with sample sizes.
   if (data.socialPostsPublished > 0) {
-    var socialLine = '- Social: ' + data.socialPostsPublished + ' posts, avg ' +
-      data.avgLikesPerPost + ' likes';
-    if (data.topPostLikes > 0) {
-      socialLine += ', top: ' + data.topPostLikes + ' likes';
-      if (data.topPostPlatform) socialLine += ' (' + data.topPostPlatform + ')';
-    }
-    lines.push(socialLine);
-
-    // Hook analysis
-    var hookKeys = Object.keys(data.hookEngagement);
-    if (hookKeys.length > 1) {
-      var hookLines = hookKeys.map(function (h) {
-        var he = data.hookEngagement[h];
-        return h + ': ' + (he.posts > 0 ? Math.round(he.totalLikes / he.posts) : 0) + ' avg likes (' + he.posts + ' posts)';
-      }).sort().join(', ');
-      lines.push('- Hook analysis: ' + hookLines);
-    }
+    lines.push('- Social: ' + data.socialPostsPublished + ' posts published in window');
   }
 
   // Blog views
@@ -782,26 +769,10 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
     }
   }
 
-  // Team-wide hook correlation — surfaced to Echo/Scribe/Quill (content agents).
-  // Uses pooled engagement across all agents for stronger statistical signal than per-agent alone.
-  // Requires ≥3 samples per hook type (EXPERIMENT_MIN_SAMPLES) before surfacing.
-  var teamHookRank = performanceDigest.teamHookCorrelation || [];
-  if (teamHookRank.length > 0 && ['echo', 'scribe', 'quill'].indexOf(agentId) !== -1) {
-    lines.push('');
-    lines.push('TEAM HOOK PERFORMANCE (' + performanceDigest.windowDays + 'd, pooled across all content agents, ≥3 samples):');
-    teamHookRank.slice(0, 6).forEach(function (h, idx) {
-      var marker = idx === 0 ? ' 🔥 TOP' : (idx === teamHookRank.length - 1 && teamHookRank.length > 1 ? ' ↓ weakest' : '');
-      lines.push('- ' + h.hook + ': ' + h.samples + ' samples, avg weighted engagement ' + h.avgWeighted +
-        ' (' + h.avgLikes + ' likes / ' + h.avgComments + ' comments / ' + h.avgReposts + ' reposts)' + marker);
-    });
-    if (agentId === 'echo') {
-      lines.push('Lean your strategy briefs toward the top-ranked hooks this cycle. Flag any KEEP/DISCARD patterns from experiments that reinforce or contradict this ranking.');
-    } else if (agentId === 'scribe') {
-      lines.push('When Echo\'s brief leaves the hook open, default to the top-ranked hook. If Echo specifies a hook that\'s ranked bottom, ask in the task comments before drafting.');
-    } else if (agentId === 'quill') {
-      lines.push('Use this when editing — if copy uses a bottom-ranked hook and could be rewritten with a top-ranked one without losing the brief, suggest the swap in your review.');
-    }
-  }
+  // Team-wide hook ranking is no longer injected here. It was built on the summed-likes
+  // metric and told three agents to "lean toward the top hook" over differences of one
+  // like. outcomeDigest.perHook (median engagement, n per bucket) is the honest version
+  // and is already surfaced in YOUR RECENT OUTCOMES.
 
   return lines.join('\n');
 }
@@ -888,84 +859,17 @@ function generatePerformanceInsights(agentId, currentDigest, previousDigest) {
   return insights.slice(0, MAX_PERFORMANCE_INSIGHTS_PER_DAY);
 }
 
-// ── Experiment Evaluation ──
-
-function evaluateExperiments(agentExperiments, performanceDigest, actions, nowMs) {
-  if (!Array.isArray(agentExperiments) || !performanceDigest || !performanceDigest.agents) return agentExperiments;
-  var now = Number.isFinite(nowMs) ? nowMs : Date.now();
-  var thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-
-  for (var i = 0; i < agentExperiments.length; i++) {
-    var exp = agentExperiments[i];
-    if (!exp || exp.status !== 'active') continue;
-
-    var startTs = Date.parse(exp.startedAt || '');
-    if (Number.isFinite(startTs) && (now - startTs) > thirtyDaysMs && exp.sampleCount < exp.minSamples) {
-      exp.status = 'discarded';
-      exp.concludedAt = new Date(now).toISOString();
-      exp.result = 'inconclusive';
-      continue;
-    }
-
-    var samples = 0, totalApproved = 0, totalSubmitted = 0;
-    for (var a = 0; a < actions.length; a++) {
-      var act = actions[a];
-      if (!act || !act.experiment_tag || act.experiment_tag !== exp.hypothesis) continue;
-      var actAgent = (act.created_by || act.origin_agent || '').toLowerCase();
-      if (actAgent !== exp.agentId) continue;
-      samples++;
-      if (act.approval) {
-        totalSubmitted++;
-        if (act.approval.status === 'approved') totalApproved++;
-      }
-    }
-    exp.sampleCount = samples;
-
-    if (samples >= (exp.minSamples || EXPERIMENT_MIN_SAMPLES)) {
-      var baseline = exp.baselineMetric || {};
-      var baselineRate = Number.isFinite(baseline.ceoApprovalRate) ? baseline.ceoApprovalRate : 0;
-      var expRate = totalSubmitted > 0 ? totalApproved / totalSubmitted : 0;
-      var improvement = baselineRate > 0 ? (expRate - baselineRate) / baselineRate : (expRate > 0 ? 1 : 0);
-
-      exp.experimentMetric = { ceoApprovalRate: Number(expRate.toFixed(2)), samples: samples };
-
-      if (improvement >= EXPERIMENT_IMPROVEMENT_THRESHOLD) { exp.status = 'concluded'; exp.result = 'keep'; }
-      else if (improvement <= -EXPERIMENT_IMPROVEMENT_THRESHOLD) { exp.status = 'concluded'; exp.result = 'discard'; }
-      else { exp.status = 'concluded'; exp.result = 'inconclusive'; }
-      exp.concludedAt = new Date(now).toISOString();
-    }
-  }
-
-  return agentExperiments;
-}
-
-function _buildExperimentPromptBlock(agentId, agentExperiments) {
-  if (!Array.isArray(agentExperiments)) return '';
-  var active = agentExperiments.filter(function (e) { return e && e.agentId === agentId && e.status === 'active'; });
-  var recentConcluded = agentExperiments.filter(function (e) {
-    return e && e.agentId === agentId && e.status === 'concluded' &&
-      e.concludedAt && (Date.now() - Date.parse(e.concludedAt)) < 7 * 24 * 60 * 60 * 1000;
-  }).slice(0, 3);
-
-  if (active.length === 0 && recentConcluded.length === 0) return '';
-
-  var lines = ['\n\nEXPERIMENTS:'];
-  active.forEach(function (e) {
-    lines.push('- ACTIVE: "' + e.hypothesis + '" — ' + (e.description || '') + ' (' + e.sampleCount + '/' + (e.minSamples || EXPERIMENT_MIN_SAMPLES) + ' samples)');
-  });
-  recentConcluded.forEach(function (e) {
-    var label = e.result === 'keep' ? 'KEEP' : (e.result === 'discard' ? 'DISCARD' : 'INCONCLUSIVE');
-    lines.push('- ' + label + ': "' + e.hypothesis + '"' + (e.experimentMetric ? ' — approval rate: ' + Math.round((e.experimentMetric.ceoApprovalRate || 0) * 100) + '%' : ''));
-  });
-
-  return lines.join('\n');
-}
+// ── Experiment Evaluation ── REMOVED 2026-10-06.
+// evaluateExperiments scored a hypothesis by CEO approval rate over n=3 tagged actions,
+// so a pending queue (CEO away) read as 0% and produced 27 of 34 "discard" verdicts for
+// approaches that were never published. The engagement-based gates in outcome-intel.js
+// (>=10 samples, >=5 per arm, |effect| >= 0.15) are the only experiment verdict now, and
+// experiments are being folded into the campaign bet ledger (see
+// docs/superpowers/specs/2026-10-06-agent-learning-evaluation.md, section 7).
 
 module.exports = {
   buildPerformanceDigest,
   _buildPerformancePromptBlock,
   generatePerformanceInsights,
-  evaluateExperiments,
-  _buildExperimentPromptBlock,
   classifyHook
 };
