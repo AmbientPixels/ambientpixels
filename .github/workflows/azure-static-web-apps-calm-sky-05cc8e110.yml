@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+  # Daily static refresh so blog posts published since the last push get
+  # pre-rendered article pages. Static site only — the API deploy is skipped.
+  schedule:
+    - cron: '40 9 * * *'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -15,7 +19,7 @@ permissions:
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
@@ -42,6 +46,12 @@ jobs:
             ./ app_build/
           echo "--- app_build size ---"
           du -sh app_build/
+
+      # Static article pages for /blog/<slug> so crawlers and link previews see
+      # the post, not the client-rendered shell. Fail-open: an unreachable API
+      # leaves the blog client-rendered, never fails the deploy.
+      - name: Pre-render blog articles
+        run: node scripts/prerenderBlog.js app_build
 
       - name: Generate build version metadata
         run: |
@@ -88,16 +98,19 @@ jobs:
       # zip-deploy using the existing publish-profile secret. No external
       # action dependency.
       - name: Set up Node.js
+        if: github.event_name != 'schedule'
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
 
       - name: Install dependencies for API
+        if: github.event_name != 'schedule'
         run: |
           cd api
           npm install
 
       - name: Deploy API to Azure Functions (Kudu zip-deploy)
+        if: github.event_name != 'schedule'
         env:
           PUBLISH_PROFILE: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
           APP_NAME: ambientpixels-nova-api
