@@ -65,4 +65,26 @@ async function countResumeRoastRuns14d(nowMs, readEventRange) {
   }
 }
 
-module.exports = { countResumeRoastRuns14d, countRunsInEvents };
+/**
+ * Delivered roasts in the trailing 7 days — the Resume Roast half of
+ * qualified_uses_week. The blob reader is day-granular, so events are also
+ * filtered on their own `ts` to keep the window a true 7×24h.
+ * @returns {Promise<number|null>} null = unmeasured, never a fake 0.
+ */
+async function countResumeRoastRuns7d(nowMs, readEventRange) {
+  const read = readEventRange || pa.readEventRange;
+  const now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const cutoff = now - 7 * 24 * 60 * 60 * 1000;
+  try {
+    const events = await read(_utcDate(cutoff), _utcDate(now));
+    const inWindow = (Array.isArray(events) ? events : []).filter(function (e) {
+      const t = Date.parse((e && e.ts) || '');
+      return !Number.isFinite(t) || (t >= cutoff && t <= now);
+    });
+    return countRunsInEvents(inWindow);
+  } catch (e) {
+    return null;
+  }
+}
+
+module.exports = { countResumeRoastRuns14d, countResumeRoastRuns7d, countRunsInEvents };

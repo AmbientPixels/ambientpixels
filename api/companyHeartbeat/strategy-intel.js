@@ -65,12 +65,36 @@ const METRIC_RESOLVERS = {
   // 2026-08-08: this metric had NO resolver for its first week and the
   // objective read a phantom 0 the whole time. Null when the pipe is absent —
   // a kill gate must never fire on a zero nobody measured.
+  // The company's single north star since the 2026-10-06 restart: real humans
+  // who USED a free offer in the trailing 7 days — delivered Resume Roasts plus
+  // successful public AmbientScore scans (see isQualifiedScan). Replaces
+  // qualified_visitors_week, which read AmbientScore only and counted failed
+  // scans. Null if EITHER half is unmeasured: a partial count would read as a
+  // drop the moment one pipe broke.
+  qualified_uses_week: function (entry, sources) {
+    const f = sources && sources.funnel;
+    const scans = f ? Number(f.qualifiedScans7d) : NaN;
+    const rr = sources ? sources.resumeRoastRuns7d : null;
+    if (!Number.isFinite(scans) || rr === null || rr === undefined) return null;
+    const runs = Number(rr);
+    return Number.isFinite(runs) ? scans + runs : null;
+  },
   resume_roast_runs_14d: function (entry, sources) {
     if (!sources || sources.resumeRoastRuns14d === null || sources.resumeRoastRuns14d === undefined) return null;
     const n = Number(sources.resumeRoastRuns14d);
     return Number.isFinite(n) ? n : null;
   }
 };
+
+// A cc_analytics scan counts as demand only if a stranger got a result:
+// not minted by our own prospect lane (tier 'agent'), not a failure (tier
+// 'failed' — no result was delivered), and not a scan of our own site (the
+// only internal-test signal a scan record carries; it has no device flag).
+const OWN_DOMAIN_RE = /(^|\.|\/\/)ambientpixels\.ai(\/|$|:|\?)/i;
+function isQualifiedScan(e) {
+  if (!e || e.tier === 'agent' || e.tier === 'failed') return false;
+  return !OWN_DOMAIN_RE.test(String(e.url || ''));
+}
 
 // → { value: number|null, resolved: boolean }
 function resolveNorthStarMetric(entry, sources, nowMs) {
@@ -227,6 +251,7 @@ module.exports = {
   buildStrategyDigest: buildStrategyDigest,
   _buildStrategyPromptBlock: _buildStrategyPromptBlock,
   evaluateObjectives: evaluateObjectives,
+  isQualifiedScan: isQualifiedScan,
   METRIC_RESOLVERS: METRIC_RESOLVERS,
   MAX_STRATEGY_BLOCK_CHARS: MAX_STRATEGY_BLOCK_CHARS
 };

@@ -3,7 +3,8 @@
 // objective's kill-gate metric. The counting is injected-reader-pure so no
 // blob storage is touched in tests.
 const assert = require('assert');
-const { countResumeRoastRuns14d, countRunsInEvents } = require('./pa-metrics');
+const { countResumeRoastRuns14d, countResumeRoastRuns7d, countRunsInEvents } = require('./pa-metrics');
+const NOW_ISO_7D = '2026-08-08T12:00:00.000Z';
 
 let pass = 0, fail = 0;
 function t(name, fn) { queue.push([name, fn]); }
@@ -103,6 +104,27 @@ t('countResumeRoastRuns14d reads a 14-day window through the injected reader', a
 t('a reader failure resolves to null — unmeasured, never a fake zero', async function () {
   const n = await countResumeRoastRuns14d(NOW, async function () { throw new Error('blob down'); });
   assert.strictEqual(n, null);
+});
+
+t('countResumeRoastRuns7d counts only delivered runs whose ts falls inside 7x24h', async function () {
+  const askedRanges = [];
+  const reader = async function (startDate, endDate) {
+    askedRanges.push([startDate, endDate]);
+    return [
+      { product: 'resumeroast', event: 'agent_run_completed', ts: '2026-08-07T10:00:00.000Z', props: { runId: 'a' } },
+      { product: 'resumeroast', event: 'run_delivered', ts: '2026-08-07T10:00:01.000Z', props: { runId: 'a' } },
+      { product: 'resumeroast', event: 'agent_run_completed', ts: '2026-08-01T13:00:00.000Z', props: { runId: 'b' } },
+      { product: 'resumeroast', event: 'agent_run_completed', ts: '2026-08-01T11:00:00.000Z', props: { runId: 'old' } },
+      { product: 'resumeroast', event: 'agent_run_completed', ts: '2026-08-06T09:00:00.000Z', internal: true, props: { runId: 'mine' } }
+    ];
+  };
+  const n = await countResumeRoastRuns7d(Date.parse(NOW_ISO_7D), reader);
+  assert.strictEqual(n, 2, 'a (deduped across both events) + b; not the run older than 7x24h, not the internal one');
+  assert.deepStrictEqual(askedRanges[0], ['2026-08-01', '2026-08-08']);
+});
+
+t('countResumeRoastRuns7d reader failure is null, never zero', async function () {
+  assert.strictEqual(await countResumeRoastRuns7d(Date.now(), async function () { throw new Error('down'); }), null);
 });
 
 (async function () {

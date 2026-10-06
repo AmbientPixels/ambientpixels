@@ -20,7 +20,7 @@ const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments
 const { buildOutcomeDigest, buildActionAttributionMap, attributeRevenue, applyRevenueToOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
-const { buildStrategyDigest, evaluateObjectives } = require('./strategy-intel');
+const { buildStrategyDigest, evaluateObjectives, isQualifiedScan } = require('./strategy-intel');
 const { buildRevenueDigest } = require('./revenue-intel');
 const { getLedger: getRevenueLedger, resolveInternalEmails: _resolveInternalEmails, isInternalEntry: _isInternalRevenue } = require('../_lib/stripe/revenueLedger');
 const { buildAllocationDigest } = require('./allocation-intel');
@@ -392,6 +392,9 @@ module.exports = async function (context) {
           // NOT demand — 42 of 43 scans the week this landed were agent-minted.
           // qualified_visitors_week (strategy-intel) resolves off THIS field.
           publicScans7d: _cc7d.filter(e => e && e.tier !== 'agent').length,
+          // qualified_uses_week's scan half: also drops failed scans and scans of
+          // our own site (strategy-intel isQualifiedScan).
+          qualifiedScans7d: _cc7d.filter(isQualifiedScan).length,
           scansTotal: _cc.length,
           leads7d: (Array.isArray(_asLeads) ? _asLeads : []).filter(e => _leadTs(e) > _7dCutoff).length,
           leadsTotal: Array.isArray(_asLeads) ? _asLeads.length : 0,
@@ -3890,12 +3893,15 @@ module.exports = async function (context) {
       // kill-gated objective). Pre-counted here; null = unmeasured, never 0.
       let _rrRuns14d = null;
       try { _rrRuns14d = await require('./pa-metrics').countResumeRoastRuns14d(Date.now()); } catch (_pm) { /* unmeasured */ }
+      let _rrRuns7d = null;
+      try { _rrRuns7d = await require('./pa-metrics').countResumeRoastRuns7d(Date.now()); } catch (_pm7) { /* unmeasured */ }
       const _se2 = evaluateObjectives(objectives, {
         socialAccountStats: socialAccountStats,
         blogPostViews: _blogPostViewsForDigest,
         revenueDigest: revenueDigest,
         funnel: costIntel && costIntel.funnel,
-        resumeRoastRuns14d: _rrRuns14d
+        resumeRoastRuns14d: _rrRuns14d,
+        resumeRoastRuns7d: _rrRuns7d
       }, Date.now());
       if (_se2.changed) objectivesChanged = true;
       for (const _evt of _se2.govEvents) campaignGovEvents.push(_evt);

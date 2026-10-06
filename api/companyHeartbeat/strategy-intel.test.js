@@ -87,5 +87,35 @@ t('missing pipe resolves unmeasured (null), not 0 — the kill gate must never f
   assert.strictEqual(rrr({}, { resumeRoastRuns14d: 'not-a-number' }), null);
 });
 
+console.log('qualified_uses_week');
+const quw = METRIC_RESOLVERS.qualified_uses_week;
+const isQS = require('./strategy-intel').isQualifiedScan;
+
+t('sums qualified scans and delivered roasts', function () {
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 2 }, resumeRoastRuns7d: 3 }), 5);
+});
+
+t('real zero when both pipes report zero', function () {
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 0 }, resumeRoastRuns7d: 0 }), 0);
+});
+
+t('null when EITHER half is unmeasured — a broken pipe must not read as a drop', function () {
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 4 }, resumeRoastRuns7d: null }), null);
+  assert.strictEqual(quw({}, { funnel: { qualifiedScans7d: 4 } }), null);
+  assert.strictEqual(quw({}, { funnel: {}, resumeRoastRuns7d: 2 }), null);
+  assert.strictEqual(quw({}, { resumeRoastRuns7d: 2 }), null);
+});
+
+t('isQualifiedScan drops agent-minted, failed and own-site scans', function () {
+  assert.strictEqual(isQS({ tier: 'free', url: 'https://acme.io' }), true);
+  assert.strictEqual(isQS({ tier: 'agent', url: 'https://acme.io' }), false);
+  assert.strictEqual(isQS({ tier: 'failed', url: 'https://acme.io' }), false);
+  assert.strictEqual(isQS({ tier: 'free', url: 'https://www.ambientpixels.ai/ambientscore/' }), false);
+  assert.strictEqual(isQS({ tier: 'free', url: 'ambientpixels.ai' }), false);
+  assert.strictEqual(isQS({ tier: 'free', url: 'https://notambientpixels.ai.example.com' }), true);
+  assert.strictEqual(isQS(null), false);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail === 0 ? 0 : 1);
+
