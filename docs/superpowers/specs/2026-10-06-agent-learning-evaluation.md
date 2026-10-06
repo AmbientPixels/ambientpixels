@@ -414,3 +414,17 @@ Branch `learning-loop` in worktree `C:\Dev\Ambientpixels\wt-learning` (kept out 
 **Product note (CEO, 2026-10-06):** the brief's "two products" is wrong. Product-facts lists eight: AmbientOS, AmbientScore, Pixel Agents (a catalog of 24 agents, Resume Roast among them), Agent Forge, CardForge, StoryForge, Blindspot, Pulse. Thirty-day product-analytics users: Pixel Agents 20 views / 1 run delivered, CardForge 2 views / 1 quick build, Blindspot 14 views / 0 cards, StoryForge 3 views / 0 adventures, Agent Forge 3 views / 0 submissions, AmbientScore 0 scans, Resume Roast 0 runs. The north star counts only the last two. Decision 8 below.
 
 **Decision 8 (new, DECIDED by delegation 2026-10-06 ~04:10Z): widened.** `qualified_uses_week` = successful public AmbientScore scans (cc_analytics) + every other product's first-value event from product analytics: any Pixel Agents run delivered (Resume Roast is one of the 24), `quickbuild_completed`, `adventure_started`, `card_created`, `agent_submitted`; internal sessions excluded; null if either half is unmeasured. Code: `pa-metrics.countQualifiedPaUses7d`, `strategy-intel.qualified_uses_week`, the `outcomeRefresh` event map. Data: `scripts/ops/apply-northstar-widen.js` applied the seed sentence, the objective description and note, and the strategy label. Kill rules and the ledger needed no change.
+
+## 12. Azure cron settings (read 2026-10-06 ~04:25Z after CEO device-code sign-in)
+
+| Function | `AzureWebJobs.<name>.Disabled` | Consequence |
+|---|---|---|
+| reflectionWriterCron | **true** | Explains 3.4: no `auto:reflection` memory was ever written. Keep disabled; the prompt block is no longer injected. |
+| emergenceCheckCron | **true** | Explains 3.8: digest frozen at 2026-08-04. Prompt injection now skips a digest older than 7 days (`prompt-builders.js`, emergence section). Delete the key or re-enable; a re-enable fires immediately on restart. |
+| memoryConsolidate | **true** | Consolidation has not run since the setting was added; the "Core belief" entries are historical. The guard added in 3.2 applies if it is ever re-enabled. |
+| companyWeeklyReport | **true** | L9 (weekly reports) is empty by construction, and `weeklyReports` is not a valid state key. |
+| agenticMeetingCron | **true** | Also gated by `systemConfig.agenticMeetings.enabled` (unset). |
+| milestoneHeraldCron | false | Runs, but `systemConfig.milestoneHerald.enabled=false` makes it a no-op. Code path still exists (section 8). |
+| rewardsEngineCron | false | Runs every 30 min; now on the outcome lane. |
+
+No `DEMO_MODE` / `DEMO_EXPIRES_AT` setting is present, so `demoGuard.timerSkip` is not the cause of anything above.

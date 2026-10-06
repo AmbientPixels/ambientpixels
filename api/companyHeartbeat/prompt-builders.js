@@ -1598,7 +1598,12 @@ You must remain within your assigned authority tier. Doctrine influences your st
   // Emergence signals (System 15) — Forge-only block, fed from runtime cache
   // populated by index.js before the agent loop. Stale (>26h) → no block rendered
   // because index.js only caches fresh digests.
-  const emergenceSection = _buildEmergencePromptBlock(agent, emergenceDigest || null);
+  // emergenceCheckCron is disabled in Azure (AzureWebJobs.emergenceCheckCron.Disabled=true,
+  // read 2026-10-06); the stored digest froze on 2026-08-04 and Forge was reading a
+  // two-month-old YELLOW signal every cycle. A digest older than 7 days is not injected.
+  const _emGenerated = Date.parse((emergenceDigest && emergenceDigest.generatedAt) || '');
+  const _emFresh = Number.isFinite(_emGenerated) && (Date.now() - _emGenerated) < 7 * 86400000;
+  const emergenceSection = _emFresh ? _buildEmergencePromptBlock(agent, emergenceDigest) : '';
   const researchDemandSection = _buildResearchDemandPromptBlock(agent, researchDemandDigest);
   const contentSection = _buildContentPromptBlock(agent, contentDigest);
   const strategicSection = _buildStrategicPromptBlock(agent, strategicDigest);
