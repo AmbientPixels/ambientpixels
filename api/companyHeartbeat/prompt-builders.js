@@ -1683,8 +1683,10 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const _titleSuffix = _agentTitle ? ' (' + _agentTitle + ')' : '';
 
   // Product facts injection for content-producing + research agents (Echo, Scribe, Quill, Scout)
+  // and Nova, which proposes campaigns and objectives — it was choosing what to
+  // promote without the facts about what each product actually is (2026-10-06).
   var productFactsBlock = '';
-  if (productFacts && productFacts.products && ['echo', 'scribe', 'quill', 'scout'].indexOf(agent.id) !== -1) {
+  if (productFacts && productFacts.products && ['nova', 'echo', 'scribe', 'quill', 'scout'].indexOf(agent.id) !== -1) {
     var pfLines = ['\n📋 PRODUCT FACTS (use ONLY these when describing products — do NOT invent features):'];
     Object.keys(productFacts.products).forEach(function(pName) {
       var p = productFacts.products[pName];
