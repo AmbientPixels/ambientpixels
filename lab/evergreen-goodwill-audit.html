@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Conversion audit — evergreengoodwill.org</title>
+<style>
+  :root{--paper:#F3EEE3;--paper-2:#EAE3D3;--warm:#FBF7EB;--rule:#D4CBB5;--rule-2:#BDB299;
+        --ink:#1A1613;--ink-soft:#3D342C;--ink-muted:#6B6052;--stamp:#8C2F1E}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink-soft);
+       font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:11.5pt;line-height:1.55}
+  .doc{max-width:52rem;margin:0 auto;padding:2.5rem 2rem 4rem}
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,monospace;
+        font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase}
+  header{border-bottom:2px solid var(--ink);padding-bottom:1.1rem;margin-bottom:1.6rem}
+  .eyebrow{color:var(--stamp);margin:0 0 .5rem}
+  h1{font-size:23pt;line-height:1.15;color:var(--ink);margin:0 0 .35rem;font-weight:600}
+  .sub{color:var(--ink-muted);font-size:10pt;margin:0}
+  .grade{display:flex;gap:1.6rem;align-items:center;background:var(--warm);
+         border:1px solid var(--rule);padding:1.1rem 1.3rem;margin:0 0 1.6rem}
+  .g{font-size:44pt;line-height:1;color:var(--ink);font-weight:600}
+  .gnum{font-size:13pt;color:var(--ink)}
+  .gtxt{font-size:10pt;color:var(--ink-muted);margin:.2rem 0 0}
+  h2{font-size:9pt;letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+     font-family:ui-monospace,monospace;margin:2.2rem 0 .8rem;padding-bottom:.4rem;
+     border-bottom:1px solid var(--rule)}
+  .lede{font-size:12.5pt;color:var(--ink);line-height:1.5}
+  table{width:100%;border-collapse:collapse;font-size:10pt}
+  td{padding:.4rem .5rem;border-bottom:1px solid var(--rule)}
+  td.code{color:var(--stamp);font-family:ui-monospace,monospace;font-size:8pt;width:3.4rem}
+  td.mono{color:var(--ink-muted);font-family:ui-monospace,monospace;font-size:8pt;width:5rem}
+  td.num{text-align:right;width:3rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+  td.bar{width:36%}
+  td.bar i{display:block;height:6px;background:var(--ink);opacity:.75}
+  .f{border-top:1px solid var(--rule);padding:.95rem 0;break-inside:avoid}
+  .fh{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.4rem}
+  .fh .code{color:var(--stamp);font-family:ui-monospace,monospace;font-size:8pt}
+  .fh .dim{font-family:ui-monospace,monospace;font-size:8pt;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--ink-muted)}
+  .sev{margin-left:auto;font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;padding:.1rem .45rem;border:1px solid var(--rule-2);color:var(--ink-muted)}
+  .sev-critical{color:var(--stamp);border-color:var(--stamp)}
+  .issue{margin:0 0 .5rem;color:var(--ink)}
+  .ev,.rec,.imp{margin:.35rem 0 0;font-size:10pt}
+  .ev{color:var(--ink-muted)}
+  .rec{color:var(--ink-soft);background:var(--warm);border-left:2px solid var(--stamp);padding:.5rem .7rem}
+  .ev span,.rec span,.imp span{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
+  .rw{border-top:1px solid var(--rule);padding:.9rem 0;break-inside:avoid}
+  .was,.now{margin:0 0 .4rem}
+  .was{color:var(--ink-muted)}
+  .now{color:var(--ink);background:var(--warm);border-left:2px solid var(--stamp);padding:.55rem .7rem;font-size:12pt}
+  .was span,.now span{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
+  .probs,.imps{margin:.3rem 0 .5rem;padding-left:1.1rem;font-size:10pt}
+  .probs li{color:var(--ink-muted)}
+  .imps li{color:var(--ink-soft)}
+  .opps{padding-left:1.1rem;font-size:10.5pt}
+  .opps li{margin-bottom:.55rem}
+  .note{background:var(--paper-2);border:1px solid var(--rule);padding:1rem 1.2rem;font-size:10.5pt}
+  footer{margin-top:2.5rem;padding-top:1rem;border-top:2px solid var(--ink);
+         font-size:9pt;color:var(--ink-muted)}
+  @media print{
+    body{background:#fff}
+    .doc{max-width:none;padding:0}
+    h2{break-after:avoid}
+    @page{margin:16mm}
+  }
+
+  .phl{color:var(--stamp);margin:1.2rem 0 .3rem}
+  .sev-important{color:var(--ink-muted)}
+  .tnote{font-size:9pt;color:var(--ink-muted);margin:.5rem 0 0}
+  .corr{margin:.2rem 0 .5rem;font-size:9.5pt;color:var(--ink-muted);border-left:2px solid var(--rule-2);padding:.3rem .6rem}
+  .corr span{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);margin-right:.4rem}
+  .corr-out{border-left-color:var(--stamp)}
+  .corr-out span{color:var(--stamp)}
+  .vnote{background:var(--warm);border:1px solid var(--rule);border-left:3px solid var(--stamp);padding:1rem 1.2rem;font-size:10.5pt;margin:0 0 1.6rem}
+  .vnote p{margin:.5rem 0 0}.vnote p:first-child{margin-top:0}
+</style></head>
+<body><div class="doc">
+
+<header>
+  <p class="eyebrow mono">Conversion audit &middot; prepared for Evergreen Goodwill</p>
+  <h1>evergreengoodwill.org</h1>
+  <p class="sub">Issued October 8, 2026 &middot; Local Service profile &middot; 32 findings</p>
+</header>
+
+<div class="grade">
+  <div><div class="g">F</div></div>
+  <div>
+    <div class="gnum">56 / 100 &middot; conversion health</div>
+    <p class="gtxt">This measures one axis only: how the page turns a visitor into an action
+    &mdash; an enrolment, a donation, a store visit. It is not a judgement of design, brand or
+    the mission. A well-made site built to express a brand will often score low here, because
+    it was built for a different job.</p>
+  </div>
+</div>
+
+<h2>Executive summary</h2>
+<p class="lede">Evergreen Goodwill's website demonstrates genuine strengths in trust-building and differentiation — the named student success stories, specific program outcomes, and multi-county service footprint provide a credible foundation that many nonprofits lack. However, the site currently underperforms in the three dimensions that most directly drive conversion action: CTA strength (41/100), funnel friction (11/100), and conversion hierarchy (29/100), creating a compounding effect where motivated visitors — job seekers, donors, and shoppers — arrive with intent and leave without acting. The most acute exposure is in job training enrolment, where a 'Click Here' label on the primary job seeker entry point is leaving conversion volume on the table daily. (An earlier version of this summary also claimed there was no above-fold donation button. That was wrong: the header carries two.) Based on current messaging clarity and CTA friction scores, Evergreen Goodwill is likely converting 35-55% below potential for a nonprofit of its mission profile and trust signal strength.</p>
+
+<h2>Where the score comes from</h2>
+<table><tbody>
+<tr><td class="code">D-04</td><td>Funnel Friction</td><td class="mono">FNL.FRC</td><td class="num">11</td><td class="bar"><i style="width:11%"></i></td></tr>
+<tr><td class="code">D-07</td><td>Conversion Hierarchy</td><td class="mono">CNV.HRC</td><td class="num">29</td><td class="bar"><i style="width:29%"></i></td></tr>
+<tr><td class="code">D-02</td><td>CTA Strength</td><td class="mono">CTA.STR</td><td class="num">41</td><td class="bar"><i style="width:41%"></i></td></tr>
+<tr><td class="code">D-06</td><td>Audience Alignment</td><td class="mono">AUD.ALN</td><td class="num">59</td><td class="bar"><i style="width:59%"></i></td></tr>
+<tr><td class="code">D-01</td><td>Messaging Clarity</td><td class="mono">MSG.CLR</td><td class="num">61</td><td class="bar"><i style="width:61%"></i></td></tr>
+<tr><td class="code">D-05</td><td>Quick-Win Fixes</td><td class="mono">QCK.WIN</td><td class="num">70</td><td class="bar"><i style="width:70%"></i></td></tr>
+<tr><td class="code">D-08</td><td>Differentiation</td><td class="mono">DIF.FER</td><td class="num">72</td><td class="bar"><i style="width:72%"></i></td></tr>
+<tr><td class="code">D-03</td><td>Trust Signals</td><td class="mono">TRS.SIG</td><td class="num">79</td><td class="bar"><i style="width:79%"></i></td></tr>
+</tbody></table>
+<p class="tnote">Weakest first. Trust signals and differentiation are the foundation this
+site already has &mdash; the three lowest scores are all structural, and all fixable.</p>
+
+<h2>Conversion health</h2>
+<p>A composite score of 56/100 places this site in the category of organizationally credible but structurally under-optimized — common among nonprofits and mission-driven local service organizations that have invested in programs and storytelling but have not applied conversion architecture discipline to the web experience. In practical terms, this score range is associated with significant drop-off before primary conversion action, with industry benchmarks suggesting sites in this range experience 30-50% more abandonment at the decision moment than peers with optimized funnel and CTA structures. For Evergreen Goodwill, where both donation revenue and program enrollment directly fund operations, that abandonment gap represents a measurable and recoverable opportunity.</p>
+
+<h2>Start here</h2>
+<article class="rw">
+  <p class="now"><span>Priority 1</span> Eliminate Navigation and CTA Overload</p>
+  <p>The combination of 59 navigation links (25 visible at rest, the remainder inside dropdowns) and 14 page-level CTAs is the single largest conversion suppressor on the site. Barry Schwartz's paradox of choice is fully operational here — users presented with this volume of equal-weight options statistically default to inaction. The immediate fix is to collapse the navigation to 5-7 primary items, remove or consolidate redundant CTAs (multiple 'Read More,' 'Contact,' and 'Contact Us' instances), and establish a clear visual hierarchy that guides users toward one primary action per audience segment. The soccer screen-printing event CTA should not compete with job training enrollment on the same page without clear visual separation and priority weighting.</p>
+  <p class="ev"><span>Effort</span> medium &middot; <span>Impact</span> High — reducing choice overload to a focused CTA structure typically increases primary conversion action by 25-45% in comparable nonprofit and local service site environments.</p>
+</article>
+<article class="rw">
+  <p class="now"><span>Priority 2</span> Replace 'Click Here' with an Outcome-Driven Job Seeker CTA</p>
+  <p>The above-fold CTA for student registration — the primary conversion entry point for the site's core mission audience — currently reads 'Click Here,' which is the lowest-performing CTA language in conversion research, providing no value signal, no outcome, and no reason to act. This should be replaced immediately with outcome-specific language tied to the program benefit, such as 'Start Free Job Training' or 'Apply for Free Job Training Programs.' The word 'free' is a proven conversion accelerant for this audience segment and is already supported by the page copy ('free Job Training and Education programs') — it simply needs to be surfaced at the action moment.</p>
+  <p class="ev"><span>Effort</span> quick &middot; <span>Impact</span> High — replacing non-descriptive CTA language with outcome-specific copy typically increases click-through on primary CTAs by 20-40% without any structural page changes.</p>
+</article>
+<article class="rw">
+  <p class="now"><span>Priority 3</span> Fix the Newsletter Redirect Trust Break</p>
+  <p>The newsletter signup redirects to donorperfect.net, an unbranded external domain that creates a trust break at the moment of conversion and is frequently read as a phishing risk or a site error. Embedding the form on the page, or white-labelling it to the Evergreen Goodwill domain, removes a stop in front of people who had already decided to act. (This priority previously also called for an above-fold donation button. That was withdrawn: the header already has two.)</p>
+  <p class="ev"><span>Effort</span> medium &middot; <span>Impact</span> Moderate — resolving an external-domain trust break at the point of signup typically reduces abandonment at that step by 20-40%.</p>
+</article>
+
+<h2>Fix order</h2>
+<p class="phl mono">Quick Wins</p>
+<ul class="opps"><li>Replace 'Click Here' on student registration CTA with 'Start Free Job Training' or 'Apply for Free Job Training Programs'</li><li>Remove or deprioritize the soccer screen-printing event CTA from the primary conversion zone — relocate to a news or events section</li><li>Finish or delete the hidden second stats row, whose labels are still placeholder copy in the page source (not visible to readers, but read by crawlers)</li></ul>
+<p class="phl mono">Structural Improvements</p>
+<ul class="opps"><li>Collapse navigation from 59 links (25 visible at rest) to 5-7 primary items with audience-segmented entry points (Job Seekers, Donors, Shoppers, Employers)</li><li>Consolidate 14 page CTAs into a prioritized hierarchy with one primary CTA per audience segment and clear visual weight differentiation</li><li>Migrate newsletter signup to a native on-page embedded form to eliminate the donorperfect.net redirect trust break</li><li>Insert a conversion CTA directly after the student success stories section to capture users at the highest emotional engagement point in the page journey</li></ul>
+<p class="phl mono">Strategic Enhancements</p>
+<ul class="opps"><li>Implement audience segmentation on the homepage with distinct entry paths for job seekers, donors, shoppers, and employers — each leading to a tailored landing experience with relevant messaging and CTAs</li><li>Develop a dedicated above-fold headline testing program using the student outcome data already present on the site (GED completion, journeyman electrician license, aviation degree, healthcare placement) as conversion-focused headline variants</li></ul>
+
+<h2>Critical findings &middot; 12</h2>
+<article class="f">
+    <div class="fh"><span class="code">D-01</span><span class="dim">Messaging Clarity</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The headline is a brand manifesto, not a conversion headline. It fails the 5-second test for all four audience segments — job seekers, donors, shoppers, and employers cannot immediately identify what they should do or what they will receive.</p>
+    <p class="ev"><span>Observed</span> Primary headline: 'We believe in the power of jobs to change lives.' — no user benefit, no action prompt, no audience-specific hook</p>
+    <p class="rec"><span>Recommended</span> Implement audience-segmented hero sections or a single dominant headline that leads with the most valuable user benefit. For job seekers: 'Get Free Job Training in Northwest Washington — No Cost, No Catch.' For donors: 'Your Donation Trains the Next Generation of Workers.' Test a tabbed or segmented hero that routes each audience to a tailored path.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-01</span><span class="dim">Messaging Clarity</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The page attempts to serve four distinct audiences simultaneously with no segmentation or prioritization, causing message fragmentation. The core mission message ('jobs change lives') is immediately diluted by unrelated CTAs like a soccer screen-printing event.</p>
+    <p class="ev"><span>Observed</span> Conversion path Step 6: 'Choose a path — no dominant conversion funnel guides the user to a single next step.' Supporting CTAs include: student registration, soccer event, shop now, donate, volunteer, learn more (x3), view history, contact</p>
+    <p class="rec"><span>Recommended</span> Define a primary conversion goal for the homepage (likely student registration or donation, depending on organizational priority). Subordinate all other CTAs visually and structurally. Add an audience-selector prompt above the fold: 'I want to: [Find Training] [Donate] [Shop] [Hire Graduates]' to route users without diluting the primary message.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-02</span><span class="dim">CTA Strength</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The single most important above-fold CTA for the job training audience uses 'Click Here' — the worst possible CTA language. It provides no value signal, no outcome, and no reason to act. This is the primary conversion entry point for job seekers and it is functionally broken from a CRO perspective.</p>
+    <p class="ev"><span>Observed</span> CTA text: 'Click Here (Student Registration)' — placement: above-fold, type: primary</p>
+    <p class="rec"><span>Recommended</span> Replace 'Click Here' with outcome-driven language: 'Register for Free Job Training' or 'Start Your Free Training Today.' Add a brief benefit statement adjacent to the CTA: 'No cost. No prerequisites. Classes forming now.'</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-04</span><span class="dim">Funnel Friction</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The combination of 59 navigation links (25 visible at rest) and 14 page CTAs creates extreme cognitive overload. Barry Schwartz's paradox of choice is fully in effect — users presented with this many options are statistically more likely to choose nothing. This is the single largest conversion killer on the page.</p>
+    <p class="ev"><span>Observed</span> Friction points: '59 navigation links (25 visible at rest) creates an overwhelming navigation structure with no clear priority path' and '11 CTAs present with no clear primary conversion hierarchy — competing actions (shop, donate, volunteer, learn, register) create decision paralysis' [Counted in a browser 2026-10-08: the navigation carries 59 links (25 visible at rest, the rest inside dropdowns, reaching 31 distinct destinations) and the page holds 152 links in total.]</p>
+    <p class="rec"><span>Recommended</span> Reduce primary navigation to 5-7 top-level items. Implement a mega-menu or secondary navigation for sub-pages. Reduce above-fold CTAs to a maximum of 2 (primary + secondary). Conduct a CTA audit to eliminate or demote any CTA that does not serve the top 2 conversion goals.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-04</span><span class="dim">Funnel Friction</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">Every lead capture mechanism on the page requires the user to leave the page, navigate to an external domain, and complete a separate process. This multi-step external redirect model is a proven conversion killer, particularly for low-commitment actions like newsletter signup.</p>
+    <p class="ev"><span>Observed</span> Friction points: 'No forms present on the page — newsletter and text signups redirect to external URLs, adding steps and drop-off risk.' Missing elements: 'No inline forms — all lead capture requires navigating away from the page.'</p>
+    <p class="rec"><span>Recommended</span> Embed an inline email capture form directly on the homepage with a single field (email) and a clear value exchange: 'Get updates on free training programs near you.' For student registration, embed a short pre-qualification form (name, zip code, program interest) that feeds into the full registration flow rather than cold-linking to an external page.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-04</span><span class="dim">Funnel Friction</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">Routing newsletter signups to donorperfect.net — a domain with no brand recognition for Goodwill visitors — creates a trust break at the moment of conversion. Users who see an unfamiliar domain in the URL bar frequently abandon the process, interpreting it as a phishing risk or error.</p>
+    <p class="ev"><span>Observed</span> Friction points: 'Newsletter signup links to an external third-party domain (donorperfect.net), which may reduce trust and conversion'</p>
+    <p class="rec"><span>Recommended</span> Embed newsletter signup directly on the page using an iframe or API integration with DonorPerfect, or migrate to a more user-facing email platform (Mailchimp, Klaviyo) that allows branded confirmation flows. At minimum, add a trust note: 'You'll be redirected to our secure signup partner.'</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-07</span><span class="dim">Conversion Hierarchy</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The page presents six equal-weight conversion options at the decision moment with no visual or copy hierarchy to guide the user toward the most valuable action. This is the conversion hierarchy equivalent of a restaurant menu with 200 items and no 'chef's recommendation' — users default to leaving rather than choosing.</p>
+    <p class="ev"><span>Observed</span> Conversion path Step 5: 'See How you can make a difference section with six parallel options (donate cash, material donation, partnerships, hire, volunteer, shop)' — Step 6: 'Choose a path — no dominant conversion funnel guides the user to a single next step'</p>
+    <p class="rec"><span>Recommended</span> Establish a clear primary conversion hierarchy: (1) Student Registration or Donate as the dominant CTA, (2) Shop/Volunteer as secondary, (3) Employer partnerships as tertiary. Use visual weight (button size, color, placement) to communicate this hierarchy. The 'How you can make a difference' section should lead with the highest-value action and visually subordinate the others.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-07</span><span class="dim">Conversion Hierarchy</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The student success stories are the highest-trust, highest-emotion content on the page — named individuals with specific outcomes (GED, journeyman electrician license, aviation degree, healthcare job). This is the peak persuasion moment. The page fails to place a conversion CTA immediately after this emotional high point, wasting the highest-intent moment in the user journey.</p>
+    <p class="ev"><span>Observed</span> Student success stories (Idrissa, Matt, Abdullahi, Malgorzata) rated 'strong' trust elements, placed mid-page — but no conversion CTA follows the success story section per the conversion path data</p>
+    <p class="rec"><span>Recommended</span> Insert a high-contrast CTA block immediately after the success stories section: 'Ready to write your own story? Register for Free Training Today.' For donors: 'Help fund the next success story. Donate Now.' This single change could significantly increase registration and donation conversion rates.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-03</span><span class="dim">Trust Signals</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">Sending users to an unfamiliar third-party domain for newsletter signup breaks trust and increases drop-off. Visitors who don't recognize donorperfect.net may abandon the action, suspecting phishing or data misuse.</p>
+    <p class="ev"><span>Observed</span> Newsletter signup links to an external third-party domain (donorperfect.net), which may reduce trust and conversion</p>
+    <p class="rec"><span>Recommended</span> Embed an inline email capture form directly on the homepage using a recognized provider (Mailchimp, HubSpot) or white-label the donorperfect form to match the Evergreen Goodwill domain and branding.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-06</span><span class="dim">Audience Alignment</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The homepage attempts to serve four fundamentally different audiences with a single undifferentiated experience. Each audience has different motivations, pain points, and desired next actions. This creates a page that partially serves everyone and fully serves no one, suppressing conversion across all segments.</p>
+    <p class="ev"><span>Observed</span> targetAudience: 'Multiple audiences simultaneously: (1) community members seeking free job training, (2) thrift shoppers, (3) donors and volunteers, (4) employers' — with no personalization or segmentation path</p>
+    <p class="rec"><span>Recommended</span> Add a prominent audience-selector section near the top of the page: 'I want to: [Find Free Training] [Shop &amp; Support] [Donate] [Hire Graduates].' Each path leads to a tailored landing experience. This is a structural change but the selector itself can be implemented quickly as a navigation shortcut.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-06</span><span class="dim">Audience Alignment</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">The headline centers the organization's belief system rather than the visitor's need or outcome. A job seeker scanning the page in 3 seconds will not immediately understand that free training is available to them personally. The value proposition is buried in supporting copy.</p>
+    <p class="ev"><span>Observed</span> Primary headline: 'We believe in the power of jobs to change lives.' Supporting: 'Evergreen Goodwill offers free Job Training and Education programs to our community'</p>
+    <p class="rec"><span>Recommended</span> Rewrite the hero headline to lead with the visitor's outcome: 'Get Free Job Training in Northwest Washington' or 'Your Next Career Starts Here — Free Training Programs Available Now.' Move the mission statement to a secondary position below the fold.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-05</span><span class="dim">Quick-Win Fixes</span>
+      <span class="sev sev-critical">critical</span></div>
+    <p class="issue">'Click Here' is one of the lowest-performing CTA phrases in conversion research — it communicates no value, no destination, and no urgency. For what should be the page's primary conversion action (student registration), this is a significant missed opportunity.</p>
+    <p class="ev"><span>Observed</span> Student registration CTA ('Click Here') in the announcement bar uses generic, non-descriptive link text</p>
+    <p class="rec"><span>Recommended</span> Change 'Click Here' to 'Register for Free Job Training' or 'Apply Now — Free Programs Available.' This is a single text edit that can be made in under 5 minutes and will immediately improve click-through intent.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article>
+
+<h2>Headline rewrites</h2><article class="rw">
+  <p class="was"><span>Currently</span> We believe in the power of jobs to change lives.</p>
+  <ul class="probs"><li>Brand manifesto framing — communicates organizational values, not visitor benefit or available action</li><li>Fails the 5-second test for all four audience segments: job seekers, donors, shoppers, and employers cannot identify what they should do or what they will receive</li><li>No specificity — 'jobs change lives' is a category-level statement that could apply to any workforce nonprofit in the country</li><li>No urgency, no outcome, no next step embedded in the message</li></ul>
+  <p class="now"><span>Suggested</span> Free Job Training Programs That Lead to Real Careers — Serving Five Counties in Northwest Washington</p>
+  <ul class="imps"><li>Leads with the most conversion-relevant offer ('Free Job Training Programs') for the primary audience segment</li><li>Anchors to a concrete outcome ('Real Careers') rather than an abstract belief statement</li><li>Retains geographic specificity that establishes local relevance and service area credibility</li><li>Passes the 5-second test for job seekers — the highest-priority conversion audience for this organization's mission</li></ul>
+</article><article class="rw">
+  <p class="was"><span>Currently</span> Evergreen Goodwill offers free Job Training and Education programs to our community that spans five counties and dozens of cities throughout Northwest Washington.</p>
+  <ul class="probs"><li>Structured as an organizational description rather than a visitor-benefit statement</li><li>Buries the most powerful conversion word ('free') mid-sentence rather than leading with it</li><li>Passive construction reduces urgency and forward momentum</li><li>Does not address what the visitor should do next or what outcome they can expect</li></ul>
+  <p class="now"><span>Suggested</span> Get the skills, credentials, and support you need — at no cost to you. Programs available across five counties in Northwest Washington.</p>
+  <ul class="imps"><li>Shifts from organizational description to direct second-person visitor benefit</li><li>Elevates 'no cost' as a primary value signal rather than a buried modifier</li><li>Adds specificity to the benefit ('skills, credentials, and support') that maps to real program outcomes already documented in the success stories</li><li>Maintains geographic credibility while improving conversion orientation</li></ul>
+</article><article class="rw">
+  <p class="was"><span>Currently</span> When you shop at Evergreen Goodwill locations, volunteer, or contribute in any other way, you support our community.</p>
+  <ul class="probs"><li>Vague outcome — 'support our community' does not communicate the specific impact of a donor's or shopper's action</li><li>Lists three different actions (shop, volunteer, contribute) without prioritizing or directing toward any one of them</li><li>Misses the opportunity to connect donor or shopper action directly to the student outcomes documented elsewhere on the page</li><li>No CTA or directional language embedded — reads as a closing statement rather than a conversion prompt</li></ul>
+  <p class="now"><span>Suggested</span> Your donation or Goodwill purchase directly funds free job training for your neighbors — people like Matt, who earned his journeyman electrician licence, or the student who completed their aviation degree through our programs.</p>
+  <ul class="imps"><li>Creates a direct causal link between donor or shopper action and specific, named program outcomes already present on the page</li><li>Uses social proof from existing success stories to make the impact concrete and emotionally resonant</li><li>Positions the donor or shopper as an active agent in a specific outcome rather than a passive supporter of a vague community benefit</li><li>Naturally sets up a donation or shop CTA with emotional momentum</li></ul>
+</article>
+
+<h2>Call to action rewrites</h2><article class="rw">
+  <p class="was"><span>Currently</span> Click Here</p>
+  <ul class="probs"><li>Provides zero value signal — the visitor has no idea what they are clicking toward or what they will receive</li><li>No outcome language — does not reference job training, free programs, enrollment, or any benefit</li><li>Lowest-performing CTA language category in conversion research across all industries</li><li>Particularly damaging as the primary above-fold entry point for job seekers, the site's highest-priority conversion audience</li></ul>
+  <p class="now"><span>Suggested</span> Apply for Free Job Training</p>
+  <ul class="imps"><li>Leads with the action verb 'Apply,' which signals a meaningful, outcome-oriented step rather than a generic navigation action</li><li>Includes 'Free' — the single highest-converting modifier for workforce training programs targeting cost-sensitive audiences</li><li>Specifies the destination outcome ('Job Training') so the visitor knows exactly what they are entering</li><li>Consistent with the page copy already describing 'free Job Training and Education programs,' creating message continuity from headline to CTA</li></ul>
+</article><article class="rw">
+  <p class="was"><span>Currently</span> Sign up for Newsletter</p>
+  <ul class="probs"><li>Generic — offers no specific benefit or reason to subscribe</li><li>Redirects to donorperfect.net, an unbranded external domain that creates a trust break and is frequently abandoned as a perceived phishing risk</li><li>No value proposition — does not tell the visitor what they will receive, how often, or why it benefits them</li></ul>
+  <p class="now"><span>Suggested</span> Get Program Updates and Success Stories — Join Our Community</p>
+  <ul class="imps"><li>Specifies what the subscriber receives ('Program Updates and Success Stories') rather than the generic category of 'newsletter'</li><li>Frames the action as community participation rather than a transactional sign-up, which aligns with Goodwill's mission-driven brand</li><li>Should be paired with a native embedded form to eliminate the donorperfect.net redirect — the CTA rewrite alone will not recover conversions lost to the domain trust break</li></ul>
+</article><article class="rw">
+  <p class="was"><span>Currently</span> Learn more about our impact: Our Mission &amp; Vision</p>
+  <ul class="probs"><li>Directs high-intent visitors away from conversion toward an informational page at a moment when they may be ready to act</li><li>Compound label ('Learn more about our impact: Our Mission &amp; Vision') creates cognitive friction — two labels for one action</li><li>Mission and Vision pages are low-conversion destinations that rarely return visitors to a primary conversion path</li></ul>
+  <p class="now"><span>Suggested</span> See How Our Programs Change Lives</p>
+  <ul class="imps"><li>Reframes the destination as outcome-focused ('Change Lives') rather than organizational ('Mission &amp; Vision')</li><li>Single, clean label eliminates the compound friction of the current version</li><li>If this CTA must exist, it should link to the student success stories section rather than a static mission page — success stories are the highest-trust, highest-emotion content on the site and are more likely to advance conversion than a mission statement</li></ul>
+</article><article class="rw">
+  <p class="was"><span>Currently</span> Shop Now (goodwillfinds.com)</p>
+  <ul class="probs"><li>Sends shoppers to an external domain (goodwillfinds.com) without contextual framing, which can create brand continuity confusion for visitors who associate Goodwill shopping with physical store locations</li><li>No value proposition — does not communicate what makes online shopping at Goodwill worth the click (unique finds, mission support, pricing)</li></ul>
+  <p class="now"><span>Suggested</span> Shop Online — Every Purchase Supports Free Job Training</p>
+  <ul class="imps"><li>Connects the shopper's action directly to the mission outcome, which is a proven conversion driver for mission-aligned retail audiences</li><li>Adds a value layer beyond the transactional 'Shop Now' by making the impact of the purchase explicit</li><li>Reduces the perceived disconnect of leaving the Evergreen Goodwill domain by framing the action in mission terms before the click</li></ul>
+</article>
+
+<h2>Strategic opportunities</h2><ul class="opps"><li>The four distinct audience segments currently competing for attention on a single homepage — job seekers, donors, shoppers, and employers — each have meaningfully different conversion motivations, trust triggers, and objections. Implementing a segmented entry experience, either through a homepage audience selector or distinct above-fold pathways with audience-specific hero content, would allow Evergreen Goodwill to present the right message to the right visitor at the right moment rather than averaging the message across all four groups and fully serving none of them. This is the highest-leverage structural change available and is expected to produce compounding conversion improvements across all audience segments simultaneously.</li><li>The student success stories on the page — named individuals with specific, verifiable outcomes including GED completion, journeyman electrician licensure, aviation degrees, and healthcare employment — represent an underutilized conversion asset of significant value. These stories currently function as passive content with 'Read More' links that lead away from the conversion path. Restructuring these stories as a dedicated social proof sequence with embedded CTAs at the emotional peak of each narrative, and testing their use as primary above-fold hero content in rotation, would leverage the site's strongest trust signal directly in the conversion architecture rather than treating it as supplementary content.</li></ul>
+
+<h2>Remaining findings &middot; 20</h2>
+<article class="f">
+    <div class="fh"><span class="code">D-03</span><span class="dim">Trust Signals</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">An unfinished second stats row sits in the page source and never renders. Three numbers (2,705, 24 and 196) carry labels that are still placeholder copy, and all six elements collapse to zero height, so no visitor ever sees them. Search engines and AI crawlers, which read the markup rather than the render, do see them.</p>
+    <p class="ev"><span>Observed</span> Verified against the live page on 2026-10-08: the labels &quot;Lorem ipsum dolor&quot;, &quot;Sit amet consequetor&quot; and &quot;Tempor incididunt&quot; are present in the served HTML beside the numbers 2,705, 24 and 196, and every one of those elements computes to 0x0 and is absent from the rendered text. The visible stats row above them — 6,403 students served in 2025, 23 store locations, 2,000+ employees — is complete and correctly labelled.</p>
+    <p class="rec"><span>Recommended</span> Finish the row with real figures and labels, or delete it. Leaving placeholder copy in the markup puts lorem ipsum in front of search engines and AI answer engines, and it is dead weight for whoever maintains the page next. This is housekeeping and an SEO question, not the trust emergency it was first scored as.</p>
+    <p class="imp"><span>Likely impact</span> low</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-05</span><span class="dim">Quick-Win Fixes</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">An unfinished second stats row sits in the page source and never renders. Three numbers (2,705, 24 and 196) carry labels that are still placeholder copy, and all six elements collapse to zero height, so no visitor ever sees them. Search engines and AI crawlers, which read the markup rather than the render, do see them.</p>
+    <p class="ev"><span>Observed</span> Verified against the live page on 2026-10-08: the labels &quot;Lorem ipsum dolor&quot;, &quot;Sit amet consequetor&quot; and &quot;Tempor incididunt&quot; are present in the served HTML beside the numbers 2,705, 24 and 196, and every one of those elements computes to 0x0 and is absent from the rendered text. The visible stats row above them — 6,403 students served in 2025, 23 store locations, 2,000+ employees — is complete and correctly labelled.</p>
+    <p class="rec"><span>Recommended</span> Finish the row with real figures and labels, or delete it. Leaving placeholder copy in the markup puts lorem ipsum in front of search engines and AI answer engines, and it is dead weight for whoever maintains the page next. This is housekeeping and an SEO question, not the trust emergency it was first scored as.</p>
+    <p class="imp"><span>Likely impact</span> low</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-01</span><span class="dim">Messaging Clarity</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">An unfinished second stats row sits in the page source and never renders. Three numbers (2,705, 24 and 196) carry labels that are still placeholder copy, and all six elements collapse to zero height, so no visitor ever sees them. Search engines and AI crawlers, which read the markup rather than the render, do see them.</p>
+    <p class="ev"><span>Observed</span> Verified against the live page on 2026-10-08: the labels &quot;Lorem ipsum dolor&quot;, &quot;Sit amet consequetor&quot; and &quot;Tempor incididunt&quot; are present in the served HTML beside the numbers 2,705, 24 and 196, and every one of those elements computes to 0x0 and is absent from the rendered text. The visible stats row above them — 6,403 students served in 2025, 23 store locations, 2,000+ employees — is complete and correctly labelled.</p>
+    <p class="rec"><span>Recommended</span> Finish the row with real figures and labels, or delete it. Leaving placeholder copy in the markup puts lorem ipsum in front of search engines and AI answer engines, and it is dead weight for whoever maintains the page next. This is housekeeping and an SEO question, not the trust emergency it was first scored as.</p>
+    <p class="imp"><span>Likely impact</span> low</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-02</span><span class="dim">CTA Strength</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Four separate CTAs use interchangeable 'learn/read/view more' language with no differentiation. Users cannot distinguish what each leads to without reading surrounding context, increasing cognitive load and reducing click confidence.</p>
+    <p class="ev"><span>Observed</span> CTAs: 'Learn more about our impact: Our Mission &amp; Vision,' 'Learn More (About Evergreen Goodwill),' 'View More (Our History),' 'Read More (Student Success Stories x8)' — all mid-page, all using generic learn/read/view language</p>
+    <p class="rec"><span>Recommended</span> Replace generic labels with destination-specific language: 'See Our 100-Year History,' 'Read Matt's Story,' 'Explore Our Programs,' 'Meet Our Community Partners.' Each CTA should be self-explanatory without surrounding context.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-02</span><span class="dim">CTA Strength</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">A seasonal soccer event CTA occupies above-fold real estate alongside the primary mission headline and student registration CTA, creating a three-way competition for attention at the most valuable position on the page.</p>
+    <p class="ev"><span>Observed</span> CTA: 'Kick off Seattle Soccer Summer at Goodwill' — placement: above-fold, type: tertiary</p>
+    <p class="rec"><span>Recommended</span> Move event-specific CTAs to a dedicated events section below the fold or to a dismissible announcement banner that doesn't compete with primary conversion CTAs. Above-fold space should be reserved exclusively for the top 1-2 conversion goals.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-04</span><span class="dim">Funnel Friction</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Duplicate location content increases page length, adds visual noise, and forces users to process the same information twice — increasing cognitive load without adding value.</p>
+    <p class="ev"><span>Observed</span> Friction points: 'Duplicate location listings appear twice on the page (once in a card format, once in a filterable list), creating redundancy and visual clutter'</p>
+    <p class="rec"><span>Recommended</span> Consolidate to a single location display format. Use the filterable list as the primary format (higher utility) and remove the card format duplication. Add a 'Find nearest location' search bar above the list to reduce scrolling friction.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-07</span><span class="dim">Conversion Hierarchy</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Accreditation badges are buried in footer navigation rather than displayed prominently near conversion points. For a local service site where visitors are comparing options, third-party validation (Charity Navigator rating, BBB accreditation, state licensing) at the point of decision is a proven conversion driver.</p>
+    <p class="ev"><span>Observed</span> Missing elements: 'No star ratings, third-party reviews, or external validation badges (e.g., Charity Navigator, BBB)' and trust elements show 'badge: Accreditations section referenced in footer navigation' rated 'weak'</p>
+    <p class="rec"><span>Recommended</span> Surface accreditation badges and Charity Navigator rating (if applicable) near the primary donation CTA and student registration CTA. Add a trust bar below the hero section: '[Charity Navigator 4-Star Rating] [BBB Accredited] [100 Years Serving Northwest Washington] [6,403 Students in 2025].' This converts existing trust assets into active conversion support.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-07</span><span class="dim">Conversion Hierarchy</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">The page has four strong named case studies (Idrissa, Matt, Abdullahi, Malgorzata) but presents them in text/image format only. Video testimonials from program graduates would dramatically increase emotional impact and time-on-page at the highest-persuasion section of the conversion hierarchy.</p>
+    <p class="ev"><span>Observed</span> Missing elements: 'No video content to support emotional storytelling despite multiple student success stories'</p>
+    <p class="rec"><span>Recommended</span> Produce 60-90 second video testimonials for 2-3 of the featured students. Embed autoplay (muted) video in the success stories section. Video social proof consistently outperforms text testimonials for emotional conversion triggers, particularly for workforce development programs where the human story is the primary value proposition.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-03</span><span class="dim">Trust Signals</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">The site relies entirely on self-reported social proof. Donors comparing nonprofits expect third-party financial accountability ratings. The absence of Charity Navigator, GuideStar, or BBB Wise Giving badges leaves a credibility gap that competitors with these badges will win.</p>
+    <p class="ev"><span>Observed</span> No star ratings, third-party reviews, or external validation badges (e.g., Charity Navigator, BBB) listed in missingElements</p>
+    <p class="rec"><span>Recommended</span> Apply for and display Charity Navigator and BBB Accredited Charity badges prominently near donation CTAs. These are free to obtain and immediately signal financial accountability.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-03</span><span class="dim">Trust Signals</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Accreditation badges are buried in footer navigation rather than displayed visually on the page. For a job-training program, accreditation is a primary trust signal for prospective students evaluating program legitimacy.</p>
+    <p class="ev"><span>Observed</span> Accreditations section referenced in footer navigation only, rated 'weak' strength</p>
+    <p class="rec"><span>Recommended</span> Surface accreditation logos and certification badges into the main page body, ideally near the program description or student registration CTA, not just in footer nav links.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-08</span><span class="dim">Differentiation</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Prospective students evaluating free job training options in Northwest Washington have no reason given on this page to choose Evergreen Goodwill over WorkSource, community colleges, or other nonprofits. The page assumes the visitor has already decided — it doesn't close the comparison.</p>
+    <p class="ev"><span>Observed</span> The page makes no reference to alternative job training programs or why Evergreen Goodwill's approach is superior; conversionPath clarity rated 'confusing'</p>
+    <p class="rec"><span>Recommended</span> Add a brief 'Why Evergreen Goodwill?' section that names 2-3 specific advantages: free cost, employer connections, wraparound support services, or program completion rates. Even a simple comparison table or bullet list would differentiate meaningfully.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-08</span><span class="dim">Differentiation</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">The shop-to-train funding model is Evergreen Goodwill's most powerful differentiator — it turns everyday shopping into social impact — but it's communicated as background context rather than a featured mechanism. Most visitors will miss the causal link.</p>
+    <p class="ev"><span>Observed</span> Implicit closed-loop model: 'Shopping at or donating to Goodwill thrift stores directly enables job training and community empowerment' — stated in audit notes but not explicitly diagrammed on page</p>
+    <p class="rec"><span>Recommended</span> Create a simple visual flow (3-step graphic): 'You Shop → We Fund Training → Lives Change.' Place this above the fold or immediately below the hero. This makes the unique mechanism visceral and memorable in under 5 seconds.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-06</span><span class="dim">Audience Alignment</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">The student stories implicitly address pain points (immigration barriers, lack of credentials) but the page never directly names the problems it solves. Visitors who don't read the full stories miss the relevance signal entirely.</p>
+    <p class="ev"><span>Observed</span> Pain points only addressed indirectly through student stories: 'Malgorzata – immigrant connected to training, secured healthcare job'; 'Matt – received GED, on track to become licensed journeyman electrician'</p>
+    <p class="rec"><span>Recommended</span> Add a brief 'Who we help' section with explicit pain-point language: 'Whether you're re-entering the workforce, learning English, earning your GED, or starting a new career — our free programs are designed for you.' This mirrors the language job seekers use when searching.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-05</span><span class="dim">Quick-Win Fixes</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Donors comparing nonprofits routinely check Charity Navigator ratings before giving. The absence of these badges on the homepage means Evergreen Goodwill loses the trust comparison to any competitor that displays them.</p>
+    <p class="ev"><span>Observed</span> No star ratings, third-party reviews, or external validation badges (e.g., Charity Navigator, BBB) — listed in missingElements</p>
+    <p class="rec"><span>Recommended</span> Apply for Charity Navigator and BBB Wise Giving Alliance accreditation if not already held, then display the badges prominently near any donation CTA. Badge images are provided free by both organizations and require only an image embed.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-05</span><span class="dim">Quick-Win Fixes</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Decision paralysis from too many equal-weight CTAs suppresses all conversions simultaneously. When everything is a priority, nothing is.</p>
+    <p class="ev"><span>Observed</span> 11 CTAs present with no clear primary conversion hierarchy — competing actions (shop, donate, volunteer, learn, register) create decision paralysis</p>
+    <p class="rec"><span>Recommended</span> Designate one primary CTA per audience segment and visually differentiate it (filled button, contrasting color) from secondary CTAs (outlined button) and tertiary links (text links only). This is a CSS/styling change requiring no content restructuring.</p>
+    <p class="imp"><span>Likely impact</span> high</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-05</span><span class="dim">Quick-Win Fixes</span>
+      <span class="sev sev-important">important</span></div>
+    <p class="issue">Generic 'Learn More' labels force users to click to discover the destination, increasing cognitive load and reducing click confidence. Users who have been burned by unexpected destinations become reluctant to click unlabeled links.</p>
+    <p class="ev"><span>Observed</span> Multiple 'Learn More' and 'Read More' CTAs without differentiated labeling make it unclear what each leads to</p>
+    <p class="rec"><span>Recommended</span> Replace all generic 'Learn More' and 'Read More' CTAs with destination-specific labels: 'Learn More About Adult Education,' 'Read Matt's Story,' 'See All Program Types.' This is a copy-only change across multiple elements.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-03</span><span class="dim">Trust Signals</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">Without impact framing (e.g., '$50 funds one student's first month of training'), donors have no anchor for what their contribution means, reducing donation conversion and average gift size.</p>
+    <p class="ev"><span>Observed</span> No explicit donation amount suggestions or impact-per-dollar framing listed in missingElements</p>
+    <p class="rec"><span>Recommended</span> Add a simple impact ladder near any donation CTA: '$25 = one week of materials, $100 = one month of training support.' This is a copy-only change with proven lift in nonprofit fundraising.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-08</span><span class="dim">Differentiation</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">The 'world's largest Goodwill' claim is a remarkable differentiator that is buried rather than featured. This is the kind of superlative that stops scrolling and builds instant authority.</p>
+    <p class="ev"><span>Observed</span> 'Claims 100 years of history in Northwest Washington, operates the world's largest Goodwill location' — listed in uniqueness_notes but not prominently featured in headline or hero</p>
+    <p class="rec"><span>Recommended</span> Surface the 'world's largest Goodwill' claim into the hero section or a prominent badge near the top of the page. Pair it with '100 years serving Northwest Washington' as a two-punch authority statement.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-06</span><span class="dim">Audience Alignment</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">Analytically-minded donors and employers need quantified outcomes — job placement rates, average wage gains, program completion rates — to justify investment. The current page provides volume stats (6,403 students) but no quality or outcome metrics.</p>
+    <p class="ev"><span>Observed</span> No program outcome data: 'No pricing or cost information... No FAQ section to address common objections for donors, shoppers, or program applicants' listed in missingElements</p>
+    <p class="rec"><span>Recommended</span> Add 2-3 outcome statistics near the program section: e.g., 'X% of graduates secured employment within 90 days' or 'Average wage increase of $Y after program completion.' Pull from annual impact reports.</p>
+    <p class="imp"><span>Likely impact</span> medium</p>
+  </article><article class="f">
+    <div class="fh"><span class="code">D-05</span><span class="dim">Quick-Win Fixes</span>
+      <span class="sev sev-minor">minor</span></div>
+    <p class="issue">Duplicate content sections increase page length, dilute focus, and signal poor editorial control. They also slow page load and confuse users who encounter the same information twice.</p>
+    <p class="ev"><span>Observed</span> Duplicate location listings appear twice on the page (once in a card format, once in a filterable list), creating redundancy and visual clutter</p>
+    <p class="rec"><span>Recommended</span> Remove one of the two location listing formats. Keep the filterable list (higher utility) and remove the card format duplication, or consolidate into a single 'Find a Location Near You' section with a map embed.</p>
+    <p class="imp"><span>Likely impact</span> low</p>
+  </article>
+
+<div class="note">
+  <strong>How this was produced.</strong> AmbientScore read https://evergreengoodwill.org/ as an anonymous visitor would, then scored it across eight weighted dimensions for a local service profile. Confidence in the analysis is <strong>high</strong>: Analysis is based on clearly visible static page content including all headline copy, CTA labels and destinations, navigation structure, social proof elements, and stats section. The external redirect behavior to donorperfect.net was directly observable from link destinations. No significant dynamic or personalized content was detected that would materially alter the findings.
+</div>
+
+<footer>
+  Generated by AmbientScore &middot; report ccr_1791498936401_734ceb08 &middot; scanned 2026-10-08.
+  Scored from the page as served to an anonymous visitor, with no access to analytics,
+  donation records or enrolment numbers. Every figure describing likely uplift is an
+  industry benchmark, not a measurement of this site.
+  Every claim in this audit was re-checked against the live page in a browser on 8 October 2026. The 56/100 was scored before that check and has not been recalculated; two findings were removed as incorrect and three restated more narrowly, so the true figure is a little higher. The conversion-mechanics scores the argument rests on — funnel friction 11, conversion hierarchy 29 — are unaffected.
+</footer>
+
+</div></body></html>

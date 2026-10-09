@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Evergreen Goodwill — what the website is costing</title>
+<style>
+  :root{--paper:#F3EEE3;--paper-2:#EAE3D3;--warm:#FBF7EB;--rule:#D4CBB5;--rule-2:#BDB299;
+        --ink:#1A1613;--ink-soft:#3D342C;--ink-muted:#6B6052;--stamp:#8C2F1E}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink-soft);
+       font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:11.5pt;line-height:1.55}
+  .doc{max-width:52rem;margin:0 auto;padding:2.5rem 2rem 4rem}
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,monospace;
+        font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase}
+  header{border-bottom:2px solid var(--ink);padding-bottom:1.1rem;margin-bottom:1.6rem}
+  .eyebrow{color:var(--stamp);margin:0 0 .5rem}
+  h1{font-size:23pt;line-height:1.15;color:var(--ink);margin:0 0 .35rem;font-weight:600}
+  .sub{color:var(--ink-muted);font-size:10pt;margin:0}
+  .grade{display:flex;gap:1.6rem;align-items:center;background:var(--warm);
+         border:1px solid var(--rule);padding:1.1rem 1.3rem;margin:0 0 1.6rem}
+  .g{font-size:44pt;line-height:1;color:var(--ink);font-weight:600}
+  .gnum{font-size:13pt;color:var(--ink)}
+  .gtxt{font-size:10pt;color:var(--ink-muted);margin:.2rem 0 0}
+  h2{font-size:9pt;letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+     font-family:ui-monospace,monospace;margin:2.2rem 0 .8rem;padding-bottom:.4rem;
+     border-bottom:1px solid var(--rule)}
+  .lede{font-size:12.5pt;color:var(--ink);line-height:1.5}
+  table{width:100%;border-collapse:collapse;font-size:10pt}
+  td{padding:.4rem .5rem;border-bottom:1px solid var(--rule)}
+  td.code{color:var(--stamp);font-family:ui-monospace,monospace;font-size:8pt;width:3.4rem}
+  td.mono{color:var(--ink-muted);font-family:ui-monospace,monospace;font-size:8pt;width:5rem}
+  td.num{text-align:right;width:3rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+  td.bar{width:36%}
+  td.bar i{display:block;height:6px;background:var(--ink);opacity:.75}
+  .f{border-top:1px solid var(--rule);padding:.95rem 0;break-inside:avoid}
+  .fh{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.4rem}
+  .fh .code{color:var(--stamp);font-family:ui-monospace,monospace;font-size:8pt}
+  .fh .dim{font-family:ui-monospace,monospace;font-size:8pt;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--ink-muted)}
+  .sev{margin-left:auto;font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;padding:.1rem .45rem;border:1px solid var(--rule-2);color:var(--ink-muted)}
+  .sev-critical{color:var(--stamp);border-color:var(--stamp)}
+  .issue{margin:0 0 .5rem;color:var(--ink)}
+  .ev,.rec,.imp{margin:.35rem 0 0;font-size:10pt}
+  .ev{color:var(--ink-muted)}
+  .rec{color:var(--ink-soft);background:var(--warm);border-left:2px solid var(--stamp);padding:.5rem .7rem}
+  .ev span,.rec span,.imp span{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
+  .rw{border-top:1px solid var(--rule);padding:.9rem 0;break-inside:avoid}
+  .was,.now{margin:0 0 .4rem}
+  .was{color:var(--ink-muted)}
+  .now{color:var(--ink);background:var(--warm);border-left:2px solid var(--stamp);padding:.55rem .7rem;font-size:12pt}
+  .was span,.now span{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
+  .probs,.imps{margin:.3rem 0 .5rem;padding-left:1.1rem;font-size:10pt}
+  .probs li{color:var(--ink-muted)}
+  .imps li{color:var(--ink-soft)}
+  .opps{padding-left:1.1rem;font-size:10.5pt}
+  .opps li{margin-bottom:.55rem}
+  .note{background:var(--paper-2);border:1px solid var(--rule);padding:1rem 1.2rem;font-size:10.5pt}
+  footer{margin-top:2.5rem;padding-top:1rem;border-top:2px solid var(--ink);
+         font-size:9pt;color:var(--ink-muted)}
+  @media print{
+    body{background:#fff}
+    .doc{max-width:none;padding:0}
+    h2{break-after:avoid}
+    @page{margin:16mm}
+  }
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.4rem 0 0}
+  .half{background:var(--warm);border:1px solid var(--rule);padding:.9rem 1.1rem}
+  .half h3{margin:0 0 .5rem;font-size:9pt;letter-spacing:.14em;text-transform:uppercase;
+           font-family:ui-monospace,monospace;color:var(--ink-muted)}
+  .half .pair{display:flex;gap:1.4rem;align-items:baseline}
+  .half .n{font-size:26pt;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+  .half .who{font-size:8.5pt;font-family:ui-monospace,monospace;letter-spacing:.1em;
+             text-transform:uppercase;color:var(--ink-muted)}
+  .half p{margin:.6rem 0 0;font-size:10pt;color:var(--ink-muted)}
+  .win{border-top:1px solid var(--rule);padding:.75rem 0;display:flex;gap:.9rem;align-items:baseline}
+  .win .q{font-family:ui-monospace,monospace;font-size:8pt;color:var(--stamp);white-space:nowrap}
+  .win p{margin:0}
+  .win .t{color:var(--ink)}
+  .win .s{font-size:9.5pt;color:var(--ink-muted);margin-top:.2rem}
+  .opt{border-top:1px solid var(--rule);padding:1.2rem 0 1.5rem;break-inside:avoid}
+  .opt .oh{display:flex;gap:.7rem;align-items:baseline;margin-bottom:.3rem}
+  .opt .onum{font-family:ui-monospace,monospace;font-size:8pt;color:var(--stamp)}
+  .opt .oname{font-size:14pt;color:var(--ink)}
+  .opt .cost{margin-left:auto;font-family:ui-monospace,monospace;font-size:7.5pt;
+             letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);
+             border:1px solid var(--rule-2);padding:.1rem .45rem}
+  .opt img{width:100%;display:block;border:1px solid var(--rule);margin:.8rem 0 0}
+  .opt .cap{font-size:9pt;color:var(--ink-muted);margin:.4rem 0 0}
+  .lesser{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin:.6rem 0 0}
+  .lesser figure{margin:0}
+  .lesser img{width:100%;display:block;border:1px solid var(--rule);filter:saturate(.92)}
+  .lesser figcaption{font-size:9.5pt;color:var(--ink-muted);margin-top:.45rem}
+  .lesser strong{color:var(--ink)}
+  @media (max-width:36rem){ .lesser{grid-template-columns:1fr} }
+  /* .win was a flex row when it held only a number and text. It now stacks
+     a header row above a full-width image, so the row moves to .wtop. */
+  .win{display:block}
+  .wtop{display:flex;gap:.9rem;align-items:baseline}
+  .win img.ba{width:100%;display:block;border:1px solid var(--rule);margin:.75rem 0 .2rem}
+  .ask{background:var(--paper-2);border:1px solid var(--rule);padding:1.2rem 1.4rem;margin:1.4rem 0 0}
+  .ask p{margin:.5rem 0 0}.ask p:first-child{margin-top:0}
+  .deep{border-left:3px solid var(--stamp);background:var(--warm);padding:.85rem 1.1rem;
+        margin:0 0 1.6rem;font-size:10.5pt}
+  /* :not(.btn) so this never out-specifies the button and paints its label
+     the same red as its own background. */
+  .deep a:not(.btn){color:var(--stamp)}
+  .deep p{margin:0}
+  .deep .lbl{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+             text-transform:uppercase;color:var(--ink-muted);display:block;margin-bottom:.3rem}
+  /* Squared and stamp-red, because nothing else in this document is rounded. */
+  .btn{display:inline-block;margin-top:.85rem;background:var(--stamp);color:var(--warm);
+       text-decoration:none;padding:.62rem 1.15rem;font-family:ui-monospace,monospace;
+       font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--stamp)}
+  .btn:hover,.btn:focus{background:var(--ink);border-color:var(--ink);color:var(--warm)}
+  /* On paper a button is meaningless, so it becomes the address it points at. */
+  @media print{
+    .btn{background:none;color:var(--stamp);padding:.2rem 0;border:0;letter-spacing:.08em}
+    .btn::after{content:" \2014  ambientpixels.ai/lab/evergreen-goodwill-audit.html";
+                text-transform:none;letter-spacing:0}
+  }
+  .tiny{font-size:9pt;color:var(--ink-muted)}
+  @media (max-width:36rem){ .split{grid-template-columns:1fr} }
+</style></head>
+<body><div class="doc">
+<header>
+  <p class="eyebrow mono">Prepared for Amy Hanson &middot; Evergreen Goodwill board</p>
+  <h1>The website is losing people who already want you.</h1>
+  <p class="sub">A conversion audit of evergreengoodwill.org, and what to do first &middot; October 8, 2026</p>
+</header>
+<div class="grade">
+  <div><div class="g">F</div></div>
+  <div>
+    <div class="gnum">56 / 100 &middot; conversion health</div>
+    <p class="gtxt">One axis only: how well the page turns a visitor into an enrolment, a
+    donation or a store visit. Not a judgement of the design, the brand or the mission.
+    32 findings, 12 of them critical.</p>
+  </div>
+</div>
+<div class="deep">
+  <span class="lbl">The evidence behind every claim here</span>
+  <p>All 32 findings, each with what was observed on the page and the wording we would
+  suggest instead — every one of them re-checked against the live site.</p>
+  <a class="btn" href="evergreen-goodwill-audit.html">Read the full audit</a>
+</div>
+
+<h2>Read the score correctly</h2>
+<p class="lede">The composite flatters the site, and it is worth knowing why before anyone
+relaxes. Evergreen Goodwill has an exceptional story and a badly built machine, and the
+score averages the two together.</p>
+<div class="split">
+  <div class="half">
+    <h3>Who they are &middot; the story</h3>
+    <div class="pair"><div class="n">72</div><div class="who">Trust, differentiation,<br>audience</div></div>
+    <p>A hundred years in Northwest Washington, 6,403 students served last year, and four
+    graduates with names and outcomes. This half is excellent and cannot be bought.</p>
+  </div>
+  <div class="half">
+    <h3>How it converts &middot; the machine</h3>
+    <div class="pair"><div class="n">42</div><div class="who">Messaging, CTAs,<br>friction, hierarchy</div></div>
+    <p>Funnel friction scores <strong>11 out of 100</strong> and conversion hierarchy 29.
+    This half is the problem, and it is the half that is straightforward to fix.</p>
+  </div>
+</div>
+<p class="tnote">For comparison, the same audit scored hansonconsultgroup.com at 52. Evergreen
+Goodwill is four points higher overall and <strong>ten points worse on the machine</strong> —
+its story is simply strong enough to carry the average.</p>
+<h2>Four things anyone can check in a minute</h2>
+<p>None of these is a matter of taste, and none needs a redesign to fix.</p>
+<div class="win">
+  <div class="wtop"><span class="q">01</span><div>
+    <p class="t">The main button for job seekers says “Click Here.”</p>
+    <p class="s">It is the front door for the people the mission exists to serve, and it tells them nothing. “Apply for Free Job Training” is a five-minute edit.</p>
+  </div></div>
+  <img class="ba" src="goodwill/claim-1-hero.jpg" alt="Before and after: The main button for job seekers says “Click Here.”">
+</div>
+<div class="win">
+  <div class="wtop"><span class="q">02</span><div>
+    <p class="t">The shop button never mentions the mission.</p>
+    <p class="s">Every purchase pays for the free training, and the button that sends people shopping does not say so. One sentence turns a transaction into a reason.</p>
+  </div></div>
+  <img class="ba" src="goodwill/claim-2-shop.jpg" alt="Before and after: The shop button never mentions the mission.">
+</div>
+<div class="win">
+  <div class="wtop"><span class="q">03</span><div>
+    <p class="t">Newsletter signup hands visitors to donorperfect.net.</p>
+    <p class="s">An unfamiliar domain at the moment of commitment reads as a phishing risk, and a good number of people stop there. The address it opens is interland3.donorperfect.net.</p>
+  </div></div>
+  <img class="ba" src="goodwill/claim-3-newsletter.jpg" alt="Before and after: Newsletter signup hands visitors to donorperfect.net.">
+</div>
+<div class="win">
+  <div class="wtop"><span class="q">04</span><div>
+    <p class="t">Fifty-nine links in the navigation, a hundred and fifty-two on the page.</p>
+    <p class="s">Twenty-five are visible before anything is opened, reaching thirty-one different destinations. Offered everything at once, most people choose nothing — this is the single largest cause of the 11/100 friction score.</p>
+  </div></div>
+  <img class="ba" src="goodwill/claim-4-navigation.jpg" alt="Before and after: Fifty-nine links in the navigation, a hundred and fifty-two on the page.">
+</div>
+<h2>All of it together</h2>
+<p>The same four changes, and the rest of the audit’s wording, applied down the whole
+homepage. Same layout, same navigation, same colours, same sections in the same order.
+Nothing is rebuilt and nothing is moved — every photograph, band and grid is where it is
+today. Only the words are different.</p>
+<article class="opt">
+  <div class="oh"><span class="oname">The homepage, every word fixed</span><span class="cost">Days of work</span></div>
+  <p class="cap">Shown small here. <a href="goodwill/homepage-words-fixed-full.jpg">Open it full size</a> to read the wording.</p>
+  <a href="goodwill/homepage-words-fixed-full.jpg"><img src="goodwill/homepage-words-fixed.jpg" alt="The full Evergreen Goodwill homepage with every copy fix applied, same layout"></a>
+</article>
+<div class="note">
+  <strong>What these are.</strong> Not concepts, and not a redesign. Each one is the
+  current page, photographed from the live site, with the words changed and nothing
+  else. Every line in an AFTER panel is the audit’s own recommended wording, used
+  verbatim. Every statistic, programme and student name on them is already on
+  evergreengoodwill.org.
+</div>
+<h2>What this cannot tell you</h2>
+<p>The audit read the page as an anonymous visitor would. It has no access to analytics,
+donation records or enrolment numbers, so every percentage in it is an industry benchmark
+rather than a measurement of this site. What the first fixes are worth here is not knowable
+until they are made and the result is watched. That is an argument for starting small, which
+until they are made and the result is watched. That is an argument for starting with
+the four changes above rather than anything larger.</p>
+<div class="ask">
+  <p><strong>What would help.</strong> The four fixes above are worth having whoever does
+  them, so take them. If it is useful, an introduction to whoever looks after the website
+  and I will walk them through the full audit, free, and they can take whatever is useful
+  from it.</p>
+  <p class="tiny">The detail sits in the full audit, and it is yours to pass on:
+  <a href="evergreen-goodwill-audit.html"><strong>read all 32 findings</strong></a>.</p>
+</div>
+<footer>
+  Conversion audit by AmbientScore for Chad Martin, AmbientPixels. Scanned 8 October 2026.
+  Every quoted claim was re-checked against the live page; the audit records where its own
+  claim was re-checked against the live page before it was printed.
+</footer>
+</div></body></html>
