@@ -101,6 +101,20 @@
   .win{display:block}
   .wtop{display:flex;gap:.9rem;align-items:baseline}
   .win img.ba{width:100%;display:block;border:1px solid var(--rule);margin:.75rem 0 .2rem}
+  .zoom{display:block;cursor:zoom-in}
+  .zoom img{transition:opacity .12s}
+  .zoom:hover img{opacity:.92}
+  #lb{position:fixed;inset:0;z-index:999;overflow:auto;padding:3.2rem 1rem 3rem;
+      background:rgba(26,22,19,.94);display:none}
+  #lb.on{display:block}
+  #lb img{display:block;margin:0 auto;max-width:min(100%,1400px);height:auto;
+          background:var(--warm);border:1px solid var(--ink)}
+  #lb .x{position:fixed;top:.7rem;right:1rem;background:none;border:1px solid var(--rule-2);
+         color:var(--paper);font-family:ui-monospace,monospace;font-size:8.5pt;
+         letter-spacing:.14em;text-transform:uppercase;padding:.45rem .9rem;cursor:pointer}
+  #lb .x:hover{background:var(--paper);color:var(--ink)}
+  /* Equal specificity, later in source, so no !important is needed. */
+  @media print{ #lb.on{display:none} .zoom{cursor:auto} }
   .ask{background:var(--paper-2);border:1px solid var(--rule);padding:1.2rem 1.4rem;margin:1.4rem 0 0}
   .ask p{margin:.5rem 0 0}.ask p:first-child{margin-top:0}
   .deep{border-left:3px solid var(--stamp);background:var(--warm);padding:.85rem 1.1rem;
@@ -175,28 +189,28 @@ its story is simply strong enough to carry the average.</p>
     <p class="t">The main button for job seekers says “Click Here.”</p>
     <p class="s">It is the front door for the people the mission exists to serve, and it tells them nothing. “Apply for Free Job Training” is a five-minute edit.</p>
   </div></div>
-  <img class="ba" src="goodwill/claim-1-hero.jpg" alt="Before and after: The main button for job seekers says “Click Here.”">
+  <a class="zoom" href="goodwill/claim-1-hero.jpg"><img class="ba" src="goodwill/claim-1-hero.jpg" alt="Before and after: The main button for job seekers says “Click Here.”"></a>
 </div>
 <div class="win">
   <div class="wtop"><span class="q">02</span><div>
     <p class="t">The shop button never mentions the mission.</p>
     <p class="s">Every purchase pays for the free training, and the button that sends people shopping does not say so. One sentence turns a transaction into a reason.</p>
   </div></div>
-  <img class="ba" src="goodwill/claim-2-shop.jpg" alt="Before and after: The shop button never mentions the mission.">
+  <a class="zoom" href="goodwill/claim-2-shop.jpg"><img class="ba" src="goodwill/claim-2-shop.jpg" alt="Before and after: The shop button never mentions the mission."></a>
 </div>
 <div class="win">
   <div class="wtop"><span class="q">03</span><div>
     <p class="t">Newsletter signup hands visitors to donorperfect.net.</p>
     <p class="s">An unfamiliar domain at the moment of commitment reads as a phishing risk, and a good number of people stop there. The address it opens is interland3.donorperfect.net.</p>
   </div></div>
-  <img class="ba" src="goodwill/claim-3-newsletter.jpg" alt="Before and after: Newsletter signup hands visitors to donorperfect.net.">
+  <a class="zoom" href="goodwill/claim-3-newsletter.jpg"><img class="ba" src="goodwill/claim-3-newsletter.jpg" alt="Before and after: Newsletter signup hands visitors to donorperfect.net."></a>
 </div>
 <div class="win">
   <div class="wtop"><span class="q">04</span><div>
     <p class="t">Fifty-nine links in the navigation, a hundred and fifty-two on the page.</p>
     <p class="s">Twenty-five are visible before anything is opened, reaching thirty-one different destinations. Offered everything at once, most people choose nothing — this is the single largest cause of the 11/100 friction score.</p>
   </div></div>
-  <img class="ba" src="goodwill/claim-4-navigation.jpg" alt="Before and after: Fifty-nine links in the navigation, a hundred and fifty-two on the page.">
+  <a class="zoom" href="goodwill/claim-4-navigation.jpg"><img class="ba" src="goodwill/claim-4-navigation.jpg" alt="Before and after: Fifty-nine links in the navigation, a hundred and fifty-two on the page."></a>
 </div>
 <h2>All of it together</h2>
 <p>The same four changes, and the rest of the audit’s wording, applied down the whole
@@ -206,7 +220,7 @@ today. Only the words are different.</p>
 <article class="opt">
   <div class="oh"><span class="oname">The homepage, every word fixed</span><span class="cost">Days of work</span></div>
   <p class="cap">Shown small here. <a href="goodwill/homepage-words-fixed-full.jpg">Open it full size</a> to read the wording.</p>
-  <a href="goodwill/homepage-words-fixed-full.jpg"><img src="goodwill/homepage-words-fixed.jpg" alt="The full Evergreen Goodwill homepage with every copy fix applied, same layout"></a>
+  <a class="zoom" href="goodwill/homepage-words-fixed-full.jpg"><img src="goodwill/homepage-words-fixed.jpg" alt="The full Evergreen Goodwill homepage with every copy fix applied, same layout"></a>
 </article>
 <div class="note">
   <strong>What these are.</strong> Not concepts, and not a redesign. Each one is the
@@ -235,4 +249,27 @@ the four changes above rather than anything larger.</p>
   Every quoted claim was re-checked against the live page; the audit records where its own
   claim was re-checked against the live page before it was printed.
 </footer>
+<div id="lb" hidden><button class="x" type="button">Close</button><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById("lb"), img=lb.querySelector("img"), last=null;
+  function open(href,alt){
+    img.src=href; img.alt=alt||""; lb.hidden=false; lb.classList.add("on");
+    document.body.style.overflow="hidden"; lb.scrollTop=0;
+    lb.querySelector(".x").focus();
+  }
+  function close(){
+    lb.classList.remove("on"); lb.hidden=true; img.removeAttribute("src");
+    document.body.style.overflow=""; if(last) last.focus();
+  }
+  document.addEventListener("click", function(e){
+    var a=e.target.closest(".zoom");
+    if(a){ e.preventDefault(); last=a; open(a.getAttribute("href"), a.querySelector("img").alt); return; }
+    if(lb.classList.contains("on") && (e.target===lb || e.target.closest(".x"))) close();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key==="Escape" && lb.classList.contains("on")) close();
+  });
+})();
+</script>
 </div></body></html>
