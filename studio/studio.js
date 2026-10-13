@@ -678,6 +678,7 @@
           jobsPanel(id, m));
         return show([mk]);
       }
+      if (page === 'library' && LOCAL) return show(libraryPage(id, m, events));
       if (page === 'library') {
         var nodes = [add(section('§ — LIBRARY'), headline('Everything else,', 'in one place.'),
           guide('Files that belong to no single draft: music beds, voice auditions, snapshots, comps. Listen to audio takes blind and pick one; your pick is recorded for Claude.'))];
@@ -698,6 +699,127 @@
       if (page === 'doc') return viewDoc(id, arg);
       return show(overview(id, m, events));
     });
+  }
+
+  // ---- the Library (local): a project shelf and the studio shelf, sorted by kind ----
+  var SHELF_KINDS = [['all', 'All'], ['music', 'Music'], ['voice', 'Voice'], ['images', 'Images'], ['snapshots', 'Snapshots'], ['other', 'Other']];
+  function fmtSize(n) { return n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1e3)) + ' KB'; }
+
+  function libraryPage(id, m, events) {
+    var s = add(section('§ — LIBRARY'), headline('Music, voices, images,', 'on the shelf.'),
+      guide('Two shelves. This project\'s holds its music, voice takes, read-alouds, snapshots and images, including what already sits in its renders and video assets. The studio shelf holds what you reuse across projects. Drop files in to add them; "Use in" copies one into a video\'s assets for the Sound designer or Animator.',
+        'Pick a shelf and a kind. Press ★ on the take you like: Claude reads your picks.'));
+    var state = { shelf: 'project', kind: 'all', blind: false, data: null };
+    var shelfTabs = el('div', 'st-tabs');
+    var kindTabs = el('div', 'st-tabs st-tabs--sub');
+    var drop = el('label', 'st-drop');
+    var fileIn = el('input');
+    fileIn.type = 'file'; fileIn.multiple = true; fileIn.accept = 'audio/*,image/*,video/*';
+    var dropKind = select([['', 'Sort automatically'], ['music', 'Music'], ['voice', 'Voice'], ['images', 'Images'], ['other', 'Other']], '');
+    var dropNote = el('span', 'st-note');
+    add(drop, fileIn, el('b', null, 'Drop files here'), el('span', 'st-note', 'or click to choose · audio, images, video · up to 1 GB each'));
+    var bar = add(el('div', 'st-toolbar'), field('Shelve as', dropKind), dropNote);
+    var blindBtn = button('st-tab', 'Blind listen', function () { state.blind = !state.blind; draw(); });
+    var list = el('div', 'st-shelf');
+
+    function items() {
+      var all = state.data ? (state.shelf === 'project' ? state.data.project : state.data.studio) : [];
+      return state.kind === 'all' ? all : all.filter(function (i) { return i.kind === state.kind; });
+    }
+    function tabs() {
+      shelfTabs.textContent = ''; kindTabs.textContent = '';
+      [['project', 'This project'], ['studio', 'Studio shelf']].forEach(function (t) {
+        var n = state.data ? state.data[t[0]].length : 0;
+        var b = button('st-tab', t[1] + ' (' + n + ')', function () { state.shelf = t[0]; state.kind = 'all'; draw(); });
+        b.setAttribute('aria-selected', state.shelf === t[0] ? 'true' : 'false');
+        shelfTabs.appendChild(b);
+      });
+      var all = state.data ? state.data[state.shelf] : [];
+      SHELF_KINDS.forEach(function (k) {
+        var n = k[0] === 'all' ? all.length : all.filter(function (i) { return i.kind === k[0]; }).length;
+        if (!n && k[0] !== 'all') return;
+        var b = button('st-tab', k[1] + ' ' + n, function () { state.kind = k[0]; draw(); });
+        b.setAttribute('aria-selected', state.kind === k[0] ? 'true' : 'false');
+        kindTabs.appendChild(b);
+      });
+    }
+    function mediaUrl(i) {
+      return state.shelf === 'studio' ? Promise.resolve({ url: '/local/studio-file?' + new URLSearchParams({ path: i.path }) }) : call('media', { project: id, path: i.path });
+    }
+    function rowFor(i, alias) {
+      var r = el('div', 'st-shelf-row');
+      var cell = el('div', 'st-shelf-media');
+      var isAudio = /\.(wav|mp3|m4a|flac|ogg|aac)$/i.test(i.name), isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(i.name);
+      mediaUrl(i).then(function (u) {
+        if (isAudio) { var a = el('audio'); a.controls = true; a.preload = 'none'; a.src = u.url; cell.appendChild(a); }
+        else if (isImage) { var im = el('img'); im.src = u.url; im.alt = i.name; im.loading = 'lazy'; cell.appendChild(im); }
+        else cell.appendChild(el('span', 'st-note', 'video'));
+      }).catch(function () { cell.appendChild(el('span', 'st-note', 'not available')); });
+      var where = i.usedIn ? 'in ' + i.usedIn : i.path.replace(/\/[^/]*$/, '');
+      var info = add(el('div', 'st-shelf-info'), el('b', null, alias || i.name),
+        el('span', 'st-note', (alias ? '' : i.kind + ' · ') + fmtSize(i.size) + ' · ' + when(i.mtime) + (alias ? '' : ' · ' + where)));
+      var acts = el('div', 'st-shelf-acts');
+      if (state.shelf === 'project') {
+        var picked = events.some(function (e) { return e.type === 'pick' && e.path === i.path; });
+        acts.appendChild(button('st-link', picked ? '★ Picked' : '☆ Pick', function (e) {
+          var b = e.target;
+          post({ project: id, type: 'pick', path: i.path, text: alias ? 'picked blind as ' + alias : '' })
+            .then(function (ev) { events.push(ev); b.textContent = '★ Picked'; }).catch(function (err) { flash(b, err.message); });
+        }));
+      }
+      if (m.videos.length && (isAudio || isImage)) {
+        var vsel = select(m.videos.map(function (v) { return [v.id, v.id]; }), m.videos[0].id);
+        vsel.className += ' st-select--small';
+        acts.appendChild(add(el('span', 'st-inline'), button('st-link', 'Use in', function (e) {
+          var b = e.target;
+          request('POST', 'library-use', null, { project: id, path: i.path, video: vsel.value })
+            .then(function (r) { delete manifestCache[id]; flash(b, 'Copied ✓'); b.title = r.path; })
+            .catch(function (err) { flash(b, err.message); });
+        }), vsel));
+      }
+      return add(r, cell, info, acts);
+    }
+    function draw() {
+      tabs();
+      list.textContent = '';
+      var its = items();
+      var audio = its.filter(function (i) { return /\.(wav|mp3|m4a|flac|ogg|aac)$/i.test(i.name); });
+      blindBtn.hidden = audio.length < 2;
+      blindBtn.textContent = state.blind ? 'Show names' : 'Blind listen';
+      if (!its.length) { list.appendChild(el('p', 'st-empty', state.shelf === 'studio' ? 'The studio shelf is empty. Drop music beds, voice samples or logos here to reuse them across projects.' : 'Nothing here yet.')); return; }
+      if (state.blind) {
+        audio.slice().sort(function () { return Math.random() - 0.5; }).forEach(function (i, n) { list.appendChild(rowFor(i, 'Take ' + String.fromCharCode(65 + n))); });
+      } else its.forEach(function (i) { list.appendChild(rowFor(i)); });
+    }
+    function load() { return call('library', { project: id }).then(function (d) { state.data = d; draw(); }); }
+
+    function uploadFiles(files) {
+      var queue = Array.prototype.slice.call(files), done = 0, failed = null;
+      function next() {
+        if (!queue.length) {
+          var where = state.shelf === 'studio' ? 'studio shelf' : 'project shelf';
+          flash(dropNote, failed ? (done ? done + ' added to the ' + where + '; ' : '') + 'stopped at ' + failed : done + (done === 1 ? ' file' : ' files') + ' added to the ' + where + '.');
+          load();
+          return;
+        }
+        var f = queue.shift();
+        flash(dropNote, 'Adding ' + f.name + '…');
+        var qs = new URLSearchParams({ project: state.shelf === 'studio' ? '' : id, kind: dropKind.value, name: f.name });
+        fetch(API + '/library-upload?' + qs, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream', 'X-Studio': '1' }, body: f })
+          .then(function (res) { return res.json().then(function (b) { if (!res.ok) throw new Error(b.error || 'upload failed'); done++; }); })
+          .catch(function (err) { failed = f.name + ': ' + err.message; queue = []; })
+          .then(next);
+      }
+      next();
+    }
+    fileIn.addEventListener('change', function () { if (fileIn.files.length) uploadFiles(fileIn.files); fileIn.value = ''; });
+    drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('st-drop--over'); });
+    drop.addEventListener('dragleave', function () { drop.classList.remove('st-drop--over'); });
+    drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('st-drop--over'); if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); });
+
+    add(s, shelfTabs, kindTabs, drop, bar, add(el('div', 'st-toolbar'), blindBtn), list);
+    load().catch(function (err) { list.appendChild(el('p', 'st-empty', err.message)); });
+    return [s];
   }
 
   function overview(id, m, events) {
