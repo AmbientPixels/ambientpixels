@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Studio. AmbientPixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="/studio/studio.css" />
+  <script defer src="/studio/studio.js"></script>
+</head>
+<body>
+  <nav class="ap-nav st-nav">
+    <a class="ap-logo" href="#/"><span class="m"><i></i></span> AmbientPixels.</a>
+    <span class="st-crumbs" id="crumbs"></span>
+    <span class="ap-status ap-status--archive" id="worker">Checking the PC</span>
+  </nav>
+
+  <main class="st-main" id="app">
+    <p class="st-empty">Loading.</p>
+  </main>
+
+  <template id="tpl-key">
+    <section class="st-sec st-key">
+      <div class="ap-sec-idx">§ 00 — ACCESS</div>
+      <h1 class="ap-display st-h">Studio key, <em>once per browser.</em></h1>
+      <form class="st-key-form" id="key-form">
+        <label class="st-label" for="key-input">Studio key</label>
+        <input class="st-input" id="key-input" type="password" autocomplete="current-password" required />
+        <button class="ap-btn ap-btn--primary" type="submit">Unlock →</button>
+      </form>
+      <p class="st-note" id="key-error" hidden>That key was refused.</p>
+    </section>
+  </template>
+</body>
+</html>
