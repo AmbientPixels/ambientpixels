@@ -211,6 +211,38 @@
   }
   var preferredRole = null; // set by "Talk to this role" on a role page, used by the next chat panel
 
+  // One tool as a row: what it does, where it runs, its license, who uses it, and whether it's ready here.
+  function toolRow(t) {
+    var r = el('div', 'st-tool');
+    var info = add(el('div', 'st-tool-info'), el('b', null, t.name + '.'), el('span', 'st-tool-does', t.does),
+      el('span', 'st-note', [t.stage === 'all' ? 'every stage' : t.stage, t.local ? 'runs on this PC' : t.runs.replace(/^cloud: /, 'sends data to '), t.license,
+        t.roles && t.roles.length ? 'used by ' + t.roles.map(function (x) { return x.name; }).join(', ') : ''].filter(Boolean).join(' · ')));
+    t.problems.forEach(function (p) { info.appendChild(el('span', 'st-tool-problem', '✗ ' + p)); });
+    var st = el('span', 'ap-status ' + (t.status === 'ready' ? '' : 'ap-status--beta'), t.status === 'ready' ? 'Ready' : 'Needs setup');
+    var where = el('span', 'st-tool-where ' + (t.local ? '' : 'st-tool-where--cloud'), t.local ? 'Local' : 'Cloud');
+    return add(r, info, where, st);
+  }
+  function toolsSection(filterIds, idx) {
+    var s = add(section(idx || '§ — TOOLS'), guide(filterIds ? 'The tools this role works with, and whether each is ready on this PC.' :
+      'Every tool the team uses. Ready means it\'s installed and set up on this PC. Local tools keep everything on the PC; cloud tools send data (a script, a conversation) to a service, so prefer local ones for confidential work.'));
+    var list = el('div', 'st-tools');
+    var again = button('st-tab', 'Check again', function () { load(true); });
+    if (!filterIds) s.appendChild(add(el('div', 'st-toolbar'), again));
+    s.appendChild(list);
+    function load(fresh) {
+      list.textContent = '';
+      list.appendChild(el('p', 'st-empty', 'Checking…'));
+      call('tools', fresh ? { fresh: '1' } : null).then(function (r) {
+        list.textContent = '';
+        var ts = filterIds ? r.tools.filter(function (t) { return filterIds.indexOf(t.id) !== -1; }) : r.tools;
+        if (!ts.length) list.appendChild(el('p', 'st-empty', 'No tools yet for this role.'));
+        ts.forEach(function (t) { list.appendChild(toolRow(t)); });
+      }).catch(function (err) { list.textContent = ''; list.appendChild(el('p', 'st-empty', err.message)); });
+    }
+    load(false);
+    return s;
+  }
+
   function viewTeam() {
     setCrumbs([{ text: 'Team' }]);
     target = app;
@@ -225,7 +257,7 @@
         var meta = (MODEL_LABEL[r.model] || r.model) + ' · $' + r.budget + ' cap · ' + (r.freeEdit.length ? 'edits ' + r.freeEdit.join(', ') : 'asks before every edit');
         add(rows, row('#/team/' + r.id, pad2(i + 1), r.name + '.', r.mandate + '  ·  ' + meta, r.enabled ? 'On' : 'Off', r.enabled ? '' : 'ap-status--archive'));
       });
-      show([add(s, rows)]);
+      show([add(s, rows), toolsSection(null, '§ — THE TOOLS DECK')]);
     });
   }
 
@@ -289,10 +321,7 @@
       talk.appendChild(tr);
 
       // Tools and activity
-      var tools = add(section('§ — TOOLS'), guide('The tools this role works with. Status checks (ready, missing, needs setup) arrive with the Tools deck.'));
-      var tl = el('div', 'st-checklist');
-      (r.tools.length ? r.tools : ['(none yet)']).forEach(function (x) { tl.appendChild(add(el('div', 'st-check'), el('span', 'st-rail-mark', '·'), el('span', null, x))); });
-      tools.appendChild(tl);
+      var tools = toolsSection(r.tools);
       var act = section('§ — RECENT ACTIVITY');
       if (!acts.length) act.appendChild(el('p', 'st-empty', 'Nothing yet. Talk to this role in a project.'));
       var al = el('div', 'st-board');

@@ -267,6 +267,19 @@ a.st-cue { text-decoration: none; }
 .st-diff-del { background: var(--chat-wash); opacity: .6; text-decoration: line-through; text-decoration-color: var(--color-text-muted); }
 .st-diff-add { background: var(--chat-wash); border-left: 2px solid var(--color-teal-primary); }
 
+/* ---- The Tools deck ---- */
+.st-tools { border-top: 1px solid var(--color-border); }
+.st-tool { display: grid; grid-template-columns: minmax(0, 1fr) 80px 130px; gap: var(--sp-5); align-items: center; padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--color-border-soft); }
+.st-tool-info { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
+.st-tool-info b { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: var(--fs-body); letter-spacing: var(--tracking-tight); }
+.st-tool-does { font-size: var(--fs-body-xs); line-height: var(--lh-body-tight); color: var(--color-text-secondary); }
+.st-tool-info .st-note { text-transform: none; letter-spacing: var(--tracking-mono-xxs); }
+.st-tool-problem { font-family: var(--font-mono); font-size: var(--fs-mono-xs); color: var(--color-status-beta); }
+.st-tool-where { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: .6; }
+.st-tool-where--cloud { opacity: 1; }
+.st-tool .ap-status { justify-content: flex-end; }
+@media (max-width: 600px) { .st-tool { grid-template-columns: 1fr auto; } .st-tool-where { display: none; } }
+
 /* ---- The Library: shelves, kinds, a drop zone, one row per item ---- */
 .st-tabs--sub { margin-top: 0; border-top: none; }
 .st-drop {
