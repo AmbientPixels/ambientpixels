@@ -407,7 +407,8 @@
   function stagesOf(v, events) {
     var appr = approvedDraft(v, events);
     var done = {
-      script: !!v.script,
+      // Approved in the studio, or already carried through to a render (scripts approved before the studio existed).
+      script: events.some(function (e) { return e.type === 'decision' && e.video === v.id && e.draft === 'script' && e.decision === 'approved'; }) || (!!v.script && v.drafts.length > 0),
       voice: (v.vo || []).length > 0,
       scenes: v.drafts.length > 0,
       review: !!appr,
@@ -629,7 +630,16 @@
     }
     sendBtn.addEventListener('click', sendNow);
     box.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendNow(); } });
-    panel.prefill = function (text) { box.value = text; box.focus(); };
+    panel.prefill = function (text, role) {
+      box.value = text;
+      box.focus();
+      var live = chatState.info && !chatState.info.closed;
+      if (role && !live) { roleSel.value = role; roleHint(); }
+      else if (role && live && chatState.info.role !== role) {
+        var want = roles.filter(function (r) { return r.id === role; })[0];
+        flash(foot, 'You\'re talking to the ' + chatState.info.roleName + '. For the ' + (want ? want.name : role) + ', press New chat first.');
+      }
+    };
 
     // Past chats for this project, to continue one.
     call('chats', { project: project }).then(function (r) {
@@ -648,9 +658,10 @@
     if (chatState.id) { startPolling(); }
     return panel;
   }
-  function prefillChat(text) {
+  // Fill the chat box (and pick the role, when no chat is running). Nothing is sent until Chad presses Send.
+  function prefillChat(text, role) {
     var p = document.querySelector('.st-chat');
-    if (p && p.prefill) p.prefill(text);
+    if (p && p.prefill) p.prefill(text, role);
   }
 
   function viewProject(id, page, arg) {
@@ -742,17 +753,143 @@
       setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: P }, { text: v.id }, { text: stage }]);
       workspace(id, m, events, { video: v.id, stage: stage });
       if (stage === 'review') return viewVideo(id, m, events, v, draft);
-      if (stage === 'script') return show(scriptStage(id, v));
+      if (stage === 'script') return show(LOCAL ? writersRoom(id, m, v, events) : scriptStage(id, v));
       if (stage === 'voice') return show(voiceStage(id, v, events));
       if (stage === 'scenes') return show(scenesStage(id, m, v));
       return show(deliverStage(id, m, v, events));
     });
   }
 
+  // ---- the Writer's room (local): edit, version, ask the Writer, hear it, approve it ----
+  function writersRoom(id, m, v, events) {
+    var P = '#/p/' + encodeURIComponent(id);
+    var approved = events.filter(function (e) { return e.type === 'decision' && e.video === v.id && e.draft === 'script'; }).pop();
+    var s = add(section('§ — SCRIPT'), headline(v.title + ',', 'the words.'),
+      guide('The Writer\'s room. The script is what the narrator says, one paragraph per breath; edit it here, or ask the Writer with the buttons below (they fill in the chat on the right; you press Send). Every save keeps the previous version.',
+        approved && approved.decision === 'approved' ? 'Approved. Next: the voice (Voice stage).' : 'Write or refine it, read it aloud, then approve it.'));
+    var stats = el('p', 'st-note');
+    var box = el('textarea', 'st-input st-script-edit');
+    box.rows = 18;
+    box.spellcheck = true;
+    var status = el('span', 'st-note');
+    var saveBtn = el('button', 'ap-btn ap-btn--primary st-run', 'Save →');
+    saveBtn.type = 'button';
+    var versions = el('select', 'st-input st-select st-versions');
+    var cur = null, dirty = false;
+    function count() {
+      var words = box.value.split(/\s+/).filter(Boolean).length;
+      stats.textContent = words + ' words · about ' + Math.round(words / 2.5) + ' s at a natural pace' + (dirty ? ' · unsaved' : '') + (cur ? ' · ' + cur.path : '');
+    }
+    function load(r) {
+      cur = r; dirty = false;
+      box.value = r.text;
+      versions.textContent = '';
+      var first = el('option', null, r.versions.length ? 'Earlier versions (' + r.versions.length + ')…' : 'No earlier versions yet');
+      first.value = '';
+      versions.appendChild(first);
+      r.versions.forEach(function (x) { var o = el('option', null, when(x.at) + ' · ' + x.words + ' words'); o.value = x.name; versions.appendChild(o); });
+      count();
+    }
+    function fetchScript() { return call('script', { project: id, video: v.id }).then(load); }
+    box.addEventListener('input', function () { dirty = true; count(); });
+    function save() {
+      if (!cur) return;
+      saveBtn.disabled = true;
+      request('POST', 'script-save', null, { project: id, video: v.id, text: box.value, base: cur.hash })
+        .then(function (r) { load(r); delete manifestCache[id]; flash(status, r.unchanged ? 'No changes to save.' : 'Saved. The previous version is kept.'); })
+        .catch(function (err) { flash(status, err.message); })
+        .then(function () { saveBtn.disabled = false; });
+    }
+    saveBtn.addEventListener('click', save);
+    box.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); } });
+    versions.addEventListener('change', function () {
+      if (!versions.value) return;
+      call('script-version', { project: id, video: v.id, name: versions.value }).then(function (r) {
+        if (dirty && !window.confirm('Replace your unsaved text with this earlier version?')) return;
+        box.value = r.text; dirty = true; count();
+        flash(status, 'Loaded an earlier version. Save to make it current (today\'s text is kept as a version).');
+      });
+      versions.value = '';
+    });
+    // The Writer may change the file from the chat: pick that up, unless Chad has unsaved edits.
+    var watch = setInterval(function () {
+      if (dirty || !cur) return;
+      call('script', { project: id, video: v.id }).then(function (r) { if (r.hash !== cur.hash) { load(r); flash(status, 'Updated: the script changed on disk (the Writer, probably).'); } }).catch(function () {});
+    }, 4000);
+    cleanup.push(function () { clearInterval(watch); });
+
+    // The Writer's buttons: each fills in the chat; nothing is sent until Chad presses Send.
+    var path = 'projects/' + id + '/script/' + v.id + '-voiceover.txt';
+    var secs = input('number', '90');
+    secs.className += ' st-input--short';
+    var voice = select([['af_bella', 'Bella'], ['af_heart', 'Heart'], ['am_michael', 'Michael']], 'af_bella');
+    var ask = add(el('div', 'st-toolbar st-writer-actions'),
+      button('st-tab', 'Draft from the brief', function () {
+        prefillChat('Draft the voiceover for "' + v.title + '" from the brief in projects/' + id + '/NOTES.md, following your brief. Save it to ' + path + '. If the brief doesn\'t say how long, ask me first.', 'writer');
+      }),
+      button('st-tab', 'Rewrite for the ear', function () {
+        prefillChat('Rewrite ' + path + ' for the ear, following your brief. Keep every fact. Then tell me in a few bullets what you changed and anything you couldn\'t keep.', 'writer');
+      }),
+      add(el('span', 'st-inline'), button('st-tab', 'Fit to', function () {
+        var n = Number(secs.value) || 90;
+        prefillChat('Fit ' + path + ' to about ' + n + ' seconds (about ' + Math.round(n * 2.5) + ' words). Cut, don\'t cram. Tell me what you cut.', 'writer');
+      }), secs, el('span', 'st-note', 's')),
+      button('st-tab', 'Check every claim', function () {
+        prefillChat('Check every claim in ' + path + '. Fill projects/' + id + '/script/' + v.id + '-SOURCES.md: each claim, where it is true, and its status. Flag anything you can\'t verify as numbered either/or questions.', 'researcher');
+      }),
+      add(el('span', 'st-inline'), button('st-tab', 'Read it aloud', function () {
+        if (dirty) { flash(status, 'Save first: the voice reads the saved script.'); return; }
+        request('POST', 'job', null, { project: id, kind: 'readaloud', video: v.id, voice: voice.value })
+          .then(function (r) {
+            flash(status, 'Reading it aloud (local voice, nothing leaves this PC). The take appears below in about a minute.');
+            // Watch the job; when it's done, show the new take here without a reload.
+            var t = setInterval(function () {
+              call('jobs', { project: id }).then(function (j) {
+                var me = j.jobs.filter(function (x) { return x.id === r.job.id; })[0];
+                if (!me || me.status === 'queued' || me.status === 'running') return;
+                clearInterval(t);
+                if (me.status !== 'done') { flash(status, 'Read-aloud ' + me.status.replace(/-/g, ' ') + ': see Make for the log.'); return; }
+                (me.outputs || []).forEach(function (p) { takes.insertBefore(fileTile(id, { path: p }, null, events, true), takes.firstChild); });
+                if (!takesShown) { s.insertBefore(el('div', 'st-note st-notes-h', 'Read-aloud takes'), takes); takesShown = true; }
+                flash(status, 'The take is ready below.');
+              }).catch(function () {});
+            }, 4000);
+            cleanup.push(function () { clearInterval(t); });
+          })
+          .catch(function (err) { flash(status, err.message); });
+      }), voice));
+
+    var approve = button('st-tab', approved && approved.decision === 'approved' ? 'Approved ✓' : 'Approve script', function () {
+      if (dirty) { flash(status, 'Save first, then approve.'); return; }
+      post({ project: id, type: 'decision', video: v.id, draft: 'script', decision: 'approved', text: '' })
+        .then(function () { approve.textContent = 'Approved ✓'; delete manifestCache[id]; flash(status, 'Script approved. Recorded in REVIEW.md.'); })
+        .catch(function (err) { flash(status, err.message); });
+    });
+
+    // Read-aloud takes for this video, newest first.
+    var takes = el('div', 'st-gallery');
+    m.loose.forEach(function (g) {
+      if (!/\/readaloud$/.test(g.dir)) return;
+      g.files.filter(function (f) { return baseName(f.path).indexOf(v.id + '-') === 0; }).forEach(function (f) { takes.appendChild(fileTile(id, f, null, events, true)); });
+    });
+
+    add(s, stats, box, add(el('div', 'st-toolbar'), saveBtn, versions, approve, status), el('div', 'st-note st-notes-h', 'Ask the Writer'), ask);
+    var takesShown = takes.childNodes.length > 0;
+    if (takesShown) s.appendChild(el('div', 'st-note st-notes-h', 'Read-aloud takes'));
+    s.appendChild(takes);
+    if (v.sources) {
+      var a = el('a', 'st-link', 'Where each claim comes from (' + baseName(v.sources) + ') →');
+      a.href = P + '/doc/' + encodeURIComponent(v.sources);
+      s.appendChild(a);
+    }
+    fetchScript().catch(function (err) { flash(status, err.message); });
+    return [s];
+  }
+
   function scriptStage(id, v) {
     var s = add(section('§ — SCRIPT'), headline(v.title + ',', 'the words.'),
       guide('The voiceover script: what the narrator says, one paragraph per breath. Timing comes from the recorded voice later, never from this text.',
-        v.script ? 'Read it through. To change a line, ask Claude (chat arrives next) or edit the file.' : 'No script yet. Ask Claude to draft one from the brief.'));
+        v.script ? 'Read it through. Editing and the Writer are in the local studio.' : 'No script yet. Write it in the local studio, with the Writer.'));
     if (v.script) {
       var holder = el('div');
       s.appendChild(holder);

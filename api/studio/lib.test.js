@@ -67,6 +67,11 @@ t('job: snapshot needs 1-24 times', () => {
   assert.strictEqual(typeof L.cleanJob(P, { kind: 'snapshot', video: 'v', times: [] }), 'string');
   assert.deepStrictEqual(L.cleanJob(P, { kind: 'snapshot', video: 'v', times: ['1.234', 5] }).times, [1.23, 5]);
 });
+t('job: readaloud keeps a known voice, defaults an unknown one', () => {
+  assert.strictEqual(L.cleanJob(P, { kind: 'readaloud', video: 'v', voice: 'am_michael' }).voice, 'am_michael');
+  assert.strictEqual(L.cleanJob(P, { kind: 'readaloud', video: 'v', voice: '--out x' }).voice, 'af_bella');
+  assert.strictEqual(typeof L.cleanJob(P, { kind: 'readaloud', video: '../v' }), 'string');
+});
 t('job: music checks mood, duration, seed, name', () => {
   assert.strictEqual(typeof L.cleanJob(P, { kind: 'music', mood: 'metal', duration: 60, seed: 1, name: 'x' }), 'string');
   assert.strictEqual(typeof L.cleanJob(P, { kind: 'music', mood: 'lofi', duration: 6000, seed: 1, name: 'x' }), 'string');

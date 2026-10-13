@@ -187,6 +187,25 @@
 .st-steps { margin: 0 0 var(--sp-6); padding-left: var(--sp-5); font-size: var(--fs-body-sm); line-height: var(--lh-body); color: var(--color-text-body); }
 .st-steps li { margin-bottom: var(--sp-3); }
 
+/* The Writer's room: the script is the page, set to read like the words they are */
+.st-script-edit {
+  width: 100%;
+  max-width: 78ch;
+  min-height: 420px;
+  resize: vertical;
+  padding: var(--sp-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-display);
+  font-size: var(--fs-body);
+  line-height: 1.75;
+  color: var(--color-text-primary);
+}
+.st-script-edit:focus { outline: none; border-color: var(--color-text-primary); }
+.st-versions { max-width: 260px; }
+.st-inline { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.st-input--short { width: 64px; }
+.st-writer-actions { border-top: 1px solid var(--color-border-soft); }
 .st-script { font-family: var(--font-display); font-size: var(--fs-body); line-height: 1.7; max-width: 72ch; opacity: .9; }
 .st-checklist { border-top: 1px solid var(--color-border); max-width: 640px; }
 .st-check { display: grid; grid-template-columns: 24px 1fr; gap: var(--sp-2); padding: var(--sp-3) 0; border-bottom: 1px solid var(--color-border-soft); font-size: var(--fs-body-sm); }

@@ -69,7 +69,8 @@ function cleanEvent(project, b) {
 
 // A job for the PC: one of a few named recipes the worker turns into fixed commands (harness/lib/jobs.mjs).
 // The browser only ever picks a recipe and fills in checked values; it never sends a command line.
-const JOB_KINDS = ['check', 'snapshot', 'draft', 'music'];
+const JOB_KINDS = ['check', 'snapshot', 'draft', 'music', 'readaloud'];
+const READ_VOICES = ['af_bella', 'af_heart', 'am_michael']; // Kokoro, local: the script never leaves the PC
 const MOODS = ['ambient', 'lofi', 'upbeat', 'cinematic', 'tense'];
 const NAME = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const VIDEO = /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/;
@@ -91,6 +92,9 @@ function cleanJob(project, b) {
     const times = Array.isArray(b.times) ? b.times.map(Number) : [];
     if (!times.length || times.length > 24 || !times.every((t) => Number.isFinite(t) && t >= 0 && t < 3600)) return 'times: 1-24 seconds values';
     j.times = times.map((t) => Math.round(t * 100) / 100);
+  }
+  if (b.kind === 'readaloud') {
+    j.voice = READ_VOICES.includes(b.voice) ? b.voice : READ_VOICES[0];
   }
   if (b.kind === 'draft') {
     if (!NAME.test(b.label || '')) return 'label: lowercase letters, digits and dashes';
