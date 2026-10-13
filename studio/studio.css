@@ -3,6 +3,11 @@
    A working tool, so quieter and denser than the marketing pages: rules, not cards; the player is the hero. */
 
 .st-nav { gap: var(--sp-8); }
+.st-topnav { display: flex; gap: var(--sp-6); font-size: var(--fs-meta); font-weight: var(--fw-medium); }
+.st-topnav a { color: var(--color-text-primary); text-decoration: none; opacity: .8; transition: opacity var(--dur-fast); }
+.st-topnav a:hover { opacity: .5; }
+.st-brief-edit { width: 100%; min-height: 420px; resize: vertical; padding: var(--sp-4); background: var(--color-surface); border: 1px solid var(--color-border); font-family: var(--font-mono); font-size: var(--fs-mono); line-height: 1.7; }
+.st-brief-edit:focus { outline: none; border-color: var(--color-text-primary); }
 .st-crumbs {
   flex: 1;
   font-family: var(--font-mono);
@@ -219,7 +224,7 @@ a.st-cue { text-decoration: none; }
 .st-chat .st-select option { background: var(--color-teal-surface); }
 .st-chat-setup { display: grid; grid-template-columns: 1fr 80px; gap: var(--sp-3) var(--sp-4); }
 .st-chat-setup[hidden] { display: none; }
-.st-chat-setup .st-field:last-child { grid-column: 1 / -1; }
+.st-chat-setup .st-field:first-child, .st-chat-setup .st-field:last-child { grid-column: 1 / -1; }
 .st-chat-log { flex: 1; min-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--sp-4); padding-right: var(--sp-2); scrollbar-color: var(--chat-line) transparent; }
 .st-chat .st-empty { color: var(--color-teal-secondary); opacity: .8; text-transform: none; letter-spacing: var(--tracking-mono-xxs); line-height: var(--lh-body); }
 .st-chat-input { resize: vertical; min-height: 72px; padding: var(--sp-3); background: var(--chat-wash); border: 1px solid var(--chat-line); font-family: var(--font-display); font-size: var(--fs-body-xs); line-height: var(--lh-body-tight); }

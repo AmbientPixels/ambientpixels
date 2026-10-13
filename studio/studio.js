@@ -196,6 +196,116 @@
     });
   }
 
+  // ---- the video team (local studio only: the team lives on the PC) ----
+  var MODEL_LABEL = { 'claude-opus-5-5': 'Opus 5.5', 'claude-sonnet-5-5': 'Sonnet 5.5', 'claude-haiku-5-5': 'Haiku 5.5' };
+  // The natural role for each page: Script → Writer, Scenes → Animator, and so on. Chad can switch.
+  var ROLE_FOR = { script: 'writer', voice: 'sound-designer', scenes: 'animator', review: 'editor', deliver: 'finisher', captures: 'screen-editor', library: 'sound-designer' };
+  var teamCache = null;
+  function getTeam(fresh) {
+    if (!LOCAL) return Promise.reject(new Error('The team is managed in the local studio (OPEN-STUDIO.cmd).'));
+    if (!fresh && teamCache && Date.now() - teamCache.at < 10000) return teamCache.p;
+    var p = call('team');
+    teamCache = { p: p, at: Date.now() };
+    p.catch(function () { teamCache = null; });
+    return p;
+  }
+  var preferredRole = null; // set by "Talk to this role" on a role page, used by the next chat panel
+
+  function viewTeam() {
+    setCrumbs([{ text: 'Team' }]);
+    target = app;
+    if (!LOCAL) return Promise.resolve(show([add(section('§ — TEAM'), headline('Eight roles,', 'one team.'),
+      guide('The team is managed in the local studio on your PC (OPEN-STUDIO.cmd): briefs, models, budgets and what each role may change.'))]));
+    return getTeam(true).then(function (t) {
+      var s = add(section('§ — TEAM'), headline('Eight roles,', 'one team.'),
+        guide('Each role is a member of the video team with one job, its own brief, its own tools and its own part of a project it may change without asking. Open a role to set its brief, model, budget and permissions. In a project, the chat panel lets you talk to any role.',
+          'Open a role to see and set its controls.'));
+      var rows = el('div', 'st-rows');
+      t.roles.forEach(function (r, i) {
+        var meta = (MODEL_LABEL[r.model] || r.model) + ' · $' + r.budget + ' cap · ' + (r.freeEdit.length ? 'edits ' + r.freeEdit.join(', ') : 'asks before every edit');
+        add(rows, row('#/team/' + r.id, pad2(i + 1), r.name + '.', r.mandate + '  ·  ' + meta, r.enabled ? 'On' : 'Off', r.enabled ? '' : 'ap-status--archive'));
+      });
+      show([add(s, rows)]);
+    });
+  }
+
+  function viewRole(id) {
+    target = app;
+    if (!LOCAL) return viewTeam();
+    return Promise.all([getTeam(true), call('team-activity', { role: id }), call('projects')]).then(function (all) {
+      var t = all[0], acts = all[1].activity, projects = all[2].projects;
+      var r = t.roles.filter(function (x) { return x.id === id; })[0];
+      if (!r) throw new Error('No role ' + id);
+      setCrumbs([{ text: 'Team', href: '#/team' }, { text: r.name }]);
+      var s = add(section('§ — ' + r.name.toUpperCase()), headline(r.name + ',', r.enabled ? 'on the team.' : 'switched off.'),
+        guide(r.mandate, 'Set how this role works below. Its brief is what its Claude reads before every chat.'));
+
+      // Controls
+      var form = el('form', 'st-wizard');
+    form.noValidate = true; // the server checks and explains; the browser's check fails silently
+      var enabled = choices('enabled', [['on', 'On', 'Can be chosen in chat'], ['off', 'Off', 'Hidden from the chat\'s "Talk to"']], r.enabled ? 'on' : 'off');
+      var model = select(t.models.map(function (m) { return [m, MODEL_LABEL[m] || m]; }), r.model);
+      var budget = input('number', String(r.budget));
+      budget.step = 'any'; budget.min = '0.25'; budget.max = '20';
+      var free = el('textarea', 'st-input st-chat-input');
+      free.rows = 3;
+      free.value = r.freeEdit.join('\n');
+      var brief = el('textarea', 'st-input st-brief-edit');
+      brief.rows = 22;
+      brief.value = r.brief;
+      var status = el('span', 'st-note');
+      var save = el('button', 'ap-btn ap-btn--primary st-run', 'Save →');
+      save.type = 'submit';
+      add(form,
+        add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '01 — ON THE TEAM'), enabled),
+        add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '02 — MODEL AND BUDGET'),
+          add(el('div', 'st-job-form'), field('Model', model), field('Default cap per chat ($)', budget))),
+        add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '03 — MAY CHANGE WITHOUT ASKING'),
+          el('p', 'st-note', 'Paths inside a project, one per line: a folder ends with / (series/), a file is its name (NOTES.md). Everything else, and every command, shows you an Approve card.'),
+          free),
+        add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '04 — BRIEF'),
+          el('p', 'st-note', 'What this role is for, how it works and its quality bar. Saved to harness/team/' + r.id + '.md.'), brief),
+        add(el('div', 'st-toolbar'), save, status));
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        save.disabled = true;
+        request('POST', 'team-role', null, {
+          id: r.id, enabled: picked(form, 'enabled') === 'on', model: model.value, budget: Number(budget.value),
+          freeEdit: free.value.split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean), brief: brief.value
+        }).then(function () { teamCache = null; flash(status, 'Saved. The next chat with this role uses it.'); })
+          .catch(function (err) { flash(status, err.message); })
+          .then(function () { save.disabled = false; });
+      });
+      s.appendChild(form);
+
+      // Talk to this role in a project
+      var talk = add(section('§ — TALK TO THE ' + r.name.toUpperCase()), guide('Open a project with this role picked in its chat panel.'));
+      var tr = el('div', 'st-rows');
+      projects.forEach(function (p, i) {
+        var a = row('#/p/' + encodeURIComponent(p.id), pad2(i + 1), p.name + '.', p.videos + ' videos', 'Talk', '');
+        a.addEventListener('click', function () { preferredRole = r.id; });
+        tr.appendChild(a);
+      });
+      talk.appendChild(tr);
+
+      // Tools and activity
+      var tools = add(section('§ — TOOLS'), guide('The tools this role works with. Status checks (ready, missing, needs setup) arrive with the Tools deck.'));
+      var tl = el('div', 'st-checklist');
+      (r.tools.length ? r.tools : ['(none yet)']).forEach(function (x) { tl.appendChild(add(el('div', 'st-check'), el('span', 'st-rail-mark', '·'), el('span', null, x))); });
+      tools.appendChild(tl);
+      var act = section('§ — RECENT ACTIVITY');
+      if (!acts.length) act.appendChild(el('p', 'st-empty', 'Nothing yet. Talk to this role in a project.'));
+      var al = el('div', 'st-board');
+      acts.forEach(function (a) {
+        var what = a.event === 'chat-start' ? 'Chat started: ' + (a.title || '') : a.event === 'turn' ? 'Replied (' + a.subtype + ') · $' + Number(a.cost || 0).toFixed(2) + ' so far'
+          : a.event === 'edit-auto' ? 'Edited ' + (a.file || '').replace(/^.*projects[\\/]/, '') : a.event === 'approved' ? 'Ran ' + a.tool + ' (you approved)' : a.event === 'denied' ? a.tool + ' denied by you' : a.event;
+        al.appendChild(add(el('div', 'st-cue'), el('span', 'st-cue-t', when(a.at)), el('span', 'st-cue-x', a.project + ' · ' + what)));
+      });
+      act.appendChild(al);
+      show([s, talk, tools, act]);
+    });
+  }
+
   // ---- new project (local only): three short steps, then the project exists ----
   function choices(name, options, value) {
     var wrap = el('div', 'st-choices');
@@ -218,6 +328,7 @@
       guide('This creates the project\'s folder on your PC: a decisions log (NOTES.md) holding your answers, a place for scripts, captures and review notes, and the scene kit\'s styles. Nothing else happens until you ask.',
         'Answer the three steps, then press Create.'));
     var form = el('form', 'st-wizard');
+    form.noValidate = true; // the server checks and explains; the browser's check fails silently
     var name = input('text', '', 'e.g. AmbientScore walkthrough');
     var goal = input('text', '', 'e.g. Show a store owner how to read their score in 90 seconds');
     var audience = input('text', '', 'e.g. small online store owners');
@@ -267,6 +378,7 @@
         guide('This adds a starting composition: a 6-second title slate in this project\'s style, numbered after the last video. It checks and renders as is; the real scenes are built from the script and the voiceover.',
           'Give it a title, then start on its script.'));
       var form = el('form', 'st-wizard');
+    form.noValidate = true; // the server checks and explains; the browser's check fails silently
       var title = input('text', '', 'e.g. Reading your score');
       var status = el('span', 'st-note');
       var go = el('button', 'ap-btn ap-btn--primary st-run', 'Add video →');
@@ -361,7 +473,9 @@
     add(ws, rail, main);
     if (LOCAL) {
       ws.className += ' st-ws--chat';
-      ws.appendChild(chatPanel(id, [sel.video, sel.stage, sel.page].filter(Boolean).join(' / ') || 'the project overview'));
+      var defaultRole = preferredRole || ROLE_FOR[sel.stage || sel.page] || 'editor';
+      preferredRole = null;
+      ws.appendChild(chatPanel(id, [sel.video, sel.stage, sel.page].filter(Boolean).join(' / ') || 'the project overview', defaultRole));
     }
     app.textContent = '';
     app.appendChild(ws);
@@ -373,7 +487,7 @@
   var chatState = { project: null, id: null, after: 0, timer: null, events: [], info: null };
   var MODEL_NAMES = [['claude-sonnet-5-5', 'Sonnet 5.5 (balanced)'], ['claude-opus-5-5', 'Opus 5.5 (strongest)'], ['claude-haiku-5-5', 'Haiku 5.5 (fast, cheap)']];
 
-  function chatPanel(project, context) {
+  function chatPanel(project, context, defaultRole) {
     if (chatState.project !== project) {
       if (chatState.timer) clearInterval(chatState.timer);
       chatState = { project: project, id: null, after: 0, timer: null, events: [], info: null };
@@ -390,24 +504,39 @@
     sendBtn.type = 'button';
     var foot = el('div', 'st-chat-foot');
     var setup = el('div', 'st-chat-setup');
-    var model = select(MODEL_NAMES, 'claude-sonnet-5-5');
-    var budget = input('number', '3');
-    budget.step = '0.5'; budget.min = '0.25'; budget.max = '20';
+    var roleSel = el('select', 'st-input st-select');
+    var model = select([['', 'The role\'s choice']].concat(MODEL_NAMES), '');
+    var budget = input('number', '');
+    budget.step = 'any'; budget.min = '0.25'; budget.max = '20';
     var past = el('select', 'st-input st-select');
-    add(setup, field('Model', model), field('Budget ($)', budget), field('Or continue', past));
+    var roles = [];
+    function roleHint() {
+      var r = roles.filter(function (x) { return x.id === roleSel.value; })[0];
+      if (!r) return;
+      model.options[0].textContent = 'Role\'s choice (' + (MODEL_LABEL[r.model] || r.model) + ')';
+      budget.placeholder = String(r.budget);
+      box.placeholder = 'Ask the ' + r.name + '… (Ctrl+Enter to send)';
+    }
+    roleSel.addEventListener('change', roleHint);
+    getTeam().then(function (t) {
+      roles = t.roles.filter(function (r) { return r.enabled; });
+      roles.forEach(function (r) { var o = el('option', null, r.name); o.value = r.id; if (r.id === defaultRole) o.selected = true; roleSel.appendChild(o); });
+      roleHint();
+    }).catch(function () {});
+    add(setup, field('Talk to', roleSel), field('Model', model), field('Budget ($)', budget), field('Or continue', past));
     add(panel, head, setup, log, box, add(el('div', 'st-toolbar'), sendBtn, foot));
 
     function drawHead() {
       head.textContent = '';
       var i = chatState.info;
-      add(head, el('div', 'st-rail-h', 'Claude.'));
+      add(head, el('div', 'st-rail-h', i && !i.closed && i.roleName ? i.roleName + '.' : 'The team.'));
       if (i && !i.closed) {
         add(head, el('span', 'st-note', i.status + ' · $' + (i.cost || 0).toFixed(2) + ' of $' + i.budget),
           button('st-link', 'Stop', function () { request('POST', 'chat-stop', null, { chat: i.id }); }),
           button('st-link', 'New chat', function () { request('POST', 'chat-end', null, { chat: i.id }).then(function () { chatState.id = null; chatState.info = null; chatState.events = []; chatState.after = 0; redraw(); }); }));
         setup.hidden = true;
       } else {
-        add(head, el('span', 'st-note', i && i.closed ? 'This chat has ended (' + i.status + ', $' + (i.cost || 0).toFixed(2) + '). Send to start a new one.' : 'Edits inside this project apply on their own; anything else asks you first.'));
+        add(head, el('span', 'st-note', i && i.closed ? 'This chat has ended (' + i.status + ', $' + (i.cost || 0).toFixed(2) + '). Send to start a new one.' : 'Pick who to talk to. Each role changes only its own part of the project without asking; anything else asks you first.'));
         setup.hidden = false;
       }
     }
@@ -436,8 +565,9 @@
       }
       if (e.type === 'approval') {
         var card = el('div', 'st-approve st-approve--' + e.state);
-        add(card, el('div', 'st-msg-who', 'Claude wants to ' + (e.kind === 'command' ? 'run a command' : e.kind === 'edit' ? 'edit a file outside this project' : 'use ' + e.tool)),
-          el('pre', 'st-pre', e.text));
+        var who = (chatState.info && chatState.info.roleName) || 'Claude';
+        add(card, el('div', 'st-msg-who', 'The ' + who + ' wants to ' + (e.kind === 'command' ? 'run a command' : e.kind === 'edit' ? 'edit a file outside its area' : 'use ' + e.tool)),
+          el('pre', 'st-pre', e.kind === 'edit' ? e.text.replace(/^.*?[\\/]projects[\\/]/, 'projects/').replace(/\\/g, '/') : e.text));
         if (e.why) card.appendChild(el('div', 'st-note', e.why));
         if (e.diff) card.appendChild(diffView(e.diff));
         if (e.state === 'waiting') {
@@ -489,7 +619,8 @@
       var live = chatState.info && !chatState.info.closed;
       var p = live
         ? request('POST', 'chat-send', null, { chat: chatState.id, text: text, context: context })
-        : request('POST', 'chat-new', null, { project: project, text: text, context: context, model: model.value, budget: Number(budget.value), resume: past.value || undefined }).then(function (r) {
+        : request('POST', 'chat-new', null, { project: project, role: roleSel.value, text: text, context: context, model: model.value || undefined,
+          budget: budget.value === '' ? undefined : Number(budget.value), resume: past.value || undefined }).then(function (r) {
           chatState.id = r.id; chatState.info = r; chatState.events = []; chatState.after = 0;
         });
       p.then(function () { box.value = ''; startPolling(); return poll(); })
@@ -505,7 +636,8 @@
       past.appendChild(add(el('option', null, 'A new chat'), null));
       past.firstChild.value = '';
       r.saved.forEach(function (s) {
-        var o = el('option', null, s.title.slice(0, 40) + ' · ' + when(s.startedAt) + ' · $' + (s.cost || 0).toFixed(2));
+        var who = roles.filter(function (x) { return x.id === s.role; })[0];
+        var o = el('option', null, (who ? who.name + ': ' : '') + s.title.slice(0, 36) + ' · ' + when(s.startedAt) + ' · $' + (s.cost || 0).toFixed(2));
         o.value = s.sessionId;
         past.appendChild(o);
       });
@@ -755,6 +887,7 @@
   function jobsPanel(id, m) {
     var wrap = el('div', 'st-jobs');
     var form = el('form', 'st-job-form');
+    form.noValidate = true; // the server checks and explains; the browser's check fails silently
     var kind = select(KINDS, m.videos.length ? 'draft' : 'music');
     var video = select(m.videos.map(function (v) { return [v.id, v.id]; }), m.videos[0] && m.videos[0].id);
     var vOf = function () { return m.videos.filter(function (v) { return v.id === video.value; })[0]; };
@@ -1175,6 +1308,8 @@
     else if (h[0] === 'p' && h[1] && h[2] === 'new-video') p = viewNewVideo(h[1]);
     else if (h[0] === 'p' && h[1]) p = viewProject(h[1], h[2] || '', h[3]);
     else if (h[0] === 'new') { target = app; p = viewNewProject(); }
+    else if (h[0] === 'team' && h[1]) p = viewRole(h[1]);
+    else if (h[0] === 'team') p = viewTeam();
     else { target = app; p = viewProjects(); }
     p.catch(function (e) {
       if (e instanceof NeedKey) return viewKey(!!getKey());
