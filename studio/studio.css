@@ -189,6 +189,29 @@
 .st-check--no { opacity: .7; }
 a.st-cue { text-decoration: none; }
 
+/* ---- New project / new video forms ---- */
+.st-newbar { padding: 0 0 var(--sp-6); }
+.st-dim { opacity: .4; pointer-events: none; }
+.st-wizard { display: flex; flex-direction: column; gap: var(--sp-8); max-width: 760px; }
+.st-step { margin: 0; padding: var(--sp-6) 0 0; border: none; border-top: 1px solid var(--color-border); display: flex; flex-direction: column; gap: var(--sp-5); }
+.st-step legend { padding: 0 0 var(--sp-2); }
+.st-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--sp-2) var(--sp-4); }
+.st-choice {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--sp-2);
+  align-items: start;
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--color-border-soft);
+  cursor: pointer;
+  transition: background var(--dur-fast);
+}
+.st-choice:hover { background: var(--color-hover-surface); }
+.st-choice:has(input:checked) { background: var(--color-surface); box-shadow: inset 2px 0 0 var(--color-text-primary); }
+.st-choice input { margin: 3px 0 0; accent-color: var(--color-text-primary); }
+.st-choice b { display: block; font-size: var(--fs-body-sm); }
+.st-choice .st-note { display: block; margin-top: var(--sp-1); text-transform: none; letter-spacing: var(--tracking-mono-xxs); }
+
 /* ---- Toolbars, tabs, quiet text buttons ---- */
 .st-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); padding: var(--sp-3) 0; }
 .st-tab, .st-link {

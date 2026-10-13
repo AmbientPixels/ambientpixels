@@ -180,13 +180,107 @@
           LOCAL ? (hosted ? 'Hosted' : 'Local only') : 'Hosted', hosted ? 'st-status--cloud' : 'st-status--pc'));
       });
       if (!r.projects.length) add(rows, el('p', 'st-empty', 'No projects yet. The PC uploads them.'));
-      var nodes = [add(s, rows)];
+      // Creating happens on the PC. On the website the button stays visible, dimmed, with the reason.
+      var newBar = el('div', 'st-toolbar st-newbar');
+      var newBtn = el('a', 'ap-btn ap-btn--primary', 'New project →');
+      if (LOCAL) newBtn.href = '#/new';
+      else { newBtn.setAttribute('aria-disabled', 'true'); newBtn.className += ' st-dim'; }
+      add(newBar, newBtn, LOCAL ? null : el('span', 'st-note', 'New projects are made in the local studio (OPEN-STUDIO.cmd).'));
+      var nodes = [add(s, newBar, rows)];
       if (!LOCAL) {
         var foot = el('p', 'st-note st-foot');
         add(foot, button('st-link', 'Forget the studio key on this browser', function () { setKey(''); route(); }));
         nodes.push(foot);
       }
       show(nodes);
+    });
+  }
+
+  // ---- new project (local only): three short steps, then the project exists ----
+  function choices(name, options, value) {
+    var wrap = el('div', 'st-choices');
+    options.forEach(function (o) {
+      var l = el('label', 'st-choice');
+      var r = el('input');
+      r.type = 'radio'; r.name = name; r.value = o[0];
+      if (o[0] === value) r.checked = true;
+      add(l, r, add(el('span'), el('b', null, o[1]), o[2] ? el('span', 'st-note', o[2]) : null));
+      wrap.appendChild(l);
+    });
+    return wrap;
+  }
+  function picked(form, name) { var x = form.querySelector('input[name="' + name + '"]:checked'); return x ? x.value : ''; }
+
+  function viewNewProject() {
+    setCrumbs([{ text: 'Studio', href: '#/' }, { text: 'New project' }]);
+    if (!LOCAL) return Promise.resolve(show([add(section('§ — NEW PROJECT'), el('p', 'st-empty', 'New projects are made in the local studio (OPEN-STUDIO.cmd on your PC).'))]));
+    var s = add(section('§ — NEW PROJECT'), headline('A new project,', 'three questions.'),
+      guide('This creates the project\'s folder on your PC: a decisions log (NOTES.md) holding your answers, a place for scripts, captures and review notes, and the scene kit\'s styles. Nothing else happens until you ask.',
+        'Answer the three steps, then press Create.'));
+    var form = el('form', 'st-wizard');
+    var name = input('text', '', 'e.g. AmbientScore walkthrough');
+    var goal = input('text', '', 'e.g. Show a store owner how to read their score in 90 seconds');
+    var audience = input('text', '', 'e.g. small online store owners');
+    add(form,
+      add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '01 — WHAT IS IT?'),
+        field('Name', name),
+        choices('kind', [['walkthrough', 'Product walkthrough', 'One product, shown working'], ['series', 'Tutorial series', 'Several short chapters'],
+          ['promo', 'Promo or trailer', 'Short, music-led'], ['other', 'Other', 'Tell Claude in the chat']], 'walkthrough'),
+        field('What the videos are for (one line)', goal), field('Who watches them', audience)),
+      add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '02 — WHERE CAN IT LIVE?'),
+        choices('where', [['local', 'Local only', 'Media never leaves this PC. The right choice for client work.'],
+          ['hosted', 'Hosted too', 'Can be reviewed on ambientpixels.ai. Needs one extra setting on Azure; you\'ll get the command.']], 'local')),
+      add(el('fieldset', 'st-step'), el('legend', 'ap-sec-idx', '03 — LOOK AND VOICE'),
+        el('p', 'st-note', 'The look is recorded in NOTES.md for Claude to build the scenes in. Until then, a new video\'s starter slate uses the kit\'s default look.'),
+        choices('style', [['ap-monolith', 'AmbientPixels Monolith', 'Black, Archivo, rules not cards'], ['kit', 'Kit default', 'The scene kit\'s neutral style'],
+          ['client', 'A client\'s brand', 'Give Claude the colours, fonts and logo']], 'ap-monolith'),
+        choices('narration', [['human', 'Human voiceover', 'Record it, then drop it in'], ['ai', 'AI voice', 'Audition voices first; nothing is generated until you approve one']], 'ai')));
+    var status = el('span', 'st-note');
+    var go = el('button', 'ap-btn ap-btn--primary st-run', 'Create project →');
+    go.type = 'submit';
+    add(form, add(el('div', 'st-toolbar'), go, status));
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      go.disabled = true;
+      var body = { name: name.value, kind: picked(form, 'kind'), goal: goal.value, audience: audience.value,
+        hosted: picked(form, 'where') === 'hosted', style: picked(form, 'style'), narration: picked(form, 'narration') };
+      request('POST', 'project-new', null, body).then(function (r) {
+        var id = r.project.id;
+        if (!body.hosted) { location.hash = '#/p/' + encodeURIComponent(id); return; }
+        var done = add(section('§ — CREATED'), headline('Project created,', 'one setting left.'),
+          guide('To review it on ambientpixels.ai, add "' + id + '" to the Function App\'s STUDIO_PROJECTS setting. Run this once (it restarts the API; avoid the heartbeat at 00/06/12/18 UTC):'),
+          el('pre', 'st-pre', 'MSYS_NO_PATHCONV=1 az functionapp config appsettings set --name ambientpixels-nova-api --resource-group ambientpixelsV2 --settings "STUDIO_PROJECTS=<the current list>,' + id + '"'));
+        var open = el('a', 'ap-btn ap-btn--primary', 'Open the project →');
+        open.href = '#/p/' + encodeURIComponent(id);
+        show([add(done, open)]);
+      }).catch(function (err) { go.disabled = false; flash(status, err.message); });
+    });
+    return Promise.resolve(show([add(s, form)]));
+  }
+
+  function viewNewVideo(id) {
+    return getManifest(id).then(function (m) {
+      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: '#/p/' + encodeURIComponent(id) }, { text: 'New video' }]);
+      workspace(id, m, [], { page: 'new-video' });
+      if (!LOCAL) return show([el('p', 'st-empty', 'New videos are made in the local studio (OPEN-STUDIO.cmd on your PC).')]);
+      var s = add(section('§ — NEW VIDEO'), headline('A new video,', 'one title.'),
+        guide('This adds a starting composition: a 6-second title slate in this project\'s style, numbered after the last video. It checks and renders as is; the real scenes are built from the script and the voiceover.',
+          'Give it a title, then start on its script.'));
+      var form = el('form', 'st-wizard');
+      var title = input('text', '', 'e.g. Reading your score');
+      var status = el('span', 'st-note');
+      var go = el('button', 'ap-btn ap-btn--primary st-run', 'Add video →');
+      go.type = 'submit';
+      add(form, field('Title', title), add(el('div', 'st-toolbar'), go, status));
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        go.disabled = true;
+        request('POST', 'video-new', null, { project: id, title: title.value }).then(function (r) {
+          delete manifestCache[id];
+          location.hash = '#/p/' + encodeURIComponent(id) + '/v/' + encodeURIComponent(r.video.id) + '/script';
+        }).catch(function (err) { go.disabled = false; flash(status, err.message); });
+      });
+      show([add(s, form)]);
     });
   }
 
@@ -261,6 +355,8 @@
         rail.appendChild(sub);
       }
     });
+    var nv = railLink(P + '/new-video', 'New video', '+', sel.page === 'new-video', LOCAL ? '' : 'st-dim');
+    rail.appendChild(nv);
     var main = el('div', 'st-ws-main');
     add(ws, rail, main);
     app.textContent = '';
@@ -309,7 +405,7 @@
     var s = section('§ — OVERVIEW');
     add(s, headline(m.name + ',', m.videos.length + (m.videos.length === 1 ? ' video.' : ' videos.')),
       guide('A project is a set of videos that share a look, a voice and one decisions log (NOTES.md). Each video moves through five stages: Script, Voice, Scenes, Review, Deliver.',
-        m.videos.length ? 'Open the video marked ● below to pick up where it stands.' : 'Ask Claude to draft the first script.'));
+        m.videos.length ? 'Open the video marked ● below to pick up where it stands.' : 'Add the first video: + New video, in the rail on the left.'));
     var rows = el('div', 'st-rows');
     m.videos.forEach(function (v, i) {
       var st = stagesOf(v, events), cur = currentStage(v, events);
@@ -916,7 +1012,9 @@
       var di = h.indexOf('d', 4);
       p = viewStage(h[1], h[3], STAGES.some(function (s) { return s[0] === stage; }) ? stage : null, di > 0 ? h[di + 1] : null);
     }
+    else if (h[0] === 'p' && h[1] && h[2] === 'new-video') p = viewNewVideo(h[1]);
     else if (h[0] === 'p' && h[1]) p = viewProject(h[1], h[2] || '', h[3]);
+    else if (h[0] === 'new') { target = app; p = viewNewProject(); }
     else { target = app; p = viewProjects(); }
     p.catch(function (e) {
       if (e instanceof NeedKey) return viewKey(!!getKey());
