@@ -721,6 +721,115 @@
     copyForClaude(claudePrompt(role, text, project));
   }
 
+  // ---- the Dashboard (local home): what needs you, where every video stands, what happened lately ----
+  function needsYou(p) {
+    var P = '#/p/' + encodeURIComponent(p.id), items = [];
+    var push = function (kind, text, href, at) { items.push({ kind: kind, text: text, href: href, at: at || '', project: p.name }); };
+    var tasks = p.board ? p.board.tasks : [];
+    tasks.filter(function (t) { return t.status === 'review'; }).forEach(function (t) {
+      push('Review', t.title + (t.video ? ' · ' + t.video : '') + ' (' + ownerName(t.owner) + ')', P + '/board', t.updated);
+    });
+    // Your turn: your own task, once every earlier task for that video is done.
+    tasks.filter(function (t) { return t.owner === 'chad' && t.status === 'todo'; }).forEach(function (t) {
+      var n = Number(t.id.slice(1));
+      var before = tasks.filter(function (x) { return x.video === t.video && x.owner !== 'chad' && Number(x.id.slice(1)) < n; });
+      if (before.length && before.every(function (x) { return x.status === 'done'; })) push('Your turn', t.title + (t.video ? ' · ' + t.video : ''), P + '/board', t.updated);
+    });
+    tasks.filter(function (t) { return t.status === 'blocked'; }).forEach(function (t) {
+      var last = t.notes[t.notes.length - 1];
+      push('Blocked', t.title + (t.video ? ' · ' + t.video : '') + (last ? ': ' + last.text.replace(/^→ blocked:?\s*/, '') : ''), P + '/board', t.updated);
+    });
+    // A draft newer than your last decision on that video.
+    p.videos.forEach(function (v) {
+      var d = v.drafts[0];
+      if (!d) return;
+      var lastDecision = p.events.filter(function (e) { return e.type === 'decision' && e.video === v.id && e.draft !== 'script'; }).map(function (e) { return e.at; }).sort().pop() || '';
+      if (d.mtime > lastDecision) push('New draft', v.title + ' · ' + d.label, P + '/v/' + encodeURIComponent(v.id) + '/review/d/' + encodeURIComponent(d.label), d.mtime);
+    });
+    p.questions.forEach(function (q) {
+      if (q.total > q.answered) push('Questions', (q.total - q.answered) + ' unanswered in ' + baseName(q.path), P + '/doc/' + encodeURIComponent(q.path));
+    });
+    p.failed.forEach(function (j) { push('Failed job', j.kind + (j.video ? ' · ' + j.video : '') + (j.label ? ' · ' + j.label : ''), P + '/make', j.at); });
+    return items;
+  }
+
+  function viewDashboard() {
+    setCrumbs([{ text: 'Studio' }]);
+    return call('dashboard').then(function (r) {
+      showWorker({ local: true, host: 'this PC', at: new Date().toISOString() });
+      var nodes = [];
+      var head = add(section('§ 01 — DASHBOARD'), headline('Every video in production,', 'one studio.'),
+        guide('What needs you, where each video stands, and what happened lately, across every project. The work itself happens in Claude Code in VS Code; the Board is how it reports back.',
+          'Start with Needs you.'));
+      var newBar = el('div', 'st-toolbar st-newbar');
+      var newBtn = el('a', 'ap-btn ap-btn--primary', 'New project →');
+      newBtn.href = '#/new';
+      add(head, add(newBar, newBtn));
+      nodes.push(head);
+
+      // Needs you
+      var all = [];
+      r.projects.forEach(function (p) { all = all.concat(needsYou(p)); });
+      var order = { 'Review': 0, 'Your turn': 1, 'New draft': 2, 'Questions': 3, 'Blocked': 4, 'Failed job': 5 };
+      all.sort(function (a, b) { return order[a.kind] - order[b.kind] || (a.at < b.at ? 1 : -1); });
+      var ny = add(section('§ 02 — NEEDS YOU (' + all.length + ')'));
+      var nl = el('div', 'st-rows');
+      all.slice(0, 25).forEach(function (it) {
+        var a = el('a', 'st-need');
+        a.href = it.href;
+        add(a, el('span', 'st-need-kind st-need-kind--' + it.kind.toLowerCase().replace(/\s+/g, '-'), it.kind), el('span', 'st-need-text', it.text), el('span', 'st-note', it.project), el('span', 'go', '→'));
+        nl.appendChild(a);
+      });
+      if (!all.length) nl.appendChild(el('p', 'st-empty', 'Nothing needs you right now.'));
+      if (all.length > 25) nl.appendChild(el('p', 'st-note', '…and ' + (all.length - 25) + ' more.'));
+      nodes.push(add(ny, nl));
+
+      // Projects as strips
+      var ps = section('§ 03 — WHERE EVERYTHING STANDS');
+      r.projects.forEach(function (p) {
+        var P = '#/p/' + encodeURIComponent(p.id);
+        var strip = el('div', 'st-strip');
+        var h = el('a', 'st-strip-h');
+        h.href = P;
+        add(h, el('b', null, p.name + '.'), el('span', 'st-note', p.videos.length + (p.videos.length === 1 ? ' video · ' : ' videos · ') + (p.hosted ? 'hosted' : 'local only') + (p.board ? '' : ' · no board yet')));
+        strip.appendChild(h);
+        p.videos.forEach(function (v) {
+          var st = stagesOf(v, p.events);
+          var row = el('a', 'st-strip-row');
+          row.href = P + '/v/' + encodeURIComponent(v.id);
+          row.appendChild(el('span', 'st-strip-title', v.title.replace(/^.*?:\s*/, '') || v.id));
+          st.forEach(function (x) { row.appendChild(el('span', 'st-strip-stage st-stage--' + x.state, MARK[x.state] + ' ' + x.label)); });
+          strip.appendChild(row);
+        });
+        if (!p.videos.length) strip.appendChild(el('p', 'st-empty', 'No videos yet.'));
+        ps.appendChild(strip);
+      });
+      nodes.push(ps);
+
+      // Recent activity
+      var act = [];
+      r.projects.forEach(function (p) {
+        p.events.forEach(function (e) {
+          var what = e.type === 'note' ? 'Note on ' + e.video + ' ' + (e.draft || '') + ' at ' + mmss(e.t) + ': ' + e.text
+            : e.type === 'decision' ? (e.decision === 'approved' ? 'Approved ' : 'Changes requested on ') + e.video + ' ' + e.draft
+            : e.type === 'pick' ? 'Picked ' + baseName(e.path) : e.type === 'answer' ? 'Answered question ' + e.n + ' in ' + baseName(e.file) : e.type;
+          act.push({ at: e.at, text: what, project: p.name });
+        });
+        (p.board ? p.board.tasks : []).forEach(function (t) {
+          t.notes.forEach(function (n) { act.push({ at: n.at, text: t.id + ' ' + t.title + ' · ' + n.by + ': ' + n.text, project: p.name }); });
+        });
+        p.videos.forEach(function (v) { v.drafts.slice(0, 3).forEach(function (d) { act.push({ at: d.mtime, text: 'New draft ' + v.id + ' ' + d.label, project: p.name }); }); });
+      });
+      act.sort(function (a, b) { return a.at < b.at ? 1 : -1; });
+      var ra = section('§ 04 — RECENTLY');
+      var al = el('div', 'st-board');
+      act.slice(0, 15).forEach(function (a) { al.appendChild(add(el('div', 'st-cue'), el('span', 'st-cue-t', when(a.at)), el('span', 'st-cue-x', a.project + ' · ' + a.text))); });
+      if (!act.length) al.appendChild(el('p', 'st-empty', 'Nothing yet.'));
+      nodes.push(add(ra, al));
+      show(nodes);
+    });
+  }
+
   function viewProject(id, page, arg) {
     return Promise.all([getManifest(id), loadEvents(id)]).then(function (both) {
       var m = both[0], events = both[1];
@@ -1771,7 +1880,7 @@
     else if (h[0] === 'new') { target = app; p = viewNewProject(); }
     else if (h[0] === 'team' && h[1]) p = viewRole(h[1]);
     else if (h[0] === 'team') p = viewTeam();
-    else { target = app; p = viewProjects(); }
+    else { target = app; p = LOCAL ? viewDashboard() : viewProjects(); }
     p.catch(function (e) {
       if (e instanceof NeedKey) return viewKey(!!getKey());
       show([add(section('§ — ERROR'), el('p', 'st-empty', e.message))]);

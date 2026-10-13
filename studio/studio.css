@@ -267,6 +267,49 @@ a.st-cue { text-decoration: none; }
 .st-diff-del { background: var(--chat-wash); opacity: .6; text-decoration: line-through; text-decoration-color: var(--color-text-muted); }
 .st-diff-add { background: var(--chat-wash); border-left: 2px solid var(--color-teal-primary); }
 
+/* ---- The Dashboard ---- */
+.st-need {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto 32px;
+  gap: var(--sp-4);
+  align-items: center;
+  padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid var(--color-border-soft);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: background var(--dur-fast);
+}
+.st-need:hover, .st-need:focus-visible { background: var(--color-hover-surface); outline: none; }
+.st-need:hover .go { transform: translateX(8px); opacity: 1; }
+.st-need .go { font-family: var(--font-display); font-weight: var(--fw-heavy); opacity: .4; transition: transform var(--dur-fast), opacity var(--dur-fast); }
+.st-need-kind { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; }
+.st-need-kind--review, .st-need-kind--your-turn { color: var(--color-status-beta); }
+.st-need-kind--blocked, .st-need-kind--failed-job { color: var(--color-text-secondary); }
+.st-need-text { font-size: var(--fs-body-sm); min-width: 0; overflow-wrap: anywhere; }
+.st-strip { padding: var(--sp-4) 0; border-top: 1px solid var(--color-border); }
+.st-strip-h { display: flex; align-items: baseline; gap: var(--sp-4); color: var(--color-text-primary); text-decoration: none; padding-bottom: var(--sp-2); }
+.st-strip-h b { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 22px; letter-spacing: var(--tracking-tight); }
+.st-strip-h:hover b { text-decoration: underline; }
+.st-strip-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) repeat(5, minmax(0, 1fr));
+  gap: var(--sp-3);
+  padding: var(--sp-2);
+  border-bottom: 1px solid var(--color-border-soft);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--fs-body-xs);
+}
+.st-strip-row:hover { background: var(--color-hover-surface); }
+.st-strip-stage { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-xxs); }
+.st-strip-stage.st-stage--done { color: var(--color-status-live); }
+.st-strip-stage.st-stage--current { color: var(--color-status-beta); }
+@media (max-width: 760px) {
+  .st-need { grid-template-columns: 1fr; }
+  .st-strip-row { grid-template-columns: 1fr 1fr 1fr; }
+  .st-strip-title { grid-column: 1 / -1; }
+}
+
 /* ---- The Board: columns of tasks, separated by rules (no boxed cards) ---- */
 .st-board-cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-5); border-top: 1px solid var(--color-border); padding-top: var(--sp-4); }
 .st-board-col .st-rail-h { margin-top: 0; }
