@@ -359,9 +359,166 @@
     rail.appendChild(nv);
     var main = el('div', 'st-ws-main');
     add(ws, rail, main);
+    if (LOCAL) {
+      ws.className += ' st-ws--chat';
+      ws.appendChild(chatPanel(id, [sel.video, sel.stage, sel.page].filter(Boolean).join(' / ') || 'the project overview'));
+    }
     app.textContent = '';
     app.appendChild(ws);
     target = main;
+  }
+
+  // ---- chat with Claude (local studio only) ----
+  // The chat survives moving between pages of the same project: its state lives here, not in the page.
+  var chatState = { project: null, id: null, after: 0, timer: null, events: [], info: null };
+  var MODEL_NAMES = [['claude-sonnet-5-5', 'Sonnet 5.5 (balanced)'], ['claude-opus-5-5', 'Opus 5.5 (strongest)'], ['claude-haiku-5-5', 'Haiku 5.5 (fast, cheap)']];
+
+  function chatPanel(project, context) {
+    if (chatState.project !== project) {
+      if (chatState.timer) clearInterval(chatState.timer);
+      chatState = { project: project, id: null, after: 0, timer: null, events: [], info: null };
+    }
+    var panel = el('aside', 'st-chat');
+    panel.setAttribute('aria-label', 'Chat with Claude');
+    var head = el('div', 'st-chat-head');
+    var log = el('div', 'st-chat-log');
+    log.setAttribute('aria-live', 'polite');
+    var box = el('textarea', 'st-input st-chat-input');
+    box.rows = 3;
+    box.placeholder = 'Ask Claude… (Ctrl+Enter to send)';
+    var sendBtn = el('button', 'ap-btn ap-btn--primary st-run', 'Send →');
+    sendBtn.type = 'button';
+    var foot = el('div', 'st-chat-foot');
+    var setup = el('div', 'st-chat-setup');
+    var model = select(MODEL_NAMES, 'claude-sonnet-5-5');
+    var budget = input('number', '3');
+    budget.step = '0.5'; budget.min = '0.25'; budget.max = '20';
+    var past = el('select', 'st-input st-select');
+    add(setup, field('Model', model), field('Budget ($)', budget), field('Or continue', past));
+    add(panel, head, setup, log, box, add(el('div', 'st-toolbar'), sendBtn, foot));
+
+    function drawHead() {
+      head.textContent = '';
+      var i = chatState.info;
+      add(head, el('div', 'st-rail-h', 'Claude.'));
+      if (i && !i.closed) {
+        add(head, el('span', 'st-note', i.status + ' · $' + (i.cost || 0).toFixed(2) + ' of $' + i.budget),
+          button('st-link', 'Stop', function () { request('POST', 'chat-stop', null, { chat: i.id }); }),
+          button('st-link', 'New chat', function () { request('POST', 'chat-end', null, { chat: i.id }).then(function () { chatState.id = null; chatState.info = null; chatState.events = []; chatState.after = 0; redraw(); }); }));
+        setup.hidden = true;
+      } else {
+        add(head, el('span', 'st-note', i && i.closed ? 'This chat has ended (' + i.status + ', $' + (i.cost || 0).toFixed(2) + '). Send to start a new one.' : 'Edits inside this project apply on their own; anything else asks you first.'));
+        setup.hidden = false;
+      }
+    }
+
+    function line(cls, label, text) {
+      var d = el('div', 'st-msg ' + cls);
+      if (label) d.appendChild(el('div', 'st-msg-who', label));
+      if (text != null) d.appendChild(typeof text === 'string' ? el('div', 'st-msg-text', text) : text);
+      return d;
+    }
+    function diffView(diff) {
+      var d = el('div', 'st-diff');
+      if (diff.before) d.appendChild(el('pre', 'st-diff-del', diff.before));
+      if (diff.after) d.appendChild(el('pre', 'st-diff-add', diff.after));
+      return d;
+    }
+    function drawEvent(e) {
+      if (e.type === 'user') return line('st-msg--user', 'You', e.text);
+      if (e.type === 'assistant') return line('st-msg--claude', 'Claude', md(e.text));
+      if (e.type === 'tool') return line('st-msg--tool', null, '→ ' + e.tool + (e.text ? ' ' + e.text : ''));
+      if (e.type === 'tool-error') return line('st-msg--tool', null, '✗ ' + e.text);
+      if (e.type === 'auto') {
+        var d = line('st-msg--tool', null, '✎ edited ' + e.text.replace(/^.*?projects[\\/]/, 'projects/'));
+        if (e.diff) { var det = el('details'); add(det, el('summary', 'st-note', 'show the change'), diffView(e.diff)); d.appendChild(det); }
+        return d;
+      }
+      if (e.type === 'approval') {
+        var card = el('div', 'st-approve st-approve--' + e.state);
+        add(card, el('div', 'st-msg-who', 'Claude wants to ' + (e.kind === 'command' ? 'run a command' : e.kind === 'edit' ? 'edit a file outside this project' : 'use ' + e.tool)),
+          el('pre', 'st-pre', e.text));
+        if (e.why) card.appendChild(el('div', 'st-note', e.why));
+        if (e.diff) card.appendChild(diffView(e.diff));
+        if (e.state === 'waiting') {
+          add(card, add(el('div', 'st-toolbar'),
+            button('ap-btn ap-btn--primary st-run', 'Approve', function () { decide(e.id, true); }),
+            button('st-tab', 'Deny', function () { decide(e.id, false); })));
+        } else card.appendChild(el('div', 'st-note', e.state === 'approved' ? '✓ Approved' : '✗ Denied'));
+        return card;
+      }
+      if (e.type === 'result') return line('st-msg--tool', null, e.subtype === 'success' ? 'Done · $' + e.cost.toFixed(2) + ' so far' : e.subtype === 'error_max_budget_usd' ? 'Stopped: the chat reached its budget.' : 'Stopped (' + e.subtype + ').');
+      if (e.type === 'error') return line('st-msg--tool', null, '✗ ' + e.text);
+      return line('st-msg--tool', null, e.text || '');
+    }
+    function decide(aid, allow) { request('POST', 'chat-approve', null, { chat: chatState.id, approval: aid, allow: allow }).then(poll); }
+
+    function redraw() {
+      drawHead();
+      log.textContent = '';
+      if (!chatState.events.length) log.appendChild(el('p', 'st-empty', 'Ask for a change to this video, a script rewrite, an explanation of a QC failure… Claude reads the project\'s notes and your review notes first.'));
+      chatState.events.forEach(function (e) { log.appendChild(drawEvent(e)); });
+      log.scrollTop = log.scrollHeight;
+    }
+    function poll() {
+      if (!chatState.id) return Promise.resolve();
+      return call('chat', { id: chatState.id, after: chatState.after }).then(function (r) {
+        chatState.info = r;
+        if (r.events.length) {
+          // An approval's state changes in place: replace any event we already hold.
+          r.events.forEach(function (e) {
+            var i = chatState.events.findIndex(function (x) { return x.seq === e.seq; });
+            if (i >= 0) chatState.events[i] = e; else chatState.events.push(e);
+          });
+          chatState.after = r.events[r.events.length - 1].seq;
+        }
+        // Waiting approvals can change state without a new event: refresh them from the start.
+        if (chatState.events.some(function (e) { return e.type === 'approval' && e.state === 'waiting'; })) chatState.after = Math.min(chatState.after, firstWaiting() - 1);
+        var sig = [r.status, r.cost, r.closed, chatState.events.length].concat(chatState.events.map(function (e) { return e.state || ''; })).join('|');
+        if (document.body.contains(panel) && sig !== panel.sig) { panel.sig = sig; redraw(); }
+        if (r.closed && chatState.timer) { clearInterval(chatState.timer); chatState.timer = null; }
+      }).catch(function () {});
+    }
+    function firstWaiting() { var w = chatState.events.filter(function (e) { return e.type === 'approval' && e.state === 'waiting'; })[0]; return w ? w.seq : chatState.after + 1; }
+    function startPolling() { if (!chatState.timer) chatState.timer = setInterval(poll, 1000); }
+
+    function sendNow() {
+      var text = box.value.trim();
+      if (!text) { box.focus(); return; }
+      sendBtn.disabled = true;
+      var live = chatState.info && !chatState.info.closed;
+      var p = live
+        ? request('POST', 'chat-send', null, { chat: chatState.id, text: text, context: context })
+        : request('POST', 'chat-new', null, { project: project, text: text, context: context, model: model.value, budget: Number(budget.value), resume: past.value || undefined }).then(function (r) {
+          chatState.id = r.id; chatState.info = r; chatState.events = []; chatState.after = 0;
+        });
+      p.then(function () { box.value = ''; startPolling(); return poll(); })
+        .catch(function (err) { flash(foot, err.message); })
+        .then(function () { sendBtn.disabled = false; });
+    }
+    sendBtn.addEventListener('click', sendNow);
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendNow(); } });
+    panel.prefill = function (text) { box.value = text; box.focus(); };
+
+    // Past chats for this project, to continue one.
+    call('chats', { project: project }).then(function (r) {
+      past.appendChild(add(el('option', null, 'A new chat'), null));
+      past.firstChild.value = '';
+      r.saved.forEach(function (s) {
+        var o = el('option', null, s.title.slice(0, 40) + ' · ' + when(s.startedAt) + ' · $' + (s.cost || 0).toFixed(2));
+        o.value = s.sessionId;
+        past.appendChild(o);
+      });
+      if (!chatState.id && r.live.length) { chatState.id = r.live[0].id; chatState.info = r.live[0]; startPolling(); poll(); }
+    }).catch(function () {});
+
+    redraw();
+    if (chatState.id) { startPolling(); }
+    return panel;
+  }
+  function prefillChat(text) {
+    var p = document.querySelector('.st-chat');
+    if (p && p.prefill) p.prefill(text);
   }
 
   function viewProject(id, page, arg) {
@@ -843,7 +1000,10 @@
       }
       var bar = add(el('div', 'st-toolbar'), label, noteInput,
         button('st-tab', 'Approve draft', function () { decide('approved'); }),
-        button('st-tab', 'Request changes', function () { decide('changes'); }));
+        button('st-tab', 'Request changes', function () { decide('changes'); }),
+        LOCAL ? button('st-tab', 'Send my notes to Claude', function () {
+          prefillChat('Read my notes on ' + v.id + (current ? ' ' + current.label : '') + ' in projects/' + id + '/feedback/REVIEW.md, then make the fixes in the composition. Tell me which job to run when you\'re done.');
+        }) : null);
       add(player, video, bar, noteStatus);
 
       // Tabs under the player.

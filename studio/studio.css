@@ -189,6 +189,60 @@
 .st-check--no { opacity: .7; }
 a.st-cue { text-decoration: none; }
 
+/* ---- Chat with Claude: the workspace's third column (local studio only) ----
+   The page's one teal moment (design system §3.12): a solid deep-teal panel, teal labels, near-white replies.
+   Shades of the teal are derived here once, as panel-scoped custom properties, from the palette's tokens. */
+.st-ws--chat { grid-template-columns: 220px minmax(0, 1fr) 380px; gap: var(--sp-8); }
+.st-chat {
+  --chat-line: rgba(95, 179, 227, .18);       /* --color-teal-primary at 18%: rules inside the panel */
+  --chat-wash: rgba(95, 179, 227, .07);       /* the same at 7%: your messages, the input */
+  --chat-wash-strong: rgba(95, 179, 227, .14);
+  position: sticky;
+  top: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  height: calc(100vh - 128px);                /* fits under the nav at rest; sticks when the page scrolls */
+  margin-top: var(--sp-6);
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  background: var(--color-teal-surface);
+  color: var(--color-text-body);
+}
+.st-chat-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-4); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--chat-line); }
+.st-chat-head .st-rail-h { margin: 0; flex-basis: 100%; color: var(--color-teal-primary); font-size: 22px; }
+.st-chat-head .st-note { color: var(--color-teal-secondary); opacity: 1; }
+.st-chat .st-link { color: var(--color-teal-primary); opacity: .85; }
+.st-chat .st-link:hover { opacity: 1; }
+.st-chat .st-label { color: var(--color-teal-secondary); opacity: 1; }
+.st-chat .st-input { border-bottom-color: var(--chat-line); }
+.st-chat .st-input:focus { border-bottom-color: var(--color-teal-primary); }
+.st-chat .st-select option { background: var(--color-teal-surface); }
+.st-chat-setup { display: grid; grid-template-columns: 1fr 80px; gap: var(--sp-3) var(--sp-4); }
+.st-chat-setup[hidden] { display: none; }
+.st-chat-setup .st-field:last-child { grid-column: 1 / -1; }
+.st-chat-log { flex: 1; min-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: var(--sp-4); padding-right: var(--sp-2); scrollbar-color: var(--chat-line) transparent; }
+.st-chat .st-empty { color: var(--color-teal-secondary); opacity: .8; text-transform: none; letter-spacing: var(--tracking-mono-xxs); line-height: var(--lh-body); }
+.st-chat-input { resize: vertical; min-height: 72px; padding: var(--sp-3); background: var(--chat-wash); border: 1px solid var(--chat-line); font-family: var(--font-display); font-size: var(--fs-body-xs); line-height: var(--lh-body-tight); }
+.st-chat-input:focus { border-color: var(--color-teal-primary); }
+.st-chat-foot { font-family: var(--font-mono); font-size: var(--fs-mono-xs); color: var(--color-teal-secondary); }
+.st-msg { font-size: var(--fs-body-xs); line-height: var(--lh-body); color: var(--color-text-body); }
+.st-msg-who { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; color: var(--color-teal-secondary); margin-bottom: var(--sp-1); }
+.st-msg--user { padding: var(--sp-3); background: var(--chat-wash-strong); }
+.st-msg--user .st-msg-text { white-space: pre-wrap; color: var(--color-text-primary); }
+.st-msg--claude .st-md { font-size: var(--fs-body-xs); max-width: none; color: var(--color-text-primary); }
+.st-msg--claude .st-md p { margin-bottom: var(--sp-2); }
+.st-msg--claude .st-md code { color: var(--color-teal-primary); }
+.st-msg--tool { font-family: var(--font-mono); font-size: var(--fs-mono-xs); color: var(--color-teal-secondary); opacity: .75; word-break: break-word; }
+.st-msg--tool details { margin-top: var(--sp-1); }
+.st-approve { padding: var(--sp-4); border: 1px solid var(--color-teal-primary); background: var(--chat-wash); display: flex; flex-direction: column; gap: var(--sp-2); }
+.st-approve .st-msg-who { color: var(--color-teal-primary); }
+.st-approve .st-pre { padding: 0; color: var(--color-text-primary); white-space: pre-wrap; word-break: break-all; }
+.st-approve .st-tab { color: var(--color-teal-primary); }
+.st-approve--approved, .st-approve--denied { border-color: var(--chat-line); background: none; opacity: .75; }
+.st-diff pre { margin: 0; padding: var(--sp-2); font-family: var(--font-mono); font-size: var(--fs-mono-xs); white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; }
+.st-diff-del { background: var(--chat-wash); opacity: .6; text-decoration: line-through; text-decoration-color: var(--color-text-muted); }
+.st-diff-add { background: var(--chat-wash); border-left: 2px solid var(--color-teal-primary); }
+
 /* ---- New project / new video forms ---- */
 .st-newbar { padding: 0 0 var(--sp-6); }
 .st-dim { opacity: .4; pointer-events: none; }
@@ -326,6 +380,8 @@ h4.st-md-h, h5.st-md-h { font-size: 17px; }
 @media (max-width: 1280px) {
   .st-video { grid-template-columns: 1fr; }
   .st-drafts { max-height: 320px; }
+  .st-ws--chat { grid-template-columns: 200px minmax(0, 1fr); }
+  .st-ws--chat .st-chat { grid-column: 1 / -1; position: static; height: 70vh; }
 }
 @media (max-width: 1000px) {
   .st-ws { grid-template-columns: 1fr; gap: 0; }
