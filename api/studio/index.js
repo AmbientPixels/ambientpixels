@@ -46,11 +46,29 @@ async function readJson(name) {
   try { return JSON.parse((await blob.downloadToBuffer()).toString('utf8')); }
   catch (e) { if (e.statusCode === 404) return null; throw e; }
 }
-async function writeJson(name, value) {
+async function writeJson(name, value, etag) {
   const body = JSON.stringify(value);
   await (await getContainer()).getBlockBlobClient(name).upload(body, Buffer.byteLength(body), {
-    blobHTTPHeaders: { blobContentType: 'application/json' }
+    blobHTTPHeaders: { blobContentType: 'application/json' },
+    ...(etag ? { conditions: { ifMatch: etag } } : {})
   });
+}
+// Read-change-write with the blob's version (ETag): if someone else wrote it in between (the operator cancelling
+// while the worker reports), retry on the fresh copy instead of overwriting it. (Code review 2026-10-12, finding 7.)
+// change(j) edits j in place and returns false to skip the write. Resolves to the final object, or null if missing.
+async function mutateJson(name, change) {
+  const blob = (await getContainer()).getBlockBlobClient(name);
+  for (let attempt = 0; attempt < 4; attempt++) {
+    let res;
+    try { res = await blob.download(); } catch (e) { if (e.statusCode === 404) return null; throw e; }
+    const chunks = [];
+    for await (const c of res.readableStreamBody) chunks.push(c);
+    const j = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    if (change(j) === false) return j;
+    try { await writeJson(name, j, res.etag); return j; }
+    catch (e) { if (e.statusCode !== 412) throw e; }
+  }
+  throw new Error('busy: please retry');
 }
 function link(blob, perms) {
   const now = Date.now();
@@ -126,12 +144,12 @@ const operator = {
   async 'job-cancel'(context, req) {
     const b = req.body || {};
     if (!L.hostedProjects().includes(b.project) || !JOB_ID.test(b.id || '')) return reply(context, 404, { error: 'unknown job' });
-    const name = `projects/${b.project}/jobs/${b.id}.json`;
-    const j = await readJson(name);
+    const j = await mutateJson(`projects/${b.project}/jobs/${b.id}.json`, (x) => {
+      if (x.status === 'queued') x.status = 'cancelled';
+      else if (x.status === 'running') x.cancelRequested = true;
+      else return false;
+    });
     if (!j) return reply(context, 404, { error: 'unknown job' });
-    if (j.status === 'queued') j.status = 'cancelled';
-    else if (j.status === 'running') j.cancelRequested = true;
-    await writeJson(name, j);
     reply(context, 200, { ok: true, job: j });
   },
   async text(context, req) {
@@ -199,18 +217,26 @@ const worker = {
   async 'job-update'(context, req) {
     const b = req.body || {};
     if (!L.hostedProjects().includes(b.project) || !JOB_ID.test(b.id || '')) return reply(context, 404, { error: 'unknown job' });
-    const name = `projects/${b.project}/jobs/${b.id}.json`;
-    const j = await readJson(name);
-    if (!j) return reply(context, 404, { error: 'unknown job' });
     const STATUSES = ['queued', 'running', 'done', 'done-with-warnings', 'failed', 'cancelled'];
-    if (STATUSES.includes(b.status)) j.status = b.status;
-    j.step = String(b.step || '').slice(0, 60);
-    j.log = String(b.log || '').slice(-16000);
-    j.outputs = Array.isArray(b.outputs) ? b.outputs.filter((p) => L.validFilePath(b.project, p)).slice(0, 20) : [];
-    j.updatedAt = new Date().toISOString();
-    if (j.status === 'running' && !j.startedAt) j.startedAt = j.updatedAt;
-    await writeJson(name, j);
+    const j = await mutateJson(`projects/${b.project}/jobs/${b.id}.json`, (x) => {
+      // Cancelled while still queued: the worker's "running" must not revive it; tell the worker to stop instead.
+      if (x.status === 'cancelled' && b.status === 'running') { x.cancelRequested = true; return; }
+      if (STATUSES.includes(b.status)) x.status = b.status;
+      x.step = String(b.step || '').slice(0, 60);
+      x.log = String(b.log || '').slice(-16000);
+      x.outputs = Array.isArray(b.outputs) ? b.outputs.filter((p) => L.validFilePath(b.project, p)).slice(0, 20) : [];
+      x.updatedAt = new Date().toISOString();
+      if (x.status === 'running' && !x.startedAt) x.startedAt = x.updatedAt;
+    });
+    if (!j) return reply(context, 404, { error: 'unknown job' });
     reply(context, 200, { ok: true, cancelRequested: !!j.cancelRequested });
+  },
+  async 'job-status'(context, req) {
+    const q = req.query || {};
+    if (!L.hostedProjects().includes(q.project) || !JOB_ID.test(q.id || '')) return reply(context, 404, { error: 'unknown job' });
+    const j = await readJson(`projects/${q.project}/jobs/${q.id}.json`);
+    if (!j) return reply(context, 404, { error: 'unknown job' });
+    reply(context, 200, { status: j.status, cancelRequested: !!j.cancelRequested || j.status === 'cancelled' });
   },
   async ack(context, req) {
     const b = req.body || {};
@@ -223,10 +249,16 @@ const worker = {
 };
 
 const JOB_ID = /^[A-Za-z0-9-]{1,80}$/;
+// Only recent jobs are read: over 14 days old they're skipped, over 30 they're deleted. Before, every job ever
+// written was downloaded every few seconds (code review 2026-10-12, finding 11).
+const DAY = 24 * 3600 * 1000;
 async function readJobs(id) {
   const c = await getContainer();
   const jobs = [];
   for await (const item of c.listBlobsFlat({ prefix: `projects/${id}/jobs/` })) {
+    const age = Date.now() - new Date(item.properties.lastModified).getTime();
+    if (age > 30 * DAY) { await c.getBlockBlobClient(item.name).deleteIfExists(); continue; }
+    if (age > 14 * DAY) continue;
     const j = await readJson(item.name);
     if (j) jobs.push(j);
   }
@@ -250,6 +282,7 @@ const ROUTES = {
   'GET events': ['op', operator.events], 'POST event': ['op', operator.event],
   'GET jobs': ['op', operator.jobs], 'POST job': ['op', operator.job], 'POST job-cancel': ['op', operator['job-cancel']],
   'GET job-next': ['worker', worker['job-next']], 'POST job-update': ['worker', worker['job-update']],
+  'GET job-status': ['worker', worker['job-status']],
   'POST heartbeat': ['worker', worker.heartbeat], 'POST manifest': ['worker', worker.manifest],
   'POST upload-url': ['worker', worker['upload-url']], 'POST ack': ['worker', worker.ack],
   'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox]

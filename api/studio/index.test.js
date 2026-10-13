@@ -57,6 +57,10 @@ async function call(method, action, headers = {}, query = {}, body) {
     assert.strictEqual((await call('GET', 'job-next', { 'x-studio-key': 'op-key' })).status, 403);
     assert.strictEqual((await call('POST', 'job-update', { 'x-studio-key': 'op-key' }, {}, { project: 'ambientpixels', id: 'x', status: 'done' })).status, 403);
   });
+  await t('job-status: operator key refused, worker token on an unhosted project -> 404', async () => {
+    assert.strictEqual((await call('GET', 'job-status', { 'x-studio-key': 'op-key' }, { project: 'ambientpixels', id: 'x' })).status, 403);
+    assert.strictEqual((await call('GET', 'job-status', { 'x-studio-worker-token': 'wk-token' }, { project: 'xbox-gps', id: 'x' })).status, 404);
+  });
   await t('job for an unhosted project -> 404 before storage', async () =>
     assert.strictEqual((await call('POST', 'job', { 'x-studio-key': 'op-key' }, {}, { project: 'xbox-gps', kind: 'check', video: 'v4' })).status, 404));
   await t('malformed job -> 400 before storage', async () =>

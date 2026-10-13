@@ -267,6 +267,25 @@ a.st-cue { text-decoration: none; }
 .st-diff-del { background: var(--chat-wash); opacity: .6; text-decoration: line-through; text-decoration-color: var(--color-text-muted); }
 .st-diff-add { background: var(--chat-wash); border-left: 2px solid var(--color-teal-primary); }
 
+/* ---- Toast: "Copied for Claude Code" and other one-line confirmations ---- */
+.st-toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--sp-8);
+  transform: translate(-50%, 20px);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--color-teal-surface);
+  color: var(--color-teal-primary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med), transform var(--dur-med);
+  z-index: 20;
+}
+.st-toast--on { opacity: 1; transform: translate(-50%, 0); }
+
 /* ---- The Tools deck ---- */
 .st-tools { border-top: 1px solid var(--color-border); }
 .st-tool { display: grid; grid-template-columns: minmax(0, 1fr) 80px 130px; gap: var(--sp-5); align-items: center; padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--color-border-soft); }

@@ -310,12 +310,17 @@
       });
       s.appendChild(form);
 
-      // Talk to this role in a project
-      var talk = add(section('§ — TALK TO THE ' + r.name.toUpperCase()), guide('Open a project with this role picked in its chat panel.'));
+      // Work with this role in a project: in the chat when it's on, otherwise a starter prompt for Claude Code.
+      var talk = add(section('§ — WORK WITH THE ' + r.name.toUpperCase()), guide(CHAT_ON ? 'Open a project with this role picked in its chat panel.'
+        : 'Pick a project to copy a starter prompt: it tells a Claude Code session in VS Code to act as the ' + r.name + ' (its brief, the rules, the project\'s notes). Paste it, then say what you need.'));
       var tr = el('div', 'st-rows');
       projects.forEach(function (p, i) {
-        var a = row('#/p/' + encodeURIComponent(p.id), pad2(i + 1), p.name + '.', p.videos + ' videos', 'Talk', '');
-        a.addEventListener('click', function () { preferredRole = r.id; });
+        var a = row('#/p/' + encodeURIComponent(p.id), pad2(i + 1), p.name + '.', p.videos + ' videos', CHAT_ON ? 'Talk' : 'Copy', '');
+        a.addEventListener('click', function (e) {
+          if (CHAT_ON) { preferredRole = r.id; return; }
+          e.preventDefault();
+          copyForClaude(claudePrompt(r.id, 'Wait for my first request.', p.id));
+        });
         tr.appendChild(a);
       });
       talk.appendChild(tr);
@@ -501,7 +506,7 @@
     rail.appendChild(nv);
     var main = el('div', 'st-ws-main');
     add(ws, rail, main);
-    if (LOCAL) {
+    if (LOCAL && CHAT_ON) {
       ws.className += ' st-ws--chat';
       var defaultRole = preferredRole || ROLE_FOR[sel.stage || sel.page] || 'editor';
       preferredRole = null;
@@ -687,10 +692,33 @@
     if (chatState.id) { startPolling(); }
     return panel;
   }
-  // Fill the chat box (and pick the role, when no chat is running). Nothing is sent until Chad presses Send.
-  function prefillChat(text, role) {
+  // ---- handing work to Claude Code (the in-studio chat is off by default: harness/studio.json) ----
+  var CHAT_ON = false;
+  var ROLE_NAMES = { editor: 'Editor and director', writer: 'Writer', transcriber: 'Transcriber', animator: 'Animator',
+    researcher: 'Researcher', 'screen-editor': 'Screen editor', 'sound-designer': 'Sound designer', finisher: 'Finisher' };
+  function toast(text) {
+    var t = document.querySelector('.st-toast') || document.body.appendChild(el('div', 'st-toast'));
+    t.textContent = text;
+    t.classList.add('st-toast--on');
+    clearTimeout(t.timer);
+    t.timer = setTimeout(function () { t.classList.remove('st-toast--on'); }, 3500);
+  }
+  // A prompt for a Claude Code session in VS Code: the role's brief first, then the task. Copied to the clipboard.
+  function claudePrompt(role, task, project) {
+    var name = ROLE_NAMES[role] || 'Editor and director';
+    return 'You are the ' + name + ' on the AmbientPixels video team, working in C:\\Dev\\ai-video-pipeline' + (project ? ' on the project "' + project + '"' : '') + '.\n' +
+      'First read harness/team/' + (ROLE_NAMES[role] ? role : 'editor') + '.md (your brief), AGENTS.md' + (project ? ', projects/' + project + '/NOTES.md and projects/' + project + '/feedback/REVIEW.md if it exists' : '') + '.\n\n' + task;
+  }
+  function copyForClaude(text) {
+    var done = function () { toast('Copied. Paste it into Claude Code in VS Code.'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { window.prompt('Copy this for Claude Code:', text); });
+    else window.prompt('Copy this for Claude Code:', text);
+  }
+  // Hand a task to a role: into the chat when it's on, otherwise onto the clipboard for Claude Code.
+  function prefillChat(text, role, project) {
     var p = document.querySelector('.st-chat');
-    if (p && p.prefill) p.prefill(text, role);
+    if (CHAT_ON && p && p.prefill) return p.prefill(text, role);
+    copyForClaude(claudePrompt(role, text, project));
   }
 
   function viewProject(id, page, arg) {
@@ -916,7 +944,8 @@
     var P = '#/p/' + encodeURIComponent(id);
     var approved = events.filter(function (e) { return e.type === 'decision' && e.video === v.id && e.draft === 'script'; }).pop();
     var s = add(section('§ — SCRIPT'), headline(v.title + ',', 'the words.'),
-      guide('The Writer\'s room. The script is what the narrator says, one paragraph per breath; edit it here, or ask the Writer with the buttons below (they fill in the chat on the right; you press Send). Every save keeps the previous version.',
+      guide('The Writer\'s room. The script is what the narrator says, one paragraph per breath; edit it here, or ask the Writer with the buttons below (' +
+        (CHAT_ON ? 'they fill in the chat on the right; you press Send' : 'each copies a prompt for Claude Code in VS Code; paste it there') + '). Every save keeps the previous version.',
         approved && approved.decision === 'approved' ? 'Approved. Next: the voice (Voice stage).' : 'Write or refine it, read it aloud, then approve it.'));
     var stats = el('p', 'st-note');
     var box = el('textarea', 'st-input st-script-edit');
@@ -976,17 +1005,17 @@
     var voice = select([['af_bella', 'Bella'], ['af_heart', 'Heart'], ['am_michael', 'Michael']], 'af_bella');
     var ask = add(el('div', 'st-toolbar st-writer-actions'),
       button('st-tab', 'Draft from the brief', function () {
-        prefillChat('Draft the voiceover for "' + v.title + '" from the brief in projects/' + id + '/NOTES.md, following your brief. Save it to ' + path + '. If the brief doesn\'t say how long, ask me first.', 'writer');
+        prefillChat('Draft the voiceover for "' + v.title + '" from the brief in projects/' + id + '/NOTES.md, following your brief. Save it to ' + path + '. If the brief doesn\'t say how long, ask me first.', 'writer', id);
       }),
       button('st-tab', 'Rewrite for the ear', function () {
-        prefillChat('Rewrite ' + path + ' for the ear, following your brief. Keep every fact. Then tell me in a few bullets what you changed and anything you couldn\'t keep.', 'writer');
+        prefillChat('Rewrite ' + path + ' for the ear, following your brief. Keep every fact. Then tell me in a few bullets what you changed and anything you couldn\'t keep.', 'writer', id);
       }),
       add(el('span', 'st-inline'), button('st-tab', 'Fit to', function () {
         var n = Number(secs.value) || 90;
-        prefillChat('Fit ' + path + ' to about ' + n + ' seconds (about ' + Math.round(n * 2.5) + ' words). Cut, don\'t cram. Tell me what you cut.', 'writer');
+        prefillChat('Fit ' + path + ' to about ' + n + ' seconds (about ' + Math.round(n * 2.5) + ' words). Cut, don\'t cram. Tell me what you cut.', 'writer', id);
       }), secs, el('span', 'st-note', 's')),
       button('st-tab', 'Check every claim', function () {
-        prefillChat('Check every claim in ' + path + '. Fill projects/' + id + '/script/' + v.id + '-SOURCES.md: each claim, where it is true, and its status. Flag anything you can\'t verify as numbered either/or questions.', 'researcher');
+        prefillChat('Check every claim in ' + path + '. Fill projects/' + id + '/script/' + v.id + '-SOURCES.md: each claim, where it is true, and its status. Flag anything you can\'t verify as numbered either/or questions.', 'researcher', id);
       }),
       add(el('span', 'st-inline'), button('st-tab', 'Read it aloud', function () {
         if (dirty) { flash(status, 'Save first: the voice reads the saved script.'); return; }
@@ -1422,8 +1451,12 @@
       var bar = add(el('div', 'st-toolbar'), label, noteInput,
         button('st-tab', 'Approve draft', function () { decide('approved'); }),
         button('st-tab', 'Request changes', function () { decide('changes'); }),
-        LOCAL ? button('st-tab', 'Send my notes to Claude', function () {
-          prefillChat('Read my notes on ' + v.id + (current ? ' ' + current.label : '') + ' in projects/' + id + '/feedback/REVIEW.md, then make the fixes in the composition. Tell me which job to run when you\'re done.');
+        LOCAL ? button('st-tab', CHAT_ON ? 'Send my notes to Claude' : 'Copy notes for Claude Code', function () {
+          // The notes themselves go in the prompt, with their time codes, so Claude starts on the right frames.
+          var mine = events.filter(function (e) { return e.type === 'note' && e.video === v.id && current && e.draft === current.label; })
+            .sort(function (a, b) { return a.t - b.t; }).map(function (e) { return '- ' + mmss(e.t) + ' ' + e.text; });
+          prefillChat('Fix my review notes on ' + v.id + (current ? ' ' + current.label : '') + ':\n' + (mine.length ? mine.join('\n') : '(no notes on this draft yet: read feedback/REVIEW.md)') +
+            '\n\nThe composition is projects/' + id + '/series/' + v.id + '.html. Times are program time in the draft. When you\'re done, tell me which studio job to run (Make: check the scenes, then render a draft).', 'animator', id);
         }) : null);
       add(player, video, bar, noteStatus);
 
@@ -1625,5 +1658,7 @@
     route();
   });
   lastHash = location.hash;
-  route();
+  // Locally, learn whether the in-studio chat is on before the first page draws.
+  if (LOCAL) call('config').then(function (c) { CHAT_ON = c.chat === true; }, function () {}).then(route);
+  else route();
 })();
