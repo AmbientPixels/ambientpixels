@@ -267,6 +267,24 @@ a.st-cue { text-decoration: none; }
 .st-diff-del { background: var(--chat-wash); opacity: .6; text-decoration: line-through; text-decoration-color: var(--color-text-muted); }
 .st-diff-add { background: var(--chat-wash); border-left: 2px solid var(--color-teal-primary); }
 
+/* ---- The Board: columns of tasks, separated by rules (no boxed cards) ---- */
+.st-board-cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-5); border-top: 1px solid var(--color-border); padding-top: var(--sp-4); }
+.st-board-col .st-rail-h { margin-top: 0; }
+.st-board-empty { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-start; max-width: 70ch; color: var(--color-text-secondary); }
+.st-task { display: flex; flex-direction: column; gap: var(--sp-1); padding: var(--sp-3) 0; border-bottom: 1px solid var(--color-border-soft); }
+.st-task b { font-size: var(--fs-body-xs); line-height: var(--lh-body-tight); }
+.st-task .st-note { text-transform: none; letter-spacing: var(--tracking-mono-xxs); }
+.st-task-note { font-size: var(--fs-mono-xs); font-family: var(--font-mono); color: var(--color-text-tertiary); line-height: 1.5; word-break: break-word; }
+.st-task--review b::before { content: '● '; color: var(--color-status-beta); }
+.st-task--blocked b::before { content: '✗ '; color: var(--color-status-beta); }
+.st-task--done { opacity: .6; }
+.st-task-acts { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
+.st-link.st-link--teal { color: var(--color-teal-primary); opacity: .9; }
+.st-stage-tasks { margin: 0 0 var(--sp-8); padding: 0 0 var(--sp-2) var(--sp-4); border-left: 2px solid var(--color-teal-secondary); max-width: 80ch; }
+.st-stage-tasks .st-notes-h { padding-top: 0; }
+@media (max-width: 1280px) { .st-board-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .st-board-cols { grid-template-columns: 1fr; } }
+
 /* ---- Toast: "Copied for Claude Code" and other one-line confirmations ---- */
 .st-toast {
   position: fixed;

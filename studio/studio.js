@@ -485,7 +485,7 @@
     var rail = el('nav', 'st-rail');
     rail.setAttribute('aria-label', 'Project');
     add(rail, el('div', 'st-rail-h', m.name + '.'));
-    [['', 'Overview'], ['make', 'Make'], ['library', 'Library'], ['captures', 'Captures'], ['docs', 'Docs']].forEach(function (x) {
+    [['', 'Overview'], ['board', 'Board'], ['make', 'Make'], ['library', 'Library'], ['captures', 'Captures'], ['docs', 'Docs']].forEach(function (x) {
       rail.appendChild(railLink(P + (x[0] ? '/' + x[0] : ''), x[1], '', !sel.video && sel.page === x[0]));
     });
     add(rail, el('div', 'st-rail-h', m.videos.length ? 'Videos' : 'No videos yet'));
@@ -736,6 +736,7 @@
         return show([mk]);
       }
       if (page === 'library' && LOCAL) return show(libraryPage(id, m, events));
+      if (page === 'board') return show(LOCAL ? boardPage(id, m) : [add(section('§ — BOARD'), el('p', 'st-empty', 'The board lives in the local studio (OPEN-STUDIO.cmd).'))]);
       if (page === 'library') {
         var nodes = [add(section('§ — LIBRARY'), headline('Everything else,', 'in one place.'),
           guide('Files that belong to no single draft: music beds, voice auditions, snapshots, comps. Listen to audio takes blind and pick one; your pick is recorded for Claude.'))];
@@ -756,6 +757,138 @@
       if (page === 'doc') return viewDoc(id, arg);
       return show(overview(id, m, events));
     });
+  }
+
+  // ---- the Board (local): the project's tracker, shared with Claude Code (harness/track.mjs) ----
+  var COLUMNS = [['todo', 'To do'], ['doing', 'Doing'], ['review', 'For review'], ['blocked', 'Blocked'], ['done', 'Done']];
+  var STAGE_LABEL = { script: 'Script', voice: 'Voice', scenes: 'Scenes', review: 'Review', deliver: 'Deliver', project: 'Project' };
+  function ownerName(o) { return o === 'chad' ? 'You' : (ROLE_NAMES[o] || o); }
+
+  // The prompt that hands one task to a Claude Code session, including how to move it on the board.
+  function taskPrompt(id, t) {
+    var cmd = 'node harness/track.mjs';
+    return claudePrompt(t.owner, 'Your task on the project\'s tracker: ' + t.id + ' "' + t.title + '"' + (t.video ? ' for the video ' + t.video : '') + ' (stage: ' + t.stage + ').' +
+      (t.notes.length ? '\nNotes so far:\n' + t.notes.slice(-5).map(function (n) { return '- ' + n.by + ': ' + n.text; }).join('\n') : '') +
+      (t.links.length ? '\nFiles: ' + t.links.join(', ') : '') +
+      '\n\nWhen you start: ' + cmd + ' move ' + id + ' ' + t.id + ' doing' +
+      '\nWhen it\'s ready for Chad: ' + cmd + ' move ' + id + ' ' + t.id + ' review --note "what you did and where to look"' +
+      '\nIf you\'re stuck: ' + cmd + ' move ' + id + ' ' + t.id + ' blocked --note "why"' +
+      '\nIf you find more work: ' + cmd + ' add ' + id + ' --video ' + (t.video || '<video>') + ' --stage <stage> --owner <role> --title "..."' +
+      '\nNever mark a task done: Chad does that.', id);
+  }
+
+  function taskActions(id, t, after) {
+    var bar = el('div', 'st-task-acts');
+    function mv(status, ask) {
+      return button('st-link', ask ? ask[0] : status, function () {
+        var note = ask ? window.prompt(ask[1]) : '';
+        if (note === null) return;
+        request('POST', 'tracker-move', null, { project: id, task: t.id, status: status, note: note || '' })
+          .then(after).catch(function (err) { toast(err.message); });
+      });
+    }
+    if (t.status === 'todo') bar.appendChild(mv('doing', ['Start', 'A note (optional)']));
+    if (t.status === 'doing') bar.appendChild(mv('review', ['Ready for review', 'What was done? (optional)']));
+    if (t.status === 'review') { bar.appendChild(mv('done', ['Done ✓', 'A note (optional)'])); bar.appendChild(mv('todo', ['Send back', 'What still needs doing?'])); }
+    if (t.status === 'blocked') bar.appendChild(mv('todo', ['Unblock', 'What changed? (optional)']));
+    if (t.status !== 'blocked' && t.status !== 'done') bar.appendChild(mv('blocked', ['Block', 'What is it waiting on?']));
+    if (t.status === 'done') bar.appendChild(mv('todo', ['Reopen', 'Why reopen it?']));
+    if (t.owner !== 'chad' && t.status !== 'done') bar.appendChild(button('st-link st-link--teal', 'Copy for Claude Code', function () { copyForClaude(taskPrompt(id, t)); }));
+    return bar;
+  }
+
+  function taskItem(id, t, after, compact) {
+    var it = el('div', 'st-task st-task--' + t.status);
+    var last = t.notes[t.notes.length - 1];
+    add(it, el('b', null, t.title),
+      el('span', 'st-note', (compact ? '' : (t.video || 'project') + ' · ' + (STAGE_LABEL[t.stage] || t.stage) + ' · ') + ownerName(t.owner) + ' · ' + t.id),
+      last ? el('span', 'st-task-note', last.by + ': ' + last.text) : null,
+      taskActions(id, t, after));
+    return it;
+  }
+
+  function boardPage(id, m) {
+    var s = add(section('§ — BOARD'), headline('Who\'s doing what,', 'video by video.'),
+      guide('The production board, shared with Claude Code. Every video has a standard path of tasks, one per role, plus your review and release. Copy a task for Claude Code and the session moves it on the board itself (harness/track.mjs); you mark things done.',
+        'Pick a task in To do, copy it for Claude Code, and check For review when it comes back.'));
+    var bar = el('div', 'st-toolbar');
+    var vsel = select([['', 'All videos']].concat(m.videos.map(function (v) { return [v.id, v.id]; })), '');
+    var osel = select([['', 'Everyone']].concat(['chad', 'editor', 'writer', 'transcriber', 'animator', 'researcher', 'screen-editor', 'sound-designer', 'finisher'].map(function (o) { return [o, ownerName(o)]; })), '');
+    var showDone = false;
+    var doneBtn = button('st-tab', 'Show done', function () { showDone = !showDone; doneBtn.textContent = showDone ? 'Hide done' : 'Show done'; draw(); });
+    add(bar, field('Video', vsel), field('Owner', osel), doneBtn);
+    var cols = el('div', 'st-board-cols');
+    var board = null;
+    vsel.addEventListener('change', draw);
+    osel.addEventListener('change', draw);
+
+    function draw() {
+      cols.textContent = '';
+      if (!board) {
+        var setup = add(el('div', 'st-board-empty'),
+          el('p', null, 'This project has no board yet. Setting it up adds the standard tasks for each of its ' + m.videos.length + ' videos, marking as done what the files already show (a rendered video starts with its script, voice and scenes done).'),
+          button('ap-btn ap-btn--primary st-run', 'Set up the board →', function () {
+            request('POST', 'tracker-setup', null, { project: id }).then(function (r) { board = r.board; draw(); toast('Board set up. It lives in projects/' + id + '/tracker.json.'); })
+              .catch(function (err) { toast(err.message); });
+          }));
+        cols.appendChild(setup);
+        return;
+      }
+      var ts = board.tasks.filter(function (t) { return (!vsel.value || t.video === vsel.value) && (!osel.value || t.owner === osel.value); });
+      COLUMNS.forEach(function (c) {
+        var mine = ts.filter(function (t) { return t.status === c[0]; });
+        var col = add(el('div', 'st-board-col'), el('div', 'st-rail-h', c[1] + ' ' + mine.length));
+        if (c[0] === 'done' && !showDone) { col.appendChild(el('p', 'st-empty', mine.length ? 'Hidden. Press Show done.' : 'Nothing yet.')); cols.appendChild(col); return; }
+        // To do runs in production order (video, then the standard path); the other columns show the latest first.
+        var num = function (t) { return Number(t.id.slice(1)) || 0; };
+        mine.sort(c[0] === 'todo' ? function (a, b) { return a.video === b.video ? num(a) - num(b) : (a.video < b.video ? -1 : 1); }
+          : function (a, b) { return a.updated < b.updated ? 1 : -1; }).forEach(function (t) { col.appendChild(taskItem(id, t, load)); });
+        if (!mine.length) col.appendChild(el('p', 'st-empty', 'Nothing here.'));
+        cols.appendChild(col);
+      });
+    }
+    function load() { return call('tracker', { project: id }).then(function (r) { board = r.board; draw(); }); }
+
+    // Add a task
+    var addForm = el('form', 'st-job-form');
+    addForm.noValidate = true;
+    var title = input('text', '', 'What needs doing?');
+    var avid = select([['', '(the whole project)']].concat(m.videos.map(function (v) { return [v.id, v.id]; })), m.videos[0] ? m.videos[0].id : '');
+    var astage = select([['script', 'Script'], ['voice', 'Voice'], ['scenes', 'Scenes'], ['review', 'Review'], ['deliver', 'Deliver'], ['project', 'Project']], 'scenes');
+    var aowner = select(['animator', 'writer', 'editor', 'researcher', 'screen-editor', 'sound-designer', 'transcriber', 'finisher', 'chad'].map(function (o) { return [o, ownerName(o)]; }), 'animator');
+    var addBtn = el('button', 'ap-btn ap-btn--primary st-run', 'Add task →');
+    addBtn.type = 'submit';
+    add(addForm, field('Task', title), field('Video', avid), field('Stage', astage), field('Owner', aowner), add(el('div', 'st-toolbar'), addBtn));
+    addForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      request('POST', 'tracker-add', null, { project: id, title: title.value, video: avid.value, stage: astage.value, owner: aowner.value })
+        .then(function () { title.value = ''; return load(); }).catch(function (err) { toast(err.message); });
+    });
+    var addSec = add(section('§ — ADD A TASK'), addForm);
+
+    var timer = setInterval(function () { if (board) load().catch(function () {}); }, 5000); // Claude Code moves cards too
+    cleanup.push(function () { clearInterval(timer); });
+    load().catch(function (err) { cols.appendChild(el('p', 'st-empty', err.message)); });
+    add(s, bar, cols);
+    return [s, addSec];
+  }
+
+  // A stage page's own tasks, near the top (local studio only).
+  function stageTasks(id, video, stage) {
+    var box = add(el('div', 'st-stage-tasks'), el('div', 'st-note st-notes-h', 'On the board'));
+    var list = el('div');
+    box.appendChild(list);
+    function load() {
+      call('tracker', { project: id }).then(function (r) {
+        list.textContent = '';
+        if (!r.board) { var a = el('a', 'st-link', 'No board yet: set it up →'); a.href = '#/p/' + encodeURIComponent(id) + '/board'; list.appendChild(a); return; }
+        var ts = r.board.tasks.filter(function (t) { return t.video === video && t.stage === stage; });
+        if (!ts.length) list.appendChild(el('p', 'st-empty', 'No tasks for this stage.'));
+        ts.forEach(function (t) { list.appendChild(taskItem(id, t, load, true)); });
+      }).catch(function () {});
+    }
+    load();
+    return box;
   }
 
   // ---- the Library (local): a project shelf and the studio shelf, sorted by kind ----
@@ -931,11 +1064,18 @@
       var P = '#/p/' + encodeURIComponent(id);
       setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: P }, { text: v.id }, { text: stage }]);
       workspace(id, m, events, { video: v.id, stage: stage });
-      if (stage === 'review') return viewVideo(id, m, events, v, draft);
-      if (stage === 'script') return show(LOCAL ? writersRoom(id, m, v, events) : scriptStage(id, v));
-      if (stage === 'voice') return show(voiceStage(id, v, events));
-      if (stage === 'scenes') return show(scenesStage(id, m, v));
-      return show(deliverStage(id, m, v, events));
+      // Each stage page shows its own tasks from the board just under its heading (local studio).
+      var withTasks = function () {
+        if (!LOCAL) return;
+        var head = target.querySelector('.st-guide');
+        if (head && head.parentNode) head.parentNode.insertBefore(stageTasks(id, v.id, stage), head.nextSibling);
+      };
+      if (stage === 'review') return viewVideo(id, m, events, v, draft).then(withTasks);
+      if (stage === 'script') show(LOCAL ? writersRoom(id, m, v, events) : scriptStage(id, v));
+      else if (stage === 'voice') show(voiceStage(id, v, events));
+      else if (stage === 'scenes') show(scenesStage(id, m, v));
+      else show(deliverStage(id, m, v, events));
+      withTasks();
     });
   }
 
