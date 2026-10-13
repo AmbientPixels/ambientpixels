@@ -104,6 +104,91 @@
 .st-draft[disabled] { cursor: default; opacity: .45; }
 .st-draft b { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: var(--fs-body-sm); }
 
+/* ---- The project workspace: rail (where you are) + main (the work) ---- */
+.st-ws { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--sp-10); align-items: start; }
+.st-rail {
+  position: sticky;
+  top: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-10) 0;
+  max-height: calc(100vh - var(--sp-8));
+  overflow-y: auto;
+}
+.st-rail-h {
+  margin: var(--sp-6) 0 var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  opacity: .5;
+}
+.st-rail-h:first-child { margin-top: 0; font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 18px; letter-spacing: var(--tracking-tight); text-transform: none; opacity: 1; }
+.st-rail-link {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--fs-body-xs);
+  line-height: 1.3;
+  opacity: .72;
+  transition: background var(--dur-fast), opacity var(--dur-fast);
+}
+.st-rail-link:hover, .st-rail-link:focus-visible { background: var(--color-hover-surface); opacity: 1; outline: none; }
+.st-rail-link[aria-current="page"] { opacity: 1; background: var(--color-surface); box-shadow: inset 2px 0 0 var(--color-text-primary); }
+.st-rail-mark { font-family: var(--font-mono); font-size: var(--fs-mono-xs); opacity: .8; }
+.st-rail-done .st-rail-mark, .st-stage--done .st-rail-mark { color: var(--color-status-live); }
+.st-stage--current { opacity: 1; }
+.st-stage--todo { opacity: .45; }
+.st-rail-stages { margin: 0 0 var(--sp-2) var(--sp-5); padding-left: var(--sp-2); border-left: 1px solid var(--color-border); }
+.st-ws-main { min-width: 0; }
+
+/* "What this is, what's next": the first thing on every page */
+.st-guide {
+  max-width: 80ch;
+  margin: 0 0 var(--sp-8);
+  padding: var(--sp-4) 0 var(--sp-4) var(--sp-4);
+  border-left: 2px solid var(--color-border);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body);
+  color: var(--color-text-secondary);
+}
+.st-guide p { margin: 0; }
+.st-guide p + p { margin-top: var(--sp-2); color: var(--color-text-primary); }
+
+.st-help {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  cursor: pointer;
+}
+.st-help:hover, .st-help:focus-visible { border-color: var(--color-text-primary); outline: none; }
+.st-dialog {
+  max-width: 640px;
+  width: calc(100vw - 2 * var(--mobile-pad));
+  padding: var(--sp-10);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+.st-dialog::backdrop { background: rgba(0, 0, 0, .7); }
+.st-steps { margin: 0 0 var(--sp-6); padding-left: var(--sp-5); font-size: var(--fs-body-sm); line-height: var(--lh-body); color: var(--color-text-body); }
+.st-steps li { margin-bottom: var(--sp-3); }
+
+.st-script { font-family: var(--font-display); font-size: var(--fs-body); line-height: 1.7; max-width: 72ch; opacity: .9; }
+.st-checklist { border-top: 1px solid var(--color-border); max-width: 640px; }
+.st-check { display: grid; grid-template-columns: 24px 1fr; gap: var(--sp-2); padding: var(--sp-3) 0; border-bottom: 1px solid var(--color-border-soft); font-size: var(--fs-body-sm); }
+.st-check--ok .st-rail-mark { color: var(--color-status-live); }
+.st-check--no { opacity: .7; }
+a.st-cue { text-decoration: none; }
+
 /* ---- Toolbars, tabs, quiet text buttons ---- */
 .st-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); padding: var(--sp-3) 0; }
 .st-tab, .st-link {
@@ -215,7 +300,13 @@ h4.st-md-h, h5.st-md-h { font-size: 17px; }
 .st-gallery audio { display: block; width: 100%; }
 .st-gallery figcaption { padding-top: var(--sp-2); }
 
+@media (max-width: 1280px) {
+  .st-video { grid-template-columns: 1fr; }
+  .st-drafts { max-height: 320px; }
+}
 @media (max-width: 1000px) {
+  .st-ws { grid-template-columns: 1fr; gap: 0; }
+  .st-rail { position: static; max-height: none; padding: var(--sp-4) 0; border-bottom: 1px solid var(--color-border); }
   .st-video { grid-template-columns: 1fr; }
   .st-crumbs { display: none; }
 }

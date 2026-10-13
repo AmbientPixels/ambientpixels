@@ -85,7 +85,16 @@
       else crumbs.appendChild(document.createTextNode(p.text));
     });
   }
-  function show(nodes) { app.textContent = ''; nodes.forEach(function (n) { app.appendChild(n); }); }
+  // Views render into `target`: the whole page on Home, the workspace's main column inside a project.
+  var target = app;
+  function show(nodes) { target.textContent = ''; nodes.forEach(function (n) { target.appendChild(n); }); }
+  // "What this is, what's next": the plain-language line at the top of every page.
+  function guide(what, next) {
+    var g = el('div', 'st-guide');
+    add(g, el('p', null, what));
+    if (next) add(g, add(el('p'), el('b', null, 'Next: '), document.createTextNode(next)));
+    return g;
+  }
   function flash(node, text) { node.textContent = text; }
 
   // ---- markdown, small and safe: everything is escaped first, then a few patterns are formatted ----
@@ -160,7 +169,9 @@
     return call('projects').then(function (r) {
       showWorker(r.worker);
       var s = section('§ 01 — PROJECTS');
-      add(s, headline('Every video in production,', 'one studio.'));
+      add(s, headline('Every video in production,', 'one studio.'),
+        guide('A project holds a set of videos. Open one to see each video\'s stages (Script, Voice, Scenes, Review, Deliver) and what comes next. Press ? at the top right for a two-minute guide.',
+          LOCAL ? 'Open a project below.' : 'This is the website view, for reviewing away from your desk. Making things happens in the local studio (OPEN-STUDIO.cmd on your PC).'));
       var rows = el('div', 'st-rows');
       r.projects.forEach(function (p, i) {
         var meta = p.videos + ' videos · ' + p.drafts + ' drafts · scanned ' + when(p.scannedAt);
@@ -179,49 +190,291 @@
     });
   }
 
-  function viewProject(id) {
-    return Promise.all([call('manifest', { project: id }), loadEvents(id)]).then(function (both) {
+  // ---- the project workspace: a rail (where you are) beside the page (the work) ----
+
+  // Where a video stands, worked out from its files and the decisions made in the studio.
+  var STAGES = [['script', 'Script'], ['voice', 'Voice'], ['scenes', 'Scenes'], ['review', 'Review'], ['deliver', 'Deliver']];
+  function approvedDraft(v, events) {
+    var ok = events.filter(function (e) { return e.type === 'decision' && e.video === v.id && e.decision === 'approved'; }).pop();
+    return ok && v.drafts.filter(function (d) { return d.label === ok.draft; })[0];
+  }
+  function stagesOf(v, events) {
+    var appr = approvedDraft(v, events);
+    var done = {
+      script: !!v.script,
+      voice: (v.vo || []).length > 0,
+      scenes: v.drafts.length > 0,
+      review: !!appr,
+      deliver: !!(appr && appr.files.master && appr.files.vtt)
+    };
+    var current = null;
+    return STAGES.map(function (s) {
+      var state = done[s[0]] ? 'done' : (current ? 'todo' : (current = s[0], 'current'));
+      return { key: s[0], label: s[1], state: state };
+    });
+  }
+  function currentStage(v, events) {
+    var c = stagesOf(v, events).filter(function (s) { return s.state === 'current'; })[0];
+    return c ? c.key : 'deliver';
+  }
+  var MARK = { done: '✓', current: '●', todo: '○' };
+
+  var manifestCache = {};
+  function getManifest(id) {
+    var c = manifestCache[id];
+    if (c && Date.now() - c.at < 15000) return c.p;
+    var p = call('manifest', { project: id });
+    manifestCache[id] = { p: p, at: Date.now() };
+    p.catch(function () { delete manifestCache[id]; });
+    return p;
+  }
+
+  function railLink(href, text, mark, active, cls) {
+    var a = el('a', 'st-rail-link' + (cls ? ' ' + cls : ''));
+    a.href = href;
+    if (active) a.setAttribute('aria-current', 'page');
+    add(a, el('span', 'st-rail-mark', mark || ''), el('span', null, text));
+    return a;
+  }
+
+  // Build the workspace for a project and point `target` at its main column. sel = {page, video, stage}.
+  function workspace(id, m, events, sel) {
+    var P = '#/p/' + encodeURIComponent(id);
+    var ws = el('div', 'st-ws');
+    var rail = el('nav', 'st-rail');
+    rail.setAttribute('aria-label', 'Project');
+    add(rail, el('div', 'st-rail-h', m.name + '.'));
+    [['', 'Overview'], ['make', 'Make'], ['library', 'Library'], ['captures', 'Captures'], ['docs', 'Docs']].forEach(function (x) {
+      rail.appendChild(railLink(P + (x[0] ? '/' + x[0] : ''), x[1], '', !sel.video && sel.page === x[0]));
+    });
+    add(rail, el('div', 'st-rail-h', m.videos.length ? 'Videos' : 'No videos yet'));
+    m.videos.forEach(function (v) {
+      var st = stagesOf(v, events);
+      var allDone = st.every(function (s) { return s.state === 'done'; });
+      var isSel = sel.video === v.id;
+      rail.appendChild(railLink(P + '/v/' + encodeURIComponent(v.id), v.title.replace(/^.*?:\s*/, '') || v.id, allDone ? '✓' : '●', isSel && !sel.stage, allDone ? 'st-rail-done' : ''));
+      if (isSel) {
+        var sub = el('div', 'st-rail-stages');
+        st.forEach(function (s) {
+          sub.appendChild(railLink(P + '/v/' + encodeURIComponent(v.id) + '/' + s.key, s.label, MARK[s.state], sel.stage === s.key, 'st-stage--' + s.state));
+        });
+        rail.appendChild(sub);
+      }
+    });
+    var main = el('div', 'st-ws-main');
+    add(ws, rail, main);
+    app.textContent = '';
+    app.appendChild(ws);
+    target = main;
+  }
+
+  function viewProject(id, page, arg) {
+    return Promise.all([getManifest(id), loadEvents(id)]).then(function (both) {
       var m = both[0], events = both[1];
-      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name }]);
-      var nodes = [], n = 1;
-      var s = section('§ ' + pad2(n++) + ' — ' + m.name.toUpperCase());
-      add(s, headline(m.videos.length + (m.videos.length === 1 ? ' video,' : ' videos,'), 'every draft.'));
-      var rows = el('div', 'st-rows');
-      m.videos.forEach(function (v, i) {
-        var latest = v.drafts[0];
-        var notes = events.filter(function (e) { return e.type === 'note' && e.video === v.id; }).length;
-        var decided = events.filter(function (e) { return e.type === 'decision' && e.video === v.id; }).pop();
-        var meta = v.id + ' · ' + v.drafts.length + ' drafts' + (latest ? ' · latest ' + latest.label + ', ' + when(latest.mtime) : '') + (notes ? ' · ' + notes + ' notes' : '');
-        var status = decided ? (decided.decision === 'approved' ? 'Approved ' + decided.draft : 'Changes on ' + decided.draft) : latest ? latest.label : 'No render';
-        add(rows, row('#/p/' + encodeURIComponent(id) + '/v/' + encodeURIComponent(v.id), pad2(i + 1), v.title, meta,
-          status, decided && decided.decision === 'approved' ? '' : latest ? 'ap-status--beta' : 'ap-status--archive'));
-      });
-      if (!m.videos.length) add(rows, el('p', 'st-empty', 'No compositions in series/ yet.'));
-      nodes.push(add(s, rows));
-
-      nodes.push(add(section('§ ' + pad2(n++) + ' — JOBS'), jobsPanel(id, m)));
-
-      var docs =[m.notes, m.readme].concat(m.questions || [], m.handoffs || []).filter(Boolean);
-      docs.unshift('projects/' + id + '/feedback/REVIEW.md');
-      var d = section('§ ' + pad2(n++) + ' — DOCUMENTS');
-      var drows = el('div', 'st-rows');
-      docs.forEach(function (p, i) {
-        var q = /QUESTIONS/i.test(p);
-        add(drows, row('#/p/' + encodeURIComponent(id) + '/doc/' + encodeURIComponent(p), pad2(i + 1), baseName(p),
-          p.split('/').slice(2, -1).join('/') || 'project', q ? 'Answer' : 'Read', q ? 'ap-status--beta' : 'ap-status--archive'));
-      });
-      nodes.push(add(d, drows));
-
-      m.loose.forEach(function (group) {
-        var g = section('§ ' + pad2(n++) + ' — ' + group.dir.toUpperCase());
-        nodes.push(add(g, gallery(id, group, events)));
-      });
-      show(nodes);
+      var P = '#/p/' + encodeURIComponent(id);
+      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: P }].concat(page ? [{ text: page === 'doc' ? baseName(arg) : page }] : []));
+      workspace(id, m, events, { page: page === 'doc' ? 'docs' : page });
+      if (page === 'make') {
+        var mk = section('§ — MAKE');
+        add(mk, headline('Make something,', 'on your PC.'),
+          guide('Render a draft, check a video\'s scenes, snapshot frames, or make a music bed. Your PC runs one job at a time; the log shows each step.' +
+            (LOCAL ? '' : ' From the website, jobs wait until the PC\'s worker is running.'), 'Pick a job, check the values, press Run.'),
+          jobsPanel(id, m));
+        return show([mk]);
+      }
+      if (page === 'library') {
+        var nodes = [add(section('§ — LIBRARY'), headline('Everything else,', 'in one place.'),
+          guide('Files that belong to no single draft: music beds, voice auditions, snapshots, comps. Listen to audio takes blind and pick one; your pick is recorded for Claude.'))];
+        m.loose.forEach(function (group) { nodes.push(add(section('§ — ' + group.dir.toUpperCase()), gallery(id, group, events))); });
+        if (!m.loose.length) nodes.push(el('p', 'st-empty', 'Nothing here yet.'));
+        return show(nodes);
+      }
+      if (page === 'captures') {
+        var cs = add(section('§ — CAPTURES'), headline('Real screens,', 'never faked.'),
+          guide('Screenshots of the product, saved in this project\'s captures folder. Videos use real captures only; if a screen does not match the script, recapture it.',
+            LOCAL ? null : 'Captures stay on the PC; open the local studio to see them.'));
+        var gal = el('div', 'st-gallery');
+        (m.captures || []).forEach(function (f) { gal.appendChild(fileTile(id, f, null, events, true)); });
+        if (!(m.captures || []).length) cs.appendChild(el('p', 'st-empty', 'No captures in ' + 'projects/' + id + '/captures/ yet.'));
+        return show([add(cs, gal)]);
+      }
+      if (page === 'docs') return show([docsList(id, m)]);
+      if (page === 'doc') return viewDoc(id, arg);
+      return show(overview(id, m, events));
     });
   }
 
+  function overview(id, m, events) {
+    var P = '#/p/' + encodeURIComponent(id);
+    var s = section('§ — OVERVIEW');
+    add(s, headline(m.name + ',', m.videos.length + (m.videos.length === 1 ? ' video.' : ' videos.')),
+      guide('A project is a set of videos that share a look, a voice and one decisions log (NOTES.md). Each video moves through five stages: Script, Voice, Scenes, Review, Deliver.',
+        m.videos.length ? 'Open the video marked ● below to pick up where it stands.' : 'Ask Claude to draft the first script.'));
+    var rows = el('div', 'st-rows');
+    m.videos.forEach(function (v, i) {
+      var st = stagesOf(v, events), cur = currentStage(v, events);
+      var allDone = st.every(function (x) { return x.state === 'done'; });
+      var label = allDone ? 'Delivered' : 'Next: ' + st.filter(function (x) { return x.key === cur; })[0].label;
+      var meta = st.map(function (x) { return MARK[x.state] + ' ' + x.label; }).join('   ');
+      add(rows, row(P + '/v/' + encodeURIComponent(v.id) + '/' + (allDone ? 'review' : cur), pad2(i + 1), v.title, meta, label, allDone ? '' : 'ap-status--beta'));
+    });
+    s.appendChild(rows);
+    var nodes = [s];
+    if (m.notes) {
+      var brief = section('§ — THE BRIEF (NOTES.MD)');
+      var holder = el('div', 'st-brief');
+      brief.appendChild(holder);
+      call('text', { project: id, path: m.notes }, 'text').then(function (t) { holder.appendChild(md(t)); })
+        .catch(function () { holder.appendChild(el('p', 'st-empty', 'NOTES.md is on the PC only.')); });
+      nodes.push(brief);
+    }
+    return nodes;
+  }
+
+  function docsList(id, m) {
+    var P = '#/p/' + encodeURIComponent(id);
+    var docs = [m.notes, m.readme].concat(m.questions || [], m.handoffs || []).filter(Boolean);
+    docs.unshift('projects/' + id + '/feedback/REVIEW.md');
+    var d = add(section('§ — DOCS'), headline('The paper trail,', 'readable.'),
+      guide('NOTES.md is the decisions log. REVIEW.md collects your notes and approvals for Claude. A QUESTIONS file holds either/or questions you can answer with one click.'));
+    var drows = el('div', 'st-rows');
+    docs.forEach(function (p, i) {
+      var q = /QUESTIONS/i.test(p);
+      add(drows, row(P + '/doc/' + encodeURIComponent(p), pad2(i + 1), baseName(p),
+        p.split('/').slice(2, -1).join('/') || 'project', q ? 'Answer' : 'Read', q ? 'ap-status--beta' : 'ap-status--archive'));
+    });
+    return add(d, drows);
+  }
+
+  // ---- a video's stages (Review is the player, further down) ----
+  function viewStage(id, vid, stage, draft) {
+    return Promise.all([getManifest(id), loadEvents(id)]).then(function (both) {
+      var m = both[0], events = both[1];
+      var v = m.videos.filter(function (x) { return x.id === vid; })[0];
+      if (!v) throw new Error('No video ' + vid);
+      stage = stage || currentStage(v, events);
+      var P = '#/p/' + encodeURIComponent(id);
+      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: P }, { text: v.id }, { text: stage }]);
+      workspace(id, m, events, { video: v.id, stage: stage });
+      if (stage === 'review') return viewVideo(id, m, events, v, draft);
+      if (stage === 'script') return show(scriptStage(id, v));
+      if (stage === 'voice') return show(voiceStage(id, v, events));
+      if (stage === 'scenes') return show(scenesStage(id, m, v));
+      return show(deliverStage(id, m, v, events));
+    });
+  }
+
+  function scriptStage(id, v) {
+    var s = add(section('§ — SCRIPT'), headline(v.title + ',', 'the words.'),
+      guide('The voiceover script: what the narrator says, one paragraph per breath. Timing comes from the recorded voice later, never from this text.',
+        v.script ? 'Read it through. To change a line, ask Claude (chat arrives next) or edit the file.' : 'No script yet. Ask Claude to draft one from the brief.'));
+    if (v.script) {
+      var holder = el('div');
+      s.appendChild(holder);
+      call('text', { project: id, path: v.script }, 'text').then(function (t) {
+        var words = t.split(/\s+/).filter(Boolean).length;
+        add(holder, el('p', 'st-note', words + ' words · about ' + Math.round(words / 2.5) + ' s at a natural pace · ' + v.script), el('pre', 'st-pre st-script', t));
+      }).catch(function () { holder.appendChild(el('p', 'st-empty', 'The script is on the PC only.')); });
+      if (v.sources) {
+        var a = el('a', 'st-link', 'Where each claim comes from (' + baseName(v.sources) + ') →');
+        a.href = '#/p/' + encodeURIComponent(id) + '/doc/' + encodeURIComponent(v.sources);
+        s.appendChild(a);
+      }
+    }
+    return [s];
+  }
+
+  function voiceStage(id, v, events) {
+    var s = add(section('§ — VOICE'), headline('The narration,', 'the master clock.'),
+      guide('The recorded voiceover. Every scene is timed to the words in this audio, so a new take means re-timing. Takes are listed newest first.',
+        (v.vo || []).length ? 'Listen to the newest take. A change of voice or wording goes through Claude.' : 'No narration yet: pick a voice in the Library auditions, then render it.'));
+    var gal = el('div', 'st-gallery');
+    (v.vo || []).slice().sort(function (a, b) { return a.mtime < b.mtime ? 1 : -1; })
+      .forEach(function (f) { gal.appendChild(fileTile(id, f, null, events, true)); });
+    return [add(s, gal)];
+  }
+
+  function scenesStage(id, m, v) {
+    var P = '#/p/' + encodeURIComponent(id);
+    var s = add(section('§ — SCENES'), headline('Every frame,', 'on the words.'),
+      guide('The composition: each frame starts on a line of the narration. The board lists them. Check the scenes before rendering; snapshot a few moments to see them without a full render.',
+        v.drafts.length ? 'Happy with the scenes? Render a draft in Make, then review it.' : 'Check the scenes, then render the first draft in Make.'));
+    var actions = el('div', 'st-toolbar');
+    var status = el('span', 'st-note');
+    var times = input('text', '', 'Snapshot at, e.g. 3, 10.5, 42');
+    times.className += ' st-input--inline';
+    function queue(body, label) {
+      request('POST', 'job', null, body).then(function () { flash(status, label + ' queued. Watch it in Make.'); })
+        .catch(function (e) { flash(status, 'Refused: ' + e.message); });
+    }
+    add(actions,
+      button('st-tab', 'Check the scenes', function () { queue({ project: id, kind: 'check', video: v.id }, 'Check'); }),
+      times,
+      button('st-tab', 'Snapshot', function () {
+        var t = times.value.split(/[\s,]+/).filter(Boolean).map(Number);
+        if (!t.length) { times.focus(); return; }
+        queue({ project: id, kind: 'snapshot', video: v.id, times: t }, 'Snapshot');
+      }),
+      status);
+    s.appendChild(actions);
+
+    // Snapshots of this video, newest first.
+    var snaps = [];
+    m.loose.forEach(function (g) { g.files.forEach(function (f) { if (/\/snapshots\//.test(f.path) && baseName(f.path).indexOf(v.id + '-') === 0) snaps.push(f); }); });
+    if (snaps.length) {
+      s.appendChild(el('div', 'st-note st-notes-h', 'Snapshots'));
+      var gal = el('div', 'st-gallery');
+      snaps.forEach(function (f) { gal.appendChild(fileTile(id, f, null, [], true)); });
+      s.appendChild(gal);
+    }
+    var board = el('div', 'st-board');
+    s.appendChild(el('div', 'st-note st-notes-h', 'The board'));
+    s.appendChild(board);
+    var src = v.timing ? call('text', { project: id, path: v.timing }, 'text').then(function (t) {
+      return (JSON.parse(t).frames || []).map(function (f) { return { t: f.prog_start, name: f.n ? f.n + '.' : '', text: f.vo_actual || f.vo || f.name }; });
+    }) : (v.drafts[0] && v.drafts[0].files.vtt ? call('text', { project: id, path: v.drafts[0].files.vtt.path }, 'text').then(cues) : Promise.resolve([]));
+    src.then(function (rows) {
+      if (!rows.length) { board.appendChild(el('p', 'st-empty', 'No frame timing or captions yet.')); return; }
+      rows.forEach(function (b) {
+        var r = el('a', 'st-cue');
+        r.href = P + '/v/' + encodeURIComponent(v.id) + '/review';
+        add(r, el('span', 'st-cue-t', mmss(b.t)), add(el('span', 'st-cue-x'), b.name ? el('b', null, b.name + ' ') : null, document.createTextNode(b.text)));
+        board.appendChild(r);
+      });
+    }).catch(function () { board.appendChild(el('p', 'st-empty', 'Not uploaded yet.')); });
+    return [s];
+  }
+
+  function deliverStage(id, m, v, events) {
+    var appr = approvedDraft(v, events);
+    var d = appr || v.drafts[0];
+    var s = add(section('§ — DELIVER'), headline('Ready to ship,', 'or not yet.'),
+      guide('A deliverable is the approved draft, mastered to -14 LUFS, with captions and a passing QC report. Releasing it (to a portal, a page or a client) stays a human step.',
+        !appr ? 'Approve a draft in Review first.' : 'Check every line below is ticked, then release it your usual way.'));
+    if (!d) return [add(s, el('p', 'st-empty', 'No drafts yet.'))];
+    s.appendChild(el('p', 'st-note', (appr ? 'Approved: ' : 'Latest (not approved): ') + d.label + ' · ' + d.dir));
+    var list = el('div', 'st-checklist');
+    function item(ok, text) { list.appendChild(add(el('div', 'st-check st-check--' + (ok ? 'ok' : 'no')), el('span', 'st-rail-mark', ok ? '✓' : '○'), el('span', null, text))); }
+    item(!!appr, 'Approved in Review');
+    item(!!d.files.master, 'Mastered (-14 LUFS)' + (d.files.master ? ': ' + baseName(d.files.master.path) : ''));
+    item(!!(d.files.vtt && d.files.srt), 'Captions (.vtt and .srt)');
+    item(!!d.files.poster, 'Poster frame');
+    var qcRow = el('div', 'st-check st-check--no');
+    add(qcRow, el('span', 'st-rail-mark', '○'), el('span', null, d.files.qc ? 'QC report: reading…' : 'QC report'));
+    list.appendChild(qcRow);
+    if (d.files.qc && d.files.qc.cloud !== false) {
+      call('text', { project: id, path: d.files.qc.path }, 'text').then(function (t) {
+        var pass = !/\|\s*FAIL\s*\|/.test(t);
+        qcRow.className = 'st-check st-check--' + (pass ? 'ok' : 'no');
+        qcRow.firstChild.textContent = pass ? '✓' : '✗';
+        qcRow.lastChild.textContent = 'QC report: ' + (pass ? 'every check passes' : 'has a FAIL; read it');
+      }).catch(function () {});
+    }
+    return [add(s, list)];
+  }
+
   // ---- jobs: pick a recipe, fill in checked values; the PC runs it (one at a time) ----
-  var KINDS = [['draft', 'Render a draft'], ['check', 'Check'], ['snapshot', 'Snapshot'], ['music', 'Music bed']];
+  var KINDS = [['draft', 'Render a draft'], ['check', 'Check the scenes'], ['snapshot', 'Snapshot frames'], ['music', 'Make a music bed']];
   var MOODS = ['ambient', 'lofi', 'upbeat', 'cinematic', 'tense'];
 
   function field(labelText, input) {
@@ -371,7 +624,7 @@
     return add(wrap, gal);
   }
 
-  function fileTile(project, f, alias, events) {
+  function fileTile(project, f, alias, events, noPick) {
     var fig = el('figure');
     var name = baseName(f.path);
     var ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase();
@@ -388,6 +641,7 @@
       }).catch(function () { cap.textContent = (alias || name) + ' · not uploaded yet'; });
     }
     var picked = events.filter(function (e) { return e.type === 'pick' && e.path === f.path; }).length;
+    if (noPick) return fig;
     add(fig, button('st-link', picked ? 'Picked ✓' : 'Pick this', function (e) {
       var b = e.target;
       b.disabled = true;
@@ -399,7 +653,7 @@
 
   function viewDoc(id, path) {
     var name = baseName(path);
-    return Promise.all([call('manifest', { project: id }), call('text', { project: id, path: path }, 'text'), loadEvents(id)]).then(function (r) {
+    return Promise.all([getManifest(id), call('text', { project: id, path: path }, 'text'), loadEvents(id)]).then(function (r) {
       var m = r[0], text = r[1], events = r[2];
       setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: '#/p/' + encodeURIComponent(id) }, { text: name }]);
       var s = section('§ — ' + path.toUpperCase());
@@ -447,15 +701,13 @@
     return wrap;
   }
 
-  function viewVideo(id, vid, wantDraft) {
-    return Promise.all([call('manifest', { project: id }), loadEvents(id)]).then(function (both) {
-      var m = both[0], events = both[1];
-      var v = m.videos.filter(function (x) { return x.id === vid; })[0];
-      if (!v) throw new Error('No video ' + vid);
-      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: '#/p/' + encodeURIComponent(id) }, { text: v.id }]);
-
-      var s = section('§ 01 — ' + v.id.toUpperCase());
-      add(s, headline(v.title + ',', v.drafts.length + (v.drafts.length === 1 ? ' draft.' : ' drafts.')));
+  // The Review stage: a draft beside its board, notes and decisions. (Called from viewStage.)
+  function viewVideo(id, m, events, v, wantDraft) {
+    return Promise.resolve().then(function () {
+      var s = section('§ — REVIEW');
+      add(s, headline(v.title + ',', v.drafts.length + (v.drafts.length === 1 ? ' draft.' : ' drafts.')),
+        guide('Watch a draft. Pause anywhere and press N to leave a note at that moment. Approve the draft when it is right, or request changes. Pick another draft on the right to compare at the same moment.',
+          'Your notes and decisions go to REVIEW.md, which Claude reads before the next round.'));
       var grid = el('div', 'st-video');
       var player = el('div', 'st-player');
       var video = el('video');
@@ -596,7 +848,7 @@
 
       function play(d, at) {
         current = d;
-        location.replace('#/p/' + encodeURIComponent(id) + '/v/' + encodeURIComponent(v.id) + '/d/' + encodeURIComponent(d.label));
+        location.replace('#/p/' + encodeURIComponent(id) + '/v/' + encodeURIComponent(v.id) + '/review/d/' + encodeURIComponent(d.label));
         buttons.forEach(function (b, i) { b.setAttribute('aria-current', v.drafts[i] === d ? 'true' : 'false'); });
         var file = d.files.master || d.files.raw;
         label.textContent = d.label + (d.files.master ? ' · mastered' : ' · raw render');
@@ -658,16 +910,30 @@
     var h = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
     var p;
     if (!LOCAL && !getKey()) p = viewKey(false);
-    else if (h[0] === 'p' && h[1] && h[2] === 'v' && h[3]) p = viewVideo(h[1], h[3], h[4] === 'd' ? h[5] : null);
-    else if (h[0] === 'p' && h[1] && h[2] === 'doc' && h[3]) p = viewDoc(h[1], h[3]);
-    else if (h[0] === 'p' && h[1]) p = viewProject(h[1]);
-    else p = viewProjects();
+    // #/p/<id>/v/<video>[/<stage>][/d/<draft>]   (older links: #/p/<id>/v/<video>/d/<draft> open Review)
+    else if (h[0] === 'p' && h[1] && h[2] === 'v' && h[3]) {
+      var stage = h[4] === 'd' ? 'review' : h[4];
+      var di = h.indexOf('d', 4);
+      p = viewStage(h[1], h[3], STAGES.some(function (s) { return s[0] === stage; }) ? stage : null, di > 0 ? h[di + 1] : null);
+    }
+    else if (h[0] === 'p' && h[1]) p = viewProject(h[1], h[2] || '', h[3]);
+    else { target = app; p = viewProjects(); }
     p.catch(function (e) {
       if (e instanceof NeedKey) return viewKey(!!getKey());
       show([add(section('§ — ERROR'), el('p', 'st-empty', e.message))]);
     });
     if (h[0] && (LOCAL || getKey())) call('projects').then(function (r) { showWorker(r.worker); }).catch(function () {});
   }
+
+  // The guide: the ? button, and once on a first visit (remembered in this browser only).
+  var help = document.getElementById('help');
+  document.getElementById('help-open').addEventListener('click', function () { help.showModal(); });
+  try {
+    if (!localStorage.getItem('ap_studio_seen_help') && (LOCAL || getKey())) {
+      localStorage.setItem('ap_studio_seen_help', '1');
+      help.showModal();
+    }
+  } catch (e) {}
 
   // The draft is recorded in the hash with location.replace; that fires hashchange, which must not re-render.
   var lastHash = null;

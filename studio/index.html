@@ -20,7 +20,22 @@
     <a class="ap-logo" href="#/"><span class="m"><i></i></span> AmbientPixels.</a>
     <span class="st-crumbs" id="crumbs"></span>
     <span class="ap-status ap-status--archive" id="worker">Checking the PC</span>
+    <button class="st-help" id="help-open" type="button" aria-label="How the studio works">?</button>
   </nav>
+
+  <dialog class="st-dialog" id="help">
+    <div class="ap-sec-idx">§ — HOW THE STUDIO WORKS</div>
+    <h2 class="ap-display st-h">Five stages, <em>one video at a time.</em></h2>
+    <ol class="st-steps">
+      <li><b>Pick a project</b> on the home page. Its rail on the left lists the videos; the one marked ● still has work to do.</li>
+      <li><b>Open a video.</b> Its stages appear under it: Script, Voice, Scenes, Review, Deliver. ✓ is done, ● is where it stands, ○ is still to come.</li>
+      <li><b>Every page starts with a line</b> saying what it is and what to do next. Follow those.</li>
+      <li><b>Make</b> runs jobs on your PC: render a draft, check the scenes, snapshot frames, make a music bed. One at a time; the log shows each step.</li>
+      <li><b>Review</b> is where you watch. Pause and press N for a note at that moment; approve the draft or request changes. Claude reads your notes (feedback/REVIEW.md) before the next round.</li>
+    </ol>
+    <p class="st-note">Local studio (OPEN-STUDIO.cmd) does everything. The website shows the same projects for reviewing away from the desk, while your PC's worker runs.</p>
+    <form method="dialog"><button class="ap-btn ap-btn--primary st-run" type="submit">Got it →</button></form>
+  </dialog>
 
   <main class="st-main" id="app">
     <p class="st-empty">Loading.</p>
