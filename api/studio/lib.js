@@ -32,4 +32,39 @@ function validFilePath(project, p) {
 
 const blobKey = (project, p) => `projects/${project}/files/${p}`;
 
-module.exports = { safeEqual, isOperator, isWorker, hostedProjects, validFilePath, blobKey };
+// An operator decision on its way to the PC (a timestamped note, an audition pick, an answered question, a draft
+// approval). It is stored as data and written into the project's feedback/ files by the worker; nothing here
+// runs it. Returns the clean event, or a reason string when it is refused.
+const EVENT_TYPES = ['note', 'pick', 'answer', 'decision'];
+const DECISIONS = ['approved', 'changes'];
+function cleanEvent(project, b) {
+  if (!b || typeof b !== 'object') return 'body must be an object';
+  if (!EVENT_TYPES.includes(b.type)) return 'unknown event type';
+  const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const e = { type: b.type, project, at: new Date().toISOString() };
+  const video = str(b.video, 120), draft = str(b.draft, 120), text = str(b.text, 4000);
+  if (video && !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(video)) return 'invalid video';
+  if (draft && !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(draft)) return 'invalid draft';
+  if (b.type === 'note') {
+    if (!video || !text) return 'a note needs a video and text';
+    const t = Number(b.t);
+    if (!Number.isFinite(t) || t < 0 || t > 6 * 3600) return 'invalid time';
+    Object.assign(e, { video, draft, t: Math.round(t * 10) / 10, text });
+  } else if (b.type === 'pick') {
+    if (!validFilePath(project, b.path)) return 'invalid path';
+    Object.assign(e, { path: b.path, text });
+  } else if (b.type === 'answer') {
+    if (!validFilePath(project, b.file)) return 'invalid file';
+    const n = Number(b.n), choice = str(b.choice, 8);
+    if (!Number.isInteger(n) || n < 1 || n > 999) return 'invalid question number';
+    if (!/^([a-z]|other)$/.test(choice)) return 'invalid choice';
+    if (choice === 'other' && !text) return 'an "other" answer needs text';
+    Object.assign(e, { file: b.file, n, choice, text });
+  } else {
+    if (!video || !draft || !DECISIONS.includes(b.decision)) return 'a decision needs a video, a draft and approved|changes';
+    Object.assign(e, { video, draft, decision: b.decision, text });
+  }
+  return e;
+}
+
+module.exports = { safeEqual, isOperator, isWorker, hostedProjects, validFilePath, blobKey, cleanEvent };

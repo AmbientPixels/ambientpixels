@@ -22,7 +22,12 @@ async function call(method, action, headers = {}, query = {}, body) {
   for (const a of ['projects', 'manifest', 'media', 'text', 'files']) {
     await t(`GET ${a}: no key configured -> 403`, async () => assert.strictEqual((await call('GET', a, { 'x-studio-key': 'guess' })).status, 403));
   }
-  for (const a of ['heartbeat', 'manifest', 'upload-url']) {
+  for (const a of ['events']) {
+    await t(`GET ${a}: no key configured -> 403`, async () => assert.strictEqual((await call('GET', a, { 'x-studio-key': 'guess' })).status, 403));
+  }
+  await t('POST event: no key configured -> 403', async () => assert.strictEqual((await call('POST', 'event', { 'x-studio-key': 'guess' })).status, 403));
+  await t('GET inbox: no token configured -> 403', async () => assert.strictEqual((await call('GET', 'inbox', { 'x-studio-worker-token': 'guess' })).status, 403));
+  for (const a of ['heartbeat', 'manifest', 'upload-url', 'ack']) {
     await t(`POST ${a}: no token configured -> 403`, async () => assert.strictEqual((await call('POST', a, { 'x-studio-worker-token': 'guess' })).status, 403));
   }
   await t('unknown action -> 404', async () => assert.strictEqual((await call('GET', 'constructor')).status, 404));
@@ -38,6 +43,15 @@ async function call(method, action, headers = {}, query = {}, body) {
     process.env.STUDIO_PROJECTS = 'ambientpixels';
     assert.strictEqual((await call('GET', 'media', { 'x-studio-key': 'op-key' }, { project: 'xbox-gps', path: 'renders/xbox-gps/a.mp4' })).status, 404);
   });
+  await t('worker token cannot post an event', async () => assert.strictEqual((await call('POST', 'event', { 'x-studio-worker-token': 'wk-token' }, {}, { project: 'ambientpixels', type: 'note' })).status, 403));
+  await t('operator key cannot read the inbox or ack', async () => {
+    assert.strictEqual((await call('GET', 'inbox', { 'x-studio-key': 'op-key' }, { project: 'ambientpixels' })).status, 403);
+    assert.strictEqual((await call('POST', 'ack', { 'x-studio-key': 'op-key' }, {}, { project: 'ambientpixels', ids: [] })).status, 403);
+  });
+  await t('event for an unhosted project -> 404 before storage', async () =>
+    assert.strictEqual((await call('POST', 'event', { 'x-studio-key': 'op-key' }, {}, { project: 'xbox-gps', type: 'note', video: 'v4', t: 1, text: 'x' })).status, 404));
+  await t('malformed event -> 400 before storage', async () =>
+    assert.strictEqual((await call('POST', 'event', { 'x-studio-key': 'op-key' }, {}, { project: 'ambientpixels', type: 'note', video: 'v', t: -1, text: 'x' })).status, 400));
   await t('valid key, bad path -> 400 before storage', async () => {
     assert.strictEqual((await call('GET', 'media', { 'x-studio-key': 'op-key' }, { project: 'ambientpixels', path: 'renders/ambientpixels/../x' })).status, 400);
   });

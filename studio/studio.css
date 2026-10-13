@@ -104,6 +104,72 @@
 .st-draft[disabled] { cursor: default; opacity: .45; }
 .st-draft b { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: var(--fs-body-sm); }
 
+/* ---- Toolbars, tabs, quiet text buttons ---- */
+.st-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); padding: var(--sp-3) 0; }
+.st-tab, .st-link {
+  background: none;
+  border: none;
+  padding: var(--sp-2) 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: .6;
+  border-bottom: 1px solid transparent;
+  transition: opacity var(--dur-fast), border-color var(--dur-fast);
+}
+.st-tab:hover, .st-link:hover, .st-tab:focus-visible { opacity: 1; outline: none; }
+.st-tab[aria-selected="true"], .st-tab[aria-pressed="true"] { opacity: 1; border-bottom-color: var(--color-text-primary); }
+.st-tab--rec { opacity: .9; border-bottom-color: var(--color-border); }
+.st-link { text-transform: none; letter-spacing: var(--tracking-mono-xs); }
+.st-link[disabled] { cursor: default; opacity: .45; }
+.st-tabs { display: flex; gap: var(--sp-6); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border-soft); margin-top: var(--sp-4); }
+.st-pane { padding: var(--sp-4) 0; max-height: 60vh; overflow-y: auto; }
+.st-input--inline { flex: 1; min-width: 200px; font-size: var(--fs-mono); }
+.st-foot { margin-top: var(--sp-8); }
+
+/* ---- Board and notes: time code + line, click to seek ---- */
+.st-cue {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--sp-4);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-2);
+  border: none;
+  border-bottom: 1px solid var(--color-border-soft);
+  background: none;
+  color: var(--color-text-body);
+  text-align: left;
+  font: inherit;
+  font-size: var(--fs-body-xs);
+  line-height: var(--lh-body-tight);
+  cursor: pointer;
+}
+.st-cue:hover, .st-cue:focus-visible { background: var(--color-hover-surface); outline: none; }
+.st-cue[aria-current="true"] { background: var(--color-surface); box-shadow: inset 2px 0 0 var(--color-text-primary); color: var(--color-text-primary); }
+.st-cue-t { font-family: var(--font-mono); font-size: var(--fs-mono-xs); opacity: .6; padding-top: 2px; }
+.st-notes-h { padding: var(--sp-4) 0 var(--sp-2); }
+
+/* ---- Rendered markdown (docs, QC, alignment reports) ---- */
+.st-md { font-size: var(--fs-body-sm); line-height: var(--lh-body); color: var(--color-text-body); max-width: 90ch; }
+.st-md p { margin: 0 0 var(--sp-4); }
+.st-md-h { font-family: var(--font-display); font-weight: var(--fw-heavy); letter-spacing: var(--tracking-tight); margin: var(--sp-8) 0 var(--sp-3); line-height: 1.1; }
+h2.st-md-h { font-size: 28px; }
+h3.st-md-h { font-size: 21px; }
+h4.st-md-h, h5.st-md-h { font-size: 17px; }
+.st-md-list { margin: 0 0 var(--sp-4); padding-left: var(--sp-5); }
+.st-md-list li { margin-bottom: var(--sp-1); }
+.st-md code { font-family: var(--font-mono); font-size: .88em; opacity: .9; }
+.st-table { border-collapse: collapse; margin: 0 0 var(--sp-6); font-family: var(--font-mono); font-size: var(--fs-mono); }
+.st-table th, .st-table td { text-align: left; padding: var(--sp-2) var(--sp-4) var(--sp-2) 0; border-bottom: 1px solid var(--color-border-soft); vertical-align: top; }
+.st-table th { font-weight: var(--fw-medium); opacity: .6; text-transform: uppercase; letter-spacing: var(--tracking-mono-sm); font-size: var(--fs-mono-xs); }
+
+/* ---- Questions ---- */
+.st-q { padding: var(--sp-6) 0; border-top: 1px solid var(--color-border); }
+.st-q .st-md p:first-child { margin-top: 0; }
+
 .st-pre {
   margin: 0;
   padding: var(--sp-4) 0;

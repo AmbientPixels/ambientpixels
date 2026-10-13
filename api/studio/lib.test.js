@@ -32,5 +32,25 @@ t('path: absolute is refused', () => assert.strictEqual(L.validFilePath('hanson-
 t('path: outside the three roots is refused', () => assert.strictEqual(L.validFilePath('hanson-agents', 'tools/hanson-agents/x.py'), false));
 t('path: the project folder alone is refused', () => assert.strictEqual(L.validFilePath('hanson-agents', 'renders/hanson-agents'), false));
 
+const P = 'hanson-agents';
+t('event: a note keeps video, draft, time, text', () => {
+  const e = L.cleanEvent(P, { type: 'note', video: '04-agent-team', draft: 'draft10', t: 12.345, text: ' ring too tight ' });
+  assert.deepStrictEqual([e.type, e.video, e.draft, e.t, e.text], ['note', '04-agent-team', 'draft10', 12.3, 'ring too tight']);
+});
+t('event: unknown type refused', () => assert.strictEqual(typeof L.cleanEvent(P, { type: 'exec', cmd: 'rm' }), 'string'));
+t('event: note without text refused', () => assert.strictEqual(typeof L.cleanEvent(P, { type: 'note', video: 'v', t: 1 }), 'string'));
+t('event: note video with a slash refused', () => assert.strictEqual(typeof L.cleanEvent(P, { type: 'note', video: '../x', t: 1, text: 'a' }), 'string'));
+t('event: pick outside the project refused', () => assert.strictEqual(typeof L.cleanEvent(P, { type: 'pick', path: 'renders/xbox-gps/a.mp3' }), 'string'));
+t('event: answer needs a letter or other', () => {
+  assert.strictEqual(typeof L.cleanEvent(P, { type: 'answer', file: 'projects/hanson-agents/Q.md', n: 1, choice: 'zz' }), 'string');
+  assert.strictEqual(L.cleanEvent(P, { type: 'answer', file: 'projects/hanson-agents/Q.md', n: 2, choice: 'b' }).choice, 'b');
+  assert.strictEqual(typeof L.cleanEvent(P, { type: 'answer', file: 'projects/hanson-agents/Q.md', n: 2, choice: 'other' }), 'string');
+});
+t('event: decision needs approved|changes', () => {
+  assert.strictEqual(typeof L.cleanEvent(P, { type: 'decision', video: 'v', draft: 'd', decision: 'release' }), 'string');
+  assert.strictEqual(L.cleanEvent(P, { type: 'decision', video: 'v', draft: 'd', decision: 'approved' }).decision, 'approved');
+});
+t('event: extra fields are dropped', () => assert.strictEqual(L.cleanEvent(P, { type: 'note', video: 'v', t: 1, text: 'a', path: '/etc' }).path, undefined));
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

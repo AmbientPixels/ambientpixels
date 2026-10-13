@@ -6,7 +6,13 @@
 // Media never streams through this function: it hands out a 15-minute SAS link for one blob at a time.
 //
 //   operator (x-studio-key)            GET  projects | manifest?project= | media?project=&path= | text?project=&path=
-//   worker   (x-studio-worker-token)   POST heartbeat | manifest | upload-url      GET files?project=
+//                                           events?project=
+//                                      POST event        (a note, pick, answer or decision → the project's inbox)
+//   worker   (x-studio-worker-token)   POST heartbeat | manifest | upload-url | ack
+//                                      GET  files?project= | inbox?project=
+//
+// The inbox is how decisions reach the PC: one small JSON blob per event, collected by the worker, written into
+// the project's feedback/ files, then acked (deleted here).
 //
 // Only projects named in STUDIO_PROJECTS exist here. Local-only projects (Xbox) are refused at the door.
 const { BlobServiceClient, BlobSASPermissions } = require('@azure/storage-blob');
@@ -88,6 +94,20 @@ const operator = {
     if (!(await blob.exists())) return reply(context, 404, { error: 'not uploaded' });
     reply(context, 200, { url: await link(blob, 'r'), expiresInMinutes: LINK_MINUTES });
   },
+  async event(context, req) {
+    const id = (req.body || {}).project;
+    if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
+    const e = L.cleanEvent(id, req.body);
+    if (typeof e === 'string') return reply(context, 400, { error: e });
+    e.id = e.at.replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 8);
+    await writeJson(`projects/${id}/inbox/${e.id}.json`, e);
+    reply(context, 200, { ok: true, event: e });
+  },
+  async events(context, req) {
+    const id = req.query.project;
+    if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
+    reply(context, 200, { events: await readInbox(id) });
+  },
   async text(context, req) {
     const key = fileTarget(context, req.query.project, req.query.path);
     if (!key) return;
@@ -137,18 +157,51 @@ const worker = {
       files.push({ path: item.name.slice(prefix.length), size: item.properties.contentLength });
     }
     reply(context, 200, { files });
+  },
+  async inbox(context, req) {
+    const id = req.query.project;
+    if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
+    reply(context, 200, { events: await readInbox(id) });
+  },
+  async ack(context, req) {
+    const b = req.body || {};
+    if (!L.hostedProjects().includes(b.project)) return reply(context, 404, { error: 'unknown project' });
+    const ids = Array.isArray(b.ids) ? b.ids.filter((x) => typeof x === 'string' && /^[A-Za-z0-9-]{1,80}$/.test(x)) : [];
+    const c = await getContainer();
+    for (const x of ids) await c.getBlockBlobClient(`projects/${b.project}/inbox/${x}.json`).deleteIfExists();
+    reply(context, 200, { ok: true, acked: ids.length });
   }
+};
+
+async function readInbox(id) {
+  const c = await getContainer();
+  const events = [];
+  for await (const item of c.listBlobsFlat({ prefix: `projects/${id}/inbox/` })) {
+    const e = await readJson(item.name);
+    if (e) events.push(e);
+  }
+  return events.sort((a, b) => (a.at < b.at ? -1 : 1));
+}
+
+// Who may call what. Anything not listed is a 404.
+const ROUTES = {
+  'GET projects': ['op', operator.projects], 'GET manifest': ['op', operator.manifest],
+  'GET media': ['op', operator.media], 'GET text': ['op', operator.text],
+  'GET events': ['op', operator.events], 'POST event': ['op', operator.event],
+  'POST heartbeat': ['worker', worker.heartbeat], 'POST manifest': ['worker', worker.manifest],
+  'POST upload-url': ['worker', worker['upload-url']], 'POST ack': ['worker', worker.ack],
+  'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox]
 };
 
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') { context.res = { status: 204, headers: HEADERS, body: '' }; return; }
   const action = context.bindingData.action;
-  const table = req.method === 'GET' ? { ...operator, files: worker.files } : worker;
-  const handler = Object.prototype.hasOwnProperty.call(table, action) ? table[action] : null;
-  if (!handler) return reply(context, 404, { error: 'unknown action' });
+  const key = req.method + ' ' + action;
+  const route = Object.prototype.hasOwnProperty.call(ROUTES, key) ? ROUTES[key] : null;
+  if (!route) return reply(context, 404, { error: 'unknown action' });
+  const [role, handler] = route;
 
-  const isWorkerAction = handler === worker[action];
-  const allowed = isWorkerAction ? L.isWorker(req) : L.isOperator(req);
+  const allowed = role === 'worker' ? L.isWorker(req) : L.isOperator(req);
   if (!allowed) return reply(context, 403, { error: 'studio access required' });
 
   try { await handler(context, req); }
