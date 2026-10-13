@@ -219,8 +219,9 @@ const worker = {
     if (!L.hostedProjects().includes(b.project) || !JOB_ID.test(b.id || '')) return reply(context, 404, { error: 'unknown job' });
     const STATUSES = ['queued', 'running', 'done', 'done-with-warnings', 'failed', 'cancelled'];
     const j = await mutateJson(`projects/${b.project}/jobs/${b.id}.json`, (x) => {
-      // Cancelled while still queued: the worker's "running" must not revive it; tell the worker to stop instead.
-      if (x.status === 'cancelled' && b.status === 'running') { x.cancelRequested = true; return; }
+      // Cancelled while still queued: neither the worker's "running" nor its "waiting" (queued) report may revive it;
+      // tell the worker to stop instead. (Review 2026-10-13: "queued" used to overwrite "cancelled".)
+      if (x.status === 'cancelled' && (b.status === 'running' || b.status === 'queued')) { x.cancelRequested = true; return; }
       if (STATUSES.includes(b.status)) x.status = b.status;
       x.step = String(b.step || '').slice(0, 60);
       x.log = String(b.log || '').slice(-16000);
