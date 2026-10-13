@@ -199,7 +199,9 @@
       if (!m.videos.length) add(rows, el('p', 'st-empty', 'No compositions in series/ yet.'));
       nodes.push(add(s, rows));
 
-      var docs = [m.notes, m.readme].concat(m.questions || [], m.handoffs || []).filter(Boolean);
+      nodes.push(add(section('§ ' + pad2(n++) + ' — JOBS'), jobsPanel(id, m)));
+
+      var docs =[m.notes, m.readme].concat(m.questions || [], m.handoffs || []).filter(Boolean);
       docs.unshift('projects/' + id + '/feedback/REVIEW.md');
       var d = section('§ ' + pad2(n++) + ' — DOCUMENTS');
       var drows = el('div', 'st-rows');
@@ -215,6 +217,131 @@
         nodes.push(add(g, gallery(id, group, events)));
       });
       show(nodes);
+    });
+  }
+
+  // ---- jobs: pick a recipe, fill in checked values; the PC runs it (one at a time) ----
+  var KINDS = [['draft', 'Render a draft'], ['check', 'Check'], ['snapshot', 'Snapshot'], ['music', 'Music bed']];
+  var MOODS = ['ambient', 'lofi', 'upbeat', 'cinematic', 'tense'];
+
+  function field(labelText, input) {
+    var f = el('label', 'st-field');
+    add(f, el('span', 'st-label', labelText), input);
+    return f;
+  }
+  function input(type, value, placeholder) {
+    var i = el('input', 'st-input');
+    i.type = type; i.value = value == null ? '' : value;
+    if (placeholder) i.placeholder = placeholder;
+    return i;
+  }
+  function select(options, value) {
+    var s = el('select', 'st-input st-select');
+    options.forEach(function (o) { var opt = el('option', null, o[1]); opt.value = o[0]; if (o[0] === value) opt.selected = true; s.appendChild(opt); });
+    return s;
+  }
+  function nextLabel(v) {
+    var max = 0;
+    (v ? v.drafts : []).forEach(function (d) { var x = /^draft(\d+)$/.exec(d.label); if (x) max = Math.max(max, Number(x[1])); });
+    return 'draft' + (max + 1);
+  }
+
+  function jobsPanel(id, m) {
+    var wrap = el('div', 'st-jobs');
+    var form = el('form', 'st-job-form');
+    var kind = select(KINDS, m.videos.length ? 'draft' : 'music');
+    var video = select(m.videos.map(function (v) { return [v.id, v.id]; }), m.videos[0] && m.videos[0].id);
+    var vOf = function () { return m.videos.filter(function (v) { return v.id === video.value; })[0]; };
+    var label = input('text', nextLabel(vOf()));
+    var latestDir = function () { var v = vOf(), d = v && v.drafts[0]; return d ? d.dir.split('/').slice(2).join('/') : ''; };
+    var subdir = input('text', latestDir(), 'none');
+    var quality = select([['draft', 'Draft'], ['delivery', 'Delivery']], 'draft');
+    var times = input('text', '', 'e.g. 3, 10.5, 42');
+    var mood = select(MOODS.map(function (x) { return [x, x]; }), 'ambient');
+    var duration = input('number', '60');
+    var seed = input('number', String(1000 + Math.floor(Math.random() * 9000)));
+    var name = input('text', 'bed');
+    video.addEventListener('change', function () { label.value = nextLabel(vOf()); subdir.value = latestDir(); });
+
+    var groups = {
+      video: field('Video', video), label: field('Label', label), subdir: field('Folder under renders/', subdir), quality: field('Quality', quality),
+      times: field('Times (s)', times), mood: field('Mood', mood), duration: field('Seconds', duration), seed: field('Seed', seed), name: field('Name', name)
+    };
+    var SHOWN = { draft: ['video', 'label', 'subdir', 'quality'], check: ['video'], snapshot: ['video', 'times'], music: ['mood', 'duration', 'seed', 'name'] };
+    function relayout() { Object.keys(groups).forEach(function (k) { groups[k].hidden = SHOWN[kind.value].indexOf(k) === -1; }); }
+    kind.addEventListener('change', relayout);
+    var status = el('span', 'st-note');
+    var run = el('button', 'ap-btn ap-btn--primary st-run', 'Run →');
+    run.type = 'submit';
+    add(form, field('Job', kind));
+    Object.keys(groups).forEach(function (k) { form.appendChild(groups[k]); });
+    add(form, add(el('div', 'st-toolbar'), run, status));
+    relayout();
+    if (!m.videos.length) Array.prototype.forEach.call(kind.options, function (o) { o.disabled = o.value !== 'music'; });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var k = kind.value, body = { project: id, kind: k };
+      if (k !== 'music') body.video = video.value;
+      if (k === 'draft') { body.label = label.value.trim(); body.subdir = subdir.value.trim(); body.quality = quality.value; }
+      if (k === 'snapshot') body.times = times.value.split(/[\s,]+/).filter(Boolean).map(Number);
+      if (k === 'music') { body.mood = mood.value; body.duration = Number(duration.value); body.seed = Number(seed.value); body.name = name.value.trim(); }
+      run.disabled = true;
+      request('POST', 'job', null, body).then(function (r) {
+        flash(status, 'Queued ' + r.job.kind + (LOCAL ? '.' : '. The PC picks it up within 30 s.'));
+        if (k === 'draft') label.value = label.value.replace(/(\d+)$/, function (d) { return String(Number(d) + 1); });
+        refresh();
+      }).catch(function (err) { flash(status, 'Refused: ' + err.message); }).then(function () { run.disabled = false; });
+    });
+
+    var list = el('div', 'st-rows st-joblist');
+    var open = {};
+    function refresh() {
+      return call('jobs', { project: id }).then(function (r) {
+        list.textContent = '';
+        if (!r.jobs.length) { list.appendChild(el('p', 'st-empty', 'No jobs yet.')); return; }
+        r.jobs.forEach(function (j) { list.appendChild(jobRow(id, j, open, refresh)); });
+      }).catch(function () {});
+    }
+    refresh();
+    var timer = setInterval(refresh, 4000);
+    cleanup.push(function () { clearInterval(timer); });
+    return add(wrap, form, list);
+  }
+
+  var JOB_STATUS = { queued: 'ap-status--archive', running: 'ap-status--beta', done: '', 'done-with-warnings': 'ap-status--beta', failed: 'ap-status--archive', cancelled: 'ap-status--archive' };
+  function jobRow(id, j, open, refresh) {
+    var r = el('div', 'st-job');
+    var what = j.kind + ' · ' + (j.video || (j.name + ' · ' + j.mood + ' · seed ' + j.seed)) + (j.label ? ' · ' + j.label : '');
+    var head = button('st-job-head', '', function () { open[j.id] = !open[j.id]; logEl.hidden = !open[j.id]; });
+    add(head, el('span', 'ap-status ' + (JOB_STATUS[j.status] || ''), j.status.replace(/-/g, ' ') + (j.step ? ' · ' + j.step : '')),
+      el('span', 'st-job-what', what), el('span', 'st-note', when(j.createdAt)));
+    r.appendChild(head);
+    var tools = el('div', 'st-toolbar');
+    (j.outputs || []).forEach(function (p) { tools.appendChild(outputLink(id, j, p)); });
+    if (j.status === 'queued' || j.status === 'running') {
+      tools.appendChild(button('st-link', j.cancelRequested ? 'Cancelling…' : 'Cancel', function (e) {
+        e.target.disabled = true;
+        request('POST', 'job-cancel', null, { project: id, id: j.id }).then(refresh);
+      }));
+    }
+    if (tools.childNodes.length) r.appendChild(tools);
+    var logEl = el('pre', 'st-pre st-log', j.log || 'No output yet.');
+    logEl.hidden = !open[j.id];
+    r.appendChild(logEl);
+    return r;
+  }
+  function outputLink(id, j, p) {
+    var name = baseName(p);
+    if (/-master\.mp4$|\.mp4$/.test(p) && j.video && j.label) {
+      var a = el('a', 'st-link', 'Watch ' + name);
+      a.href = '#/p/' + encodeURIComponent(id) + '/v/' + encodeURIComponent(j.video) + '/d/' + encodeURIComponent(j.label);
+      return a;
+    }
+    if (/\.md$/.test(p)) { var d = el('a', 'st-link', 'Read ' + name); d.href = '#/p/' + encodeURIComponent(id) + '/doc/' + encodeURIComponent(p); return d; }
+    return button('st-link', 'Open ' + name, function () {
+      call('media', { project: id, path: p }).then(function (r) { window.open(r.url, '_blank', 'noopener'); })
+        .catch(function () { alert('Not uploaded yet: the PC syncs it in a moment.'); });
     });
   }
 

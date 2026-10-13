@@ -67,4 +67,39 @@ function cleanEvent(project, b) {
   return e;
 }
 
-module.exports = { safeEqual, isOperator, isWorker, hostedProjects, validFilePath, blobKey, cleanEvent };
+// A job for the PC: one of a few named recipes the worker turns into fixed commands (harness/lib/jobs.mjs).
+// The browser only ever picks a recipe and fills in checked values; it never sends a command line.
+const JOB_KINDS = ['check', 'snapshot', 'draft', 'music'];
+const MOODS = ['ambient', 'lofi', 'upbeat', 'cinematic', 'tense'];
+const NAME = /^[a-z0-9][a-z0-9-]{0,40}$/;
+const VIDEO = /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/;
+function cleanJob(project, b) {
+  if (!b || typeof b !== 'object') return 'body must be an object';
+  if (!JOB_KINDS.includes(b.kind)) return 'unknown job kind';
+  const j = { kind: b.kind, project, status: 'queued', createdAt: new Date().toISOString() };
+  if (b.kind === 'music') {
+    const duration = Number(b.duration), seed = Number(b.seed);
+    if (!MOODS.includes(b.mood)) return 'unknown mood';
+    if (!Number.isFinite(duration) || duration < 5 || duration > 900) return 'duration must be 5-900 s';
+    if (!Number.isInteger(seed) || seed < 0 || seed > 999999) return 'seed must be a whole number';
+    if (!NAME.test(b.name || '')) return 'name: lowercase letters, digits and dashes';
+    return Object.assign(j, { mood: b.mood, duration: Math.round(duration * 10) / 10, seed, name: b.name });
+  }
+  if (!VIDEO.test(b.video || '')) return 'invalid video';
+  j.video = b.video;
+  if (b.kind === 'snapshot') {
+    const times = Array.isArray(b.times) ? b.times.map(Number) : [];
+    if (!times.length || times.length > 24 || !times.every((t) => Number.isFinite(t) && t >= 0 && t < 3600)) return 'times: 1-24 seconds values';
+    j.times = times.map((t) => Math.round(t * 100) / 100);
+  }
+  if (b.kind === 'draft') {
+    if (!NAME.test(b.label || '')) return 'label: lowercase letters, digits and dashes';
+    if (b.subdir && !NAME.test(b.subdir)) return 'invalid folder';
+    j.label = b.label;
+    j.subdir = b.subdir || '';
+    j.quality = b.quality === 'delivery' ? 'delivery' : 'draft';
+  }
+  return j;
+}
+
+module.exports = { safeEqual, isOperator, isWorker, hostedProjects, validFilePath, blobKey, cleanEvent, cleanJob };

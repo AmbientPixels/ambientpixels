@@ -8,8 +8,9 @@
 //   operator (x-studio-key)            GET  projects | manifest?project= | media?project=&path= | text?project=&path=
 //                                           events?project=
 //                                      POST event        (a note, pick, answer or decision → the project's inbox)
+//                                      GET  jobs?project=     POST job | job-cancel
 //   worker   (x-studio-worker-token)   POST heartbeat | manifest | upload-url | ack
-//                                      GET  files?project= | inbox?project=
+//                                      GET  files?project= | inbox?project= | job-next     POST job-update
 //
 // The inbox is how decisions reach the PC: one small JSON blob per event, collected by the worker, written into
 // the project's feedback/ files, then acked (deleted here).
@@ -108,6 +109,31 @@ const operator = {
     if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
     reply(context, 200, { events: await readInbox(id) });
   },
+  async job(context, req) {
+    const id = (req.body || {}).project;
+    if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
+    const j = L.cleanJob(id, req.body);
+    if (typeof j === 'string') return reply(context, 400, { error: j });
+    j.id = j.createdAt.replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 8);
+    await writeJson(`projects/${id}/jobs/${j.id}.json`, j);
+    reply(context, 200, { ok: true, job: j });
+  },
+  async jobs(context, req) {
+    const id = req.query.project;
+    if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
+    reply(context, 200, { jobs: (await readJobs(id)).reverse().slice(0, 30) });
+  },
+  async 'job-cancel'(context, req) {
+    const b = req.body || {};
+    if (!L.hostedProjects().includes(b.project) || !JOB_ID.test(b.id || '')) return reply(context, 404, { error: 'unknown job' });
+    const name = `projects/${b.project}/jobs/${b.id}.json`;
+    const j = await readJson(name);
+    if (!j) return reply(context, 404, { error: 'unknown job' });
+    if (j.status === 'queued') j.status = 'cancelled';
+    else if (j.status === 'running') j.cancelRequested = true;
+    await writeJson(name, j);
+    reply(context, 200, { ok: true, job: j });
+  },
   async text(context, req) {
     const key = fileTarget(context, req.query.project, req.query.path);
     if (!key) return;
@@ -163,6 +189,29 @@ const worker = {
     if (!L.hostedProjects().includes(id)) return reply(context, 404, { error: 'unknown project' });
     reply(context, 200, { events: await readInbox(id) });
   },
+  async 'job-next'(context) {
+    for (const id of L.hostedProjects()) {
+      const next = (await readJobs(id)).find((j) => j.status === 'queued');
+      if (next) return reply(context, 200, { job: next });
+    }
+    reply(context, 200, { job: null });
+  },
+  async 'job-update'(context, req) {
+    const b = req.body || {};
+    if (!L.hostedProjects().includes(b.project) || !JOB_ID.test(b.id || '')) return reply(context, 404, { error: 'unknown job' });
+    const name = `projects/${b.project}/jobs/${b.id}.json`;
+    const j = await readJson(name);
+    if (!j) return reply(context, 404, { error: 'unknown job' });
+    const STATUSES = ['queued', 'running', 'done', 'done-with-warnings', 'failed', 'cancelled'];
+    if (STATUSES.includes(b.status)) j.status = b.status;
+    j.step = String(b.step || '').slice(0, 60);
+    j.log = String(b.log || '').slice(-16000);
+    j.outputs = Array.isArray(b.outputs) ? b.outputs.filter((p) => L.validFilePath(b.project, p)).slice(0, 20) : [];
+    j.updatedAt = new Date().toISOString();
+    if (j.status === 'running' && !j.startedAt) j.startedAt = j.updatedAt;
+    await writeJson(name, j);
+    reply(context, 200, { ok: true, cancelRequested: !!j.cancelRequested });
+  },
   async ack(context, req) {
     const b = req.body || {};
     if (!L.hostedProjects().includes(b.project)) return reply(context, 404, { error: 'unknown project' });
@@ -172,6 +221,17 @@ const worker = {
     reply(context, 200, { ok: true, acked: ids.length });
   }
 };
+
+const JOB_ID = /^[A-Za-z0-9-]{1,80}$/;
+async function readJobs(id) {
+  const c = await getContainer();
+  const jobs = [];
+  for await (const item of c.listBlobsFlat({ prefix: `projects/${id}/jobs/` })) {
+    const j = await readJson(item.name);
+    if (j) jobs.push(j);
+  }
+  return jobs.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+}
 
 async function readInbox(id) {
   const c = await getContainer();
@@ -188,6 +248,8 @@ const ROUTES = {
   'GET projects': ['op', operator.projects], 'GET manifest': ['op', operator.manifest],
   'GET media': ['op', operator.media], 'GET text': ['op', operator.text],
   'GET events': ['op', operator.events], 'POST event': ['op', operator.event],
+  'GET jobs': ['op', operator.jobs], 'POST job': ['op', operator.job], 'POST job-cancel': ['op', operator['job-cancel']],
+  'GET job-next': ['worker', worker['job-next']], 'POST job-update': ['worker', worker['job-update']],
   'POST heartbeat': ['worker', worker.heartbeat], 'POST manifest': ['worker', worker.manifest],
   'POST upload-url': ['worker', worker['upload-url']], 'POST ack': ['worker', worker.ack],
   'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox]

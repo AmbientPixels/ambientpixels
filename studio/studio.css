@@ -166,6 +166,35 @@ h4.st-md-h, h5.st-md-h { font-size: 17px; }
 .st-table th, .st-table td { text-align: left; padding: var(--sp-2) var(--sp-4) var(--sp-2) 0; border-bottom: 1px solid var(--color-border-soft); vertical-align: top; }
 .st-table th { font-weight: var(--fw-medium); opacity: .6; text-transform: uppercase; letter-spacing: var(--tracking-mono-sm); font-size: var(--fs-mono-xs); }
 
+/* ---- Jobs: the run form and the live list ---- */
+.st-job-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sp-5) var(--sp-6); align-items: end; padding-bottom: var(--sp-8); }
+.st-job-form .st-toolbar { grid-column: 1 / -1; }
+.st-field { display: flex; flex-direction: column; gap: var(--sp-2); }
+.st-field[hidden] { display: none; }
+.st-select { appearance: none; cursor: pointer; background: none; }
+.st-select option { background: var(--color-surface); color: var(--color-text-primary); }
+.st-run { border: none; cursor: pointer; }
+.st-run[disabled] { opacity: .5; cursor: default; }
+.st-job { border-bottom: 1px solid var(--color-border); }
+.st-job-head {
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  gap: var(--sp-4);
+  align-items: center;
+  width: 100%;
+  padding: var(--sp-4) var(--sp-2);
+  border: none;
+  background: none;
+  color: var(--color-text-primary);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.st-job-head:hover, .st-job-head:focus-visible { background: var(--color-hover-surface); outline: none; }
+.st-job-what { font-family: var(--font-mono); font-size: var(--fs-mono); letter-spacing: var(--tracking-mono-xxs); }
+.st-job .st-toolbar { padding: 0 var(--sp-2) var(--sp-3); }
+.st-log { max-height: 320px; overflow: auto; padding: var(--sp-3) var(--sp-2); border-top: 1px solid var(--color-border-soft); white-space: pre-wrap; }
+
 /* ---- Questions ---- */
 .st-q { padding: var(--sp-6) 0; border-top: 1px solid var(--color-border); }
 .st-q .st-md p:first-child { margin-top: 0; }
@@ -194,4 +223,5 @@ h4.st-md-h, h5.st-md-h { font-size: 17px; }
   .st-main { padding: 0 var(--mobile-pad) var(--sp-12); }
   .st-row { grid-template-columns: 40px 1fr 24px; }
   .st-row .ap-status { display: none; }
+  .st-job-head { grid-template-columns: 1fr; gap: var(--sp-1); }
 }

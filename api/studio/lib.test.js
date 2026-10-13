@@ -52,5 +52,26 @@ t('event: decision needs approved|changes', () => {
 });
 t('event: extra fields are dropped', () => assert.strictEqual(L.cleanEvent(P, { type: 'note', video: 'v', t: 1, text: 'a', path: '/etc' }).path, undefined));
 
+t('job: unknown kind refused', () => assert.strictEqual(typeof L.cleanJob(P, { kind: 'shell', cmd: 'rm -rf /' }), 'string'));
+t('job: draft keeps video, label, quality; drops extras', () => {
+  const j = L.cleanJob(P, { kind: 'draft', video: '04-agent-team', label: 'draft11', quality: 'delivery', args: ['--evil'] });
+  assert.deepStrictEqual([j.video, j.label, j.quality, j.subdir, j.args, j.status], ['04-agent-team', 'draft11', 'delivery', '', undefined, 'queued']);
+});
+t('job: label with a flag or slash refused', () => {
+  assert.strictEqual(typeof L.cleanJob(P, { kind: 'draft', video: 'v', label: '--quality' }), 'string');
+  assert.strictEqual(typeof L.cleanJob(P, { kind: 'draft', video: 'v', label: 'a/b' }), 'string');
+});
+t('job: video with a slash refused', () => assert.strictEqual(typeof L.cleanJob(P, { kind: 'check', video: '../x' }), 'string'));
+t('job: video starting with a dash refused', () => assert.strictEqual(typeof L.cleanJob(P, { kind: 'check', video: '-rf' }), 'string'));
+t('job: snapshot needs 1-24 times', () => {
+  assert.strictEqual(typeof L.cleanJob(P, { kind: 'snapshot', video: 'v', times: [] }), 'string');
+  assert.deepStrictEqual(L.cleanJob(P, { kind: 'snapshot', video: 'v', times: ['1.234', 5] }).times, [1.23, 5]);
+});
+t('job: music checks mood, duration, seed, name', () => {
+  assert.strictEqual(typeof L.cleanJob(P, { kind: 'music', mood: 'metal', duration: 60, seed: 1, name: 'x' }), 'string');
+  assert.strictEqual(typeof L.cleanJob(P, { kind: 'music', mood: 'lofi', duration: 6000, seed: 1, name: 'x' }), 'string');
+  assert.strictEqual(L.cleanJob(P, { kind: 'music', mood: 'lofi', duration: 95.04, seed: 2219, name: 'ch9-bed' }).duration, 95);
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

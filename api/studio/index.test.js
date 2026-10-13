@@ -52,6 +52,15 @@ async function call(method, action, headers = {}, query = {}, body) {
     assert.strictEqual((await call('POST', 'event', { 'x-studio-key': 'op-key' }, {}, { project: 'xbox-gps', type: 'note', video: 'v4', t: 1, text: 'x' })).status, 404));
   await t('malformed event -> 400 before storage', async () =>
     assert.strictEqual((await call('POST', 'event', { 'x-studio-key': 'op-key' }, {}, { project: 'ambientpixels', type: 'note', video: 'v', t: -1, text: 'x' })).status, 400));
+  await t('job routes: worker token cannot queue a job', async () => assert.strictEqual((await call('POST', 'job', { 'x-studio-worker-token': 'wk-token' }, {}, { project: 'ambientpixels', kind: 'check', video: 'v' })).status, 403));
+  await t('job routes: operator key cannot take or update jobs', async () => {
+    assert.strictEqual((await call('GET', 'job-next', { 'x-studio-key': 'op-key' })).status, 403);
+    assert.strictEqual((await call('POST', 'job-update', { 'x-studio-key': 'op-key' }, {}, { project: 'ambientpixels', id: 'x', status: 'done' })).status, 403);
+  });
+  await t('job for an unhosted project -> 404 before storage', async () =>
+    assert.strictEqual((await call('POST', 'job', { 'x-studio-key': 'op-key' }, {}, { project: 'xbox-gps', kind: 'check', video: 'v4' })).status, 404));
+  await t('malformed job -> 400 before storage', async () =>
+    assert.strictEqual((await call('POST', 'job', { 'x-studio-key': 'op-key' }, {}, { project: 'ambientpixels', kind: 'draft', video: 'v', label: '--x' })).status, 400));
   await t('valid key, bad path -> 400 before storage', async () => {
     assert.strictEqual((await call('GET', 'media', { 'x-studio-key': 'op-key' }, { project: 'ambientpixels', path: 'renders/ambientpixels/../x' })).status, 400);
   });
