@@ -130,7 +130,12 @@
       if (h) { out.push('<h' + (h[1].length + 1) + ' class="st-md-h">' + inline(h[2]) + '</h' + (h[1].length + 1) + '>'); i++; continue; }
       if (/^\s*([-*]|\d+\.)\s+/.test(l)) {
         var items = [];
-        while (i < lines.length && /^\s*([-*]|\d+\.)\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*([-*]|\d+\.)\s+/, ''));
+        // A list item continues on following indented lines (how NOTES.md wraps): join them into the item.
+        while (i < lines.length) {
+          if (/^\s*([-*]|\d+\.)\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*([-*]|\d+\.)\s+/, ''));
+          else if (items.length && /^\s{2,}\S/.test(lines[i])) items[items.length - 1] += ' ' + lines[i++].trim();
+          else break;
+        }
         out.push('<ul class="st-md-list">' + items.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</ul>');
         continue;
       }
@@ -694,6 +699,7 @@
   }
   // ---- handing work to Claude Code (the in-studio chat is off by default: harness/studio.json) ----
   var CHAT_ON = false;
+  var REPO_ROOT = ''; // the pipeline repo on disk (from /api/studio/config), for "Open in VS Code" links
   var ROLE_NAMES = { editor: 'Editor and director', writer: 'Writer', transcriber: 'Transcriber', animator: 'Animator',
     researcher: 'Researcher', 'screen-editor': 'Screen editor', 'sound-designer': 'Sound designer', finisher: 'Finisher' };
   function toast(text) {
@@ -862,7 +868,7 @@
         if (!(m.captures || []).length) cs.appendChild(el('p', 'st-empty', 'No captures in ' + 'projects/' + id + '/captures/ yet.'));
         return show([add(cs, gal)]);
       }
-      if (page === 'docs') return show([docsList(id, m)]);
+      if (page === 'docs') return show(LOCAL ? docsPage(id) : [docsList(id, m)]);
       if (page === 'doc') return viewDoc(id, arg);
       return show(overview(id, m, events));
     });
@@ -1146,6 +1152,64 @@
       nodes.push(brief);
     }
     return nodes;
+  }
+
+  // Docs (local): every doc in the project and the studio's own, grouped, searchable, each openable in VS Code.
+  var DOC_GROUPS = ['Decisions', 'Review', 'Questions', 'Scripts and sources', 'Edit plans', 'Handoffs', 'Plans', 'Other'];
+  var STUDIO_GROUPS = ['Operating manual', 'Team briefs', 'Plans', 'Reviews', 'Other'];
+  function docsPage(id) {
+    var P = '#/p/' + encodeURIComponent(id);
+    var s = add(section('§ — DOCS'), headline('The paper trail,', 'readable.'),
+      guide('Every doc in this project, and the studio\'s own (the operating manual, the team briefs, the plans), grouped and searchable. NOTES.md is the decisions log; REVIEW.md holds your notes for Claude; a QUESTIONS file can be answered with one click. Edit anything in VS Code.',
+        'Search, or open a doc.'));
+    var q = input('search', '', 'Search every doc (at least 2 letters)');
+    q.className += ' st-input--wide';
+    var results = el('div', 'st-board');
+    var lists = el('div');
+    add(s, q, results, lists);
+    var tmr = null;
+    q.addEventListener('input', function () {
+      clearTimeout(tmr);
+      tmr = setTimeout(function () {
+        results.textContent = '';
+        if (q.value.trim().length < 2) { lists.hidden = false; return; }
+        lists.hidden = true;
+        call('docs-search', { project: id, q: q.value }).then(function (r) {
+          if (!r.hits.length) results.appendChild(el('p', 'st-empty', 'No matches.'));
+          r.hits.forEach(function (h) {
+            var a = el('a', 'st-cue');
+            a.href = P + '/doc/' + encodeURIComponent(h.path);
+            add(a, el('span', 'st-cue-t', 'line ' + h.line), add(el('span', 'st-cue-x'), el('b', null, h.title + ' '), document.createTextNode(h.text)));
+            results.appendChild(a);
+          });
+        });
+      }, 250);
+    });
+    function group(title, docs, groups) {
+      var box = el('div');
+      groups.forEach(function (g) {
+        var mine = docs.filter(function (d) { return d.group === g; });
+        if (!mine.length) return;
+        box.appendChild(el('div', 'st-note st-notes-h', title + ' · ' + g + ' (' + mine.length + ')'));
+        var rows = el('div', 'st-rows');
+        mine.forEach(function (d) {
+          var a = el('a', 'st-doc-row');
+          a.href = P + '/doc/' + encodeURIComponent(d.path);
+          add(a, el('b', null, d.title), el('span', 'st-note', d.path.replace(/^projects\/[^/]+\//, '') + ' · ' + when(d.mtime)), el('span', 'go', '→'));
+          rows.appendChild(a);
+        });
+        box.appendChild(rows);
+      });
+      return box;
+    }
+    call('docs', { project: id }).then(function (r) {
+      add(lists, group('This project', r.project, DOC_GROUPS), group('The studio', r.studio, STUDIO_GROUPS));
+    }).catch(function (err) { lists.appendChild(el('p', 'st-empty', err.message)); });
+    return [s];
+  }
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast('Copied.'); });
+    else window.prompt('Copy:', text);
   }
 
   function docsList(id, m) {
@@ -1605,12 +1669,31 @@
 
   function viewDoc(id, path) {
     var name = baseName(path);
-    return Promise.all([getManifest(id), call('text', { project: id, path: path }, 'text'), loadEvents(id)]).then(function (r) {
+    // A project file comes through the project's text endpoint; a studio doc (AGENTS.md, a brief, a plan) through its own.
+    var text = path.indexOf('projects/') === 0 ? call('text', { project: id, path: path }, 'text') : call('studio-doc', { path: path }, 'text');
+    return Promise.all([getManifest(id), text, loadEvents(id)]).then(function (r) {
       var m = r[0], text = r[1], events = r[2];
-      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: '#/p/' + encodeURIComponent(id) }, { text: name }]);
+      setCrumbs([{ text: 'Studio', href: '#/' }, { text: m.name, href: '#/p/' + encodeURIComponent(id) }, { text: 'Docs', href: '#/p/' + encodeURIComponent(id) + '/docs' }, { text: name }]);
       var s = section('§ — ' + path.toUpperCase());
-      if (/QUESTIONS/i.test(path)) add(s, questions(id, path, text, events));
-      else add(s, md(text));
+      if (LOCAL && REPO_ROOT) {
+        var open = el('a', 'st-link st-link--teal', 'Open in VS Code →');
+        open.href = 'vscode://file/' + REPO_ROOT + '/' + path;
+        s.appendChild(add(el('div', 'st-toolbar'), open, button('st-link', 'Copy path', function () { copyText(path); })));
+      }
+      var body;
+      if (/QUESTIONS/i.test(path)) body = questions(id, path, text, events);
+      else if (/\.txt$/i.test(path)) body = el('pre', 'st-pre st-script', text);
+      else body = md(text);
+      // A table of contents when the doc has enough headings to need one.
+      var heads = Array.prototype.slice.call(body.querySelectorAll ? body.querySelectorAll('.st-md-h') : []);
+      if (heads.length > 3) {
+        var toc = add(el('nav', 'st-toc'), el('div', 'st-rail-h', 'On this page'));
+        heads.forEach(function (h) {
+          if (h.tagName === 'H5') return;
+          toc.appendChild(button('st-toc-link st-toc-' + h.tagName.toLowerCase(), h.textContent, function () { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+        });
+        s.appendChild(add(el('div', 'st-doc'), toc, body));
+      } else s.appendChild(body);
       show([s]);
     }, function (e) {
       if (e instanceof NeedKey) throw e;
@@ -1908,6 +1991,6 @@
   });
   lastHash = location.hash;
   // Locally, learn whether the in-studio chat is on before the first page draws.
-  if (LOCAL) call('config').then(function (c) { CHAT_ON = c.chat === true; }, function () {}).then(route);
+  if (LOCAL) call('config').then(function (c) { CHAT_ON = c.chat === true; REPO_ROOT = c.root || ''; }, function () {}).then(route);
   else route();
 })();
