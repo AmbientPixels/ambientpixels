@@ -569,7 +569,7 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
       if (c.frequency && c.cadence) {
         limitsInfo += ', frequency: ' + c.frequency + '×/' + c.cadence + '/platform';
         // Show throttle window status
-        const _fCadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+        const _fCadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
         const _fBasePeriod = _fCadenceMs[c.cadence] || 0;
         const _fThrottle = c.frequency > 1 ? Math.floor(_fBasePeriod / c.frequency) : _fBasePeriod;
         if (_fThrottle > 0 && linked) {
@@ -579,7 +579,7 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
           else limitsInfo += ' (slot available)';
         }
       } else if (c.cadence) {
-        const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+        const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
         const _window = _cadenceMs[c.cadence] || 0;
         if (_window > 0 && linked) {
           const _now = Date.now();

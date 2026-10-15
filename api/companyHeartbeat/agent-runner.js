@@ -59,6 +59,13 @@ function _pausedProductIn() {
   var m = Array.prototype.join.call(arguments, ' ').match(_PAUSED_PRODUCT_RE);
   return m ? m[0] : null;
 }
+// A campaign with heroImage === false publishes its posts type-only: no Pixel hero task is
+// spawned and submit-for-publish does not wait for one (Monthly Journal, 2026-10-15; Pixel dormant).
+function _campaignSkipsHero(campaignId, campaigns) {
+  if (!campaignId) return false;
+  var c = (campaigns || []).find(function (x) { return x && x.id === campaignId; });
+  return !!(c && c.heroImage === false);
+}
 var _founderVoice = {};
 try { _founderVoice = require('../_data/founder-voice-examples.json'); } catch (_) {}
 
@@ -1597,7 +1604,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // With frequency: subdivide cadence period (e.g. 3×/week → throttle = 7d/3 = ~2.3d)
         // Without frequency: one task per cadence period (legacy behavior)
         if (_parentCmp.cadence) {
-          var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+          var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
           var _basePeriod = _cadenceMs[_parentCmp.cadence] || 0;
           var _cadenceWindow = _basePeriod;
           if (_parentCmp.frequency && _parentCmp.frequency > 1 && _basePeriod > 0) {
@@ -2534,7 +2541,7 @@ Write the full deliverable first, then the structured JSON block.`;
                     t.assignee === 'pixel' && t.status !== 'done' &&
                     (t.title === _etHeroTitle || (t.description && t.description.indexOf(_etDocId) !== -1))
                   );
-                  if (!_etHeroExists && !_etSourceAutoCreated) {
+                  if (!_etHeroExists && !_etSourceAutoCreated && !_campaignSkipsHero(_etDoc.campaign_id, activeDirectives)) {
                     const _etHeroTask = {
                       id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
                       title: _etHeroTitle,
@@ -4357,7 +4364,8 @@ Write the full deliverable first, then the structured JSON block.`;
         // SPAWN GUARD: do not spawn hero tasks from auto-created source tasks (prevents auto→auto chains)
         const _cdSourceTask = action.taskId ? tasks.find(t => t.id === action.taskId) : null;
         const _cdSourceAutoCreated = _cdSourceTask && _cdSourceTask.tags && _cdSourceTask.tags.indexOf('auto-created') !== -1;
-        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe' && !_cdSourceAutoCreated) {
+        const _cdTypeOnly = VISUAL_DOC_KINDS.indexOf(kind) !== -1 && _campaignSkipsHero(doc.campaign_id, activeDirectives);
+        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe' && !_cdSourceAutoCreated && !_cdTypeOnly) {
           // Only Scribe-created visual docs trigger hero image tasks (prevents ops/engineering docs from spawning hero tasks)
           // FIX 5: Stronger dedup — check by title substring match, not just exact title or doc ID
           // Prevents multiple hero tasks when the same blog post has multiple doc records
@@ -4432,6 +4440,17 @@ Write the full deliverable first, then the structured JSON block.`;
           }
 
           context.log('[Heartbeat]', agentId, 'visual doc created — deferred publish, awaiting Pixel hero image:', doc.id, doc.title);
+        } else if (_cdTypeOnly) {
+          // Type-only campaign: stays a public draft (not the internal-wiki branch below), no hero task.
+          if (action.taskId) {
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: 'Doc created (' + doc.id + '). This campaign publishes without a hero image: submit it for publish when it is ready.',
+              agentId: 'system'
+            });
+          }
+          context.log('[Heartbeat]', agentId, 'visual doc created — type-only campaign, no hero image:', doc.id, doc.title);
         } else {
           // Internal doc kinds (spec, runbook, release_notes, governance) — wiki-style, immediately available
           doc.visibility = 'internal';
@@ -4526,7 +4545,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
           // Hard guardrail: BLOCK submit-for-publish on visual doc kinds without hero image
           const VISUAL_KINDS = ['marketing_post', 'product_brief'];
-          if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id) {
+          if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id && !_campaignSkipsHero(doc.campaign_id, activeDirectives)) {
             context.log('[Heartbeat]', agentId, 'BLOCKED submit-for-publish on', doc.kind, 'doc without hero_image_asset_id:', doc.id, doc.title, '— waiting for Pixel hero image');
             docsStore[docIdx].missing_hero_image = true;
             await storage.setState('documents', docsStore);
@@ -5878,7 +5897,7 @@ Write the full deliverable first, then the structured JSON block.`;
         rationale: (_pc.rationale || '').substring(0, 500),
         platforms: Array.isArray(_pc.platforms) ? _pc.platforms.slice(0, 5) : [],
         frequency: Number.isFinite(_pc.frequency) ? _pc.frequency : 2,
-        cadence: ['daily', 'weekly', 'biweekly'].indexOf(_pc.cadence) !== -1 ? _pc.cadence : 'weekly',
+        cadence: ['daily', 'weekly', 'biweekly', 'monthly'].indexOf(_pc.cadence) !== -1 ? _pc.cadence : 'weekly',
         duration: (_pc.duration || '').substring(0, 50),
         product: (_pc.product || '').substring(0, 50),
         kpiTarget: (_pc.kpiTarget || '').substring(0, 200),

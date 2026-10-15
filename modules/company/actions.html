@@ -1598,7 +1598,7 @@
       html += '</select></div>';
       html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">';
       html += _pinput('pe_frequency', 'Frequency (per period)', p.frequency, { type: 'number' });
-      html += _pinput('pe_cadence', 'Cadence', p.cadence || 'weekly', { select: ['daily', 'weekly', 'biweekly'] });
+      html += _pinput('pe_cadence', 'Cadence', p.cadence || 'weekly', { select: ['daily', 'weekly', 'biweekly', 'monthly'] });
       html += _pinput('pe_duration', 'Duration', p.duration);
       html += _pinput('pe_product', 'Product', p.product);
       html += '</div>';

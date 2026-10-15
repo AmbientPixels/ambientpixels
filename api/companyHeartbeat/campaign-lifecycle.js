@@ -5,7 +5,7 @@ const { normalizeCampaignRef } = require('../_shared/campaignMatcher');
 
 var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_reddit', 'social_facebook', 'social_instagram', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
 
-var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
 var _taskTypeToAgent = {
   blog_post: 'scribe', social_linkedin: 'echo', social_bluesky: 'echo',
   social_x: 'echo', social_facebook: 'echo', social_instagram: 'echo', design_asset: 'pixel',
@@ -50,7 +50,7 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog, log 
     if (c.maxTasks !== undefined && c.maxTasks !== null && typeof c.maxTasks !== 'number') { c.maxTasks = parseInt(c.maxTasks, 10) || null; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
     if (c.frequency !== undefined && c.frequency !== null && typeof c.frequency !== 'number') { c.frequency = parseInt(c.frequency, 10) || null; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
     if (c.frequency && c.frequency < 1) { c.frequency = 1; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
-    if (c.cadence && ['daily', 'weekly', 'biweekly'].indexOf(c.cadence) === -1) { c.cadence = null; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
+    if (c.cadence && ['daily', 'weekly', 'biweekly', 'monthly'].indexOf(c.cadence) === -1) { c.cadence = null; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
     if (c.endDate && isNaN(new Date(c.endDate).getTime())) { c.endDate = null; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
     if (c.startDate && isNaN(new Date(c.startDate).getTime())) { c.startDate = null; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
     if (c.autoComplete !== undefined && typeof c.autoComplete !== 'boolean') { c.autoComplete = c.autoComplete !== false && c.autoComplete !== 'false'; campaignsChanged = true; if (c.id) campaignsTouched.add(c.id); }
@@ -206,7 +206,7 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog, log 
 
     const label = _taskTypeLabels[chosenType] || chosenType.replace(/_/g, ' ');
     const assignee = _taskTypeToAgent[chosenType] || 'echo';
-    const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5 };
+    const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5, monthly: 7 };
     const _dueDays = _cadenceDays[c.cadence] || 3;
 
     // Daily Pulse: ground the post in that day's real dispatch (dailyLog) so it summarizes what

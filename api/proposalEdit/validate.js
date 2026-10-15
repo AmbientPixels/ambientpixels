@@ -7,7 +7,7 @@
 // silently coerced or omitted so a typo never rejects the whole save.
 
 var VALID_SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky'];
-var VALID_CADENCE = ['daily', 'weekly', 'biweekly'];
+var VALID_CADENCE = ['daily', 'weekly', 'biweekly', 'monthly'];
 
 function _str(v) { return v == null ? '' : String(v); }
 function _clampStr(v, max) { return _str(v).slice(0, max); }

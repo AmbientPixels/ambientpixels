@@ -2494,7 +2494,7 @@ var AgentEngine = (function () {
     });
 
     // Cadence-aware progress: use primary task counts against cadence target
-    var cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+    var cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
     var expectedTotal = primaryTotal; // fallback to primary task count
     var expectedByNow = 0;
     var campaignEnded = false;

@@ -23,8 +23,8 @@
 // this module CAN be wrong in the expensive direction if it drifts from the gates, which is
 // exactly why the mirror warning is here and why closureReason is pure and unit-tested.
 
-var CADENCE_MS = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
-var CADENCE_DAYS = { daily: 1, weekly: 7, biweekly: 14 };
+var CADENCE_MS = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
+var CADENCE_DAYS = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
 
 /** Pure. Campaign tasks that count toward caps and cadence (auto-created children do not). */
 function countableTasks(tasks, campaignId) {
