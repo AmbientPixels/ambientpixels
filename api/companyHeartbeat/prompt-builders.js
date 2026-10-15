@@ -312,7 +312,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers, parkedPendingCount, campaignAvailabilityBlock } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers, parkedPendingCount, campaignAvailabilityBlock, videoDeskBlock, releasesBlock } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1911,7 +1911,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${progressionSection}${productLifecycleSection}${proposalSection}${costSection}${forgeOpsSection}${fleetHealthSection}${emergenceSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${progressionSection}${productLifecycleSection}${proposalSection}${releasesBlock || ''}${videoDeskBlock || ''}${costSection}${forgeOpsSection}${fleetHealthSection}${emergenceSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -2730,6 +2730,8 @@ DELIVERABLE QUALITY — NO PREAMBLE:
         recentActivity: (recentActivityBlock || '').length,
         founderVoice: (founderVoiceBlock || '').length,
         messages: (messagesBlock || '').length,
+        releases: (releasesBlock || '').length,
+        videoDesk: (videoDeskBlock || '').length,
         directive: (directiveBlock || '').length,
         workspace: (typeof workspaceSection === 'string' ? workspaceSection : '').length,
         tasks: ((taskList || '').length + (otherTasks || '').length + (reviewableTasks || '').length)

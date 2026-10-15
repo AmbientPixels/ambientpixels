@@ -41,6 +41,7 @@ const { isPlaceholderText } = require('./memory-select');
 const { validateBet, checkBetKeyAgainst, newestEvidenceAsOf } = require('./bet-schema');
 const { appendDecision } = require('./_utils/decisionLog');
 const { buildCampaignAvailabilityBlock } = require('./_utils/campaignAvailability');
+const videoDesk = require('./video-desk'); // Video Desk: suggest-video gates + the VIDEO DESK / RECENT RELEASES blocks
 const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId } = require('../proposalDecide/materialize');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
 const { evaluateDocQualityGate } = require('./doc-quality-gate'); // shared blog/long-form fact-check decision
@@ -498,7 +499,23 @@ async function runAgentHeartbeat(ctx) {
     context.log('[Heartbeat]', agentId, 'campaign availability block failed (non-fatal):', String(_caErr).substring(0, 160));
   }
 
-  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount, campaignAvailabilityBlock: _campaignAvailabilityBlock };
+  // Video Desk (2026-10-14): Nova, Echo and Scout see what shipped (RECENT RELEASES) and, only when a real
+  // trigger exists or they have a ticket in flight, the VIDEO DESK block. Both are '' on any read failure.
+  let _videoDeskData = null, _videoDeskBlock = '', _releasesBlock = '';
+  if (videoDesk.VIDEO_AGENTS.indexOf(agentId) !== -1) {
+    try {
+      _videoDeskData = Object.assign({}, await videoDesk.loadVideoDeskData(storage), {
+        campaigns: (campaignCtx && campaignCtx.campaigns) || [],
+        ledger: (outcomeDigest && outcomeDigest.betLedger) || null
+      });
+      _releasesBlock = videoDesk.buildReleasesBlock(_videoDeskData.releases, Date.now());
+      _videoDeskBlock = videoDesk.buildVideoDeskBlock(agentId, _videoDeskData, Date.now());
+    } catch (_vdErr) {
+      context.log('[Heartbeat]', agentId, 'video desk block failed (non-fatal):', String(_vdErr).substring(0, 160));
+    }
+  }
+
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount, campaignAvailabilityBlock: _campaignAvailabilityBlock, videoDeskBlock: _videoDeskBlock, releasesBlock: _releasesBlock };
   let prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
@@ -5032,6 +5049,32 @@ Write the full deliverable first, then the structured JSON block.`;
           comment: '**Video request submitted for CEO approval** (id: `' + _vId + '`). Nothing is generated and nothing is charged until it is approved. Estimated cost ~$' + _videoEngine.VIDEO_COST_PER_CLIP + '.' });
       } catch (_vQueueErr) {
         context.log.warn('[Heartbeat] pixel generate-video queue failed (non-fatal):', _vQueueErr.message);
+      }
+
+    } else if (action.type === 'suggest-video' && action.video) {
+      // Video Desk (2026-10-14): a SUGGESTION to the human-run studio, never a render. Every limit is code
+      // (video-desk.js gates + studio/desk.js rules); the ticket waits on the studio's Desk for the CEO, whose
+      // decline reason comes back in this agent's VIDEO DESK block.
+      let _vtData = _videoDeskData;
+      if (!_vtData) { try { _vtData = Object.assign({}, await videoDesk.loadVideoDeskData(storage), { campaigns: (campaignCtx && campaignCtx.campaigns) || [], ledger: (outcomeDigest && outcomeDigest.betLedger) || null }); } catch (_) { _vtData = null; } }
+      const _vtGate = videoDesk.gateSuggestion(agentId, action.video, _vtData, Object.keys((productFacts && productFacts.products) || {}), Date.now());
+      if (!_vtGate.ok) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED suggest-video —', _vtGate.gate, _vtGate.reason);
+        await logEvent('policy-violation', agentId, 'suggest-video blocked: ' + _vtGate.reason, cycleId, { runId: cycleId, gate: _vtGate.gate });
+        continue;
+      }
+      try {
+        const _vt = await require('../studio/desk-store').fileFleetTicket(_vtGate.body, agentId, Date.now());
+        if (typeof _vt === 'string') {
+          context.log('[Heartbeat]', agentId, 'BLOCKED suggest-video — ticket invalid:', _vt);
+          await logEvent('policy-violation', agentId, 'suggest-video blocked: ' + _vt, cycleId, { runId: cycleId, gate: 'video_ticket_invalid' });
+          continue;
+        }
+        videoDesk.noteFiled(_vt);
+        context.log('[Heartbeat]', agentId, 'filed video ticket', _vt.id, _vt.title, '(' + _vt.trigger.type + ':' + _vt.trigger.ref + ')');
+        await logEvent('video-ticket', agentId, 'Suggested a video: ' + _vt.title, cycleId, { runId: cycleId, ticketId: _vt.id, trigger: _vt.trigger, format: _vt.format, mood: _vt.mood, product: _vt.product, wish: _vt.wish });
+      } catch (_vtErr) {
+        context.log.warn('[Heartbeat]', agentId, 'suggest-video failed (non-fatal):', String(_vtErr && _vtErr.message || _vtErr).substring(0, 200));
       }
 
     } else if (action.type === 'generate-image' && action.image) {

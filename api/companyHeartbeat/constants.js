@@ -331,7 +331,10 @@ const KNOWN_ACTION_TYPES = [
   // Orphan-goal adoption (Nova) — re-parent an existing campaign onto an
   // active objective. Reversible, auto-execute. Added 2026-07-28 with the
   // objective-consolidation hardening.
-  'link-campaign-to-objective'
+  'link-campaign-to-objective',
+  // Video Desk (2026-10-14): Nova, Echo and Scout suggest a video to the studio. Gated in code
+  // (companyHeartbeat/video-desk.js); the ticket lands on the studio's Desk for the CEO.
+  'suggest-video'
 ];
 
 // ── Agentic proposal generation (System: dynamic agent proposals) ──
