@@ -32,29 +32,13 @@ const catalog = () => ({
 });
 
 module.exports = {
-  // GET desk — every video request on the company board (newest first), the catalogue labels, and the demand ledger.
+  // GET desk (worker) — every video request on the company board (newest first), the catalogue labels, and the demand
+  // ledger (the PC writes DEMAND.md from it).
   async list(context, req, reply) {
     const requests = await readRequests();
     if (!requests) return reply(context, 503, { error: 'the task board could not be read' });
     requests.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
     reply(context, 200, { requests, catalog: catalog(), load: { open: D.fleetLoad(requests).open }, demand: D.demand(requests) });
-  },
-
-  // GET desk-releases — the release log (newest first) and the watcher's last runs.
-  async releases(context, req, reply) {
-    const read = await storage.getStateWithMeta(W.STATE_KEY);
-    if (read.failed) return reply(context, 503, { error: 'release log unavailable' });
-    const state = Object.assign(W.emptyState(), read.value || {});
-    reply(context, 200, { entries: state.entries.slice(-60).reverse(), runs: state.runs.slice(-3).reverse(), watermark: state.watermark });
-  },
-
-  // POST desk-release-status {id, status: unreviewed|confirmed|hidden} — Hide corrects a wrong entry.
-  async releaseStatus(context, req, reply) {
-    const b = body(req);
-    const who = req.studioRole === 'worker' ? 'chad (studio)' : 'chad (web)';
-    const r = await W.editReleaseLog(storage, (state) => W.setEntryStatus(state, String(b.id || ''), String(b.status || ''), who, Date.now()));
-    if (r.error) return reply(context, r.status || 400, { error: r.error });
-    reply(context, 200, { ok: true, entry: r.entry });
   },
 
   // GET desk-sync (worker) — the accepted requests the department is working on.

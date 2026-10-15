@@ -578,20 +578,3 @@ h4.st-md-h, h5.st-md-h { font-size: 17px; }
   .st-job-head { grid-template-columns: 1fr; gap: var(--sp-1); }
 }
 
-/* ---- Video Desk: tickets from the fleet, rules not cards ---- */
-.st-tickets { border-top: 1px solid var(--color-border); }
-.st-ticket { padding: var(--sp-6) var(--sp-2); border-bottom: 1px solid var(--color-border); }
-.st-ticket-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-4); }
-.st-ticket-title { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 26px; letter-spacing: var(--tracking-tight); margin: var(--sp-2) 0; }
-.st-ticket-line { font-size: var(--fs-body-sm); margin: 0 0 var(--sp-2); max-width: 760px; overflow-wrap: anywhere; }
-.st-ticket-line b { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: .7; }
-.st-ticket-wish { color: var(--color-text-secondary); }
-.st-ticket .st-table { margin: var(--sp-3) 0 var(--sp-4); }
-.st-ticket-acts { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-3) var(--sp-4); padding-top: var(--sp-2); }
-@media (max-width: 760px) {
-  .st-ticket-title { font-size: 21px; }
-  .st-ticket .st-table { display: block; overflow-x: auto; }
-  .st-need .st-ticket-acts { grid-column: 1 / -1; padding-top: 0; }
-}
-.st-demand { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0 var(--sp-8); }
-@media (max-width: 760px) { .st-demand .st-table { display: block; overflow-x: auto; } }

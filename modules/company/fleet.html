@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <link rel="stylesheet" href="/modules/company/css/fleet-video.css" />
   <style>
     .fl-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
     .fl-section h2 { font-size: var(--c-text-base); margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
@@ -164,7 +165,7 @@
     <div class="company-header">
       <div>
         <h1><i class="fas fa-users-gear co-icon-mr-lg dash-icon-amber"></i>Fleet</h1>
-        <p class="act-header-sub">Agent roster, lifecycle proposals, identity evolution. Forge proposes; CEO approves.</p>
+        <p class="act-header-sub">Agent roster, the Video department, lifecycle proposals, identity evolution. Forge proposes; CEO approves.</p>
       </div>
     </div>
 
@@ -180,6 +181,20 @@
       <div class="sys-section-body">
         <div class="fl-section" data-section="roster">
           <div id="fl-roster"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-section" id="fl-video-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-film"></i>
+        <strong>VIDEO DEPARTMENT</strong>
+        <span class="sys-count" id="fl-video-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="fl-section" data-section="video">
+          <div id="fl-video"></div>
         </div>
       </div>
     </div>
@@ -786,6 +801,7 @@
     });
   })();
   </script>
+  <script src="/modules/company/js/fleet-video.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
 </body>

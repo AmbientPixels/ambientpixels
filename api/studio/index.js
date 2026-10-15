@@ -11,8 +11,7 @@
 //                                      GET  jobs?project=     POST job | job-cancel
 //   worker   (x-studio-worker-token)   POST heartbeat | manifest | upload-url | ack
 //                                      GET  files?project= | inbox?project= | job-next     POST job-update
-//   either                             GET  desk | desk-releases   POST desk-release-status   (Video department)
-//   worker                             GET  desk-sync              POST desk-comment          (desk-routes.js)
+//   worker                             GET  desk | desk-sync      POST desk-comment          (Video department, desk-routes.js)
 //
 // The inbox is how decisions reach the PC: one small JSON blob per event, collected by the worker, written into
 // the project's feedback/ files, then acked (deleted here).
@@ -250,11 +249,9 @@ const ROUTES = {
   'POST heartbeat': ['worker', worker.heartbeat], 'POST manifest': ['worker', worker.manifest],
   'POST upload-url': ['worker', worker['upload-url']], 'POST ack': ['worker', worker.ack],
   'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox],
-  // Video department: requests are company tasks; Chad decides on the company board. The website (Chad's key) and
-  // the PC read them; only the PC (the department) comments on them.
-  'GET desk': ['either', desk.list], 'GET desk-releases': ['either', desk.releases],
-  'POST desk-release-status': ['either', desk.releaseStatus],
-  'GET desk-sync': ['worker', desk.sync], 'POST desk-comment': ['worker', desk.comment]
+  // Video department: requests are company tasks; Chad decides on the company board and sees the department on
+  // the HQ Fleet page. The PC (the department) reads its requests and speaks in their threads.
+  'GET desk': ['worker', desk.list], 'GET desk-sync': ['worker', desk.sync], 'POST desk-comment': ['worker', desk.comment]
 };
 
 module.exports = async function (context, req) {

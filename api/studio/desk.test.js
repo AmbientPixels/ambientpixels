@@ -125,17 +125,18 @@ function onBoard(request, over) {
     return context.res;
   }
   await t('department routes: no credentials configured -> 403', async () => {
-    for (const [m, a] of [['GET', 'desk'], ['GET', 'desk-releases'], ['POST', 'desk-release-status'], ['GET', 'desk-sync'], ['POST', 'desk-comment']]) {
+    for (const [m, a] of [['GET', 'desk'], ['GET', 'desk-sync'], ['POST', 'desk-comment']]) {
       assert.strictEqual((await call(m, a, { 'x-studio-key': 'guess', 'x-studio-worker-token': 'guess' })).status, 403, a);
     }
   });
   await t('the old ticket routes are gone', async () => {
-    for (const [m, a] of [['POST', 'desk-decide'], ['POST', 'desk-ticket'], ['POST', 'desk-release'], ['POST', 'desk-release-url'], ['POST', 'desk-update']]) {
+    for (const [m, a] of [['POST', 'desk-decide'], ['POST', 'desk-ticket'], ['POST', 'desk-release'], ['POST', 'desk-release-url'], ['POST', 'desk-update'], ['GET', 'desk-releases'], ['POST', 'desk-release-status']]) {
       assert.strictEqual((await call(m, a)).status, 404, a);
     }
   });
   process.env.STUDIO_ACCESS_KEY = 'op-key'; process.env.STUDIO_WORKER_TOKEN = 'wk-token';
-  await t('only the PC (the department) comments on requests', async () => {
+  await t('only the PC (the department) reads and comments on requests', async () => {
+    assert.strictEqual((await call('GET', 'desk', { 'x-studio-key': 'op-key' })).status, 403);
     assert.strictEqual((await call('GET', 'desk-sync', { 'x-studio-key': 'op-key' })).status, 403);
     assert.strictEqual((await call('POST', 'desk-comment', { 'x-studio-key': 'op-key' })).status, 403);
   });
