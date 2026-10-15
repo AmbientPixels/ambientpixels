@@ -553,7 +553,7 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
       // Derive effective maxTasks from frequency if not explicitly set
       var _promptMaxTasks = c.maxTasks || null;
       if (!_promptMaxTasks && c.frequency && c.cadence) {
-        var _pmCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+        var _pmCadenceDays = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
         var _pmPeriodDays = _pmCadenceDays[c.cadence] || 7;
         var _pmSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
         var _pmPlatformCount = _pmSocialTypes.length || 1;

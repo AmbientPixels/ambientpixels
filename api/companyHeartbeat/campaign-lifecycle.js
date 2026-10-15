@@ -93,7 +93,7 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog, log 
     if (cmpTasks.length === 0) continue;
     var _acMaxTasks = (c.maxTasks && typeof c.maxTasks === 'number') ? c.maxTasks : null;
     if (!_acMaxTasks && c.frequency && c.cadence) {
-      var _acCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+      var _acCadenceDays = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
       var _acPeriodDays = _acCadenceDays[c.cadence] || 7;
       var _acSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
       var _acPlatformCount = _acSocialTypes.length || 1;

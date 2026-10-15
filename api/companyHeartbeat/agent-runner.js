@@ -1575,7 +1575,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // Derive maxTasks from frequency when not explicitly set
         var _effectiveMaxTasks = (_parentCmp.maxTasks && typeof _parentCmp.maxTasks === 'number') ? _parentCmp.maxTasks : null;
         if (!_effectiveMaxTasks && _parentCmp.frequency && _parentCmp.cadence) {
-          var _fmCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+          var _fmCadenceDays = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
           var _fmPeriodDays = _fmCadenceDays[_parentCmp.cadence] || 7;
           var _fmSocialTypes = (Array.isArray(_parentCmp.allowedTaskTypes) ? _parentCmp.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
           var _fmPlatformCount = _fmSocialTypes.length || 1;
