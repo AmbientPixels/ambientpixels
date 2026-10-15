@@ -20,7 +20,7 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const VALID_LAYERS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
+const VALID_LAYERS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10'];
 const REDACT_KEY_RE = /token|secret|key|authorization|password/i;
 
 function toIsoOrNull(ts) {
@@ -177,6 +177,7 @@ function buildLayerRecords(data) {
   const runtimeMemory = data.runtimeMemory || {};
   const weeklyReports = data.weeklyReports || {};
   const digest = data.siteDigest || null;
+  const videoCatalog = data.videoCatalog || null;
 
   const runtimeLatest = Math.max(
     Date.parse((runtimeMemory.socialIntel && runtimeMemory.socialIntel.asOfUtc) || '') || 0,
@@ -215,7 +216,7 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: null,
       description: 'Base agent voice/personality from company-agents.json',
-      order: '1/9',
+      order: '1/10',
       sourcePath: data.agentsSourcePath || ''
     },
     L2: {
@@ -238,7 +239,7 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: null,
       description: 'Strategic doctrine layer that biases decisions per agent',
-      order: '2/9',
+      order: '2/10',
       sourcePath: data.agentsSourcePath || ''
     },
     L3: {
@@ -254,7 +255,7 @@ function buildLayerRecords(data) {
       status: approxBytes(seedMem) > 2 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'CEO-curated seed memory (_global + per-agent)',
-      order: '3/9',
+      order: '3/10',
       sourcePath: 'blob:agentSeedMemories'
     },
     L4: {
@@ -273,7 +274,7 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: 2 * 60 * 60 * 1000,
       description: 'Live runtime memory buffers (agentMemories + runtimeMemory) — FIFO cap 50 per agent, per-type TTL 14–90d',
-      order: '4/9',
+      order: '4/10',
       sourcePath: 'blob:agentMemories+runtimeMemory'
     },
     L5: {
@@ -289,7 +290,7 @@ function buildLayerRecords(data) {
       status: wsMem.length > 0 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'Workspace notes and pinned CEO context',
-      order: '5/9',
+      order: '5/10',
       sourcePath: 'blob:workspaceMemory'
     },
     L6: {
@@ -305,7 +306,7 @@ function buildLayerRecords(data) {
       status: digest ? 'ok' : 'empty',
       staleThresholdMs: 24 * 60 * 60 * 1000,
       description: 'Generated site manifest digest injected at tail of prompt',
-      order: '6/9',
+      order: '6/10',
       sourcePath: data.digestSourcePath || ''
     },
     L7: {
@@ -321,7 +322,7 @@ function buildLayerRecords(data) {
       status: data.researchIntel.length > 0 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'CEO-approved research findings from Scout — available to all agents',
-      order: '7/9',
+      order: '7/10',
       sourcePath: 'blob:researchIntel'
     },
     L8: {
@@ -349,7 +350,7 @@ function buildLayerRecords(data) {
       status: (data.agentConfigs && Object.keys(data.agentConfigs).length > 0) ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'CEO-configured per-agent personality overrides, role/title overrides, and heartbeat settings',
-      order: '8/9',
+      order: '8/10',
       sourcePath: 'blob:agentConfigs'
     },
     L9: {
@@ -379,8 +380,24 @@ function buildLayerRecords(data) {
       // 7+ days without any agent filing a weekly report = archive is going stale
       staleThresholdMs: 7 * 24 * 60 * 60 * 1000,
       description: 'Nova/Cipher/Forge weekly report archive — rolling 12 reports per agent, written via cadence prompt (Memory Phase 5)',
-      order: '9/9',
+      order: '9/10',
       sourcePath: 'blob:weeklyReports'
+    },
+    L10: {
+      id: 'L10',
+      name: 'Video Catalogue',
+      source: 'file',
+      scope: 'global',
+      payload: videoCatalog,
+      agentMap: null,
+      agentsCovered: videoCatalog ? 3 : 0,
+      lastUpdatedAt: toIsoOrNull(data.videoCatalogMtime),
+      sizeBytes: approxBytes(videoCatalog),
+      status: videoCatalog ? 'ok' : 'empty',
+      staleThresholdMs: null,
+      description: 'Formats, styles, moods and voices the video crew can make (Video Desk). Generated from ai-video-pipeline/catalog by tools/catalog/export.mjs; read by nova, echo and scout when they suggest a video',
+      order: '10/10',
+      sourcePath: 'api/_data/video-catalog.json'
     }
   };
 
@@ -414,6 +431,8 @@ function buildLayerRecords(data) {
       }
       continue;
     }
+    // L10: a missing catalogue must read empty, not ok — the fleet would be offered nothing.
+    if (r.id === 'L10') continue;
     if (r.source === 'file') {
       r.status = 'ok';
     }
@@ -502,6 +521,11 @@ async function loadLayerSources() {
   const siteDigest = digestFile.data || null;
   const siteDigestMtime = digestFile.mtimeMs || null;
 
+  // L10 lives inside the function bundle (api/_data), unlike data/, so no URL fallback is needed.
+  const catalogFile = readJsonFromCandidates([path.resolve(__dirname, '../_data/video-catalog.json')]);
+  const videoCatalog = catalogFile.data || null;
+  const videoCatalogMtime = catalogFile.mtimeMs || null;
+
   const agentSeedMemories = (await storage.getState('agentSeedMemories')) || {};
   const agentMemories = (await storage.getState('agentMemories')) || {};
   const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
@@ -523,7 +547,9 @@ async function loadLayerSources() {
     runtimeMemory,
     researchIntel,
     agentConfigs,
-    weeklyReports
+    weeklyReports,
+    videoCatalog,
+    videoCatalogMtime
   };
 }
 

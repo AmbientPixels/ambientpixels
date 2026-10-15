@@ -69,7 +69,9 @@
       L5: 'CEO notes/workspace memory injected as operational context.',
       L6: 'Generated site digest file injected near prompt tail.',
       L7: 'CEO-approved research findings from Scout — available to all agents.',
-      L8: 'CEO-configured per-agent personality overrides, role/title overrides, and heartbeat settings.'
+      L8: 'CEO-configured per-agent personality overrides, role/title overrides, and heartbeat settings.',
+      L9: 'Weekly report archive for Nova, Cipher and Forge, rolling 12 per agent.',
+      L10: 'Video catalogue: the formats, styles, moods and voices the video crew can make.'
     };
     return map[layerId] || 'Memory layer.';
   }
@@ -702,9 +704,9 @@
 
     var key = evt.key;
 
-    // 1-6: select layer
-    if (key >= '1' && key <= '8') {
-      var idx = parseInt(key, 10) - 1;
+    // 1-9 select L1-L9, 0 selects L10
+    if (key >= '0' && key <= '9') {
+      var idx = key === '0' ? 9 : parseInt(key, 10) - 1;
       if (state.layers[idx]) {
         selectLayerById(state.layers[idx].id);
       }
