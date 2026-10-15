@@ -1972,7 +1972,6 @@
   // with the studio key, the PC through its worker token. Nothing here makes a video; accepting puts it on the Board.
   var TRIGGER_LABEL = { release: 'A release', bet_won: 'A bet that won', bet_scale: 'A bet ready to scale', campaign_launch: 'A new campaign', crew_request: 'The crew asked', manual: 'Your idea' };
   var DESK_STATUS = { proposed: 'Waiting', accepted: 'Accepted', scripting: 'Script', in_production: 'In production', review: 'Review', released: 'Released', declined: 'Declined', dropped: 'Dropped', open: 'Open', taken: 'Taken', done: 'Done' };
-  var CREW_KINDS = [['claims_check', 'Check claims (Quill)'], ['research', 'Research (Scout)'], ['launch_posts', 'Launch posts (Echo)'], ['other', 'Something else (Nova)']];
 
   function deskPost(action, body) { return request('POST', action, null, body); }
   function labelOf(list, id) { var x = (list || []).filter(function (i) { return i.id === id; })[0]; return x ? (x.name || x.id) : id; }
@@ -2037,37 +2036,10 @@
     return row(href, pad2(i + 1), t.title + '.', meta, DESK_STATUS[t.status] || t.status, done ? 'ap-status--archive' : t.status === 'released' ? '' : 'ap-status--beta');
   }
 
-  function crewForm(d, reload) {
-    var form = el('form', 'st-job-form');
-    form.noValidate = true;
-    var kind = select(CREW_KINDS, 'claims_check');
-    var title = input('text', '', 'Check the 03 teardown claims');
-    var proj = select([['', '—']].concat(d.projects.map(function (p) { return [p, p]; })), 'ambientpixels');
-    var video = input('text', '', '03-teardown');
-    var text = el('textarea', 'st-input st-input--wide');
-    text.rows = 3;
-    text.placeholder = 'What you need from the fleet, and where to find it.';
-    var status = el('span', 'st-note');
-    var go = el('button', 'ap-btn ap-btn--primary st-run', 'Send to the fleet →');
-    go.type = 'submit';
-    var details = field('Details', text);
-    details.classList.add('st-field--full');
-    add(form, field('Ask', kind), field('Title', title), field('Project', proj), field('Video (optional)', video),
-      details, add(el('div', 'st-toolbar'), go, status));
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      go.disabled = true;
-      deskPost('desk-ticket', { direction: 'crew', kind: kind.value, title: title.value, text: text.value, project: proj.value, video: video.value.trim() })
-        .then(function () { flash(status, 'Sent. The fleet picks it up on its next run.'); setTimeout(reload, 800); })
-        .catch(function (err) { go.disabled = false; flash(status, err.message); });
-    });
-    return form;
-  }
 
   function releaseRow(e, reload) {
     var r = el('div', 'st-need');
     var actions = el('span', 'st-ticket-acts');
-    if (e.status !== 'confirmed') actions.appendChild(button('st-tab', 'Confirm', function () { deskPost('desk-release-status', { id: e.id, status: 'confirmed' }).then(reload, function (x) { alert(x.message); }); }));
     if (e.status !== 'hidden') actions.appendChild(button('st-tab', 'Hide', function () { deskPost('desk-release-status', { id: e.id, status: 'hidden' }).then(reload, function (x) { alert(x.message); }); }));
     var kind = e.significance === 'major' ? 'st-need-kind st-need-kind--review' : 'st-need-kind';
     return add(r, el('span', kind, e.significance + ' · ' + e.kind),
@@ -2076,27 +2048,6 @@
       actions, el('span'));
   }
 
-  function releaseForm(d, reload) {
-    var form = el('form', 'st-job-form');
-    form.noValidate = true;
-    var product = select(d.products.map(function (p) { return [p, p]; }), d.products[0]);
-    var title = input('text', '', 'Teardown reports now open in one click');
-    var kind = select([['feature', 'Feature'], ['fix', 'Fix'], ['launch', 'Launch'], ['content', 'Content']], 'feature');
-    var sig = select([['minor', 'Minor'], ['major', 'Major (can start a video)']], 'minor');
-    var url = input('text', '', 'https://www.ambientpixels.ai/…');
-    var status = el('span', 'st-note');
-    var go = el('button', 'ap-btn ap-btn--primary st-run', 'Log the release →');
-    go.type = 'submit';
-    add(form, field('Product', product), field('What shipped', title), field('Kind', kind), field('Size', sig), field('Link (optional)', url), add(el('div', 'st-toolbar'), go, status));
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      go.disabled = true;
-      deskPost('desk-release', { product: product.value, title: title.value, kind: kind.value, significance: sig.value, url: url.value.trim() || undefined })
-        .then(function () { flash(status, 'Logged.'); setTimeout(reload, 600); })
-        .catch(function (err) { go.disabled = false; flash(status, err.message); });
-    });
-    return form;
-  }
 
   // What the fleet asks for, what you take, what ships, and what it wishes the studio could make: the data that
   // decides which kit or format to build next.
@@ -2113,7 +2064,7 @@
   }
   function demandSection(d) {
     var dm = d.demand || {};
-    var s = add(section('§ 05 — DEMAND'), guide('Every ticket is data about the pipeline: which formats and moods the fleet reaches for, which you take, which ship, and what it wished for that the studio cannot make yet. Wishes that keep coming back are the next kit to build.'));
+    var s = add(section('§ 04 — DEMAND'), guide('Every ticket is data about the pipeline: which formats and moods the fleet reaches for, which you take, which ship, and what it wished for that the studio cannot make yet. Wishes that keep coming back are the next kit to build.'));
     if (!dm.tickets) { s.appendChild(el('p', 'st-empty', 'No tickets yet. The first suggestions arrive when something ships, a bet wins or a campaign starts.')); return s; }
     var grid = el('div', 'st-demand');
     add(grid, demandTable('Format', dm.formats, d.catalog.formats), demandTable('Mood', dm.moods), demandTable('Product', dm.products), demandTable('Agent', dm.byAgent));
@@ -2187,20 +2138,23 @@
         add(s2, el('h3', 'st-notes-h', 'Closed'), rows3);
       }
 
-      var s3 = add(section('§ 03 — ASK THE FLEET'), guide('The crew can ask the marketing side for help: a claims check from Quill, research from Scout, launch posts from Echo when a video ships.'));
-      s3.appendChild(crewForm(d, reload));
-      var rows4 = el('div', 'st-rows');
-      crew.forEach(function (t, i) { rows4.appendChild(deskRow(t, i)); });
-      if (crew.length) s3.appendChild(rows4);
+      // Asks to the fleet are filed automatically (a released video's launch posts); shown only when there are any.
+      var s3 = null;
+      if (crew.length) {
+        s3 = add(section('§ 05 — ASKS TO THE FLEET'), guide('Filed automatically: when a video ships, Echo gets the launch posts. Nova hands each ask to its agent; the answer comes back here.'));
+        var rows4 = el('div', 'st-rows');
+        crew.forEach(function (t, i) { rows4.appendChild(deskRow(t, i)); });
+        s3.appendChild(rows4);
+      }
 
-      var s4 = add(section('§ 04 — RELEASES'), guide('What shipped, as the fleet sees it. The Release Watcher reads every deploy (03:20, 09:20, 15:20, 21:20 UTC) and logs product changes; studio and agent work never counts. Only major releases can start a video. Hide anything that is wrong.'));
+      var s4 = add(section('§ 03 — RELEASES'), guide('What shipped, logged automatically: the Release Watcher reads every deploy (03:20, 09:20, 15:20, 21:20 UTC); studio and agent work never counts. Only major releases can start a video. Hide an entry only if it is wrong.'));
       if (rel.runs && rel.runs[0]) s4.appendChild(el('p', 'st-note', 'Last check ' + when(rel.runs[0].at) + ': ' + rel.runs[0].commits + ' commits read, ' + rel.runs[0].added + ' new releases.'));
       var list = el('div', 'st-board');
       if (!rel.entries.length) list.appendChild(el('p', 'st-empty', 'No product releases logged yet.'));
       rel.entries.slice(0, 15).forEach(function (e) { list.appendChild(releaseRow(e, reload)); });
-      add(s4, list, el('h3', 'st-notes-h', 'Log a release by hand'), releaseForm(d, reload));
+      s4.appendChild(list);
 
-      show([s1, s2, s3, s4, demandSection(d)]);
+      show([s1, s2, s4, demandSection(d), s3].filter(Boolean));
     });
   }
 
