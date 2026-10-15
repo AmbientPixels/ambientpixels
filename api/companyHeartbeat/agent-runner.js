@@ -391,7 +391,10 @@ async function runAgentHeartbeat(ctx) {
   const _echoParked = t =>
     agentId === 'echo' &&
     (t._social_action_created === true || (t._social_action_attempts || 0) >= QGV.SOCIAL_ATTEMPTS_CAP);
-  const _agentTasksRaw = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived
+  // Canceled tasks are as finished as done ones. Measured 2026-10-14: Scribe carried 114 canceled
+  // (mostly expired Bluesky replies), which pushed its prompt over the degrade threshold; the
+  // degraded 12-slot list then went 10 of 12 to canceled August tasks and live copy tasks never showed.
+  const _agentTasksRaw = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && t.status !== 'canceled' && !t._archived
     && !(agentId !== 'nova' && t.status === 'backlog')
     && !(agentId === 'pixel' && t.status === 'review')
     && !_echoParked(t));
