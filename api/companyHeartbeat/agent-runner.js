@@ -46,6 +46,19 @@ const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
 const { evaluateDocQualityGate } = require('./doc-quality-gate'); // shared blog/long-form fact-check decision
 const _productFacts = require('../_data/product-facts.json');
+// Products the CEO has paused (product-facts status 'paused', 2026-10-15). Their pages stay live; the
+// fleet stops proposing campaigns or creating tasks for them. Matched on the product key or its spaced
+// form ("ResumeRoast" / "Resume Roast"), never a bare first word: Nova's own titles say "Resume action".
+const _PAUSED_PRODUCTS = Object.keys((_productFacts && _productFacts.products) || {})
+  .filter(function (k) { return _productFacts.products[k].status === 'paused'; });
+const _PAUSED_PRODUCT_RE = _PAUSED_PRODUCTS.length
+  ? new RegExp('\\b(' + _PAUSED_PRODUCTS.map(function (k) { return k.replace(/([a-z])([A-Z])/g, '$1\\s*$2'); }).join('|') + ')\\b', 'i')
+  : null;
+function _pausedProductIn() {
+  if (!_PAUSED_PRODUCT_RE) return null;
+  var m = Array.prototype.join.call(arguments, ' ').match(_PAUSED_PRODUCT_RE);
+  return m ? m[0] : null;
+}
 var _founderVoice = {};
 try { _founderVoice = require('../_data/founder-voice-examples.json'); } catch (_) {}
 
@@ -1516,6 +1529,15 @@ Write the full deliverable first, then the structured JSON block.`;
               activeCount: _activeResearch, cap: 5, title: (action.task.title || '').substring(0, 120) });
           continue;
         }
+      }
+
+      // SERVER-SIDE GUARD: no new work for a product the CEO has paused
+      var _ctPaused = _pausedProductIn(action.task.title, action.task.description);
+      if (_ctPaused) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-task: product paused by CEO (' + _ctPaused + '). Title:', action.task.title);
+        await logEvent('policy-violation', agentId, 'create-task blocked: product paused (' + _ctPaused + ')', cycleId,
+          { runId: cycleId, gate: 'product_paused', product: _ctPaused, title: (action.task.title || '').substring(0, 120) });
+        continue;
       }
 
       // SERVER-SIDE GUARD: block agents from creating hero image tasks — system auto-creates them
@@ -5705,6 +5727,13 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — missing campaign name');
         await logEvent('policy-violation', agentId, 'propose-campaign blocked: missing campaign name', cycleId,
           { runId: cycleId, gate: 'proposal_missing_fields', kind: 'campaign' });
+        continue;
+      }
+      var _pcPaused = _pausedProductIn(_pc.product, _pcName, _pc.description);
+      if (_pcPaused) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — product paused by CEO (' + _pcPaused + '):', _pcName);
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: product paused (' + _pcPaused + ')', cycleId,
+          { runId: cycleId, gate: 'product_paused', kind: 'campaign', product: _pcPaused, name: _pcName });
         continue;
       }
 

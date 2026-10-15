@@ -1713,6 +1713,11 @@ You must remain within your assigned authority tier. Doctrine influences your st
     var pfLines = ['\n📋 PRODUCT FACTS (use ONLY these when describing products — do NOT invent features):'];
     Object.keys(productFacts.products).forEach(function(pName) {
       var p = productFacts.products[pName];
+      if (p.status === 'paused') {
+        // The page stays live, so say what it is, but the fleet does no work for it.
+        pfLines.push('• ' + pName + ': ⏸ PAUSED by the CEO. Do not write about it, campaign for it, create tasks for it or propose bets on it. Its page stays live.');
+        return;
+      }
       pfLines.push('• ' + pName + ': ' + p.description);
       pfLines.push('  Features: ' + p.features.join(', '));
       pfLines.push('  ⛔ NOT: ' + p.notThis.join('; '));

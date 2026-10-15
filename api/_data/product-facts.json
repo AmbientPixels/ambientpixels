@@ -181,7 +181,7 @@
     },
     "ResumeRoast": {
       "launchedAt": "2026-08-04",
-      "status": "active",
+      "status": "paused",
       "description": "Free AI resume review with an ATS score, plus a $9 paid rewrite that returns the rewritten resume. Standalone product at /resume-roast/, branded under Pixel Agents.",
       "features": [
         "free AI resume roast with an ATS score — no signup required",
