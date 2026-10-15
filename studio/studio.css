@@ -595,3 +595,5 @@ h4.st-md-h, h5.st-md-h { font-size: 17px; }
   .st-ticket .st-table { display: block; overflow-x: auto; }
   .st-need .st-ticket-acts { grid-column: 1 / -1; padding-top: 0; }
 }
+.st-demand { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0 var(--sp-8); }
+@media (max-width: 760px) { .st-demand .st-table { display: block; overflow-x: auto; } }

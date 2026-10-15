@@ -26,7 +26,7 @@ module.exports = {
   async list(context, req, reply) {
     const tickets = await S.listTickets();
     const load = D.fleetLoad(tickets);
-    reply(context, 200, { tickets, catalog: catalog(), projects: L.hostedProjects(), products: PRODUCTS, load: { open: load.open } });
+    reply(context, 200, { tickets, catalog: catalog(), projects: L.hostedProjects(), products: PRODUCTS, load: { open: load.open }, demand: D.demand(tickets) });
   },
 
   // POST desk-decide {id, decision: accept|decline, reason, project}

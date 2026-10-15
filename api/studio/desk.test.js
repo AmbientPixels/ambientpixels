@@ -120,6 +120,24 @@ function good(over) {
     assert.match(ask.text, /A free scan scores 8 dimensions \(source: product-facts:AmbientScore\)/);
   });
 
+  await t('demand: counts per format, mood, agent and trigger; wishes counted; decline reasons kept', () => {
+    const a = D.cleanFleetTicket(good({ wish: { format: 'vertical-short', note: 'for Bluesky' } }), 'echo', NOW);
+    const b = D.cleanFleetTicket(good({ format: 'trailer', product: 'CardForge', mood: 'upbeat', wish: { format: 'Vertical-Short' } }), 'scout', NOW + 1);
+    const c = D.cleanFleetTicket(good(), 'nova', NOW + 2);
+    D.decide(a, { decision: 'accept' }, 'chad', NOW, ['ambientpixels']);
+    D.applyUpdate(a, { status: 'released' }, 'studio', NOW);
+    D.decide(b, { decision: 'decline', reason: 'No CardForge kit yet' }, 'chad', NOW);
+    const crew = D.cleanCrewTicket({ kind: 'research', title: 'xxxx', text: 'yyyyyyyyyyyy' }, 'x', NOW);
+    const dm = D.demand([a, b, c, crew]);
+    assert.strictEqual(dm.tickets, 3);
+    assert.deepStrictEqual(dm.formats.walkthrough, { asked: 2, accepted: 1, declined: 0, released: 1 });
+    assert.deepStrictEqual(dm.formats.trailer, { asked: 1, accepted: 0, declined: 1, released: 0 });
+    assert.strictEqual(dm.triggers.release.asked, 3);
+    assert.deepStrictEqual(dm.wishes[0], { what: 'format:vertical-short', n: 2 });
+    assert.strictEqual(dm.declines[0].reason, 'No CardForge kit yet');
+    assert.strictEqual(dm.byAgent.echo.released, 1);
+  });
+
   // Routes: refused before storage.
   delete process.env.STUDIO_ACCESS_KEY; delete process.env.STUDIO_WORKER_TOKEN; delete process.env.AZURE_STORAGE_CONNECTION_STRING;
   const handler = require('./index');

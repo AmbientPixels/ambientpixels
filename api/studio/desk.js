@@ -213,6 +213,53 @@ function launchAsk(t) {
   };
 }
 
+// The demand ledger: what the fleet asked for, what Chad took, what shipped, and what it wished the studio could
+// make. This is the data that decides which kits and formats the pipeline builds next (spec §4).
+function demand(tickets) {
+  const fleet = (tickets || []).filter((t) => t.direction === 'fleet');
+  const blank = () => ({ asked: 0, accepted: 0, declined: 0, released: 0 });
+  const tally = (get) => {
+    const out = {};
+    for (const t of fleet) {
+      const k = get(t);
+      if (!k) continue;
+      const row = out[k] || (out[k] = blank());
+      row.asked++;
+      if (t.status === 'declined') row.declined++;
+      else if (t.status !== 'proposed') row.accepted++;
+      if (t.status === 'released') row.released++;
+    }
+    return out;
+  };
+  const wishes = {};
+  for (const t of fleet) {
+    if (!t.wish) continue;
+    for (const k of ['format', 'mood', 'style']) {
+      if (!t.wish[k]) continue;
+      const key = k + ':' + String(t.wish[k]).toLowerCase().slice(0, 40);
+      wishes[key] = (wishes[key] || 0) + 1;
+    }
+  }
+  const byAgent = {};
+  for (const t of fleet) {
+    const row = byAgent[t.from] || (byAgent[t.from] = blank());
+    row.asked++;
+    if (t.status === 'declined') row.declined++; else if (t.status !== 'proposed') row.accepted++;
+    if (t.status === 'released') row.released++;
+  }
+  const declines = fleet.filter((t) => t.status === 'declined' && t.decision && t.decision.reason)
+    .map((t) => ({ at: t.decision.at, from: t.from, format: t.format, title: t.title, reason: t.decision.reason }))
+    .sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 20);
+  const notes = fleet.filter((t) => t.wish && t.wish.note).map((t) => ({ from: t.from, format: t.format, note: t.wish.note })).slice(0, 20);
+  return {
+    tickets: fleet.length,
+    formats: tally((t) => t.format), moods: tally((t) => t.mood), styles: tally((t) => t.style), products: tally((t) => t.product),
+    triggers: tally((t) => t.trigger && t.trigger.type), byAgent,
+    wishes: Object.entries(wishes).sort((a, b) => b[1] - a[1]).map(([k, n]) => ({ what: k, n })),
+    wishNotes: notes, declines,
+  };
+}
+
 // Counts the fleet-side gates need (phase 3): open fleet tickets, and each agent's newest ticket.
 function fleetLoad(tickets) {
   const open = tickets.filter((t) => t.direction === 'fleet' && FLEET_OPEN.includes(t.status));
@@ -228,5 +275,5 @@ function fleetLoad(tickets) {
 module.exports = {
   CATALOG, FLEET_STATUSES, FLEET_OPEN, CREW_STATUSES, TRIGGERS, CREW_KINDS, ID,
   formatIds, moodIds, styleIds, styleFor, validSource,
-  cleanFleetTicket, cleanCrewTicket, decide, applyUpdate, fleetLoad, setReleaseUrl, launchAsk,
+  cleanFleetTicket, cleanCrewTicket, decide, applyUpdate, fleetLoad, setReleaseUrl, launchAsk, demand,
 };

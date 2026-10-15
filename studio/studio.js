@@ -2098,6 +2098,42 @@
     return form;
   }
 
+  // What the fleet asks for, what you take, what ships, and what it wishes the studio could make: the data that
+  // decides which kit or format to build next.
+  function demandTable(title, rows, labels) {
+    var keys = Object.keys(rows || {});
+    if (!keys.length) return null;
+    var tbl = el('table', 'st-table');
+    add(tbl, add(el('tr'), el('th', null, title), el('th', null, 'Asked'), el('th', null, 'Taken'), el('th', null, 'Declined'), el('th', null, 'Released')));
+    keys.sort(function (a, b) { return rows[b].asked - rows[a].asked; }).forEach(function (k) {
+      var r = rows[k];
+      add(tbl, add(el('tr'), el('td', null, labels ? labelOf(labels, k) : k), el('td', null, String(r.asked)), el('td', null, String(r.accepted)), el('td', null, String(r.declined)), el('td', null, String(r.released))));
+    });
+    return tbl;
+  }
+  function demandSection(d) {
+    var dm = d.demand || {};
+    var s = add(section('§ 05 — DEMAND'), guide('Every ticket is data about the pipeline: which formats and moods the fleet reaches for, which you take, which ship, and what it wished for that the studio cannot make yet. Wishes that keep coming back are the next kit to build.'));
+    if (!dm.tickets) { s.appendChild(el('p', 'st-empty', 'No tickets yet. The first suggestions arrive when something ships, a bet wins or a campaign starts.')); return s; }
+    var grid = el('div', 'st-demand');
+    add(grid, demandTable('Format', dm.formats, d.catalog.formats), demandTable('Mood', dm.moods), demandTable('Product', dm.products), demandTable('Agent', dm.byAgent));
+    s.appendChild(grid);
+    if (dm.wishes && dm.wishes.length) {
+      add(s, el('h3', 'st-notes-h', 'Wishes (not makeable yet, or not asked for by name)'));
+      var wl = el('div', 'st-board');
+      dm.wishes.slice(0, 10).forEach(function (w) { wl.appendChild(add(el('div', 'st-cue'), el('span', 'st-cue-t', '×' + w.n), el('span', 'st-cue-x', w.what))); });
+      (dm.wishNotes || []).slice(0, 6).forEach(function (w) { wl.appendChild(add(el('div', 'st-cue'), el('span', 'st-cue-t', w.from), el('span', 'st-cue-x', '“' + w.note + '” (' + w.format + ')'))); });
+      s.appendChild(wl);
+    }
+    if (dm.declines && dm.declines.length) {
+      add(s, el('h3', 'st-notes-h', 'Why you said no'));
+      var dl = el('div', 'st-board');
+      dm.declines.slice(0, 8).forEach(function (x) { dl.appendChild(add(el('div', 'st-cue'), el('span', 'st-cue-t', when(x.at)), el('span', 'st-cue-x', x.from + ' · ' + x.format + ' · “' + x.reason + '”'))); });
+      s.appendChild(dl);
+    }
+    return s;
+  }
+
   function viewDesk() {
     setCrumbs([{ text: 'Desk' }]);
     target = app;
@@ -2164,7 +2200,7 @@
       rel.entries.slice(0, 15).forEach(function (e) { list.appendChild(releaseRow(e, reload)); });
       add(s4, list, el('h3', 'st-notes-h', 'Log a release by hand'), releaseForm(d, reload));
 
-      show([s1, s2, s3, s4]);
+      show([s1, s2, s3, s4, demandSection(d)]);
     });
   }
 
