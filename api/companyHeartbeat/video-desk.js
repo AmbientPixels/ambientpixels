@@ -132,20 +132,22 @@ function buildReleasesBlock(releases, nowMs) {
 
 // ── crew → fleet ──────────────────────────────────────────────────────────
 // A Studio role asks the fleet (claims check → Quill, research → Scout, launch posts → Echo, other → Nova).
-// Deterministic, during the receiving agent's own run: an open ask becomes ONE task (marker in the description,
-// because created tasks don't keep tags); once the task exists the ticket is "taken"; when the task is done the
-// ticket is "done" with the agent's last comment, which the studio reads on the Desk. If a heartbeat guardrail
-// skipped the create, the next run simply tries again — the marker makes it idempotent.
+// Deterministic, during NOVA's run: the heartbeat skips idle agents before they run (helpers.shouldRunAgent), and
+// work is pushed to them — so Nova, who always runs, turns an open ask into ONE task assigned to its agent, which
+// wakes that agent next cycle. The marker in the description links task and ticket (created tasks don't keep tags).
+// Once the task exists the ticket is "taken"; when it is done the ticket is "done" with the agent's last comment,
+// which the studio reads on the Desk. If a guardrail skipped the create, the next run tries again (idempotent).
 const CREW_AGENTS = ['quill', 'scout', 'echo', 'nova'];
+const CREW_COURIER = 'nova'; // ALWAYS_RUN_AGENTS: the only agent guaranteed to run every cycle
 const CREW_TASK_TYPE = { claims_check: 'editorial', research: 'research', launch_posts: 'general', other: 'general' };
 const marker = (id) => '[video-desk:' + id + ']';
 
 function crewTicketWork(agentId, tickets, tasks, objectiveId, nowMs) {
   const out = { creates: [], updates: [] };
-  if (CREW_AGENTS.indexOf(agentId) === -1 || !Array.isArray(tickets)) return out;
+  if (agentId !== CREW_COURIER || !Array.isArray(tickets)) return out;
   const all = Array.isArray(tasks) ? tasks : [];
   for (const t of tickets) {
-    if (t.direction !== 'crew' || t.to !== agentId || ['open', 'taken'].indexOf(t.status) === -1) continue;
+    if (t.direction !== 'crew' || CREW_AGENTS.indexOf(t.to) === -1 || ['open', 'taken'].indexOf(t.status) === -1) continue;
     const task = all.find((x) => x && typeof x.description === 'string' && x.description.indexOf(marker(t.id)) !== -1);
     if (!task) {
       if (t.status === 'open' && out.creates.length === 0) {
@@ -155,7 +157,7 @@ function crewTicketWork(agentId, tickets, tasks, objectiveId, nowMs) {
             t.text, t.project ? 'Project: ' + t.project + (t.video ? ' / video ' + t.video : '') : '',
             t.links && t.links.length ? 'Links: ' + t.links.join(' ') : '',
             'When you finish, put the answer in your last comment on this task: the studio reads it on its Desk.'].filter(Boolean).join('\n\n'),
-          taskType: CREW_TASK_TYPE[t.kind] || 'general', status: 'todo', priority: 'medium', assignee: agentId,
+          taskType: CREW_TASK_TYPE[t.kind] || 'general', status: 'todo', priority: 'medium', assignee: t.to,
           dueDate: new Date(nowMs + 3 * DAY).toISOString(), objective_id: objectiveId || null, campaign_id: t.campaignId || null,
         });
       }
@@ -169,7 +171,7 @@ function crewTicketWork(agentId, tickets, tasks, objectiveId, nowMs) {
     } else if (st === 'canceled' || st === 'cancelled') {
       out.updates.push({ id: t.id, status: 'dropped', taskId: task.id, note: 'the fleet task was canceled' });
     } else if (t.status === 'open') {
-      out.updates.push({ id: t.id, status: 'taken', taskId: task.id, note: 'task ' + task.id + ' for ' + agentId });
+      out.updates.push({ id: t.id, status: 'taken', taskId: task.id, note: 'task ' + task.id + ' for ' + t.to });
     }
   }
   return out;
@@ -191,6 +193,6 @@ function noteFiled(ticket) { if (_cache && _cache.data && Array.isArray(_cache.d
 function _resetCache() { _cache = null; }
 
 module.exports = {
-  VIDEO_AGENTS, CREW_AGENTS, MAX_OPEN, AGENT_COOLDOWN_DAYS, crewTicketWork,
+  VIDEO_AGENTS, CREW_AGENTS, CREW_COURIER, MAX_OPEN, AGENT_COOLDOWN_DAYS, crewTicketWork,
   validTriggers, capacity, gateSuggestion, buildVideoDeskBlock, buildReleasesBlock, loadVideoDeskData, noteFiled, _resetCache,
 };
