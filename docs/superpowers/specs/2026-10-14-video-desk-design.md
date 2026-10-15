@@ -1,6 +1,6 @@
 # Video Desk — the relay between the fleet and the video crew
 
-**Status:** BUILT and live 2026-10-15 (all five decisions = the recommendations; see §7 for what shipped where).
+**Status:** BUILT and live 2026-10-15. **§8 supersedes the ticket design in §2:** the Video department works through the company task board (Chad, 2026-10-15).
 **Ask (Chad):** fleet agents can suggest videos as content for campaigns and goals, rarely (releases, updates,
 bet decisions, not every post); the suggestions become data that improves the pipeline's video types, moods,
 styles and designs; the video crew and the marketing/web team pass ideas both ways without Chad relaying them.
@@ -240,3 +240,24 @@ lands on the bet it serves. Revisit after the first released video has a measure
 
 **To pick up the PC half:** restart the studio worker and local server (OPEN-STUDIO.cmd) so they load the new
 harness code.
+
+---
+
+## 8. The Video department (2026-10-15, supersedes the ticket store)
+
+Chad: "we don't need a separate video ticketing system — use the board and commenting system we already have", then
+"look at the video team as a department in AmbientPixels", and chose **the Studio crew as the department, no new
+agent** (the site's "Eight agents" stays true; no new LLM cost).
+
+| Piece | How |
+|---|---|
+| The department | The Studio's eight roles on Chad's PC (Claude Code sessions); the Editor/director heads it. Its office is the Studio, its internal board is `tracker.json`. |
+| Inbox | Assignee `studio` on the company task board (`NON_AGENT_ASSIGNEES`): takes tasks, never runs in the heartbeat, never falls back to Nova. |
+| A request | `suggest-video` (same code gates as §2c) → a `video_request` task: readable brief + a fenced `video-request` JSON payload (`studio/desk.js requestTask/parseRequest`). |
+| Chad's call | On the company board: in-progress = accepted; canceled + a comment = declined, and that comment is what the agent sees next. |
+| The department speaks | `/api/studio desk-comment` (PC only; refused :00–:12 of heartbeat hours): "[studio:<stage> video=…]" progress, an automatic **@Quill** claims check on acceptance, the release with its link tagging **@Echo** (done = released). Sessions use `node harness/fleet.mjs <task> "@Scout …"`. |
+| The fleet answers | An @mention wakes an idle agent (`shouldRunAgent`); the VIDEO DEPARTMENT block shows it the comment and asks for a `comment-task` reply. Agents may only comment on requests (move/update/execute/review blocked; requests hidden from task lists). |
+| Kept | Catalogue (L10), Release Watcher, the code gates, demand ledger (now computed from requests), DEMAND.md. Studio page "Video." = the department's dashboard. |
+| Removed | The `desk/tickets` blob store, crew tickets, the Nova courier, desk-decide/ticket/release/release-url/update routes, both manual forms. |
+
+Commits: AP `7f65e07f`, pipeline `215fad8` (plus the form removal `bef4a59e`).
