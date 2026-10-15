@@ -1,6 +1,6 @@
 # Video Desk — the relay between the fleet and the video crew
 
-**Status:** design for discussion, nothing built. 2026-10-14.
+**Status:** BUILT and live 2026-10-15 (all five decisions = the recommendations; see §7 for what shipped where).
 **Ask (Chad):** fleet agents can suggest videos as content for campaigns and goals, rarely (releases, updates,
 bet decisions, not every post); the suggestions become data that improves the pipeline's video types, moods,
 styles and designs; the video crew and the marketing/web team pass ideas both ways without Chad relaying them.
@@ -213,3 +213,30 @@ per 21 d / 1 per trigger · tickets in the Studio blob.
 3. **Who may suggest:** Echo + Nova + Scout (recommended); add Scribe later if the ceiling allows.
 4. **Rarity numbers:** 2 open fleet-wide, 1 per agent per 21 days, 1 per trigger — ok?
 5. **Store:** tickets in the Studio blob (no `company-state` change) — recommended — vs a new company-state key.
+
+---
+
+## 7. Build log (2026-10-15, all verified live)
+
+| Phase | Shipped | Where |
+|---|---|---|
+| 0 Catalogue (L10) | `catalog/video-catalog.json` + `tools/catalog/export.mjs` (checks every id against the pipeline's registries; `--check` fails on a stale copy) → `api/_data/video-catalog.json`; Memory Stack Explorer shows L10 | pipeline `7887fd4`, AP `d3e57d49` |
+| 2 Release Watcher | `releaseWatchCron` 03:20/09:20/15:20/21:20 UTC, `/api/release-watch` (GET, run/dryRun, add, status), `releaseLog` key; first run 2026-10-15 02:34Z set the watermark: 29 commits in 14 days, all internal, 0 releases | AP `5a2587af` |
+| 1 Desk (cloud) | tickets in `studio` blob `desk/tickets/`; routes desk, desk-decide, desk-ticket, desk-releases, desk-release, desk-release-status, desk-release-url (key or PC token), desk-sync, desk-update (PC) | AP `42ba0e50` |
+| 1 Desk (PC) | accepted ticket → video (slate + standard Board tasks) + `docs/briefs/<video>.md`; Board progress → ticket status; local server relays the Desk with the worker token | pipeline `5f2580d` |
+| 1 Desk (UI) | Desk. in the studio nav: decide tickets, in production / closed, ask the fleet, releases, demand | AP `a3073f72` |
+| 3 Fleet suggests | `suggest-video` action, gates in `companyHeartbeat/video-desk.js`, VIDEO DESK + RECENT RELEASES prompt blocks (empty unless a trigger or a ticket exists) — no `index.js` change | AP `6366afdf` |
+| 4 Crew → fleet | crew asks become one task per cycle for Quill/Scout/Echo/Nova (`[video-desk:<id>]` marker), taken/done flow back; a released video's link files Echo's launch-posts ask + a `video` release entry | AP `b5cb29d4`, pipeline `bcf5cd4` |
+| 5 Demand | `desk.demand()` on GET desk, § 05 Demand on the Desk, `DEMAND.md` written by the worker | AP `069babdb`, pipeline `5991b9f` |
+
+**Deferred on purpose: the `explainer_video` bet mechanism.** A campaign whose mechanism is a video can't be
+scored until a released video's link carries attribution (`utm_content=<ticket id>` → qualified uses), and no
+campaign task type can produce a video, so a video bet today would only ever be killed for zero uses. Tickets
+already carry `campaignId` and `betKey`, and launch posts run inside the ticket's campaign, so a video's effect
+lands on the bet it serves. Revisit after the first released video has a measured link.
+
+**Found, not fixed (out of scope):** `generate-video` (Veo character clips) is still missing from
+`KNOWN_ACTION_TYPES`, so the normalizer drops it; Pixel is dormant anyway.
+
+**To pick up the PC half:** restart the studio worker and local server (OPEN-STUDIO.cmd) so they load the new
+harness code.
