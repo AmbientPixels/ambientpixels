@@ -130,6 +130,51 @@ function buildReleasesBlock(releases, nowMs) {
     .concat(live.map((e) => `- ${String(e.at).slice(0, 10)} ${e.product}: ${clip(e.title, 90)}${e.significance === 'major' ? ' [major]' : ''}`)).join('\n');
 }
 
+// ── crew → fleet ──────────────────────────────────────────────────────────
+// A Studio role asks the fleet (claims check → Quill, research → Scout, launch posts → Echo, other → Nova).
+// Deterministic, during the receiving agent's own run: an open ask becomes ONE task (marker in the description,
+// because created tasks don't keep tags); once the task exists the ticket is "taken"; when the task is done the
+// ticket is "done" with the agent's last comment, which the studio reads on the Desk. If a heartbeat guardrail
+// skipped the create, the next run simply tries again — the marker makes it idempotent.
+const CREW_AGENTS = ['quill', 'scout', 'echo', 'nova'];
+const CREW_TASK_TYPE = { claims_check: 'editorial', research: 'research', launch_posts: 'general', other: 'general' };
+const marker = (id) => '[video-desk:' + id + ']';
+
+function crewTicketWork(agentId, tickets, tasks, objectiveId, nowMs) {
+  const out = { creates: [], updates: [] };
+  if (CREW_AGENTS.indexOf(agentId) === -1 || !Array.isArray(tickets)) return out;
+  const all = Array.isArray(tasks) ? tasks : [];
+  for (const t of tickets) {
+    if (t.direction !== 'crew' || t.to !== agentId || ['open', 'taken'].indexOf(t.status) === -1) continue;
+    const task = all.find((x) => x && typeof x.description === 'string' && x.description.indexOf(marker(t.id)) !== -1);
+    if (!task) {
+      if (t.status === 'open' && out.creates.length === 0) {
+        out.creates.push({
+          title: clip('Studio ask: ' + t.title, 120),
+          description: [marker(t.id) + ' The video studio asked the fleet for this (' + t.kind.replace('_', ' ') + ').',
+            t.text, t.project ? 'Project: ' + t.project + (t.video ? ' / video ' + t.video : '') : '',
+            t.links && t.links.length ? 'Links: ' + t.links.join(' ') : '',
+            'When you finish, put the answer in your last comment on this task: the studio reads it on its Desk.'].filter(Boolean).join('\n\n'),
+          taskType: CREW_TASK_TYPE[t.kind] || 'general', status: 'todo', priority: 'medium', assignee: agentId,
+          dueDate: new Date(nowMs + 3 * DAY).toISOString(), objective_id: objectiveId || null, campaign_id: t.campaignId || null,
+        });
+      }
+      continue;
+    }
+    const st = String(task.status || '').toLowerCase();
+    if (st === 'done') {
+      const c = Array.isArray(task.comments) && task.comments.length ? task.comments[task.comments.length - 1] : null;
+      const note = clip((c && (c.text || c.comment)) || task.result || 'done', 300);
+      out.updates.push({ id: t.id, status: 'done', taskId: task.id, note });
+    } else if (st === 'canceled' || st === 'cancelled') {
+      out.updates.push({ id: t.id, status: 'dropped', taskId: task.id, note: 'the fleet task was canceled' });
+    } else if (t.status === 'open') {
+      out.updates.push({ id: t.id, status: 'taken', taskId: task.id, note: 'task ' + task.id + ' for ' + agentId });
+    }
+  }
+  return out;
+}
+
 // Loaded once per heartbeat process (a few minutes' cache): the release log and the desk's tickets.
 let _cache = null;
 async function loadVideoDeskData(storage, nowMs, store) {
@@ -146,6 +191,6 @@ function noteFiled(ticket) { if (_cache && _cache.data && Array.isArray(_cache.d
 function _resetCache() { _cache = null; }
 
 module.exports = {
-  VIDEO_AGENTS, MAX_OPEN, AGENT_COOLDOWN_DAYS,
+  VIDEO_AGENTS, CREW_AGENTS, MAX_OPEN, AGENT_COOLDOWN_DAYS, crewTicketWork,
   validTriggers, capacity, gateSuggestion, buildVideoDeskBlock, buildReleasesBlock, loadVideoDeskData, noteFiled, _resetCache,
 };

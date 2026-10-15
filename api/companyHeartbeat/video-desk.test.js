@@ -114,6 +114,26 @@ t('releases block: live, not hidden, newest first, ≤6, empty when none', () =>
   assert.doesNotMatch(b, /Wrong|Old launch/);
   assert.strictEqual(V.buildReleasesBlock([], NOW), '');
 });
+t('crew asks: one task per cycle, then taken, then done with the last comment; other agents untouched', () => {
+  const a = desk.cleanCrewTicket({ kind: 'claims_check', title: 'Check 03 claims', text: 'Every line of 03-teardown-SOURCES.md' }, 'researcher', NOW);
+  const b = desk.cleanCrewTicket({ kind: 'claims_check', title: 'Check 04 claims', text: 'Every line of 04-scan-SOURCES.md' }, 'researcher', NOW);
+  const w1 = V.crewTicketWork('quill', [a, b], [], 'obj-build-public', NOW);
+  assert.strictEqual(w1.creates.length, 1);
+  assert.strictEqual(w1.creates[0].taskType, 'editorial');
+  assert.strictEqual(w1.creates[0].objective_id, 'obj-build-public');
+  assert.ok(w1.creates[0].description.indexOf('[video-desk:' + a.id + ']') === 0);
+  assert.deepStrictEqual(V.crewTicketWork('echo', [a, b], [], null, NOW), { creates: [], updates: [] });
+  const task = { id: 'task-1', status: 'todo', description: w1.creates[0].description, comments: [] };
+  const w2 = V.crewTicketWork('quill', [a], [task], null, NOW);
+  assert.deepStrictEqual(w2.creates, []);
+  assert.strictEqual(w2.updates[0].status, 'taken');
+  desk.applyUpdate(a, w2.updates[0], 'quill', NOW);
+  assert.deepStrictEqual(V.crewTicketWork('quill', [a], [task], null, NOW).updates, []); // taken + in progress: nothing to say
+  task.status = 'done'; task.comments.push({ text: 'Claim 3 has no source; the rest check out.' });
+  const w3 = V.crewTicketWork('quill', [a], [task], null, NOW);
+  assert.strictEqual(w3.updates[0].status, 'done');
+  assert.match(w3.updates[0].note, /Claim 3 has no source/);
+});
 t('a ticket filed this cycle counts for the next agent at once', async () => {
   V._resetCache();
   const fake = { getState: async () => ({ entries: [] }) };

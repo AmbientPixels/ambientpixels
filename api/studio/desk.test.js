@@ -103,6 +103,23 @@ function good(over) {
     assert.ok(load.refs.has('release:rel_abc123_ambientscore'));
   });
 
+  await t('a released video gets its link once, and the launch ask carries the link and the sourced claims', () => {
+    const x = D.cleanFleetTicket(good({ campaignId: 'camp-1' }), 'echo', NOW);
+    assert.match(D.setReleaseUrl(x, { url: 'https://www.ambientpixels.ai/x' }, 'chad', NOW), /only a released video/);
+    D.decide(x, { decision: 'accept' }, 'chad', NOW, ['ambientpixels']);
+    D.applyUpdate(x, { video: '04-scan', status: 'released' }, 'studio', NOW);
+    assert.match(D.setReleaseUrl(x, { url: 'http://x' }, 'chad', NOW), /https/);
+    assert.strictEqual(D.setReleaseUrl(x, { url: 'https://www.ambientpixels.ai/ambientscore/#video' }, 'chad', NOW).release.url, 'https://www.ambientpixels.ai/ambientscore/#video');
+    assert.match(D.setReleaseUrl(x, { url: 'https://www.ambientpixels.ai/y' }, 'chad', NOW), /already has its link/);
+    const ask = D.cleanCrewTicket(D.launchAsk(x), 'desk', NOW);
+    assert.strictEqual(typeof ask, 'object', ask);
+    assert.strictEqual(ask.to, 'echo');
+    assert.strictEqual(ask.fromTicket, x.id);
+    assert.strictEqual(ask.campaignId, 'camp-1');
+    assert.deepStrictEqual(ask.links, ['https://www.ambientpixels.ai/ambientscore/#video']);
+    assert.match(ask.text, /A free scan scores 8 dimensions \(source: product-facts:AmbientScore\)/);
+  });
+
   // Routes: refused before storage.
   delete process.env.STUDIO_ACCESS_KEY; delete process.env.STUDIO_WORKER_TOKEN; delete process.env.AZURE_STORAGE_CONNECTION_STRING;
   const handler = require('./index');

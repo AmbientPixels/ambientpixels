@@ -73,6 +73,20 @@ module.exports = {
     reply(context, 200, { ok: true, entry: r.entry });
   },
 
+  // POST desk-release-url {id, url} — a released video's link. Files the launch-posts ask to Echo and logs the
+  // video in the release log (as a minor content release: a video never triggers another video).
+  async releaseUrl(context, req, reply) {
+    const b = body(req);
+    const t = await S.changeTicket(b.id, (x) => D.setReleaseUrl(x, b, who(req), Date.now()));
+    if (t === null) return reply(context, 404, { error: 'unknown ticket' });
+    if (typeof t === 'string') return reply(context, 400, { error: t });
+    const ask = await S.fileCrewTicket(D.launchAsk(t), 'desk', Date.now());
+    const logged = await W.editReleaseLog(storage, (state) => W.addManualEntry(state, {
+      product: t.product, title: 'New video: ' + t.title, summary: t.goal, kind: 'content', significance: 'minor', url: t.release.url, source: 'video',
+    }, Date.now(), who(req)));
+    reply(context, 200, { ok: true, ticket: t, launchAsk: typeof ask === 'string' ? { error: ask } : ask, release: logged.error ? { error: logged.error } : logged.entry });
+  },
+
   // GET desk-sync (worker) — the tickets the PC has work to do on: accepted-and-later fleet tickets still open,
   // and open crew tickets.
   async sync(context, req, reply) {

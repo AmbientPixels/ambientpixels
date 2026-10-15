@@ -122,6 +122,7 @@ function cleanCrewTicket(b, by, nowMs) {
   return {
     id: newId('ct', nowMs), direction: 'crew', kind, to: CREW_KINDS[kind], title, text, project: project || null,
     video: video || null, links, fromTicket: ID.test(b.fromTicket || '') ? b.fromTicket : null,
+    campaignId: str(b.campaignId, 60) || null,
     by: who, createdAt: at, updatedAt: at, status: 'open', taskId: null,
     history: [{ at, by: who, status: 'open', note: null }],
   };
@@ -187,6 +188,31 @@ function applyUpdate(t, b, by, nowMs) {
   return t;
 }
 
+// Where a released video lives. Set once; it is what the launch posts link to.
+function setReleaseUrl(t, b, by, nowMs) {
+  if (!t || t.direction !== 'fleet') return 'not a fleet ticket';
+  if (t.status !== 'released') return 'only a released video gets a link';
+  if (t.release && t.release.url) return 'this video already has its link';
+  const url = str(b && b.url, 300);
+  if (!/^https:\/\/[^\s]+$/.test(url)) return 'the link must be https';
+  t.release = { url, at: new Date(nowMs).toISOString(), by: str(by, 40) || 'chad' };
+  t.updatedAt = t.release.at;
+  return t;
+}
+
+// The ask that goes to Echo when a video ships: the link, and the claims the video already sourced.
+function launchAsk(t) {
+  const claims = (t.claims || []).map((c) => `- ${c.claim} (source: ${c.source})`).join('\n');
+  return {
+    kind: 'launch_posts', title: str('Launch posts: ' + t.title, 80),
+    text: str(`The studio released "${t.title}" (${t.product}, ${t.format}) at ${t.release.url}. ` +
+      `It answers ${t.trigger.type} ${t.trigger.ref || ''}. Goal for viewers: ${t.goal}. ` +
+      `Write the launch posts inside an approved campaign; every claim must be one the video already sources:\n${claims}`, 1000),
+    project: t.studio && t.studio.project, video: t.studio && t.studio.video, links: [t.release.url],
+    fromTicket: t.id, campaignId: t.campaignId,
+  };
+}
+
 // Counts the fleet-side gates need (phase 3): open fleet tickets, and each agent's newest ticket.
 function fleetLoad(tickets) {
   const open = tickets.filter((t) => t.direction === 'fleet' && FLEET_OPEN.includes(t.status));
@@ -202,5 +228,5 @@ function fleetLoad(tickets) {
 module.exports = {
   CATALOG, FLEET_STATUSES, FLEET_OPEN, CREW_STATUSES, TRIGGERS, CREW_KINDS, ID,
   formatIds, moodIds, styleIds, styleFor, validSource,
-  cleanFleetTicket, cleanCrewTicket, decide, applyUpdate, fleetLoad,
+  cleanFleetTicket, cleanCrewTicket, decide, applyUpdate, fleetLoad, setReleaseUrl, launchAsk,
 };

@@ -2123,6 +2123,28 @@
       if (!moving.length) rows2.appendChild(el('p', 'st-empty', 'None yet.'));
       moving.forEach(function (t, i) { rows2.appendChild(deskRow(t, i)); });
       s2.appendChild(rows2);
+      // A released video needs its link once: that link goes to Echo as a launch-posts ask, and into the release log.
+      var needsLink = fleet.filter(function (t) { return t.status === 'released' && !(t.release && t.release.url); });
+      if (needsLink.length) {
+        add(s2, el('h3', 'st-notes-h', 'Released: where is it live?'));
+        var linkList = el('div', 'st-board');
+        needsLink.forEach(function (t) {
+          var r = el('div', 'st-need');
+          var url = input('text', '', 'https://www.ambientpixels.ai/…');
+          url.classList.add('st-input--inline');
+          var note = el('span', 'st-note');
+          var go = button('st-tab', 'Send to Echo', function () {
+            go.disabled = true;
+            deskPost('desk-release-url', { id: t.id, url: url.value.trim() }).then(function () {
+              flash(note, 'Echo has the launch-posts ask; the release log has the video.'); setTimeout(reload, 900);
+            }).catch(function (e) { go.disabled = false; flash(note, e.message); });
+          });
+          add(r, el('span', 'st-need-kind st-need-kind--review', 'Released'), add(el('span', 'st-need-text'), el('b', null, t.title + '. '), note),
+            add(el('span', 'st-ticket-acts'), url, go), el('span'));
+          linkList.appendChild(r);
+        });
+        s2.appendChild(linkList);
+      }
       if (closed.length) {
         var rows3 = el('div', 'st-rows');
         closed.forEach(function (t, i) { rows3.appendChild(deskRow(t, i)); });

@@ -502,16 +502,31 @@ async function runAgentHeartbeat(ctx) {
   // Video Desk (2026-10-14): Nova, Echo and Scout see what shipped (RECENT RELEASES) and, only when a real
   // trigger exists or they have a ticket in flight, the VIDEO DESK block. Both are '' on any read failure.
   let _videoDeskData = null, _videoDeskBlock = '', _releasesBlock = '';
-  if (videoDesk.VIDEO_AGENTS.indexOf(agentId) !== -1) {
+  if (videoDesk.VIDEO_AGENTS.indexOf(agentId) !== -1 || videoDesk.CREW_AGENTS.indexOf(agentId) !== -1) {
     try {
       _videoDeskData = Object.assign({}, await videoDesk.loadVideoDeskData(storage), {
         campaigns: (campaignCtx && campaignCtx.campaigns) || [],
         ledger: (outcomeDigest && outcomeDigest.betLedger) || null
       });
-      _releasesBlock = videoDesk.buildReleasesBlock(_videoDeskData.releases, Date.now());
-      _videoDeskBlock = videoDesk.buildVideoDeskBlock(agentId, _videoDeskData, Date.now());
+      if (videoDesk.VIDEO_AGENTS.indexOf(agentId) !== -1) {
+        _releasesBlock = videoDesk.buildReleasesBlock(_videoDeskData.releases, Date.now());
+        _videoDeskBlock = videoDesk.buildVideoDeskBlock(agentId, _videoDeskData, Date.now());
+      }
+      // Asks from the studio's crew become this agent's tasks (one per cycle), and finished tasks report back.
+      const _crew = videoDesk.crewTicketWork(agentId, _videoDeskData.tickets, tasks,
+        ((activeObjectives || []).find(function (o) { return o && (!o.status || o.status === 'active'); }) || {}).id, Date.now());
+      _crew.creates.forEach(function (task) {
+        result.taskUpdates.push({ action: 'create', task: task });
+        context.log('[Heartbeat]', agentId, 'video desk: task for a studio ask —', task.title);
+      });
+      for (const _cu of _crew.updates) {
+        await require('../studio/desk-store').changeTicket(_cu.id, function (x) {
+          return require('../studio/desk').applyUpdate(x, { status: _cu.status, taskId: _cu.taskId, note: _cu.note }, agentId, Date.now());
+        });
+        context.log('[Heartbeat]', agentId, 'video desk: ask', _cu.id, '→', _cu.status);
+      }
     } catch (_vdErr) {
-      context.log('[Heartbeat]', agentId, 'video desk block failed (non-fatal):', String(_vdErr).substring(0, 160));
+      context.log('[Heartbeat]', agentId, 'video desk failed (non-fatal):', String(_vdErr).substring(0, 160));
     }
   }
 
