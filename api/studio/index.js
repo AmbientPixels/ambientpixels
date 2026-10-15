@@ -11,15 +11,18 @@
 //                                      GET  jobs?project=     POST job | job-cancel
 //   worker   (x-studio-worker-token)   POST heartbeat | manifest | upload-url | ack
 //                                      GET  files?project= | inbox?project= | job-next     POST job-update
+//   either                             GET  desk | desk-releases   POST desk-decide | desk-ticket | desk-release | desk-release-status
+//   worker                             GET  desk-sync              POST desk-update        (Video Desk, desk-routes.js)
 //
 // The inbox is how decisions reach the PC: one small JSON blob per event, collected by the worker, written into
 // the project's feedback/ files, then acked (deleted here).
 //
 // Only projects named in STUDIO_PROJECTS exist here. Local-only projects (Xbox) are refused at the door.
-const { BlobServiceClient, BlobSASPermissions } = require('@azure/storage-blob');
+const { BlobSASPermissions } = require('@azure/storage-blob');
 const L = require('./lib');
+const { getContainer, readJson, writeJson, mutateJson } = require('./blob');
+const desk = require('./desk-routes');
 
-const CONTAINER = 'studio';
 const HEADERS = {
   'Content-Type': 'application/json',
   'Cache-Control': 'no-store',
@@ -30,46 +33,6 @@ const HEADERS = {
 const MAX_MANIFEST = 4 * 1024 * 1024;
 const MAX_TEXT = 2 * 1024 * 1024;
 const LINK_MINUTES = 15;
-
-let container = null;
-async function getContainer() {
-  if (container) return container;
-  if (!process.env.AZURE_STORAGE_CONNECTION_STRING) throw new Error('storage not configured');
-  const c = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING).getContainerClient(CONTAINER);
-  await c.createIfNotExists(); // no access option = private
-  container = c;
-  return c;
-}
-
-async function readJson(name) {
-  const blob = (await getContainer()).getBlockBlobClient(name);
-  try { return JSON.parse((await blob.downloadToBuffer()).toString('utf8')); }
-  catch (e) { if (e.statusCode === 404) return null; throw e; }
-}
-async function writeJson(name, value, etag) {
-  const body = JSON.stringify(value);
-  await (await getContainer()).getBlockBlobClient(name).upload(body, Buffer.byteLength(body), {
-    blobHTTPHeaders: { blobContentType: 'application/json' },
-    ...(etag ? { conditions: { ifMatch: etag } } : {})
-  });
-}
-// Read-change-write with the blob's version (ETag): if someone else wrote it in between (the operator cancelling
-// while the worker reports), retry on the fresh copy instead of overwriting it. (Code review 2026-10-12, finding 7.)
-// change(j) edits j in place and returns false to skip the write. Resolves to the final object, or null if missing.
-async function mutateJson(name, change) {
-  const blob = (await getContainer()).getBlockBlobClient(name);
-  for (let attempt = 0; attempt < 4; attempt++) {
-    let res;
-    try { res = await blob.download(); } catch (e) { if (e.statusCode === 404) return null; throw e; }
-    const chunks = [];
-    for await (const c of res.readableStreamBody) chunks.push(c);
-    const j = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-    if (change(j) === false) return j;
-    try { await writeJson(name, j, res.etag); return j; }
-    catch (e) { if (e.statusCode !== 412) throw e; }
-  }
-  throw new Error('busy: please retry');
-}
 function link(blob, perms) {
   const now = Date.now();
   return blob.generateSasUrl({
@@ -286,7 +249,12 @@ const ROUTES = {
   'GET job-status': ['worker', worker['job-status']],
   'POST heartbeat': ['worker', worker.heartbeat], 'POST manifest': ['worker', worker.manifest],
   'POST upload-url': ['worker', worker['upload-url']], 'POST ack': ['worker', worker.ack],
-  'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox]
+  'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox],
+  // Video Desk: Chad decides from either studio (the website with his key, the PC through the worker token).
+  'GET desk': ['either', desk.list], 'POST desk-decide': ['either', desk.decide], 'POST desk-ticket': ['either', desk.ticket],
+  'GET desk-releases': ['either', desk.releases], 'POST desk-release': ['either', desk.release],
+  'POST desk-release-status': ['either', desk.releaseStatus],
+  'GET desk-sync': ['worker', desk.sync], 'POST desk-update': ['worker', desk.update]
 };
 
 module.exports = async function (context, req) {
@@ -297,10 +265,11 @@ module.exports = async function (context, req) {
   if (!route) return reply(context, 404, { error: 'unknown action' });
   const [role, handler] = route;
 
-  const allowed = role === 'worker' ? L.isWorker(req) : L.isOperator(req);
+  const allowed = role === 'worker' ? L.isWorker(req) : role === 'either' ? (L.isOperator(req) || L.isWorker(req)) : L.isOperator(req);
+  req.studioRole = L.isWorker(req) ? 'worker' : 'op';
   if (!allowed) return reply(context, 403, { error: 'studio access required' });
 
-  try { await handler(context, req); }
+  try { await handler(context, req, reply); }
   catch (err) {
     context.log.error('[studio] ' + action + ': ' + err.message);
     reply(context, err.message === 'storage not configured' ? 503 : 500, { error: 'internal error' });

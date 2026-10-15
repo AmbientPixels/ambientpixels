@@ -266,6 +266,25 @@ function setEntryStatus(state, id, status, by, nowMs) {
   return { entry: e };
 }
 
+// Read → change → conditional write, retried when someone else wrote in between (the cron may be mid-run).
+// change(state) returns {error} to refuse, anything else to write. → the change's result, or {error, status}.
+async function editReleaseLog(storage, change) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const read = await storage.getStateWithMeta(STATE_KEY);
+    if (read.failed) return { error: 'releaseLog read failed', status: 503 };
+    const state = Object.assign(emptyState(), read.value || {});
+    const result = change(state);
+    if (result && result.error) return Object.assign({ status: 400 }, result);
+    try {
+      await storage.setState(STATE_KEY, state, read.etag ? { ifMatch: read.etag } : (read.exists ? {} : { ifNoneMatch: '*' }));
+      return result;
+    } catch (err) {
+      if (!err || err.name !== 'ConcurrencyError') throw err;
+    }
+  }
+  return { error: 'releaseLog kept changing, try again', status: 409 };
+}
+
 // ── the run ──────────────────────────────────────────────────────────────
 // deps: { storage, fetch, llm, nowMs, dryRun, log, token, base }
 async function runReleaseWatch(deps) {
@@ -324,5 +343,5 @@ module.exports = {
   STATE_KEY, KINDS, SIGNIFICANCE, STATUSES, MAX_COMMITS_PER_RUN,
   emptyState, parseTrailers, fetchDeployedSha, collectCommits, groupCommits,
   buildPrompt, parseClassifier, classifyGroups, buildEntry, mergeEntries,
-  validateManual, addManualEntry, setEntryStatus, runReleaseWatch,
+  validateManual, addManualEntry, setEntryStatus, editReleaseLog, runReleaseWatch,
 };

@@ -23,23 +23,7 @@ function reply(context, status, body) {
   context.res = { status: status, headers: corsHeaders, body: body };
 }
 
-// Read → change → conditional write, retried on a concurrent write (the cron may be mid-run).
-async function edit(change) {
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const read = await storage.getStateWithMeta(W.STATE_KEY);
-    if (read.failed) return { error: 'releaseLog read failed', status: 503 };
-    const state = Object.assign(W.emptyState(), read.value || {});
-    const result = change(state);
-    if (result.error) return Object.assign({ status: 400 }, result);
-    try {
-      await storage.setState(W.STATE_KEY, state, read.etag ? { ifMatch: read.etag } : (read.exists ? {} : { ifNoneMatch: '*' }));
-      return result;
-    } catch (err) {
-      if (!err || err.name !== 'ConcurrencyError') throw err;
-    }
-  }
-  return { error: 'releaseLog kept changing, try again', status: 409 };
-}
+const edit = (change) => W.editReleaseLog(storage, change);
 
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') return reply(context, 204, '');
