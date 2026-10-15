@@ -8,6 +8,9 @@ const S = require('./desk-store');
 const storage = require('../_utils/companyStorage');
 const W = require('../_lib/releaseWatch/watcher');
 
+// What a release or a ticket can be about: the products in product facts, plus the company site itself.
+const PRODUCTS = Object.keys(require('../_data/product-facts.json').products || {}).concat(['AmbientPixels']);
+
 const who = (req) => (req.studioRole === 'worker' ? 'chad (studio)' : 'chad (web)');
 const body = (req) => (req.body && typeof req.body === 'object' ? req.body : {});
 
@@ -23,7 +26,7 @@ module.exports = {
   async list(context, req, reply) {
     const tickets = await S.listTickets();
     const load = D.fleetLoad(tickets);
-    reply(context, 200, { tickets, catalog: catalog(), projects: L.hostedProjects(), load: { open: load.open } });
+    reply(context, 200, { tickets, catalog: catalog(), projects: L.hostedProjects(), products: PRODUCTS, load: { open: load.open } });
   },
 
   // POST desk-decide {id, decision: accept|decline, reason, project}

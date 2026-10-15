@@ -1967,6 +1967,185 @@
     return out;
   }
 
+  // ---- the Video Desk: video ideas from the AmbientOS fleet, asks from the crew, and the release log ----
+  // Spec: ambientpixels docs/superpowers/specs/2026-10-14-video-desk-design.md. Works from both studios: the website
+  // with the studio key, the PC through its worker token. Nothing here makes a video; accepting puts it on the Board.
+  var TRIGGER_LABEL = { release: 'A release', bet_won: 'A bet that won', bet_scale: 'A bet ready to scale', campaign_launch: 'A new campaign', crew_request: 'The crew asked', manual: 'Your idea' };
+  var DESK_STATUS = { proposed: 'Waiting', accepted: 'Accepted', scripting: 'Script', in_production: 'In production', review: 'Review', released: 'Released', declined: 'Declined', dropped: 'Dropped', open: 'Open', taken: 'Taken', done: 'Done' };
+  var CREW_KINDS = [['claims_check', 'Check claims (Quill)'], ['research', 'Research (Scout)'], ['launch_posts', 'Launch posts (Echo)'], ['other', 'Something else (Nova)']];
+
+  function deskPost(action, body) { return request('POST', action, null, body); }
+  function labelOf(list, id) { var x = (list || []).filter(function (i) { return i.id === id; })[0]; return x ? (x.name || x.id) : id; }
+
+  function ticketCard(t, d, reload) {
+    var c = el('article', 'st-ticket');
+    var head = el('div', 'st-ticket-head');
+    add(head, el('span', 'st-need-kind st-need-kind--review', TRIGGER_LABEL[t.trigger.type] || t.trigger.type),
+      el('span', 'st-note', 'from ' + t.from + ' · ' + when(t.createdAt) + (t.trigger.ref ? ' · ' + t.trigger.ref : '')));
+    add(c, head, el('h3', 'st-ticket-title', t.title + '.'));
+    add(c, el('p', 'st-note', [t.product, labelOf(d.catalog.formats, t.format), t.mood + ' mood', 'about ' + t.seconds + ' s', labelOf(d.catalog.styles, t.style)].join(' · ')));
+    if (t.trigger.evidence) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Why now. '), document.createTextNode(t.trigger.evidence)));
+    add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Goal. '), document.createTextNode(t.goal)));
+    if (t.hook) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Hook. '), document.createTextNode(t.hook)));
+    if (t.audience) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'For. '), document.createTextNode(t.audience)));
+    var tbl = el('table', 'st-table');
+    add(tbl, add(el('tr'), el('th', null, 'Claim'), el('th', null, 'Source')));
+    t.claims.forEach(function (x) { add(tbl, add(el('tr'), el('td', null, x.claim), el('td', null, x.source))); });
+    add(c, tbl);
+    if (t.mustSay.length) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Must say. '), document.createTextNode(t.mustSay.join(' · '))));
+    if (t.mustNotSay.length) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Must not say. '), document.createTextNode(t.mustNotSay.join(' · '))));
+    if (t.wish) {
+      var w = [t.wish.format, t.wish.mood, t.wish.style, t.wish.note].filter(Boolean).join(' · ');
+      add(c, add(el('p', 'st-ticket-line st-ticket-wish'), el('b', null, 'Wish. '), document.createTextNode(w)));
+    }
+    if (t.status !== 'proposed') return c;
+
+    // Accept puts it on the Board; decline needs a reason, which goes back to the agent who suggested it.
+    var acts = el('div', 'st-ticket-acts');
+    var proj = select(d.projects.map(function (p) { return [p, p]; }), 'ambientpixels');
+    proj.classList.add('st-select--small');
+    var reason = input('text', '', 'Why not? (goes back to ' + t.from + ')');
+    reason.classList.add('st-input--inline');
+    var status = el('span', 'st-note');
+    var accept = button('ap-btn ap-btn--primary st-run', 'Accept →', function () {
+      accept.disabled = decline.disabled = true;
+      flash(status, LOCAL ? 'Accepting, and putting it on the Board…' : 'Accepting…');
+      deskPost('desk-decide', { id: t.id, decision: 'accept', project: proj.value }).then(function (r) {
+        flash(status, LOCAL ? 'On the Board.' : 'Accepted. The PC puts it on the Board within a minute.');
+        setTimeout(reload, 900);
+        return r;
+      }).catch(function (e) { accept.disabled = decline.disabled = false; flash(status, e.message); });
+    });
+    var decline = button('st-tab', 'Decline', function () {
+      if (reason.value.trim().length < 8) { reason.focus(); return flash(status, 'Say why in a few words: it is how ' + t.from + ' learns.'); }
+      accept.disabled = decline.disabled = true;
+      deskPost('desk-decide', { id: t.id, decision: 'decline', reason: reason.value.trim() }).then(function () {
+        flash(status, 'Declined.'); setTimeout(reload, 600);
+      }).catch(function (e) { accept.disabled = decline.disabled = false; flash(status, e.message); });
+    });
+    add(acts, field('Project', proj), accept, reason, decline, status);
+    return add(c, acts);
+  }
+
+  function deskRow(t, i) {
+    var meta = t.direction === 'fleet'
+      ? [t.from, t.product, t.format, t.decision && t.decision.reason ? '“' + t.decision.reason + '”' : ''].filter(Boolean).join(' · ')
+      : ['to ' + t.to, t.by, t.project && t.video ? t.project + '/' + t.video : ''].filter(Boolean).join(' · ');
+    var href = t.studio && t.studio.video ? '#/p/' + encodeURIComponent(t.studio.project) + '/v/' + encodeURIComponent(t.studio.video) : '#/desk';
+    var done = ['declined', 'dropped', 'done'].indexOf(t.status) !== -1;
+    meta += ' · ' + when(t.updatedAt);
+    return row(href, pad2(i + 1), t.title + '.', meta, DESK_STATUS[t.status] || t.status, done ? 'ap-status--archive' : t.status === 'released' ? '' : 'ap-status--beta');
+  }
+
+  function crewForm(d, reload) {
+    var form = el('form', 'st-job-form');
+    form.noValidate = true;
+    var kind = select(CREW_KINDS, 'claims_check');
+    var title = input('text', '', 'Check the 03 teardown claims');
+    var proj = select([['', '—']].concat(d.projects.map(function (p) { return [p, p]; })), 'ambientpixels');
+    var video = input('text', '', '03-teardown');
+    var text = el('textarea', 'st-input st-input--wide');
+    text.rows = 3;
+    text.placeholder = 'What you need from the fleet, and where to find it.';
+    var status = el('span', 'st-note');
+    var go = el('button', 'ap-btn ap-btn--primary st-run', 'Send to the fleet →');
+    go.type = 'submit';
+    var details = field('Details', text);
+    details.classList.add('st-field--full');
+    add(form, field('Ask', kind), field('Title', title), field('Project', proj), field('Video (optional)', video),
+      details, add(el('div', 'st-toolbar'), go, status));
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      go.disabled = true;
+      deskPost('desk-ticket', { direction: 'crew', kind: kind.value, title: title.value, text: text.value, project: proj.value, video: video.value.trim() })
+        .then(function () { flash(status, 'Sent. The fleet picks it up on its next run.'); setTimeout(reload, 800); })
+        .catch(function (err) { go.disabled = false; flash(status, err.message); });
+    });
+    return form;
+  }
+
+  function releaseRow(e, reload) {
+    var r = el('div', 'st-need');
+    var actions = el('span', 'st-ticket-acts');
+    if (e.status !== 'confirmed') actions.appendChild(button('st-tab', 'Confirm', function () { deskPost('desk-release-status', { id: e.id, status: 'confirmed' }).then(reload, function (x) { alert(x.message); }); }));
+    if (e.status !== 'hidden') actions.appendChild(button('st-tab', 'Hide', function () { deskPost('desk-release-status', { id: e.id, status: 'hidden' }).then(reload, function (x) { alert(x.message); }); }));
+    var kind = e.significance === 'major' ? 'st-need-kind st-need-kind--review' : 'st-need-kind';
+    return add(r, el('span', kind, e.significance + ' · ' + e.kind),
+      add(el('span', 'st-need-text'), el('b', null, e.product + ': ' + e.title + '. '), document.createTextNode(e.summary || ''),
+        el('span', 'st-note', ' ' + when(e.at) + ' · ' + e.source + ' · ' + e.status)),
+      actions, el('span'));
+  }
+
+  function releaseForm(d, reload) {
+    var form = el('form', 'st-job-form');
+    form.noValidate = true;
+    var product = select(d.products.map(function (p) { return [p, p]; }), d.products[0]);
+    var title = input('text', '', 'Teardown reports now open in one click');
+    var kind = select([['feature', 'Feature'], ['fix', 'Fix'], ['launch', 'Launch'], ['content', 'Content']], 'feature');
+    var sig = select([['minor', 'Minor'], ['major', 'Major (can start a video)']], 'minor');
+    var url = input('text', '', 'https://www.ambientpixels.ai/…');
+    var status = el('span', 'st-note');
+    var go = el('button', 'ap-btn ap-btn--primary st-run', 'Log the release →');
+    go.type = 'submit';
+    add(form, field('Product', product), field('What shipped', title), field('Kind', kind), field('Size', sig), field('Link (optional)', url), add(el('div', 'st-toolbar'), go, status));
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      go.disabled = true;
+      deskPost('desk-release', { product: product.value, title: title.value, kind: kind.value, significance: sig.value, url: url.value.trim() || undefined })
+        .then(function () { flash(status, 'Logged.'); setTimeout(reload, 600); })
+        .catch(function (err) { go.disabled = false; flash(status, err.message); });
+    });
+    return form;
+  }
+
+  function viewDesk() {
+    setCrumbs([{ text: 'Desk' }]);
+    target = app;
+    function reload() { route(); }
+    return Promise.all([call('desk'), call('desk-releases').catch(function () { return { entries: [], runs: [] }; })]).then(function (both) {
+      var d = both[0], rel = both[1];
+      var fleet = d.tickets.filter(function (t) { return t.direction === 'fleet'; });
+      var waiting = fleet.filter(function (t) { return t.status === 'proposed'; });
+      var moving = fleet.filter(function (t) { return ['accepted', 'scripting', 'in_production', 'review'].indexOf(t.status) !== -1; });
+      var closed = fleet.filter(function (t) { return ['declined', 'released', 'dropped'].indexOf(t.status) !== -1; }).slice(0, 12);
+      var crew = d.tickets.filter(function (t) { return t.direction === 'crew'; }).slice(0, 15);
+
+      var s1 = add(section('§ 01 — VIDEO DESK'), headline('Ideas from the fleet,', 'made here.'),
+        guide('The AmbientOS agents suggest a video now and then: when something ships, when a bet wins, when a campaign starts. Each ticket says why now, what, and the sources for every claim. Accept puts it on the project\'s Board with a brief; decline with a reason, and the agent learns from it.',
+          waiting.length ? 'Decide the ' + (waiting.length === 1 ? 'ticket' : waiting.length + ' tickets') + ' below.' : 'Nothing is waiting. The fleet may suggest at most two open videos at a time.'));
+      var cards = el('div', 'st-tickets');
+      if (!waiting.length) cards.appendChild(el('p', 'st-empty', 'No video ideas waiting.'));
+      waiting.forEach(function (t) { cards.appendChild(ticketCard(t, d, reload)); });
+      s1.appendChild(cards);
+
+      var s2 = add(section('§ 02 — IN PRODUCTION'), guide('Accepted tickets, with the stage their video has reached on the Board. The agent who suggested it sees this too.'));
+      var rows2 = el('div', 'st-rows');
+      if (!moving.length) rows2.appendChild(el('p', 'st-empty', 'None yet.'));
+      moving.forEach(function (t, i) { rows2.appendChild(deskRow(t, i)); });
+      s2.appendChild(rows2);
+      if (closed.length) {
+        var rows3 = el('div', 'st-rows');
+        closed.forEach(function (t, i) { rows3.appendChild(deskRow(t, i)); });
+        add(s2, el('h3', 'st-notes-h', 'Closed'), rows3);
+      }
+
+      var s3 = add(section('§ 03 — ASK THE FLEET'), guide('The crew can ask the marketing side for help: a claims check from Quill, research from Scout, launch posts from Echo when a video ships.'));
+      s3.appendChild(crewForm(d, reload));
+      var rows4 = el('div', 'st-rows');
+      crew.forEach(function (t, i) { rows4.appendChild(deskRow(t, i)); });
+      if (crew.length) s3.appendChild(rows4);
+
+      var s4 = add(section('§ 04 — RELEASES'), guide('What shipped, as the fleet sees it. The Release Watcher reads every deploy (03:20, 09:20, 15:20, 21:20 UTC) and logs product changes; studio and agent work never counts. Only major releases can start a video. Hide anything that is wrong.'));
+      if (rel.runs && rel.runs[0]) s4.appendChild(el('p', 'st-note', 'Last check ' + when(rel.runs[0].at) + ': ' + rel.runs[0].commits + ' commits read, ' + rel.runs[0].added + ' new releases.'));
+      var list = el('div', 'st-board');
+      if (!rel.entries.length) list.appendChild(el('p', 'st-empty', 'No product releases logged yet.'));
+      rel.entries.slice(0, 15).forEach(function (e) { list.appendChild(releaseRow(e, reload)); });
+      add(s4, list, el('h3', 'st-notes-h', 'Log a release by hand'), releaseForm(d, reload));
+
+      show([s1, s2, s3, s4]);
+    });
+  }
+
   // ---- router ----
   function route() {
     cleanup.splice(0).forEach(function (f) { f(); });
@@ -1984,6 +2163,7 @@
     else if (h[0] === 'new') { target = app; p = viewNewProject(); }
     else if (h[0] === 'team' && h[1]) p = viewRole(h[1]);
     else if (h[0] === 'team') p = viewTeam();
+    else if (h[0] === 'desk') p = viewDesk();
     else { target = app; p = LOCAL ? viewDashboard() : viewProjects(); }
     p.catch(function (e) {
       if (e instanceof NeedKey) return viewKey(!!getKey());
