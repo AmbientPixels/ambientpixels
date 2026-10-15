@@ -1967,75 +1967,45 @@
     return out;
   }
 
-  // ---- the Video Desk: video ideas from the AmbientOS fleet, asks from the crew, and the release log ----
-  // Spec: ambientpixels docs/superpowers/specs/2026-10-14-video-desk-design.md. Works from both studios: the website
-  // with the studio key, the PC through its worker token. Nothing here makes a video; accepting puts it on the Board.
-  var TRIGGER_LABEL = { release: 'A release', bet_won: 'A bet that won', bet_scale: 'A bet ready to scale', campaign_launch: 'A new campaign', crew_request: 'The crew asked', manual: 'Your idea' };
-  var DESK_STATUS = { proposed: 'Waiting', accepted: 'Accepted', scripting: 'Script', in_production: 'In production', review: 'Review', released: 'Released', declined: 'Declined', dropped: 'Dropped', open: 'Open', taken: 'Taken', done: 'Done' };
+  // ---- the Video department: requests from the AmbientOS fleet, what shipped, and what the fleet keeps asking for ----
+  // Spec: ambientpixels docs/superpowers/specs/2026-10-14-video-desk-design.md §8. A request is a task on the company
+  // board (assigned to 'studio'); Chad decides THERE. This page only shows the department's work, in both studios.
+  var BOARD_URL = 'https://www.ambientpixels.ai/modules/company/tasks.html?task=';
+  var TRIGGER_LABEL = { release: 'A release', bet_won: 'A bet that won', bet_scale: 'A bet ready to scale', campaign_launch: 'A new campaign', manual: 'Your idea' };
+  var REQ_STATUS = { waiting: 'Waiting for you', accepted: 'Accepted', scripting: 'Script', in_production: 'In production', review: 'Review', released: 'Released', declined: 'Declined' };
 
   function deskPost(action, body) { return request('POST', action, null, body); }
   function labelOf(list, id) { var x = (list || []).filter(function (i) { return i.id === id; })[0]; return x ? (x.name || x.id) : id; }
+  function boardLink(r, text) { var a = el('a', 'st-link', text); a.href = BOARD_URL + encodeURIComponent(r.taskId); a.target = '_blank'; a.rel = 'noopener'; return a; }
 
-  function ticketCard(t, d, reload) {
+  // A waiting request, in full: what the agent asks for and why, so you can decide on the board.
+  function requestCard(r, d) {
     var c = el('article', 'st-ticket');
-    var head = el('div', 'st-ticket-head');
-    add(head, el('span', 'st-need-kind st-need-kind--review', TRIGGER_LABEL[t.trigger.type] || t.trigger.type),
-      el('span', 'st-note', 'from ' + t.from + ' · ' + when(t.createdAt) + (t.trigger.ref ? ' · ' + t.trigger.ref : '')));
-    add(c, head, el('h3', 'st-ticket-title', t.title + '.'));
-    add(c, el('p', 'st-note', [t.product, labelOf(d.catalog.formats, t.format), t.mood + ' mood', 'about ' + t.seconds + ' s', labelOf(d.catalog.styles, t.style)].join(' · ')));
-    if (t.trigger.evidence) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Why now. '), document.createTextNode(t.trigger.evidence)));
-    add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Goal. '), document.createTextNode(t.goal)));
-    if (t.hook) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Hook. '), document.createTextNode(t.hook)));
-    if (t.audience) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'For. '), document.createTextNode(t.audience)));
+    add(c, add(el('div', 'st-ticket-head'), el('span', 'st-need-kind st-need-kind--review', TRIGGER_LABEL[r.trigger.type] || r.trigger.type),
+      el('span', 'st-note', 'from ' + r.from + ' · ' + when(r.createdAt) + (r.trigger.ref ? ' · ' + r.trigger.ref : ''))));
+    add(c, el('h3', 'st-ticket-title', r.title + '.'));
+    add(c, el('p', 'st-note', [r.product, labelOf(d.catalog.formats, r.format), r.mood + ' mood', 'about ' + r.seconds + ' s', labelOf(d.catalog.styles, r.style)].join(' · ')));
+    function line(label, text) { if (text) add(c, add(el('p', 'st-ticket-line'), el('b', null, label + '. '), document.createTextNode(text))); }
+    line('Why now', r.trigger.evidence); line('Goal', r.goal); line('Hook', r.hook); line('For', r.audience);
     var tbl = el('table', 'st-table');
     add(tbl, add(el('tr'), el('th', null, 'Claim'), el('th', null, 'Source')));
-    t.claims.forEach(function (x) { add(tbl, add(el('tr'), el('td', null, x.claim), el('td', null, x.source))); });
+    (r.claims || []).forEach(function (x) { add(tbl, add(el('tr'), el('td', null, x.claim), el('td', null, x.source))); });
     add(c, tbl);
-    if (t.mustSay.length) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Must say. '), document.createTextNode(t.mustSay.join(' · '))));
-    if (t.mustNotSay.length) add(c, add(el('p', 'st-ticket-line'), el('b', null, 'Must not say. '), document.createTextNode(t.mustNotSay.join(' · '))));
-    if (t.wish) {
-      var w = [t.wish.format, t.wish.mood, t.wish.style, t.wish.note].filter(Boolean).join(' · ');
-      add(c, add(el('p', 'st-ticket-line st-ticket-wish'), el('b', null, 'Wish. '), document.createTextNode(w)));
-    }
-    if (t.status !== 'proposed') return c;
-
-    // Accept puts it on the Board; decline needs a reason, which goes back to the agent who suggested it.
-    var acts = el('div', 'st-ticket-acts');
-    var proj = select(d.projects.map(function (p) { return [p, p]; }), 'ambientpixels');
-    proj.classList.add('st-select--small');
-    var reason = input('text', '', 'Why not? (goes back to ' + t.from + ')');
-    reason.classList.add('st-input--inline');
-    var status = el('span', 'st-note');
-    var accept = button('ap-btn ap-btn--primary st-run', 'Accept →', function () {
-      accept.disabled = decline.disabled = true;
-      flash(status, LOCAL ? 'Accepting, and putting it on the Board…' : 'Accepting…');
-      deskPost('desk-decide', { id: t.id, decision: 'accept', project: proj.value }).then(function (r) {
-        flash(status, LOCAL ? 'On the Board.' : 'Accepted. The PC puts it on the Board within a minute.');
-        setTimeout(reload, 900);
-        return r;
-      }).catch(function (e) { accept.disabled = decline.disabled = false; flash(status, e.message); });
-    });
-    var decline = button('st-tab', 'Decline', function () {
-      if (reason.value.trim().length < 8) { reason.focus(); return flash(status, 'Say why in a few words: it is how ' + t.from + ' learns.'); }
-      accept.disabled = decline.disabled = true;
-      deskPost('desk-decide', { id: t.id, decision: 'decline', reason: reason.value.trim() }).then(function () {
-        flash(status, 'Declined.'); setTimeout(reload, 600);
-      }).catch(function (e) { accept.disabled = decline.disabled = false; flash(status, e.message); });
-    });
-    add(acts, field('Project', proj), accept, reason, decline, status);
-    return add(c, acts);
+    if (r.mustSay && r.mustSay.length) line('Must say', r.mustSay.join(' · '));
+    if (r.mustNotSay && r.mustNotSay.length) line('Must not say', r.mustNotSay.join(' · '));
+    if (r.wish) { var w = [r.wish.format, r.wish.mood, r.wish.style, r.wish.note].filter(Boolean).join(' · '); if (w) add(c, add(el('p', 'st-ticket-line st-ticket-wish'), el('b', null, 'Wish. '), document.createTextNode(w))); }
+    add(c, add(el('div', 'st-ticket-acts'), boardLink(r, 'Decide on the company board →'),
+      el('span', 'st-note', 'In-progress accepts it; cancel with a comment declines it, and ' + r.from + ' learns from the comment.')));
+    return c;
   }
 
-  function deskRow(t, i) {
-    var meta = t.direction === 'fleet'
-      ? [t.from, t.product, t.format, t.decision && t.decision.reason ? '“' + t.decision.reason + '”' : ''].filter(Boolean).join(' · ')
-      : ['to ' + t.to, t.by, t.project && t.video ? t.project + '/' + t.video : ''].filter(Boolean).join(' · ');
-    var href = t.studio && t.studio.video ? '#/p/' + encodeURIComponent(t.studio.project) + '/v/' + encodeURIComponent(t.studio.video) : '#/desk';
-    var done = ['declined', 'dropped', 'done'].indexOf(t.status) !== -1;
-    meta += ' · ' + when(t.updatedAt);
-    return row(href, pad2(i + 1), t.title + '.', meta, DESK_STATUS[t.status] || t.status, done ? 'ap-status--archive' : t.status === 'released' ? '' : 'ap-status--beta');
+  function requestRow(r, i) {
+    var last = (r.comments || []).slice(-1)[0];
+    var said = last ? (last.who === 'studio' ? 'Studio' : last.who === 'ceo' ? 'Chad' : last.who) + ': ' + last.text.replace(/^\[studio:[^\]]*\]\s*/, '').slice(0, 90) : '';
+    var meta = [r.from, r.product, r.format, r.video || '', r.reason ? '“' + r.reason + '”' : said, when(r.updatedAt)].filter(Boolean).join(' · ');
+    var href = r.video ? '#/p/' + encodeURIComponent(r.project || 'ambientpixels') + '/v/' + encodeURIComponent(r.video) : BOARD_URL + encodeURIComponent(r.taskId);
+    return row(href, pad2(i + 1), r.title + '.', meta, REQ_STATUS[r.status] || r.status, r.status === 'declined' ? 'ap-status--archive' : r.status === 'released' ? '' : 'ap-status--beta');
   }
-
 
   function releaseRow(e, reload) {
     var r = el('div', 'st-need');
@@ -2044,10 +2014,9 @@
     var kind = e.significance === 'major' ? 'st-need-kind st-need-kind--review' : 'st-need-kind';
     return add(r, el('span', kind, e.significance + ' · ' + e.kind),
       add(el('span', 'st-need-text'), el('b', null, e.product + ': ' + e.title + '. '), document.createTextNode(e.summary || ''),
-        el('span', 'st-note', ' ' + when(e.at) + ' · ' + e.source + ' · ' + e.status)),
+        el('span', 'st-note', ' ' + when(e.at) + ' · ' + e.source + (e.status === 'hidden' ? ' · hidden' : ''))),
       actions, el('span'));
   }
-
 
   // What the fleet asks for, what you take, what ships, and what it wishes the studio could make: the data that
   // decides which kit or format to build next.
@@ -2057,15 +2026,15 @@
     var tbl = el('table', 'st-table');
     add(tbl, add(el('tr'), el('th', null, title), el('th', null, 'Asked'), el('th', null, 'Taken'), el('th', null, 'Declined'), el('th', null, 'Released')));
     keys.sort(function (a, b) { return rows[b].asked - rows[a].asked; }).forEach(function (k) {
-      var r = rows[k];
-      add(tbl, add(el('tr'), el('td', null, labels ? labelOf(labels, k) : k), el('td', null, String(r.asked)), el('td', null, String(r.accepted)), el('td', null, String(r.declined)), el('td', null, String(r.released))));
+      var x = rows[k];
+      add(tbl, add(el('tr'), el('td', null, labels ? labelOf(labels, k) : k), el('td', null, String(x.asked)), el('td', null, String(x.accepted)), el('td', null, String(x.declined)), el('td', null, String(x.released))));
     });
     return tbl;
   }
   function demandSection(d) {
     var dm = d.demand || {};
-    var s = add(section('§ 04 — DEMAND'), guide('Every ticket is data about the pipeline: which formats and moods the fleet reaches for, which you take, which ship, and what it wished for that the studio cannot make yet. Wishes that keep coming back are the next kit to build.'));
-    if (!dm.tickets) { s.appendChild(el('p', 'st-empty', 'No tickets yet. The first suggestions arrive when something ships, a bet wins or a campaign starts.')); return s; }
+    var s = add(section('§ 04 — DEMAND'), guide('Every request is data about the pipeline: which formats and moods the fleet reaches for, which you take, which ship, and what it wished for that the department cannot make yet. Wishes that keep coming back are the next kit to build.'));
+    if (!dm.requests) { s.appendChild(el('p', 'st-empty', 'No requests yet. The first arrive when something ships, a bet wins or a campaign starts.')); return s; }
     var grid = el('div', 'st-demand');
     add(grid, demandTable('Format', dm.formats, d.catalog.formats), demandTable('Mood', dm.moods), demandTable('Product', dm.products), demandTable('Agent', dm.byAgent));
     s.appendChild(grid);
@@ -2086,75 +2055,42 @@
   }
 
   function viewDesk() {
-    setCrumbs([{ text: 'Desk' }]);
+    setCrumbs([{ text: 'Video department' }]);
     target = app;
     function reload() { route(); }
     return Promise.all([call('desk'), call('desk-releases').catch(function () { return { entries: [], runs: [] }; })]).then(function (both) {
       var d = both[0], rel = both[1];
-      var fleet = d.tickets.filter(function (t) { return t.direction === 'fleet'; });
-      var waiting = fleet.filter(function (t) { return t.status === 'proposed'; });
-      var moving = fleet.filter(function (t) { return ['accepted', 'scripting', 'in_production', 'review'].indexOf(t.status) !== -1; });
-      var closed = fleet.filter(function (t) { return ['declined', 'released', 'dropped'].indexOf(t.status) !== -1; }).slice(0, 12);
-      var crew = d.tickets.filter(function (t) { return t.direction === 'crew'; }).slice(0, 15);
+      var waiting = d.requests.filter(function (r) { return r.status === 'waiting'; });
+      var moving = d.requests.filter(function (r) { return ['accepted', 'scripting', 'in_production', 'review'].indexOf(r.status) !== -1; });
+      var closed = d.requests.filter(function (r) { return r.status === 'declined' || r.status === 'released'; }).slice(0, 12);
 
-      var s1 = add(section('§ 01 — VIDEO DESK'), headline('Ideas from the fleet,', 'made here.'),
-        guide('The AmbientOS agents suggest a video now and then: when something ships, when a bet wins, when a campaign starts. Each ticket says why now, what, and the sources for every claim. Accept puts it on the project\'s Board with a brief; decline with a reason, and the agent learns from it.',
-          waiting.length ? 'Decide the ' + (waiting.length === 1 ? 'ticket' : waiting.length + ' tickets') + ' below.' : 'Nothing is waiting. The fleet may suggest at most two open videos at a time.'));
+      var s1 = add(section('§ 01 — VIDEO DEPARTMENT'), headline('Ideas from the fleet,', 'made here.'),
+        guide('This studio\'s crew is AmbientPixels\' Video department. Nova, Echo and Scout suggest a video now and then (when something ships, a bet wins or a campaign starts) as a task on the company board, and you decide there. Accepted requests land on this studio\'s Board with a brief, and the crew talks to the fleet in that task\'s thread.',
+          waiting.length ? 'Decide the ' + (waiting.length === 1 ? 'request' : waiting.length + ' requests') + ' below on the company board.' : 'Nothing is waiting. The fleet may have at most two open requests at a time.'));
       var cards = el('div', 'st-tickets');
-      if (!waiting.length) cards.appendChild(el('p', 'st-empty', 'No video ideas waiting.'));
-      waiting.forEach(function (t) { cards.appendChild(ticketCard(t, d, reload)); });
+      if (!waiting.length) cards.appendChild(el('p', 'st-empty', 'No video requests waiting.'));
+      waiting.forEach(function (r) { cards.appendChild(requestCard(r, d)); });
       s1.appendChild(cards);
 
-      var s2 = add(section('§ 02 — IN PRODUCTION'), guide('Accepted tickets, with the stage their video has reached on the Board. The agent who suggested it sees this too.'));
+      var s2 = add(section('§ 02 — IN PRODUCTION'), guide('Accepted requests, with the stage their video has reached on the Board. The worker posts each step in the request\'s thread, so the agent who asked sees it; the release tags @Echo for launch posts.'));
       var rows2 = el('div', 'st-rows');
       if (!moving.length) rows2.appendChild(el('p', 'st-empty', 'None yet.'));
-      moving.forEach(function (t, i) { rows2.appendChild(deskRow(t, i)); });
+      moving.forEach(function (r, i) { rows2.appendChild(requestRow(r, i)); });
       s2.appendChild(rows2);
-      // A released video needs its link once: that link goes to Echo as a launch-posts ask, and into the release log.
-      var needsLink = fleet.filter(function (t) { return t.status === 'released' && !(t.release && t.release.url); });
-      if (needsLink.length) {
-        add(s2, el('h3', 'st-notes-h', 'Released: where is it live?'));
-        var linkList = el('div', 'st-board');
-        needsLink.forEach(function (t) {
-          var r = el('div', 'st-need');
-          var url = input('text', '', 'https://www.ambientpixels.ai/…');
-          url.classList.add('st-input--inline');
-          var note = el('span', 'st-note');
-          var go = button('st-tab', 'Send to Echo', function () {
-            go.disabled = true;
-            deskPost('desk-release-url', { id: t.id, url: url.value.trim() }).then(function () {
-              flash(note, 'Echo has the launch-posts ask; the release log has the video.'); setTimeout(reload, 900);
-            }).catch(function (e) { go.disabled = false; flash(note, e.message); });
-          });
-          add(r, el('span', 'st-need-kind st-need-kind--review', 'Released'), add(el('span', 'st-need-text'), el('b', null, t.title + '. '), note),
-            add(el('span', 'st-ticket-acts'), url, go), el('span'));
-          linkList.appendChild(r);
-        });
-        s2.appendChild(linkList);
-      }
       if (closed.length) {
         var rows3 = el('div', 'st-rows');
-        closed.forEach(function (t, i) { rows3.appendChild(deskRow(t, i)); });
+        closed.forEach(function (r, i) { rows3.appendChild(requestRow(r, i)); });
         add(s2, el('h3', 'st-notes-h', 'Closed'), rows3);
       }
 
-      // Asks to the fleet are filed automatically (a released video's launch posts); shown only when there are any.
-      var s3 = null;
-      if (crew.length) {
-        s3 = add(section('§ 05 — ASKS TO THE FLEET'), guide('Filed automatically: when a video ships, Echo gets the launch posts. Nova hands each ask to its agent; the answer comes back here.'));
-        var rows4 = el('div', 'st-rows');
-        crew.forEach(function (t, i) { rows4.appendChild(deskRow(t, i)); });
-        s3.appendChild(rows4);
-      }
-
-      var s4 = add(section('§ 03 — RELEASES'), guide('What shipped, logged automatically: the Release Watcher reads every deploy (03:20, 09:20, 15:20, 21:20 UTC); studio and agent work never counts. Only major releases can start a video. Hide an entry only if it is wrong.'));
-      if (rel.runs && rel.runs[0]) s4.appendChild(el('p', 'st-note', 'Last check ' + when(rel.runs[0].at) + ': ' + rel.runs[0].commits + ' commits read, ' + rel.runs[0].added + ' new releases.'));
+      var s3 = add(section('§ 03 — RELEASES'), guide('What shipped, logged automatically: the Release Watcher reads every deploy (03:20, 09:20, 15:20, 21:20 UTC); studio and agent work never counts. Only major releases can start a video. Hide an entry only if it is wrong.'));
+      if (rel.runs && rel.runs[0]) s3.appendChild(el('p', 'st-note', 'Last check ' + when(rel.runs[0].at) + ': ' + rel.runs[0].commits + ' commits read, ' + rel.runs[0].added + ' new releases.'));
       var list = el('div', 'st-board');
       if (!rel.entries.length) list.appendChild(el('p', 'st-empty', 'No product releases logged yet.'));
       rel.entries.slice(0, 15).forEach(function (e) { list.appendChild(releaseRow(e, reload)); });
-      s4.appendChild(list);
+      s3.appendChild(list);
 
-      show([s1, s2, s4, demandSection(d), s3].filter(Boolean));
+      show([s1, s2, s3, demandSection(d)]);
     });
   }
 

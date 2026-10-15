@@ -1,29 +1,33 @@
-// studio/desk.js — the Video Desk's ticket rules (pure: no Azure, tests in plain node).
-// Spec: docs/superpowers/specs/2026-10-14-video-desk-design.md
+// studio/desk.js — the Video department's request rules (pure: no Azure, tests in plain node).
+// Spec: docs/superpowers/specs/2026-10-14-video-desk-design.md (§8: the Video department).
 //
-// Two directions, one store (blobs desk/tickets/<id>.json in the private `studio` container):
-//   fleet → crew   an AmbientOS agent suggests a video (why now, what, proof). Chad accepts or declines with a
-//                  reason; accepted tickets become a video on the project's Board; the Board's progress flows back.
-//   crew  → fleet  a Studio role asks the fleet for something (a claims check, research, launch posts).
+// The Video department is the Studio crew on Chad's PC. It has no ticket system of its own: a fleet agent's video
+// suggestion is a TASK on the company board, assigned to the department's inbox ('studio', which never runs in the
+// heartbeat), and everything after that is the task's comments:
+//   Chad      decides on the board: in-progress = accepted, canceled + a comment = declined (the reason teaches).
+//   Studio    posts progress as "[studio:<stage>]" comments, @Quill/@Scout/@Echo when it needs the fleet, and the
+//             release link with @Echo for launch posts; done = released.
+//   Agents    answer in the same thread (comment-task); they may not move, edit or execute the task.
 //
-// Everything a ticket may name comes from the video catalogue (memory layer L10), so the fleet can't ask for a
+// Everything a request may name comes from the video catalogue (memory layer L10), so the fleet can't ask for a
 // format, mood or voice the crew can't make — except in `wish`, which is where unmet demand is recorded on purpose.
 'use strict';
 
 const CATALOG = require('../_data/video-catalog.json');
 
-const FLEET_STATUSES = ['proposed', 'accepted', 'declined', 'scripting', 'in_production', 'review', 'released', 'dropped'];
-const FLEET_OPEN = ['proposed', 'accepted', 'scripting', 'in_production', 'review'];
-const CREW_STATUSES = ['open', 'taken', 'done', 'dropped'];
-const TRIGGERS = ['release', 'bet_won', 'bet_scale', 'campaign_launch', 'crew_request', 'manual'];
-const CREW_KINDS = { claims_check: 'quill', research: 'scout', launch_posts: 'echo', other: 'nova' };
+const VIDEO_TASK_TYPE = 'video_request';
+const INBOX = 'studio';
+const TRIGGERS = ['release', 'bet_won', 'bet_scale', 'campaign_launch', 'manual'];
 const AGENTS = ['nova', 'echo', 'scout', 'scribe', 'quill', 'forge', 'pixel', 'cipher', 'vale'];
-const ID = /^(vt|ct)_[a-z0-9]{6,14}_[a-z0-9]{4}$/;
+// What a request is, as the department sees it.
+const STATUSES = ['waiting', 'accepted', 'scripting', 'in_production', 'review', 'released', 'declined'];
+const OPEN = ['waiting', 'accepted', 'scripting', 'in_production', 'review'];
+const STAGES = ['scripting', 'in_production', 'review', 'released'];
+const FENCE = /```video-request\n([\s\S]*?)\n```/;
 
 const str = (v, max) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
 const list = (v, n, max) => (Array.isArray(v) ? v.map((x) => str(x, max)).filter(Boolean).slice(0, n) : []);
 const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const newId = (prefix, nowMs) => `${prefix}_${nowMs.toString(36)}_${Math.random().toString(36).slice(2, 6).padEnd(4, '0')}`;
 
 const formatIds = () => CATALOG.formats.map((f) => f.id);
 const moodIds = () => CATALOG.moods.map((m) => m.id);
@@ -46,9 +50,9 @@ function validSource(s) {
   return /^product-facts:[A-Za-z]{2,40}$/.test(s) || /^https:\/\/(www\.)?ambientpixels\.ai\/[^\s]*$/.test(s) || /^\/pulse\/[^\s]*$/.test(s);
 }
 
-// → clean ticket, or a reason string.
-function cleanFleetTicket(b, from, nowMs) {
-  if (!b || typeof b !== 'object') return 'ticket must be an object';
+// A suggestion → the clean request payload, or a reason string.
+function cleanRequest(b, from) {
+  if (!b || typeof b !== 'object') return 'request must be an object';
   const agent = str(from, 20).toLowerCase();
   if (!AGENTS.includes(agent) && agent !== 'ceo') return 'unknown author';
   const t = b.trigger || {};
@@ -94,186 +98,137 @@ function cleanFleetTicket(b, from, nowMs) {
     if (!wish.format && !wish.mood && !wish.style && !wish.note) wish = null;
   }
 
-  const at = new Date(nowMs).toISOString();
   return {
-    id: newId('vt', nowMs), direction: 'fleet', from: agent, createdAt: at, updatedAt: at,
+    v: 1, from: agent, trigger: { type: t.type, ref: ref || null, evidence: str(t.evidence, 200) || null },
+    product, title, format, style, mood, seconds, audience: str(b.audience, 140), goal, hook, mustSay, mustNotSay, claims, wish,
     campaignId: str(b.campaignId, 60) || null, objectiveId: str(b.objectiveId, 60) || null, betKey: str(b.betKey, 160) || null,
-    trigger: { type: t.type, ref: ref || null, evidence: str(t.evidence, 200) || null },
-    product, title, format, style, mood, seconds,
-    audience: str(b.audience, 140), goal, hook, mustSay, mustNotSay, claims, wish,
-    status: 'proposed', decision: null, studio: null, release: null,
-    history: [{ at, by: agent, status: 'proposed', note: null }],
   };
 }
 
-function cleanCrewTicket(b, by, nowMs) {
-  if (!b || typeof b !== 'object') return 'ticket must be an object';
-  const kind = str(b.kind, 20);
-  if (!Object.prototype.hasOwnProperty.call(CREW_KINDS, kind)) return 'kind must be one of ' + Object.keys(CREW_KINDS).join(', ');
-  const title = str(b.title, 80), text = str(b.text, 1000);
-  if (title.length < 4) return 'title is required';
-  if (text.length < 10) return 'say what you need';
-  const project = str(b.project, 63), video = str(b.video, 80);
-  if (project && !/^[a-z0-9][a-z0-9-]{0,62}$/.test(project)) return 'invalid project';
-  if (video && !/^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(video)) return 'invalid video';
-  const links = list(b.links, 5, 300).filter((l) => /^https:\/\//.test(l));
-  const at = new Date(nowMs).toISOString();
-  const who = str(by, 40) || 'studio';
+// The request as a company task: a brief people can read, and the payload code reads back.
+function requestTask(r) {
+  const lines = [
+    `**Video request from ${r.from}.** Agents suggest videos; the Video department (the Studio crew) makes them.`,
+    `Chad: move to in-progress to accept, or cancel with a comment saying why (${r.from} learns from it).`,
+    '',
+    `- Why now: ${r.trigger.type}${r.trigger.ref ? ' ' + r.trigger.ref : ''}${r.trigger.evidence ? ': ' + r.trigger.evidence : ''}`,
+    `- ${r.product} · ${r.format} · about ${r.seconds} s · ${r.mood} mood · style ${r.style} (follows the product)`,
+    `- Goal: ${r.goal}`,
+    r.hook ? `- Hook: ${r.hook}` : null,
+    r.audience ? `- For: ${r.audience}` : null,
+    '',
+    'Claims:',
+    ...r.claims.map((c, i) => `${i + 1}. ${c.claim} (${c.source})`),
+    r.wish ? `\nWish: ${[r.wish.format, r.wish.mood, r.wish.style, r.wish.note].filter(Boolean).join(' · ')}` : null,
+    '',
+    '```video-request',
+    JSON.stringify(r),
+    '```',
+  ].filter((l) => l !== null);
   return {
-    id: newId('ct', nowMs), direction: 'crew', kind, to: CREW_KINDS[kind], title, text, project: project || null,
-    video: video || null, links, fromTicket: ID.test(b.fromTicket || '') ? b.fromTicket : null,
-    campaignId: str(b.campaignId, 60) || null,
-    by: who, createdAt: at, updatedAt: at, status: 'open', taskId: null,
-    history: [{ at, by: who, status: 'open', note: null }],
+    title: str('Video: ' + r.title, 120), description: lines.join('\n'), taskType: VIDEO_TASK_TYPE, assignee: INBOX,
+    division: 'video', status: 'todo', priority: 'medium',
+    dueDate: null, campaign_id: r.campaignId || null, objective_id: r.objectiveId || null,
   };
 }
 
-function push(t, status, by, note, nowMs) {
-  const at = new Date(nowMs).toISOString();
-  t.status = status;
-  t.updatedAt = at;
-  t.history = (t.history || []).concat([{ at, by: str(by, 40) || 'studio', status, note: str(note, 300) || null }]).slice(-40);
+const isRequestTask = (t) => !!t && t.taskType === VIDEO_TASK_TYPE;
+
+// Every comment shape on the board, normalized: agents write {author}, the board writes {agentId} (null = Chad),
+// tasksPatch writes {author}.
+function commentsOf(task) {
+  return (Array.isArray(task && task.comments) ? task.comments : []).map((c) => {
+    const who = String(c.author || c.user || c.agentId || '').toLowerCase() || 'ceo';
+    return { who: who === 'pixelpusher' || who === 'chad' || who === 'unknown' ? 'ceo' : who, text: String(c.text || c.comment || c.body || ''), at: c.createdAt || c.created_at || c.timestamp || null };
+  });
 }
 
-// Chad's call on a proposed ticket. A decline needs a reason: it is the fleet's training signal.
-function decide(t, b, by, nowMs, projects) {
-  if (!t || t.direction !== 'fleet') return 'not a fleet ticket';
-  if (t.status !== 'proposed') return 'already decided';
-  const decision = str(b && b.decision, 10);
-  const reason = str(b && b.reason, 500);
-  if (decision === 'decline') {
-    if (reason.length < 8) return 'a decline needs a reason (it goes back to the agent)';
-    t.decision = { decision, by: str(by, 40) || 'chad', at: new Date(nowMs).toISOString(), reason };
-    push(t, 'declined', by, reason, nowMs);
-    return t;
+// "[studio:scripting video=04-scan]" — the department's progress markers.
+const MARK = /^\[studio:([a-z_]+)(?:\s+video=([A-Za-z0-9._-]+))?(?:\s+project=([a-z0-9-]+))?\]/;
+const studioMark = (stage, video, project) => `[studio:${stage}${video ? ' video=' + video : ''}${project ? ' project=' + project : ''}]`;
+
+// A company task → the request as the department sees it, or null if it isn't one.
+function parseRequest(task) {
+  if (!isRequestTask(task)) return null;
+  const m = FENCE.exec(String(task.description || ''));
+  let r = null;
+  try { r = m ? JSON.parse(m[1]) : null; } catch (_) { r = null; }
+  if (!r || typeof r !== 'object') return null;
+  const comments = commentsOf(task);
+  let stage = null, video = null, project = null, releaseUrl = null;
+  for (const c of comments) {
+    if (c.who !== INBOX) continue;
+    const x = MARK.exec(c.text);
+    if (!x) continue;
+    if (STAGES.includes(x[1])) stage = x[1];
+    if (x[2]) video = x[2];
+    if (x[3]) project = x[3];
+    const u = /https:\/\/\S+/.exec(c.text);
+    if (x[1] === 'released' && u) releaseUrl = u[0].replace(/[).,]+$/, '');
   }
-  if (decision === 'accept') {
-    const project = str(b && b.project, 63) || 'ambientpixels';
-    if (Array.isArray(projects) && !projects.includes(project)) return 'unknown project';
-    t.decision = { decision, by: str(by, 40) || 'chad', at: new Date(nowMs).toISOString(), reason: reason || null };
-    t.studio = { project, video: null, trackerIds: [] };
-    push(t, 'accepted', by, reason, nowMs);
-    return t;
-  }
-  return 'decision must be accept or decline';
+  const st = String(task.status || '').toLowerCase();
+  let status;
+  if (st === 'canceled' || st === 'cancelled' || st === 'archived') status = 'declined';
+  else if (st === 'done') status = 'released';
+  else if (st === 'todo' || st === 'backlog') status = 'waiting';
+  else status = stage && stage !== 'released' ? stage : 'accepted';
+  const ceo = comments.filter((c) => c.who === 'ceo');
+  return Object.assign({}, r, {
+    taskId: task.id, from: task.created_by || r.from, createdAt: task.createdAt, updatedAt: task.updatedAt || task.createdAt,
+    status, video, project, releaseUrl,
+    reason: status === 'declined' && ceo.length ? str(ceo[ceo.length - 1].text, 300) : null,
+    comments: comments.slice(-6),
+  });
 }
 
-// What the worker reports from the Board, or a crew ticket's progress. Never moves a ticket backwards past a decision.
-function applyUpdate(t, b, by, nowMs) {
-  if (!t) return 'unknown ticket';
-  const u = b || {};
-  if (t.direction === 'fleet') {
-    if (t.status === 'proposed' || t.status === 'declined') return 'the ticket has not been accepted';
-    if (u.video !== undefined) {
-      const video = str(u.video, 80);
-      if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(video)) return 'invalid video';
-      t.studio = Object.assign({}, t.studio, { video, trackerIds: list(u.trackerIds, 20, 10) });
-    }
-    if (u.releaseUrl) {
-      const url = str(u.releaseUrl, 300);
-      if (!/^https:\/\//.test(url)) return 'release url must be https';
-      t.release = { url, at: new Date(nowMs).toISOString() };
-    }
-    if (u.status && u.status !== t.status) {
-      if (!['scripting', 'in_production', 'review', 'released', 'dropped'].includes(u.status)) return 'invalid status';
-      push(t, u.status, by, u.note, nowMs);
-    } else t.updatedAt = new Date(nowMs).toISOString();
-    return t;
-  }
-  if (u.status && u.status !== t.status) {
-    if (!CREW_STATUSES.includes(u.status)) return 'invalid status';
-    if (u.taskId) t.taskId = str(u.taskId, 60);
-    push(t, u.status, by, u.note, nowMs);
-  }
-  return t;
-}
+const requestsFrom = (tasks) => (Array.isArray(tasks) ? tasks : []).map(parseRequest).filter(Boolean);
 
-// Where a released video lives. Set once; it is what the launch posts link to.
-function setReleaseUrl(t, b, by, nowMs) {
-  if (!t || t.direction !== 'fleet') return 'not a fleet ticket';
-  if (t.status !== 'released') return 'only a released video gets a link';
-  if (t.release && t.release.url) return 'this video already has its link';
-  const url = str(b && b.url, 300);
-  if (!/^https:\/\/[^\s]+$/.test(url)) return 'the link must be https';
-  t.release = { url, at: new Date(nowMs).toISOString(), by: str(by, 40) || 'chad' };
-  t.updatedAt = t.release.at;
-  return t;
-}
-
-// The ask that goes to Echo when a video ships: the link, and the claims the video already sourced.
-function launchAsk(t) {
-  const claims = (t.claims || []).map((c) => `- ${c.claim} (source: ${c.source})`).join('\n');
-  return {
-    kind: 'launch_posts', title: str('Launch posts: ' + t.title, 80),
-    text: str(`The studio released "${t.title}" (${t.product}, ${t.format}) at ${t.release.url}. ` +
-      `It answers ${t.trigger.type} ${t.trigger.ref || ''}. Goal for viewers: ${t.goal}. ` +
-      `Write the launch posts inside an approved campaign; every claim must be one the video already sources:\n${claims}`, 1000),
-    project: t.studio && t.studio.project, video: t.studio && t.studio.video, links: [t.release.url],
-    fromTicket: t.id, campaignId: t.campaignId,
-  };
+// What the fleet-side gates need: open requests, each agent's newest, and the trigger refs already used.
+function fleetLoad(requests) {
+  const open = requests.filter((r) => OPEN.includes(r.status));
+  const lastByAgent = {};
+  for (const r of requests) if (!lastByAgent[r.from] || r.createdAt > lastByAgent[r.from]) lastByAgent[r.from] = r.createdAt;
+  const refs = new Set(requests.filter((r) => r.trigger && r.trigger.ref).map((r) => r.trigger.type + ':' + r.trigger.ref));
+  return { open: open.length, lastByAgent, refs };
 }
 
 // The demand ledger: what the fleet asked for, what Chad took, what shipped, and what it wished the studio could
 // make. This is the data that decides which kits and formats the pipeline builds next (spec §4).
-function demand(tickets) {
-  const fleet = (tickets || []).filter((t) => t.direction === 'fleet');
+function demand(requests) {
   const blank = () => ({ asked: 0, accepted: 0, declined: 0, released: 0 });
+  const add = (row, r) => {
+    row.asked++;
+    if (r.status === 'declined') row.declined++; else if (r.status !== 'waiting') row.accepted++;
+    if (r.status === 'released') row.released++;
+  };
   const tally = (get) => {
     const out = {};
-    for (const t of fleet) {
-      const k = get(t);
-      if (!k) continue;
-      const row = out[k] || (out[k] = blank());
-      row.asked++;
-      if (t.status === 'declined') row.declined++;
-      else if (t.status !== 'proposed') row.accepted++;
-      if (t.status === 'released') row.released++;
-    }
+    for (const r of requests) { const k = get(r); if (k) add(out[k] || (out[k] = blank()), r); }
     return out;
   };
   const wishes = {};
-  for (const t of fleet) {
-    if (!t.wish) continue;
+  for (const r of requests) {
+    if (!r.wish) continue;
     for (const k of ['format', 'mood', 'style']) {
-      if (!t.wish[k]) continue;
-      const key = k + ':' + String(t.wish[k]).toLowerCase().slice(0, 40);
+      if (!r.wish[k]) continue;
+      const key = k + ':' + String(r.wish[k]).toLowerCase().slice(0, 40);
       wishes[key] = (wishes[key] || 0) + 1;
     }
   }
-  const byAgent = {};
-  for (const t of fleet) {
-    const row = byAgent[t.from] || (byAgent[t.from] = blank());
-    row.asked++;
-    if (t.status === 'declined') row.declined++; else if (t.status !== 'proposed') row.accepted++;
-    if (t.status === 'released') row.released++;
-  }
-  const declines = fleet.filter((t) => t.status === 'declined' && t.decision && t.decision.reason)
-    .map((t) => ({ at: t.decision.at, from: t.from, format: t.format, title: t.title, reason: t.decision.reason }))
-    .sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 20);
-  const notes = fleet.filter((t) => t.wish && t.wish.note).map((t) => ({ from: t.from, format: t.format, note: t.wish.note })).slice(0, 20);
   return {
-    tickets: fleet.length,
-    formats: tally((t) => t.format), moods: tally((t) => t.mood), styles: tally((t) => t.style), products: tally((t) => t.product),
-    triggers: tally((t) => t.trigger && t.trigger.type), byAgent,
+    requests: requests.length,
+    formats: tally((r) => r.format), moods: tally((r) => r.mood), styles: tally((r) => r.style), products: tally((r) => r.product),
+    triggers: tally((r) => r.trigger && r.trigger.type), byAgent: tally((r) => r.from),
     wishes: Object.entries(wishes).sort((a, b) => b[1] - a[1]).map(([k, n]) => ({ what: k, n })),
-    wishNotes: notes, declines,
+    wishNotes: requests.filter((r) => r.wish && r.wish.note).map((r) => ({ from: r.from, format: r.format, note: r.wish.note })).slice(0, 20),
+    declines: requests.filter((r) => r.status === 'declined' && r.reason)
+      .map((r) => ({ at: r.updatedAt, from: r.from, format: r.format, title: r.title, reason: r.reason }))
+      .sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 20),
   };
 }
 
-// Counts the fleet-side gates need (phase 3): open fleet tickets, and each agent's newest ticket.
-function fleetLoad(tickets) {
-  const open = tickets.filter((t) => t.direction === 'fleet' && FLEET_OPEN.includes(t.status));
-  const lastByAgent = {};
-  for (const t of tickets) {
-    if (t.direction !== 'fleet') continue;
-    if (!lastByAgent[t.from] || t.createdAt > lastByAgent[t.from]) lastByAgent[t.from] = t.createdAt;
-  }
-  const refs = new Set(tickets.filter((t) => t.direction === 'fleet' && t.trigger && t.trigger.ref).map((t) => t.trigger.type + ':' + t.trigger.ref));
-  return { open: open.length, lastByAgent, refs };
-}
-
 module.exports = {
-  CATALOG, FLEET_STATUSES, FLEET_OPEN, CREW_STATUSES, TRIGGERS, CREW_KINDS, ID,
+  CATALOG, VIDEO_TASK_TYPE, INBOX, TRIGGERS, STATUSES, OPEN, STAGES,
   formatIds, moodIds, styleIds, styleFor, validSource,
-  cleanFleetTicket, cleanCrewTicket, decide, applyUpdate, fleetLoad, setReleaseUrl, launchAsk, demand,
+  cleanRequest, requestTask, isRequestTask, commentsOf, studioMark, parseRequest, requestsFrom, fleetLoad, demand,
 };

@@ -1,7 +1,7 @@
 // task-mutations.js — extracted from companyHeartbeat/index.js (Phase 3 refactor)
 // Central mutation dispatcher: create, execute, review, comment, update, move, set-research-intel
 
-const { CFO_THRESHOLD, AGENT_IDS, VALID_TASK_STATUSES } = require("./constants");
+const { CFO_THRESHOLD, AGENT_IDS, VALID_TASK_STATUSES, NON_AGENT_ASSIGNEES } = require("./constants");
 const { stripTaskPrefixes, extractPublishReadyCopy } = require("./helpers");
 // ── Apply task mutation ──
 function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
@@ -32,9 +32,9 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
       ? parsedDue.toISOString()
       : new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(); // fallback: 3 days out
 
-    // Validate assignee — must be a known agent ID
+    // Validate assignee — a known agent ID, or a department inbox that never runs (NON_AGENT_ASSIGNEES: 'studio')
     const rawAssignee = (update.task.assignee || '').toLowerCase();
-    const validAssignee = AGENT_IDS.indexOf(rawAssignee) !== -1 ? rawAssignee : 'nova';
+    const validAssignee = (AGENT_IDS.indexOf(rawAssignee) !== -1 || NON_AGENT_ASSIGNEES.indexOf(rawAssignee) !== -1) ? rawAssignee : 'nova';
 
     const task = {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),

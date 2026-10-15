@@ -1,20 +1,30 @@
-// studio/desk-routes.js — the Video Desk's handlers inside /api/studio (dispatch and auth live in index.js).
+// studio/desk-routes.js — the Video department's handlers inside /api/studio (dispatch and auth live in index.js).
 // Each handler is (context, req, reply). req.studioRole is 'op' (the website, Chad's key) or 'worker' (the PC).
+//
+// The department has no store of its own: requests are company tasks (taskType video_request, assignee 'studio'),
+// read from the `tasks` state key; the department speaks by commenting on them. Chad decides on the company board.
 'use strict';
 
-const L = require('./lib');
 const D = require('./desk');
-const S = require('./desk-store');
 const storage = require('../_utils/companyStorage');
 const W = require('../_lib/releaseWatch/watcher');
 
-// What a release or a ticket can be about: the products in product facts, plus the company site itself.
-const PRODUCTS = Object.keys(require('../_data/product-facts.json').products || {}).concat(['AmbientPixels']);
-
-const who = (req) => (req.studioRole === 'worker' ? 'chad (studio)' : 'chad (web)');
 const body = (req) => (req.body && typeof req.body === 'object' ? req.body : {});
+const TASK_ID = /^task-[A-Za-z0-9-]{4,60}$/;
 
-// The catalogue's labels, so the page can show names instead of ids.
+// The heartbeat reads `tasks` at :00 and writes it back a few minutes later (00/06/12/18 UTC); a comment written in
+// between would be overwritten. The worker simply retries after the window.
+function inHeartbeatWindow(nowMs) {
+  const d = new Date(nowMs);
+  return d.getUTCHours() % 6 === 0 && d.getUTCMinutes() < 12;
+}
+
+async function readRequests() {
+  const read = await storage.getStateWithMeta('tasks');
+  if (read.failed) return null;
+  return D.requestsFrom(read.value || []);
+}
+
 const catalog = () => ({
   formats: D.CATALOG.formats.map((f) => ({ id: f.id, name: f.name, status: f.status, seconds: f.seconds })),
   moods: D.CATALOG.moods.map((m) => ({ id: m.id, feel: m.feel })),
@@ -22,31 +32,12 @@ const catalog = () => ({
 });
 
 module.exports = {
-  // GET desk — every ticket, newest first, plus the catalogue labels and the fleet's current load.
+  // GET desk — every video request on the company board (newest first), the catalogue labels, and the demand ledger.
   async list(context, req, reply) {
-    const tickets = await S.listTickets();
-    const load = D.fleetLoad(tickets);
-    reply(context, 200, { tickets, catalog: catalog(), projects: L.hostedProjects(), products: PRODUCTS, load: { open: load.open }, demand: D.demand(tickets) });
-  },
-
-  // POST desk-decide {id, decision: accept|decline, reason, project}
-  async decide(context, req, reply) {
-    const b = body(req);
-    const t = await S.changeTicket(b.id, (x) => D.decide(x, b, who(req), Date.now(), L.hostedProjects()));
-    if (t === null) return reply(context, 404, { error: 'unknown ticket' });
-    if (typeof t === 'string') return reply(context, 400, { error: t });
-    reply(context, 200, { ok: true, ticket: t });
-  },
-
-  // POST desk-ticket — a crew request to the fleet {direction:'crew', kind, title, text, project?, video?, links?},
-  // or Chad's own video idea {direction:'fleet', trigger:{type:'manual'}, …} so it is counted with the fleet's.
-  async ticket(context, req, reply) {
-    const b = body(req);
-    const t = b.direction === 'fleet'
-      ? await S.fileFleetTicket(Object.assign({}, b, { trigger: Object.assign({ type: 'manual' }, b.trigger) }), 'ceo', Date.now())
-      : await S.fileCrewTicket(b, who(req), Date.now());
-    if (typeof t === 'string') return reply(context, 400, { error: t });
-    reply(context, 200, { ok: true, ticket: t });
+    const requests = await readRequests();
+    if (!requests) return reply(context, 503, { error: 'the task board could not be read' });
+    requests.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    reply(context, 200, { requests, catalog: catalog(), load: { open: D.fleetLoad(requests).open }, demand: D.demand(requests) });
   },
 
   // GET desk-releases — the release log (newest first) and the watcher's last runs.
@@ -57,51 +48,61 @@ module.exports = {
     reply(context, 200, { entries: state.entries.slice(-60).reverse(), runs: state.runs.slice(-3).reverse(), watermark: state.watermark });
   },
 
-  // POST desk-release — "Log a release" {product, title, summary?, kind?, significance?, url?}
-  async release(context, req, reply) {
-    const b = body(req);
-    const r = await W.editReleaseLog(storage, (state) => W.addManualEntry(state, b, Date.now(), who(req)));
-    if (r.error) return reply(context, r.status || 400, { error: r.error });
-    reply(context, 200, { ok: true, entry: r.entry });
-  },
-
-  // POST desk-release-status {id, status: unreviewed|confirmed|hidden}
+  // POST desk-release-status {id, status: unreviewed|confirmed|hidden} — Hide corrects a wrong entry.
   async releaseStatus(context, req, reply) {
     const b = body(req);
-    const r = await W.editReleaseLog(storage, (state) => W.setEntryStatus(state, String(b.id || ''), String(b.status || ''), who(req), Date.now()));
+    const who = req.studioRole === 'worker' ? 'chad (studio)' : 'chad (web)';
+    const r = await W.editReleaseLog(storage, (state) => W.setEntryStatus(state, String(b.id || ''), String(b.status || ''), who, Date.now()));
     if (r.error) return reply(context, r.status || 400, { error: r.error });
     reply(context, 200, { ok: true, entry: r.entry });
   },
 
-  // POST desk-release-url {id, url} — a released video's link. Files the launch-posts ask to Echo and logs the
-  // video in the release log (as a minor content release: a video never triggers another video).
-  async releaseUrl(context, req, reply) {
-    const b = body(req);
-    const t = await S.changeTicket(b.id, (x) => D.setReleaseUrl(x, b, who(req), Date.now()));
-    if (t === null) return reply(context, 404, { error: 'unknown ticket' });
-    if (typeof t === 'string') return reply(context, 400, { error: t });
-    const ask = await S.fileCrewTicket(D.launchAsk(t), 'desk', Date.now());
-    const logged = await W.editReleaseLog(storage, (state) => W.addManualEntry(state, {
-      product: t.product, title: 'New video: ' + t.title, summary: t.goal, kind: 'content', significance: 'minor', url: t.release.url, source: 'video',
-    }, Date.now(), who(req)));
-    reply(context, 200, { ok: true, ticket: t, launchAsk: typeof ask === 'string' ? { error: ask } : ask, release: logged.error ? { error: logged.error } : logged.entry });
-  },
-
-  // GET desk-sync (worker) — the tickets the PC has work to do on: accepted-and-later fleet tickets still open,
-  // and open crew tickets.
+  // GET desk-sync (worker) — the accepted requests the department is working on.
   async sync(context, req, reply) {
-    const tickets = (await S.listTickets()).filter((t) => (t.direction === 'fleet'
-      ? ['accepted', 'scripting', 'in_production', 'review'].includes(t.status)
-      : ['open', 'taken'].includes(t.status)));
-    reply(context, 200, { tickets });
+    const requests = await readRequests();
+    if (!requests) return reply(context, 503, { error: 'the task board could not be read' });
+    reply(context, 200, { requests: requests.filter((r) => ['accepted', 'scripting', 'in_production', 'review'].indexOf(r.status) !== -1) });
   },
 
-  // POST desk-update (worker) {id, video?, trackerIds?, status?, note?, releaseUrl?}
-  async update(context, req, reply) {
+  // POST desk-comment (worker) {taskId, text, stage?, video?, project?, released?} — the department speaks on a
+  // request: progress ("[studio:<stage> video=…]"), @mentions to the fleet, or the release (with its link), which
+  // also marks the task done. Only video requests can be touched from here.
+  async comment(context, req, reply) {
     const b = body(req);
-    const t = await S.changeTicket(b.id, (x) => D.applyUpdate(x, b, 'studio', Date.now()));
-    if (t === null) return reply(context, 404, { error: 'unknown ticket' });
-    if (typeof t === 'string') return reply(context, 400, { error: t });
-    reply(context, 200, { ok: true, ticket: t });
+    const now = Date.now();
+    if (!TASK_ID.test(String(b.taskId || ''))) return reply(context, 400, { error: 'invalid taskId' });
+    const text = String(b.text || '').replace(/\s+$/, '').slice(0, 1800);
+    const stage = b.stage ? String(b.stage) : null;
+    if (stage && D.STAGES.indexOf(stage) === -1) return reply(context, 400, { error: 'stage must be one of ' + D.STAGES.join(', ') });
+    if (!text && !stage) return reply(context, 400, { error: 'nothing to say' });
+    const video = b.video && /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(b.video) ? b.video : null;
+    const project = b.project && /^[a-z0-9][a-z0-9-]{0,62}$/.test(b.project) ? b.project : null;
+    if (inHeartbeatWindow(now)) return reply(context, 409, { error: 'the heartbeat is writing the board; retry after :12' });
+    let refused = null, saved = null;
+    await storage.mutateState('tasks', (tasks) => {
+      const list = Array.isArray(tasks) ? tasks : [];
+      const t = list.find((x) => x && x.id === b.taskId);
+      if (!t) { refused = [404, 'unknown task']; return undefined; }
+      if (!D.isRequestTask(t)) { refused = [403, 'not a video request']; return undefined; }
+      if (!Array.isArray(t.comments)) t.comments = [];
+      const at = new Date(now).toISOString();
+      t.comments.push({ id: 'cmt-' + now, author: D.INBOX, text: (stage ? D.studioMark(stage, video, project) + ' ' : '') + text, type: 'comment', createdAt: at });
+      t.updatedAt = at;
+      if (stage === 'released') { t.status = 'done'; t.completedAt = at; }
+      saved = t;
+      return list;
+    });
+    if (refused) return reply(context, refused[0], { error: refused[1] });
+    const request = D.parseRequest(saved);
+    // A released video goes in the release log as a minor content release (a video never triggers another video).
+    let release = null;
+    if (stage === 'released' && request) {
+      const r = await W.editReleaseLog(storage, (state) => W.addManualEntry(state, {
+        product: request.product, title: 'New video: ' + request.title, summary: request.goal, kind: 'content', significance: 'minor',
+        url: request.releaseUrl || undefined, source: 'video',
+      }, now, 'studio'));
+      release = r.error ? { error: r.error } : r.entry;
+    }
+    reply(context, 200, { ok: true, request, release });
   },
 };

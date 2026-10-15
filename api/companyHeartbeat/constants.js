@@ -37,6 +37,10 @@ const STALE_REVIEW_THRESHOLD_MS = HEARTBEAT_INTERVAL_MS * STALE_REVIEW_GRACE_CYC
 
 // Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
 const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout', 'vale'];
+// Departments that take tasks but never deliberate in the heartbeat (2026-10-15). 'studio' = the Video department:
+// the Studio crew on Chad's PC. Its tasks are video requests; agents may only comment on them (agent-runner guard).
+const NON_AGENT_ASSIGNEES = ['studio'];
+const VIDEO_TASK_TYPE = 'video_request';
 
 // Shared envelope contract for the heartbeat agent output. Used by Gemini
 // structured output (responseSchema) so the model is forced to emit all
@@ -555,6 +559,8 @@ async function loadAgentRegistry(storage) {
 module.exports = {
   DOMAIN_LEAD_MAP,
   AGENT_IDS,
+  NON_AGENT_ASSIGNEES,
+  VIDEO_TASK_TYPE,
   AGENT_ENVELOPE_SCHEMA,
   _agentPersonalities,
   _agentPersonalityData,

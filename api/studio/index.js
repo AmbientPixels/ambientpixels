@@ -11,9 +11,8 @@
 //                                      GET  jobs?project=     POST job | job-cancel
 //   worker   (x-studio-worker-token)   POST heartbeat | manifest | upload-url | ack
 //                                      GET  files?project= | inbox?project= | job-next     POST job-update
-//   either                             GET  desk | desk-releases   POST desk-decide | desk-ticket | desk-release | desk-release-status
-//                                                                  POST desk-release-url (a released video's link → Echo's launch ask)
-//   worker                             GET  desk-sync              POST desk-update        (Video Desk, desk-routes.js)
+//   either                             GET  desk | desk-releases   POST desk-release-status   (Video department)
+//   worker                             GET  desk-sync              POST desk-comment          (desk-routes.js)
 //
 // The inbox is how decisions reach the PC: one small JSON blob per event, collected by the worker, written into
 // the project's feedback/ files, then acked (deleted here).
@@ -251,11 +250,11 @@ const ROUTES = {
   'POST heartbeat': ['worker', worker.heartbeat], 'POST manifest': ['worker', worker.manifest],
   'POST upload-url': ['worker', worker['upload-url']], 'POST ack': ['worker', worker.ack],
   'GET files': ['worker', worker.files], 'GET inbox': ['worker', worker.inbox],
-  // Video Desk: Chad decides from either studio (the website with his key, the PC through the worker token).
-  'GET desk': ['either', desk.list], 'POST desk-decide': ['either', desk.decide], 'POST desk-ticket': ['either', desk.ticket],
-  'GET desk-releases': ['either', desk.releases], 'POST desk-release': ['either', desk.release],
-  'POST desk-release-status': ['either', desk.releaseStatus], 'POST desk-release-url': ['either', desk.releaseUrl],
-  'GET desk-sync': ['worker', desk.sync], 'POST desk-update': ['worker', desk.update]
+  // Video department: requests are company tasks; Chad decides on the company board. The website (Chad's key) and
+  // the PC read them; only the PC (the department) comments on them.
+  'GET desk': ['either', desk.list], 'GET desk-releases': ['either', desk.releases],
+  'POST desk-release-status': ['either', desk.releaseStatus],
+  'GET desk-sync': ['worker', desk.sync], 'POST desk-comment': ['worker', desk.comment]
 };
 
 module.exports = async function (context, req) {
