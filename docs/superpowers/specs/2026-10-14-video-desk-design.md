@@ -261,3 +261,18 @@ agent** (the site's "Eight agents" stays true; no new LLM cost).
 | Removed | The `desk/tickets` blob store, crew tickets, the Nova courier, desk-decide/ticket/release/release-url/update routes, both manual forms. |
 
 Commits: AP `7f65e07f`, pipeline `215fad8` (plus the form removal `bef4a59e`).
+
+---
+
+## 9. The department joins the fleet (2026-10-15)
+
+Chad: the Studio's Desk page had no use, and the Video department belongs with the regular fleet.
+
+- **HQ Fleet page** (`modules/company/fleet.html`): a VIDEO DEPARTMENT section beside the agents (`js/fleet-video.js`,
+  `css/fleet-video.css`) — the crew (from the catalogue's `crew`, exported from `harness/team/roles.json`; the Editor
+  and director heads it), requests with stage + latest comment (links to the board task), what shipped (Hide a wrong
+  entry via `/api/release-watch?action=status`), demand. Data: `GET /api/video-department` (company secret, read-only).
+- **Task board**: assignee `studio` renders as "Video department" (`DEPARTMENT_ASSIGNEES` in tasks.html).
+- **Studio**: the Video page is gone; `/api/studio` keeps only the PC's `desk`, `desk-sync`, `desk-comment`.
+
+Commits: AP `a7eda9c0`, pipeline `98a68c0` (crew export) + `8cd9353`.
