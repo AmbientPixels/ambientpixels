@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script src="/modules/company/runtime-config.js"></script>
+  <script src="/modules/company/js/task-status.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels DevOps Dash — Kanban board for agent task tracking." />
@@ -934,7 +935,7 @@
               return t.createdAt && (nowMs - new Date(t.createdAt).getTime()) > 5 * dayMs;
             }
             if (_signalFilter === 'overdue') {
-              return t.dueDate && t.dueDate < today && t.status !== 'done';
+              return TaskStatus.isOverdue(t);
             }
             if (_signalFilter === 'blocked') {
               return t.status !== 'done' && (t.blocked || (t.tags && t.tags.indexOf('blocked') !== -1));
@@ -959,7 +960,7 @@
           else if (t.status === 'in-progress') inProgress++;
           else if (t.status === 'review') review++;
           else if (t.status === 'done') done++;
-          if (t.dueDate && t.dueDate.substring(0,10) < today && t.status !== 'done') overdue++;
+          if (TaskStatus.isOverdue(t)) overdue++;
           if (!t.assignee) unassigned++;
         });
         statsBar.innerHTML =
@@ -1141,7 +1142,7 @@
               var age = nowMs - new Date(t.createdAt).getTime();
               if (!isNaN(age) && age > oldestAge) oldestAge = age;
             }
-            if (t.dueDate && t.dueDate < today && t.status !== 'done') overdueCount++;
+            if (TaskStatus.isOverdue(t)) overdueCount++;
             if (t.status !== 'done' && (t.blocked || (t.tags && t.tags.indexOf('blocked') !== -1))) blockedCount++;
           });
 
@@ -1174,7 +1175,7 @@
         var div = resolveDivision(task);
         var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
         var today = _localToday();
-        var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
+        var isOverdue = TaskStatus.isOverdue(task);
 
         var _cardType = task.taskType || 'general';
         var _cardTypeLabel = (typeof CompanySchemas !== 'undefined' && CompanySchemas.TASK_TYPES && CompanySchemas.TASK_TYPES[_cardType]) ? CompanySchemas.TASK_TYPES[_cardType].label : _cardType;
@@ -1389,7 +1390,7 @@
           var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
           var camp = _resolveCampaign(task) || _resolveDirective(task);
           var today = _localToday();
-          var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
+          var isOverdue = TaskStatus.isOverdue(task);
 
           // Stale/aging class
           var agingClass = '';

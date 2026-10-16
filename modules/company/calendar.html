@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script src="/modules/company/runtime-config.js"></script>
+  <script src="/modules/company/js/task-status.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Company Calendar — tasks, content, reminders, and activity at a glance." />
@@ -611,7 +612,7 @@
         tasks.forEach(function (t) {
           if (t.dueDate) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
-            var isOverdue = t.status !== 'done' && t.dueDate < todayStr;
+            var isOverdue = TaskStatus.isOverdue(t);
             addItem(t.dueDate, 'tasks', {
               id: t.id,
               title: t.title,

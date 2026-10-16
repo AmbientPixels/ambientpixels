@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script src="/modules/company/runtime-config.js"></script>
+  <script src="/modules/company/js/task-status.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Redirecting to Campaigns — Projects have been merged into Campaigns." />
@@ -534,7 +535,7 @@
           p.tasks.forEach(function (t) {
             var s = t.status || 'backlog';
             var assignee = t.assignee ? t.assignee.charAt(0).toUpperCase() + t.assignee.slice(1) : '—';
-            var overdue = t.dueDate && new Date(t.dueDate) < new Date() && s !== 'done';
+            var overdue = TaskStatus.isOverdue(t);
             html += '<li class="dir-task-item">' +
               '<span class="dir-task-status dir-task-status--' + s + '">' + s + '</span>' +
               '<span style="flex:1;">' + escapeHtml(t.title) + '</span>' +

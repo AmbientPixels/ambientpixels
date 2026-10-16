@@ -10,6 +10,7 @@
 // the "⏰ WEEKLY REPORT DUE — never written" prompt that fires every cycle.
 
 const fetch = require('node-fetch');
+var TaskStatus = require('../_shared/taskStatus');
 const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -119,7 +120,7 @@ function computeStrategic(campaigns, objectives, tasks, nowMs, today) {
   var avgProgress = activeObjectives.length ? Math.round(activeObjectives.reduce(function (s, x) { return s + (x.progressPercentage || 0); }, 0) / activeObjectives.length) : 0;
   var completed = t.filter(function (x) { return x.status === 'done' && inWeek(x.completedAt); }).length;
   var created = t.filter(function (x) { return inWeek(x.createdAt); }).length;
-  var overdue = t.filter(function (x) { return x.dueDate && x.dueDate < today && x.status !== 'done'; }).length;
+  var overdue = t.filter(function (x) { return TaskStatus.isOverdue(x); }).length; // one shared rule: canceled/archived never count
   return {
     activeCampaigns: activeCampaigns.length, newCampaigns: newCampaigns.length, endedCampaigns: endedCampaigns.length,
     activeObjectives: activeObjectives.length, avgProgress: avgProgress,

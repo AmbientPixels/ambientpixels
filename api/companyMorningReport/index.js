@@ -2,6 +2,7 @@
 // Aggregates overnight activity, task changes, and generates a CEO summary
 
 const fetch = require('node-fetch');
+const TaskStatus = require('../_shared/taskStatus');
 const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -116,9 +117,7 @@ module.exports = async function (context) {
     );
 
     // Overdue tasks
-    const overdueTasks = tasks.filter(t =>
-      t.dueDate && t.dueDate < today && t.status !== 'done'
-    );
+    const overdueTasks = tasks.filter(t => TaskStatus.isOverdue(t)); // canceled/archived never count (one shared rule)
 
     // Heartbeat cycles in period
     const heartbeatCycles = cronLog.filter(c =>

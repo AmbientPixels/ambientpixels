@@ -4,6 +4,7 @@
 // Used by: standup, novachat, mood engine, morning report, agent chat.
 
 var storage = require('./companyStorage');
+var TaskStatus = require('../_shared/taskStatus');
 
 // Intel digest builders — confirmed clean imports (only depend on ./constants + ./helpers)
 var socialIntel = require('../companyHeartbeat/social-intel');
@@ -290,9 +291,7 @@ async function formatMoodTelemetry(state) {
   var completedToday = tasks.filter(function (t) {
     return t.status === 'done' && (t.completedAt || t.updatedAt || '') > cutoff24h;
   }).length;
-  var overdue = tasks.filter(function (t) {
-    return t.status !== 'done' && t.dueDate && t.dueDate < new Date().toISOString();
-  }).length;
+  var overdue = tasks.filter(function (t) { return TaskStatus.isOverdue(t); }).length; // one shared rule: canceled/archived never count
   var blocked = tasks.filter(function (t) { return t.blocked; }).length;
   var activeCampaigns = campaigns.filter(function (c) {
     return String(c.status || '').toLowerCase() === 'active' && !c.deletedAt;

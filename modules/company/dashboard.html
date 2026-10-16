@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script src="/modules/company/runtime-config.js"></script>
+  <script src="/modules/company/js/task-status.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Dashboard — agent metrics, sessions, tokens, costs, logs, and reports." />
@@ -2451,7 +2452,7 @@
         var tasks = allTasks;
         var today = _localToday();
         var overdue = tasks.filter(function (t) {
-          return t.dueDate && t.dueDate < today && t.status !== 'done' && !t._archived;
+          return TaskStatus.isOverdue(t);
         }).sort(function (a, b) { return a.dueDate.localeCompare(b.dueDate); });
         totalItems += overdue.length;
 
@@ -2993,7 +2994,7 @@
           // Overdue high/critical tasks
           tasks.forEach(function (t) {
             if (t.status === 'done') return;
-            var isOverdue = t.dueDate && t.dueDate < today;
+            var isOverdue = TaskStatus.isOverdue(t);
             var isHighPrio = t.priority === 'high' || t.priority === 'critical';
             if (isOverdue && isHighPrio) risks.push({ title: t.title, reason: 'overdue ' + t.priority, agent: t.assignee || '?' });
             else if (isOverdue) risks.push({ title: t.title, reason: 'overdue', agent: t.assignee || '?' });
@@ -5451,7 +5452,7 @@
             if (t.status === 'done') return;
             var k = stableId('task', t);
             if (t.status === 'pending-approval') add(k);
-            if (t.dueDate && t.dueDate < today) add(k);
+            if (TaskStatus.isOverdue(t)) add(k);
             if (t.blocked || (t.tags && t.tags.indexOf('blocked') !== -1)) add(k);
           });
 
