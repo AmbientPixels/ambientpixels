@@ -16,6 +16,11 @@ var CompanyStore = (function () {
   var _writeFailCount = 0;
   var _lastWriteError = '';
   var _authPrincipal = '';  // base64 client principal from /.auth/me
+  // No write before sync (2026-10-16): a key may be written to the server only after its server
+  // value has been read on this page load. Otherwise a tab that never saw the server copy (slow
+  // network, failed sync, still probing) overwrites live data with whatever it had cached.
+  var _serverRead = {};       // localKey → true once its server value was read successfully
+  var _staleKeys = {};        // localKey → true when the last refresh failed (showing the cached copy)
 
   // Key mapping: localStorage keys → server state keys
   var KEY_MAP = {
@@ -120,6 +125,49 @@ var CompanyStore = (function () {
     } catch (e) { /* ignore */ }
   }
 
+  // ── Notices: the store says what happened, out loud ──
+  // One small message at the bottom of the page (.cs-notice in company.css) plus a
+  // 'companystorenotice' event for pages that want to react. No-op outside a browser.
+  var _noticeTimer = null;
+  function _notify(kind, text, key) {
+    if (typeof window === 'undefined' || typeof document === 'undefined' || !document.body) return;
+    try { window.dispatchEvent(new CustomEvent('companystorenotice', { detail: { kind: kind, text: text, key: key || null } })); } catch (e) {}
+    var el = document.getElementById('cs-notice');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'cs-notice';
+      el.setAttribute('role', 'status');
+      document.body.appendChild(el);
+    }
+    el.textContent = text;
+    el.className = 'cs-notice cs-notice--' + kind + ' is-visible';
+    clearTimeout(_noticeTimer);
+    _noticeTimer = setTimeout(function () { el.classList.remove('is-visible'); }, 8000);
+  }
+
+  function _label(localKey) { return (KEY_MAP[localKey] || localKey).replace(/([A-Z])/g, ' $1').toLowerCase(); }
+
+  function _recordWriteFailure(localKey, message) {
+    _writeFailCount++;
+    _lastWriteError = message;
+    console.warn('[CompanyStore] Server write FAILED for', localKey, ':', message, '| failures:', _writeFailCount);
+    _notify('error', 'Not saved: ' + _label(localKey) + ' — ' + message, localKey);
+  }
+
+  // The keys the startup sync reads. A key outside this list is read on demand (getState) first.
+  var SYNC_KEYS = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_campaigns', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log', 'ap_action_queue', 'ap_action_audit_log', 'ap_actions', 'ap_documents', 'ap_published_docs', 'ap_workspace_dates', 'ap_workspace_memory', 'ap_artifacts', 'ap_meetings', 'ap_agent_memories', 'ap_image_assets',
+    // Small keys the browser writes; added 2026-10-16 so they are read before they can be written.
+    'ap_workspace_identity', 'ap_workspace_tools', 'ap_session_log', 'ap_action_rate_counts'];
+  var OBJECT_KEYS = { 'ap_workspace_identity': true, 'ap_action_rate_counts': true };
+
+  // Why a server write of this key is not allowed yet, or '' when it is.
+  function _writeBlockedReason(localKey) {
+    if (!KEY_MAP[localKey] || _serverAvailable === false) return '';   // local-only key, or offline mode
+    if (_serverRead[localKey]) return '';
+    if (_staleKeys[localKey]) return "couldn't load it from the server, so saving could overwrite newer data. Reload the page.";
+    return 'still loading from the server. Try again in a moment.';
+  }
+
   function _probeServer() {
     return fetch(_serverBase + '/company-state?key=_ping', { method: 'GET' })
       .then(function (res) {
@@ -135,6 +183,7 @@ var CompanyStore = (function () {
         _serverAvailable = false;
         _mode = 'local';
         console.log('[CompanyStore] Local mode (server unavailable)');
+        _notify('warn', "Couldn't reach the server — showing the last copy saved in this browser.");
       });
   }
 
@@ -236,6 +285,8 @@ var CompanyStore = (function () {
     if (_mode === 'server' && KEY_MAP[localKey]) {
       return _serverGet(KEY_MAP[localKey])
         .then(function (val) {
+          _serverRead[localKey] = true;
+          delete _staleKeys[localKey];
           if (val === undefined || val === null) {
             // Server has no data — return fallback (server is authoritative)
             _localSet(localKey, fallback);
@@ -246,20 +297,38 @@ var CompanyStore = (function () {
           return val;
         })
         .catch(function () {
-          // Fallback to local on server error
+          // A failed read is never empty: keep the cached copy and say so.
+          _staleKeys[localKey] = true;
+          _notify('warn', "Couldn't refresh " + _label(localKey) + ' — showing the last copy.', localKey);
           return _localGet(localKey, fallback);
         });
     }
     return Promise.resolve(_localGet(localKey, fallback));
   }
 
+  // Saves report the truth (2026-10-16): a failed or refused server write is counted, shown,
+  // and REJECTS — it used to be logged and swallowed, so callers reported success.
   function setState(localKey, value) {
+    if (KEY_MAP[localKey] && _serverAvailable !== false && !_serverRead[localKey] && SYNC_KEYS.indexOf(localKey) === -1 && !_staleKeys[localKey]) {
+      // Not part of the startup sync (e.g. the task archive): read it once, then write.
+      return ready().then(function () { return getState(localKey, null); }).then(function () { return setState(localKey, value); });
+    }
+    var blocked = _writeBlockedReason(localKey);
+    if (blocked) {
+      _recordWriteFailure(localKey, blocked);
+      return Promise.reject(new Error('Not saved: ' + blocked));
+    }
     // Always write to local as cache
     _localSet(localKey, value);
 
     if (_mode === 'server' && KEY_MAP[localKey]) {
-      return _serverSet(KEY_MAP[localKey], value).catch(function (err) {
-        console.warn('[CompanyStore] Server write failed, local cached:', localKey, err);
+      return _serverSet(KEY_MAP[localKey], value).then(function (res) {
+        _writeFailCount = 0;
+        _lastWriteError = '';
+        return res;
+      }, function (err) {
+        _recordWriteFailure(localKey, err.message || String(err));
+        throw err;
       });
     }
     return Promise.resolve();
@@ -271,18 +340,21 @@ var CompanyStore = (function () {
   }
 
   function setStateSync(localKey, value) {
+    // The in-page copy changes either way (callers mutate it in place); the next sync replaces
+    // it with the server's. Only the server write is held back until the key has been read.
     _localSet(localKey, value);
+    var blocked = _writeBlockedReason(localKey);
+    if (blocked) { _recordWriteFailure(localKey, blocked); return false; }
     // Fire-and-forget server write if available
     if (_mode === 'server' && KEY_MAP[localKey]) {
       _serverSet(KEY_MAP[localKey], value).then(function () {
         _writeFailCount = 0;
         _lastWriteError = '';
       }).catch(function (err) {
-        _writeFailCount++;
-        _lastWriteError = err.message || String(err);
-        console.warn('[CompanyStore] Server write FAILED for', localKey, ':', _lastWriteError, '| failures:', _writeFailCount);
+        _recordWriteFailure(localKey, err.message || String(err));
       });
     }
+    return true;
   }
 
   // ── Sync from server ──
@@ -305,17 +377,21 @@ var CompanyStore = (function () {
     }
 
     // Pull the critical state keys that agents write to
-    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_campaigns', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log', 'ap_action_queue', 'ap_action_audit_log', 'ap_actions', 'ap_documents', 'ap_published_docs', 'ap_workspace_dates', 'ap_workspace_memory', 'ap_artifacts', 'ap_meetings', 'ap_agent_memories', 'ap_image_assets'];
+    var keysToSync = SYNC_KEYS;
+    var failedKeys = [];
     var promises = keysToSync.map(function (localKey) {
       var serverKey = KEY_MAP[localKey];
       if (!serverKey) return Promise.resolve();
 
       return _serverGet(serverKey)
         .then(function (val) {
+          _serverRead[localKey] = true;
+          delete _staleKeys[localKey];
           if (val === undefined || val === null) {
-            // Server has no data — clear local cache to match (server is authoritative)
-            _localSet(localKey, []);
-            _memCache[localKey] = [];
+            // Server has no data (a confirmed absence — read errors are a 503 now, not null).
+            var empty = OBJECT_KEYS[localKey] ? {} : [];
+            _localSet(localKey, empty);
+            _memCache[localKey] = empty;
             return;
           }
           // Server wins — use server data directly, no merge with local
@@ -323,12 +399,17 @@ var CompanyStore = (function () {
           _localSet(localKey, val);
         })
         .catch(function () {
-          // Keep local data on failure
+          // A failed read is never empty: keep the cached copy, hold writes for this key.
+          _staleKeys[localKey] = true;
+          failedKeys.push(_label(localKey));
         });
     });
 
     return Promise.all(promises).then(function () {
-      if (!_synced) console.log('[CompanyStore] Synced', keysToSync.length, 'keys from server');
+      if (failedKeys.length) {
+        _notify('warn', "Couldn't refresh " + failedKeys.join(', ') + ' — showing the last copy. Saving these is paused until a reload works.');
+      }
+      if (!_synced) console.log('[CompanyStore] Synced', keysToSync.length - failedKeys.length, 'of', keysToSync.length, 'keys from server');
       _synced = true;
       _syncListeners.forEach(function (cb) { cb(); });
       _syncListeners = [];
@@ -449,6 +530,8 @@ var CompanyStore = (function () {
     resolveServerBase: resolveServerBase,
     setWriteKey: setWriteKey,
     getWriteStatus: getWriteStatus,
+    isKeyReady: function (localKey) { return !_writeBlockedReason(localKey); },
+    getStaleKeys: function () { return Object.keys(_staleKeys); },
     get _writeSecret() { return _writeSecret; },
     KEY_MAP: KEY_MAP
   };

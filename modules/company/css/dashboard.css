@@ -150,6 +150,13 @@
   background: #93c5fd;
   color: #000;
 }
+/* Run Heartbeat result: the real HTTP outcome, status colors only */
+.dash-refresh-btn--ok,
+.dash-refresh-btn--ok:hover    { background: var(--c-green); color: #000; }
+.dash-refresh-btn--warn,
+.dash-refresh-btn--warn:hover  { background: var(--c-amber); color: #000; }
+.dash-refresh-btn--error,
+.dash-refresh-btn--error:hover { background: var(--c-red); color: #000; }
 
 /* ── Content area ── */
 .dash-content {

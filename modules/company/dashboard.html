@@ -1145,13 +1145,25 @@
       window.addEventListener('ap-mode-change', updateModeIndicator);
 
       // ── Heartbeat trigger ──
+      // The store's resolver, not a hostname test: '/api' on any SWA host is a 405 for POST.
       function getApiBase() {
-        return window.location.hostname.includes('ambientpixels.ai')
-          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-          : '/api';
+        return (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase && CompanyStore.getServerBase())
+          || 'https://ambientpixels-nova-api.azurewebsites.net/api';
       }
 
+      // Shows the real HTTP result (2026-10-16): it used to say "Done!" for a 403 or a 409 skip.
       var _heartbeatRunning = false;
+      function _heartbeatResult(kind, label) {
+        heartbeatBtn.innerHTML = '<i class="fas fa-' + (kind === 'ok' ? 'check' : 'exclamation-triangle') + '"></i> ' + label;
+        heartbeatBtn.classList.add('dash-refresh-btn--' + kind);
+        setTimeout(function () {
+          heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
+          heartbeatBtn.classList.remove('dash-refresh-btn--ok', 'dash-refresh-btn--warn', 'dash-refresh-btn--error');
+          heartbeatBtn.title = 'Run agent heartbeat cycle manually';
+          heartbeatBtn.disabled = false;
+          _heartbeatRunning = false;
+        }, kind === 'ok' ? 3000 : 6000);
+      }
       heartbeatBtn.addEventListener('click', function () {
         if (_heartbeatRunning) return;
         _heartbeatRunning = true;
@@ -1162,34 +1174,26 @@
           method: 'POST',
           headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json' }
         })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-          heartbeatBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-          heartbeatBtn.style.background = '#34d399';
-          heartbeatBtn.style.color = '#000';
-          setTimeout(function () {
-            renderAll();
-          }, 500);
-          setTimeout(function () {
-            heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
-            heartbeatBtn.style.background = '';
-            heartbeatBtn.style.color = '';
-            heartbeatBtn.disabled = false;
-            _heartbeatRunning = false;
-          }, 3000);
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (data) { return { res: res, data: data || {} }; });
+        })
+        .then(function (r) {
+          var detail = r.data.message || r.data.error || r.data.reason || '';
+          heartbeatBtn.title = 'HTTP ' + r.res.status + (detail ? ' — ' + detail : '');
+          if (r.res.ok) {
+            _heartbeatResult('ok', 'Done');
+            setTimeout(function () { renderAll(); }, 500);
+          } else if (r.res.status === 409) {
+            _heartbeatResult('warn', 'Skipped (' + (r.data.reason || '409') + ')');
+          } else {
+            _heartbeatResult('error', 'Failed (' + r.res.status + ')');
+            console.error('[Dashboard] Heartbeat trigger HTTP', r.res.status, r.data);
+          }
         })
         .catch(function (err) {
-          heartbeatBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
-          heartbeatBtn.style.background = '#f87171';
-          heartbeatBtn.style.color = '#000';
+          heartbeatBtn.title = String(err && err.message || err);
           console.error('[Dashboard] Heartbeat trigger failed:', err);
-          setTimeout(function () {
-            heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
-            heartbeatBtn.style.background = '';
-            heartbeatBtn.style.color = '';
-            heartbeatBtn.disabled = false;
-            _heartbeatRunning = false;
-          }, 3000);
+          _heartbeatResult('error', 'Failed: no response');
         });
       });
 

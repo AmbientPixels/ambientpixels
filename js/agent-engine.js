@@ -1668,7 +1668,8 @@ var AgentEngine = (function () {
         notes: '',
         updatedAt: null
       };
-      _saveStorage(AGENT_CONFIG_KEY, configs);
+      // Defaults live in memory only; updateAgentConfig() saves a real edit. Saving here wrote
+      // agentConfigs on page load (Workspace), before the server copy was read (2026-10-16).
     }
     return configs[agentId];
   }
