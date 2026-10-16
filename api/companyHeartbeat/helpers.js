@@ -185,11 +185,15 @@ function shouldRunTier4Agent(tasks, agentId) {
 // heartbeatRuns.skippedAgents, so a wrongly-silent agent is visible rather than mysterious.
 function shouldRunAgent(tasks, agentId) {
   if (C.ALWAYS_RUN_AGENTS.has(agentId)) return { run: true, reason: 'always_run_agent' };
-  // A video-triage agent (Pixel) runs only when a video request waits for its recommendation. Assigned tasks and
-  // @mentions don't wake it: it has no other job, so an idle cycle costs nothing.
+  // Pixel runs only for its two jobs: a design task (hero image) assigned to it, or a video request waiting for its
+  // recommendation. @mentions don't wake it, so an idle cycle costs nothing.
   if (C.VIDEO_TRIAGE_AGENTS.has(agentId)) {
+    const routing = require('./routing');
+    const design = (Array.isArray(tasks) ? tasks : []).some((t) => t && !t._archived && String(t.assignee || '').toLowerCase() === agentId &&
+      _isActiveStatus(t.status) && routing.canHold(t));
+    if (design) return { run: true, reason: 'design_task_assigned' };
     return require('./video-desk').untriaged(tasks, agentId).length
-      ? { run: true, reason: 'video_triage_pending' } : { run: false, reason: 'no_video_request_to_triage' };
+      ? { run: true, reason: 'video_triage_pending' } : { run: false, reason: 'no_design_task_or_video_request' };
   }
   if (_hasAssignedActiveTasks(tasks, agentId)) return { run: true, reason: 'assigned_active_task' };
   if (_hasRecentMention(tasks, agentId)) return { run: true, reason: 'recent_mention_ping' };

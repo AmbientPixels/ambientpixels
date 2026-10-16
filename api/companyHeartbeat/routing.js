@@ -13,15 +13,14 @@
 const C = require('./constants');
 const metrics = require('../_shared/metrics');
 
-// Role → agents that can do it, in order of preference. Design goes to Echo, then Scribe: both may generate-image
-// (agent-runner IMG_ALLOWED_AGENTS). Pixel heads Design but only triages video (C.VIDEO_TRIAGE_AGENTS), so it is not
-// on any work list.
+// Role → agents that can do it, in order of preference. Design falls back to Echo, then Scribe: both may
+// generate-image (agent-runner IMG_ALLOWED_AGENTS).
 const ROLES = {
   orchestration: ['nova'],
   content: ['scribe', 'nova'],
   editing: ['quill', 'scribe'],
   social: ['echo', 'nova'],
-  design: ['echo', 'scribe'],
+  design: ['pixel', 'echo', 'scribe'],
   research: ['scout', 'nova'],
   ops: ['forge', 'nova'],
   finance: ['cipher', 'nova'],
@@ -45,6 +44,10 @@ const AGENT_ROLE = { nova: 'orchestration', scribe: 'content', quill: 'editing',
 
 const runningNow = () => C.AGENT_IDS.slice();
 
+// Agents that may hold only some roles' work (Pixel: design — hero images; its video triage is comments, not tasks).
+// Anything else named for them is routed by the task's type, never left with them. (Chad, 2026-10-16.)
+const HOLDS_ONLY = { pixel: ['design'] };
+
 // People, not agents: their tasks are never routed anywhere.
 const HUMANS = ['ceo', 'chad', 'pixelpusher'];
 const isHuman = (assignee) => HUMANS.indexOf(String(assignee || '').toLowerCase()) !== -1;
@@ -52,7 +55,6 @@ const isHuman = (assignee) => HUMANS.indexOf(String(assignee || '').toLowerCase(
 function isRunnable(assignee, running) {
   const r = running || runningNow();
   const a = String(assignee || '').toLowerCase();
-  if (C.VIDEO_TRIAGE_AGENTS && C.VIDEO_TRIAGE_AGENTS.has(a)) return false; // runs, but takes no routed work
   return r.indexOf(a) !== -1 || (C.NON_AGENT_ASSIGNEES || []).indexOf(a) !== -1;
 }
 
@@ -70,9 +72,20 @@ function roleForTask(task) {
   return AGENT_ROLE[a] || 'orchestration';
 }
 
-// Who should own this task: its assignee if they run, else whoever holds the task's role now. null = nobody.
+// Can this task stay with its assignee? They run, and (for a HOLDS_ONLY agent) the task's type is in their roles.
+function canHold(task, running) {
+  const a = String((task && task.assignee) || '').toLowerCase();
+  if (!a || !isRunnable(a, running)) return false;
+  if (!HOLDS_ONLY[a]) return true;
+  return HOLDS_ONLY[a].indexOf(TASK_TYPE_ROLE[String((task && task.taskType) || '').toLowerCase()]) !== -1;
+}
+
+// Who should own this task: its assignee if they can hold it, else whoever holds the task's role now. null = nobody.
 function routeTask(task, running) {
-  if (task && task.assignee && isRunnable(task.assignee, running)) return String(task.assignee).toLowerCase();
+  if (task && task.assignee && canHold(task, running)) return String(task.assignee).toLowerCase();
+  const a = String((task && task.assignee) || '').toLowerCase();
+  // A HOLDS_ONLY agent's other work goes by its type (untyped = Nova), never back to the same agent.
+  if (HOLDS_ONLY[a] && isRunnable(a, running)) return resolveRole(TASK_TYPE_ROLE[String(task.taskType || '').toLowerCase()] || 'orchestration', running);
   return resolveRole(roleForTask(task), running);
 }
 
@@ -114,4 +127,4 @@ function capacityDueDate(tasks, assignee, requestedIso, nowMs) {
   return new Date(Number.isFinite(asked) ? Math.max(asked, capacity) : capacity).toISOString();
 }
 
-module.exports = { HUMANS, isHuman, ROLES, TASK_TYPE_ROLE, AGENT_ROLE, isRunnable, resolveRole, roleForTask, routeTask, routeTaskType, whoDoesWhat, loadRunning, capacityDueDate };
+module.exports = { HUMANS, isHuman, ROLES, TASK_TYPE_ROLE, AGENT_ROLE, HOLDS_ONLY, canHold, isRunnable, resolveRole, roleForTask, routeTask, routeTaskType, whoDoesWhat, loadRunning, capacityDueDate };

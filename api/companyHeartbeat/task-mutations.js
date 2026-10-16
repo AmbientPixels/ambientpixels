@@ -29,8 +29,8 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
     // Assignee — an agent that RUNS, or a department inbox (NON_AGENT_ASSIGNEES: 'studio'). Anyone else (a dormant
     // agent, a typo) is routed by the task's role to whoever does that work now (routing.js), not dumped on Nova.
     const rawAssignee = (update.task.assignee || '').toLowerCase();
-    // isRunnable = AGENT_IDS or NON_AGENT_ASSIGNEES, minus video-triage agents (Pixel takes no routed work).
-    const validAssignee = routing.isRunnable(rawAssignee)
+    // canHold = runs (AGENT_IDS or NON_AGENT_ASSIGNEES) and may hold this type of work (Pixel: design only).
+    const validAssignee = routing.canHold({ assignee: rawAssignee, taskType: update.task.taskType })
       ? rawAssignee
       : (routing.routeTask({ taskType: update.task.taskType, assignee: rawAssignee }) || 'nova');
 

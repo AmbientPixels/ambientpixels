@@ -118,9 +118,15 @@ test('Pixel runs only when a waiting video request has no Pixel comment', () => 
   assert.strictEqual(r.reason, 'video_triage_pending');
 });
 
-test('Pixel is not woken by assigned work or @mentions (it has no other job)', () => {
+test('Pixel wakes for a design task assigned to it (hero images)', () => {
+  const r = H.shouldRunAgent([task({ id: 'h', assignee: 'pixel', status: 'todo', taskType: 'design_asset', title: 'Generate hero image for: X' })], 'pixel');
+  assert.strictEqual(r.run, true);
+  assert.strictEqual(r.reason, 'design_task_assigned');
+});
+
+test('Pixel is not woken by non-design work or @mentions', () => {
   const board = [
-    task({ id: 'a', assignee: 'pixel', status: 'todo' }),
+    task({ id: 'a', assignee: 'pixel', status: 'todo', taskType: 'general' }),
     task({ id: 'b', assignee: 'scribe', comments: [{ text: '@Pixel hero please', createdAt: iso(WELL_INSIDE_WINDOW) }] }),
   ];
   assert.strictEqual(H.shouldRunAgent(board, 'pixel').run, false);

@@ -551,7 +551,7 @@ async function runAgentHeartbeat(ctx) {
       const _closed = ['done', 'canceled', 'cancelled', 'archived'];
       for (const t of tasks) {
         if (!t || t._archived || !t.assignee || _closed.indexOf(String(t.status || '').toLowerCase()) !== -1) continue;
-        if (routing.isRunnable(t.assignee) || routing.isHuman(t.assignee)) continue;
+        if (routing.canHold(t) || routing.isHuman(t.assignee)) continue;
         const _from = t.assignee;
         const _to = routing.routeTask(t);
         if (!_to) { await _logRoutingGap(routing.roleForTask(t), 'task ' + t.id + ' "' + String(t.title || '').slice(0, 60) + '" held by ' + _from); continue; }
@@ -560,7 +560,7 @@ async function runAgentHeartbeat(ctx) {
         t.updatedAt = _at;
         if (!Array.isArray(t.comments)) t.comments = [];
         t.comments.push({ id: 'cmt-handoff-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), author: 'system',
-          text: 'Handoff: ' + _from + ' is not running, so this ' + routing.roleForTask(t) + ' work moves to ' + _to + '.', type: 'system', createdAt: _at });
+          text: 'Handoff: ' + _from + (routing.isRunnable(_from) ? ' only takes design work' : ' is not running') + ', so this ' + routing.roleForTask(t) + ' work moves to ' + _to + '.', type: 'system', createdAt: _at });
         context.log('[Heartbeat] HANDOFF:', t.id, _from, '→', _to);
         try { await logEvent('task-handoff', 'system', 'Handoff ' + t.id + ': ' + _from + ' → ' + _to, cycleId, { runId: cycleId, taskId: t.id, from: _from, to: _to, role: routing.roleForTask(t) }); } catch (_) { /* non-fatal */ }
       }
@@ -1475,13 +1475,17 @@ Write the full deliverable first, then the structured JSON block.`;
       continue;
     }
 
-    // A video-triage agent (Pixel, head of Design) may only comment on a video request, plus remember. Code, not
-    // prompt: prompt rules lose to objectives. (Design fold, 2026-10-15.)
+    // Pixel (head of Design) has two jobs: hero images (generate-image, on its own design task or none) and video
+    // triage (a comment on a video request). It may also comment on its own design task and remember. Nothing else.
+    // Code, not prompt: prompt rules lose to objectives. (Design fold 2026-10-15; heroes back 2026-10-16.)
     if (VIDEO_TRIAGE_AGENTS.has(agentId) && action.type !== 'remember') {
-      const _trTask = action.type === 'comment-task' && action.taskId ? tasks.find(function (t) { return t && t.id === action.taskId; }) : null;
-      if (!_trTask || _trTask.taskType !== 'video_request') {
-        context.log('[Heartbeat]', agentId, 'BLOCKED', action.type, '(video triage only: comment on a video request)');
-        await logEvent('policy-violation', agentId, action.type + ' blocked (video triage only)', cycleId, { runId: cycleId, gate: 'video_triage_only', taskId: action.taskId || null });
+      const _pxTask = action.taskId ? tasks.find(function (t) { return t && t.id === action.taskId; }) : null;
+      const _pxOwnDesign = !!_pxTask && String(_pxTask.assignee || '').toLowerCase() === agentId && routing.canHold(_pxTask);
+      const _pxOk = (action.type === 'generate-image' && (!action.taskId || _pxOwnDesign)) ||
+        (action.type === 'comment-task' && !!_pxTask && (_pxTask.taskType === 'video_request' || _pxOwnDesign));
+      if (!_pxOk) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED', action.type, '(Pixel: hero images and video triage only)');
+        await logEvent('policy-violation', agentId, action.type + ' blocked (Pixel: hero images and video triage only)', cycleId, { runId: cycleId, gate: 'pixel_jobs_only', taskId: action.taskId || null });
         continue;
       }
     }

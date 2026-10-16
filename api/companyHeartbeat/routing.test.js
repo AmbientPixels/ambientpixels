@@ -14,8 +14,8 @@ const day = (n) => new Date(NOW + n * 864e5).toISOString();
 const LIVE = ['nova', 'forge', 'scribe', 'quill', 'echo', 'scout', 'vale'];
 const ALL = LIVE.concat(['pixel', 'cipher']);
 
-t('design goes Echo → Scribe → nobody, never Pixel (head of Design, video triage only)', () => {
-  assert.strictEqual(R.resolveRole('design', ALL), 'echo');
+t('design falls through Pixel → Echo → Scribe → nobody', () => {
+  assert.strictEqual(R.resolveRole('design', ALL), 'pixel');
   assert.strictEqual(R.resolveRole('design', LIVE), 'echo');
   assert.strictEqual(R.resolveRole('design', ['nova', 'scribe']), 'scribe');
   assert.strictEqual(R.resolveRole('design', ['nova']), null);
@@ -34,12 +34,10 @@ t('humans are never routed; studio counts as runnable', () => {
   assert.ok(!R.isHuman('pixel'));
   assert.ok(R.isRunnable('studio', LIVE));
   assert.ok(!R.isRunnable('pixel', LIVE));
-  assert.ok(!R.isRunnable('pixel', ALL)); // awake, but takes no routed work
-  assert.strictEqual(R.routeTask({ assignee: 'pixel', taskType: 'design_asset' }, ALL), 'echo');
 });
 t('whoDoesWhat names the stand-in and flags a gap', () => {
   const w = R.whoDoesWhat(LIVE);
-  assert.match(w, /Design & images → echo ·/);
+  assert.match(w, /Design & images → echo \(pixel is not running\)/);
   assert.match(w, /Budget\/cost → nova \(cipher is not running\)/);
   assert.match(w, /Video → studio/);
   assert.match(R.whoDoesWhat(['nova']), /Design & images → NOBODY/);
@@ -67,9 +65,6 @@ t('task creation routes a dormant assignee by role and keeps category', () => {
     applyTaskUpdate(tasks, { action: 'create', task: { title: 'Hero', taskType: 'design_asset', assignee: 'pixel' } }, [], 'nova');
     applyTaskUpdate(tasks, { action: 'create', task: { title: 'DIRECTIVE: x', taskType: 'ops', assignee: 'scribe', category: 'system_directive' } }, [], 'forge');
     applyTaskUpdate(tasks, { action: 'create', task: { title: 'Typo', assignee: 'nobody' } }, [], 'nova');
-    C.AGENT_IDS.push('pixel'); // awake Pixel still gets no design work
-    applyTaskUpdate(tasks, { action: 'create', task: { title: 'Hero 2', taskType: 'design_asset', assignee: 'pixel' } }, [], 'nova');
-    assert.strictEqual(tasks[3].assignee, 'echo');
     assert.strictEqual(tasks[0].assignee, 'echo');
     assert.strictEqual(tasks[1].category, 'system_directive');
     assert.strictEqual(tasks[2].assignee, 'nova');
@@ -84,12 +79,33 @@ t('prompt rewrite follows the roster', () => {
   const text = 'use generate-image (Pixel only — Pixel is Head of Design and owns all hero image generation). NEVER create hero image tasks for Pixel — the system';
   try {
     C.AGENT_IDS.length = 0; ALL.forEach((a) => C.AGENT_IDS.push(a));
-    assert.match(_routeRoleText(text, { id: 'echo' }), /held now by echo; Pixel, head of Design, only triages video/); // Pixel awake: still rewritten
+    assert.strictEqual(_routeRoleText(text, { id: 'echo' }), text); // Pixel runs: unchanged
     C.AGENT_IDS.length = 0; LIVE.forEach((a) => C.AGENT_IDS.push(a));
     const out = _routeRoleText(text, { id: 'echo' });
-    assert.match(out, /held now by echo; Pixel, head of Design, only triages video/);
+    assert.match(out, /held now by echo, because Pixel is not running/);
     assert.match(out, /NEVER create hero image tasks yourself/);
     assert.match(_routeRoleText('x', { id: 'nova' }), /WHO DOES WHAT NOW .*Design & images → echo/);
+  } finally { C.AGENT_IDS.length = 0; saved.forEach((a) => C.AGENT_IDS.push(a)); }
+});
+
+// Pixel holds only design work (hero images back to Pixel, 2026-10-16); anything else named for it goes by type.
+t('Pixel holds design work only; other work named for it is routed by type', () => {
+  assert.ok(R.canHold({ assignee: 'pixel', taskType: 'design_asset' }, ALL));
+  assert.ok(!R.canHold({ assignee: 'pixel', taskType: 'general' }, ALL));
+  assert.ok(!R.canHold({ assignee: 'pixel' }, ALL));
+  assert.strictEqual(R.routeTask({ assignee: 'pixel', taskType: 'design_asset' }, ALL), 'pixel');
+  assert.strictEqual(R.routeTask({ assignee: 'pixel', taskType: 'blog_post' }, ALL), 'scribe');
+  assert.strictEqual(R.routeTask({ assignee: 'pixel' }, ALL), 'nova'); // untyped: never back to Pixel
+  assert.ok(R.canHold({ assignee: 'scribe', taskType: 'general' }, ALL)); // only HOLDS_ONLY agents are limited
+  const saved = C.AGENT_IDS.slice();
+  C.AGENT_IDS.length = 0; ALL.forEach((a) => C.AGENT_IDS.push(a));
+  try {
+    const { applyTaskUpdate } = require('./task-mutations');
+    const tasks = [];
+    applyTaskUpdate(tasks, { action: 'create', task: { title: 'Hero', taskType: 'design_asset', assignee: 'pixel' } }, [], 'nova');
+    applyTaskUpdate(tasks, { action: 'create', task: { title: 'Plan Q4', assignee: 'pixel' } }, [], 'nova');
+    assert.strictEqual(tasks[0].assignee, 'pixel');
+    assert.strictEqual(tasks[1].assignee, 'nova');
   } finally { C.AGENT_IDS.length = 0; saved.forEach((a) => C.AGENT_IDS.push(a)); }
 });
 
