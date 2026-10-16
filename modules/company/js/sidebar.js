@@ -32,7 +32,7 @@
     { id: 'plan', label: 'Plan', icon: 'fa-compass', href: BASE + 'campaigns.html',
       pages: ['objectives.html', 'campaigns.html', 'directives.html', 'calendar.html', 'tasks.html', 'standup.html'] },
     { id: 'team', label: 'Team', icon: 'fa-users', href: BASE + 'fleet.html',
-      pages: ['agents.html', 'fleet.html', 'agent-performance.html', 'agent-intelligence.html', 'agent-progress.html', 'awareness.html', 'memories.html', 'seasons.html', 'agent-chat.html', 'voice.html'] },
+      pages: ['org.html', 'agents.html', 'fleet.html', 'agent-performance.html', 'agent-intelligence.html', 'agent-progress.html', 'awareness.html', 'memories.html', 'seasons.html', 'agent-chat.html', 'voice.html'] },
     { id: 'results', label: 'Results', icon: 'fa-chart-line', href: BASE + 'attribution.html',
       pages: ['attribution.html', 'cost-overview.html', 'analytics-hub.html', 'revenue.html'] },
     { id: 'workshop', label: 'Workshop', icon: 'fa-toolbox', href: BASE + 'workshop/index.html', pages: [] }
