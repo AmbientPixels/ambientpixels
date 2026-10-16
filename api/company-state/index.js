@@ -95,11 +95,23 @@ module.exports = async function (context, req) {
     }
 
     try {
-      const value = await storage.getState(key);
+      // A failed read is never empty (2026-10-16): getState() returns null for both "absent"
+      // and "storage error", and browsers treated that null as "no data". A storage error is
+      // a 503 now, so the caller keeps what it has instead of saving over live data.
+      const read = await storage.getStateWithMeta(key);
+      if (read.failed) {
+        context.log.error('[company-state] GET storage read failed:', key);
+        context.res = {
+          status: 503,
+          headers: Object.assign({}, corsHeaders, { 'Retry-After': '30' }),
+          body: { error: 'Storage read failed — try again', key: key }
+        };
+        return;
+      }
       context.res = {
         status: 200,
         headers: corsHeaders,
-        body: { key: key, value: value }
+        body: { key: key, value: read.value }
       };
     } catch (err) {
       context.log.error('[company-state] GET error:', err.message, err.stack);

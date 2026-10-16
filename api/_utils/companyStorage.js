@@ -126,6 +126,13 @@ async function getStateWithMeta(key) {
     }
   }
 
+  // On Azure there is no local store: a null container means blob init failed, and the
+  // "local fallback" would read an empty folder and report every key absent (2026-10-16).
+  if (process.env.WEBSITE_SITE_NAME) {
+    console.error('[CompanyStorage] Blob unavailable on Azure, read failed:', key);
+    return { value: null, etag: null, exists: false, failed: true };
+  }
+
   // Local fallback has no ETag — mutateState degrades to plain read-modify-write.
   return { value: await getState(key), etag: null, exists: true, failed: false, local: true };
 }
