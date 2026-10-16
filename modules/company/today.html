@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/modules/company/runtime-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels HQ — what the company is doing today, and what needs you." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Today — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/hq-kit.css" />
+  <link rel="stylesheet" href="/modules/company/css/today.css" />
+</head>
+<body class="hq-body">
+  <main class="hq-page" id="today" aria-busy="true">
+    <header class="hq-head">
+      <div>
+        <h1 class="hq-head-title">Today</h1>
+        <p class="hq-head-purpose">What the company is doing, and what needs you.</p>
+      </div>
+      <span class="hq-head-asof" id="today-asof">Loading…</span>
+    </header>
+
+    <div class="hq-health" id="today-health" role="status">Checking the fleet…</div>
+
+    <div class="today-top">
+      <section class="hq-section" aria-labelledby="t-waiting-h">
+        <div class="hq-section-head">
+          <h2 class="hq-section-title" id="t-waiting-h">Waiting on you<span class="hq-section-count" id="t-waiting-count"></span></h2>
+        </div>
+        <ul class="hq-section-body" id="t-waiting"><li><p class="hq-empty hq-empty--loading">Loading…</p></li></ul>
+        <a class="hq-section-foot" id="t-waiting-foot" href="/modules/company/actions.html">Open inbox →</a>
+      </section>
+
+      <section class="ap-kpi today-goal" aria-labelledby="t-goal-h" id="t-goal">
+        <h2 class="ap-kpi-label" id="t-goal-h">The goal</h2>
+        <p class="hq-empty hq-empty--loading">Loading…</p>
+      </section>
+
+      <section class="ap-kpi" aria-labelledby="t-week-h">
+        <h2 class="ap-kpi-label" id="t-week-h">This week</h2>
+        <dl class="hq-pairs" id="t-week"><dt>Loading…</dt><dd></dd></dl>
+      </section>
+    </div>
+
+    <div class="today-bottom">
+      <div class="today-col">
+        <section class="hq-section" aria-labelledby="t-camp-h">
+          <div class="hq-section-head">
+            <h2 class="hq-section-title" id="t-camp-h">Campaigns</h2>
+            <a class="hq-section-link" href="/modules/company/campaigns.html">Plan →</a>
+          </div>
+          <ul class="hq-section-body" id="t-campaigns"><li><p class="hq-empty hq-empty--loading">Loading…</p></li></ul>
+        </section>
+
+        <section class="hq-section" aria-labelledby="t-fleet-h">
+          <div class="hq-section-head">
+            <h2 class="hq-section-title" id="t-fleet-h">The fleet</h2>
+            <a class="hq-section-link" href="/modules/company/fleet.html">Team →</a>
+          </div>
+          <ul class="hq-section-body" id="t-fleet"><li><p class="hq-empty hq-empty--loading">Loading…</p></li></ul>
+          <p class="hq-small" id="t-fleet-rest"></p>
+        </section>
+      </div>
+
+      <section class="hq-section" aria-labelledby="t-happened-h">
+        <div class="hq-section-head">
+          <h2 class="hq-section-title" id="t-happened-h">What happened · last 24 hours</h2>
+        </div>
+        <ul class="hq-section-body" id="t-happened"><li><p class="hq-empty hq-empty--loading">Loading…</p></li></ul>
+        <a class="hq-section-foot" href="/modules/company/governance-report.html">See full activity →</a>
+      </section>
+    </div>
+  </main>
+
+<script src="/modules/company/js/sidebar.js"></script>
+<script src="/modules/company/js/today.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+/* today.css — layout only for HQ Today (modules/company/today.html). Components come from hq-kit.css. */
+
+/* Row 1: what waits on you · the goal · this week */
+.today-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--c-gap);
+  align-items: stretch;
+}
+
+/* Row 2: campaigns + fleet stacked · what happened */
+.today-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--c-gap);
+  align-items: start;
+}
+.today-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--c-gap);
+  min-width: 0;
+}
+
+.today-goal .ap-kpi-value { margin: 2px 0 6px; }
+.today-top .ap-kpi { margin: 0; }
+.today-top .ap-kpi-label,
+.today-top .ap-kpi-sub,
+.today-top .ap-kpi-value { margin-top: 0; margin-bottom: 0; }
+.today-top .hq-pairs { margin-top: 4px; }
+
+@media (max-width: 1024px) {
+  .today-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .today-top > .hq-section { grid-column: 1 / -1; }
+  .today-bottom { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .today-top { grid-template-columns: minmax(0, 1fr); }
+}
