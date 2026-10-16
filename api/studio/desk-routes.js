@@ -6,6 +6,7 @@
 'use strict';
 
 const D = require('./desk');
+const VA = require('../_lib/videoApprovals');
 const storage = require('../_utils/companyStorage');
 const W = require('../_lib/releaseWatch/watcher');
 
@@ -48,9 +49,10 @@ module.exports = {
     reply(context, 200, { requests: requests.filter((r) => ['accepted', 'scripting', 'in_production', 'review'].indexOf(r.status) !== -1) });
   },
 
-  // POST desk-comment (worker) {taskId, text, stage?, video?, project?, released?} — the department speaks on a
-  // request: progress ("[studio:<stage> video=…]"), @mentions to the fleet, or the release (with its link), which
-  // also marks the task done. Only video requests can be touched from here.
+  // POST desk-comment (worker) {taskId, text, stage?, video?, project?, released?, checkpoint?} — the department
+  // speaks on a request: progress ("[studio:<stage> video=…]"), @mentions to the fleet, the release (with its link),
+  // which also marks the task done, or a checkpoint ("script" | "cut", body.checkpoint) that puts a script or final
+  // cut in Chad's approvals queue at once (_lib/videoApprovals.js). Only video requests can be touched from here.
   async comment(context, req, reply) {
     const b = body(req);
     const now = Date.now();
@@ -58,7 +60,9 @@ module.exports = {
     const text = String(b.text || '').replace(/\s+$/, '').slice(0, 1800);
     const stage = b.stage ? String(b.stage) : null;
     if (stage && D.STAGES.indexOf(stage) === -1) return reply(context, 400, { error: 'stage must be one of ' + D.STAGES.join(', ') });
-    if (!text && !stage) return reply(context, 400, { error: 'nothing to say' });
+    const checkpoint = b.checkpoint ? String(b.checkpoint) : null;
+    if (checkpoint && D.CHECKPOINTS.indexOf(checkpoint) === -1) return reply(context, 400, { error: 'checkpoint must be one of ' + D.CHECKPOINTS.join(', ') });
+    if (!text && !stage && !checkpoint) return reply(context, 400, { error: 'nothing to say' });
     const video = b.video && /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(b.video) ? b.video : null;
     const project = b.project && /^[a-z0-9][a-z0-9-]{0,62}$/.test(b.project) ? b.project : null;
     if (inHeartbeatWindow(now)) return reply(context, 409, { error: 'the heartbeat is writing the board; retry after :12' });
@@ -70,7 +74,7 @@ module.exports = {
       if (!D.isRequestTask(t)) { refused = [403, 'not a video request']; return undefined; }
       if (!Array.isArray(t.comments)) t.comments = [];
       const at = new Date(now).toISOString();
-      t.comments.push({ id: 'cmt-' + now, author: D.INBOX, text: (stage ? D.studioMark(stage, video, project) + ' ' : '') + text, type: 'comment', createdAt: at });
+      t.comments.push({ id: 'cmt-' + now, author: D.INBOX, text: (checkpoint ? D.checkpointMark(checkpoint) + ' ' : stage ? D.studioMark(stage, video, project) + ' ' : '') + text, type: 'comment', createdAt: at });
       t.updatedAt = at;
       // One board (Design fold, 2026-10-15): the task itself carries the stage, so the board, HQ and the fleet read
       // one record. The comment marker stays as the history.
@@ -83,6 +87,17 @@ module.exports = {
     });
     if (refused) return reply(context, refused[0], { error: refused[1] });
     const request = D.parseRequest(saved);
+    // A checkpoint reaches the approvals queue now, not at the next 15-minute sync.
+    let queued = null;
+    if (checkpoint) {
+      try {
+        await storage.mutateState('approvalQueue', (fresh) => {
+          const res = VA.syncQueue(Array.isArray(fresh) ? fresh : [], [saved], new Date(now).toISOString(), { onlyTaskId: saved.id });
+          return res.changed ? res.queue : undefined;
+        });
+        queued = true;
+      } catch (e) { queued = false; } // the 15-minute sync will add it
+    }
     // A released video goes in the release log as a minor content release (a video never triggers another video).
     let release = null;
     if (stage === 'released' && request) {
@@ -92,6 +107,6 @@ module.exports = {
       }, now, 'studio'));
       release = r.error ? { error: r.error } : r.entry;
     }
-    reply(context, 200, { ok: true, request, release });
+    reply(context, 200, { ok: true, request, release, queued });
   },
 };

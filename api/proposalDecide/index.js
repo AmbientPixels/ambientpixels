@@ -5,6 +5,7 @@
 const storage = require('../_utils/companyStorage');
 const { materializeFromProposal, findLiveDuplicate, adoptOrphanCampaigns } = require('./materialize');
 const { MAX_ACTIVE_OBJECTIVES } = require('../companyHeartbeat/constants');
+const videoApprovals = require('../_lib/videoApprovals');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -59,6 +60,30 @@ module.exports = async function (context, req) {
       });
       Object.assign(target, patch); // keep the echoed response body in sync
       return res;
+    }
+
+    // Video items (2026-10-16) are decided on their company task: a request is accepted or declined, a script or
+    // final cut approved or sent back. The task is the record; the queue entry just follows it.
+    if (videoApprovals.isVideoItem(target)) {
+      const d = new Date();
+      if (d.getUTCHours() % 6 === 0 && d.getUTCMinutes() < 12) {
+        context.res = { status: 409, headers: corsHeaders, body: { error: 'The heartbeat is writing the board right now; try again after :12.' } };
+        return;
+      }
+      let outcome = null;
+      await storage.mutateState('tasks', function (fresh) {
+        outcome = videoApprovals.decide(target, decision, ceoNote, fresh, nowIso);
+        return outcome.ok ? fresh : undefined;
+      });
+      if (!outcome || !outcome.ok) {
+        // Decided on the board already, or the task is gone: close the item so it stops asking.
+        if (outcome && (outcome.code === 409 || outcome.code === 404)) await flipQueueEntry({ status: 'resolved', decidedAt: nowIso, resolvedBy: 'board', note: outcome.error });
+        context.res = { status: (outcome && outcome.code) || 500, headers: corsHeaders, body: { error: (outcome && outcome.error) || 'the board could not be updated' } };
+        return;
+      }
+      await flipQueueEntry(Object.assign({ status: decision, decidedAt: nowIso, decidedBy: 'ceo' }, ceoNote ? { ceoNote: ceoNote } : {}));
+      context.res = { status: 200, headers: corsHeaders, body: { ok: true, id: id, status: decision, taskId: target.taskId, taskStatus: outcome.task.status } };
+      return;
     }
 
     if (decision === 'approved') {

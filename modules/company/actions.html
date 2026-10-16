@@ -406,6 +406,14 @@
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
+          <!-- Video: requests, script and final-cut checkpoints (videoApprovals, 2026-10-16) -->
+          <div class="act-panel" id="video-approvals-panel" style="display:none;">
+            <div class="act-panel-head" style="border-bottom-color:rgba(251,191,36,0.15);">
+              <span style="color:#fbbf24;"><i class="fas fa-film"></i> Video</span>
+              <span id="video-approvals-count" class="act-count-badge" style="background:rgba(251,191,36,0.12);color:#fbbf24;"></span>
+            </div>
+            <div class="act-panel-body" id="video-approvals-list"></div>
+          </div>
           <!-- Needs Attention (convergence escalations) -->
           <div class="act-panel" id="needs-attention-panel" style="display:none;">
             <div class="act-panel-head" style="border-bottom-color:rgba(248,113,113,0.15);">
@@ -696,6 +704,7 @@
       renderActionDrift();
       renderExecutionPulse();
       renderRawStats();
+      renderVideoApprovals();
       renderNeedsAttention();
       renderCampaignProposals();
       renderObjectiveProposals();
@@ -1726,6 +1735,82 @@
           closeDrawer();
           renderCampaignProposals();
         });
+    }
+
+    // ── Video (2026-10-16) ──
+    // Video requests and the Studio's script / final-cut checkpoints. Each decision lands on the request's company
+    // task (proposalDecide → _lib/videoApprovals.js); a decline or send-back needs a reason, because that is what the
+    // asking agent or the Studio learns from.
+    var VIDEO_KIND = {
+      video_request: { label: 'New request', icon: 'fa-film', yes: 'Accept', no: 'Decline', ask: 'Why decline? (the agent who asked learns from this)' },
+      script: { label: 'Script ready', icon: 'fa-file-lines', yes: 'Approve script', no: 'Send back', ask: 'What should change in the script?' },
+      cut: { label: 'Final cut ready', icon: 'fa-clapperboard', yes: 'Approve cut', no: 'Send back', ask: 'What should change in the cut?' }
+    };
+    function renderVideoApprovals() {
+      var panel = document.getElementById('video-approvals-panel');
+      var list = document.getElementById('video-approvals-list');
+      var countEl = document.getElementById('video-approvals-count');
+      if (!panel || !list) return;
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          var queue = res.value || res || [];
+          if (!Array.isArray(queue)) queue = [];
+          var items = queue.filter(function(q) { return q && q.status === 'pending' && (q.type === 'video_request' || q.type === 'video_checkpoint'); })
+            .sort(function(a, b) { return String(a.createdAt || '').localeCompare(String(b.createdAt || '')); });
+          if (!items.length) { panel.style.display = 'none'; return; }
+          panel.style.display = '';
+          countEl.textContent = items.length;
+          list.innerHTML = items.map(function(q) {
+            var k = VIDEO_KIND[q.type === 'video_request' ? 'video_request' : q.checkpoint] || VIDEO_KIND.video_request;
+            var title = q.type === 'video_request' ? q.title : String(q.title || '').replace(/^(Script ready|Final cut ready):\s*/, '');
+            var meta = q.type === 'video_request'
+              ? 'from ' + (q.originAgent === 'ceo' ? 'Chad' : (q.originAgent || '?')) + ' · ' + (q.summary || '')
+              : (q.summary || '');
+            var note = q.type === 'video_request'
+              ? (q.recommendation ? 'Pixel: ' + q.recommendation.replace(/^RECOMMEND:\s*/i, 'recommends ') : 'Waiting for Pixel\'s recommendation (next heartbeat).')
+              : '';
+            var link = q.type === 'video_request'
+              ? '<a href="/modules/company/tasks.html?task=' + encodeURIComponent(q.taskId) + '" style="color:inherit;">Open the request →</a>'
+              : (q.link ? '<a href="' + esc(q.link) + '" target="_blank" rel="noopener" style="color:inherit;">' + (q.checkpoint === 'script' ? 'Read the script' : 'Watch the draft') + ' →</a>' : '');
+            return '<div class="act-row" style="flex-direction:column;align-items:stretch;padding:0.5rem 0;">' +
+              '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">' +
+                '<div class="act-row-icon" style="background:rgba(251,191,36,0.08);color:#fbbf24;"><i class="fas ' + k.icon + '"></i></div>' +
+                '<div class="act-row-info" style="flex:1 1 240px;min-width:0;">' +
+                  '<div class="act-row-title"><span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:#fbbf24;margin-right:0.4rem;">' + k.label + '</span>' + esc(title) + '</div>' +
+                  (meta ? '<div class="act-row-meta">' + esc(meta) + '</div>' : '') +
+                  (note ? '<div class="act-row-meta" style="opacity:0.85;">' + esc(note) + '</div>' : '') +
+                  (link ? '<div class="act-row-meta" style="opacity:0.85;">' + link + '</div>' : '') +
+                '</div>' +
+                '<div style="display:flex;gap:0.4rem;margin-left:auto;">' +
+                  '<button class="act-btn act-btn--approve" data-video-id="' + esc(q.id) + '" data-decision="approved">' + k.yes + '</button>' +
+                  '<button class="act-btn act-btn--reject" data-video-id="' + esc(q.id) + '" data-decision="rejected" data-ask="' + esc(k.ask) + '">' + k.no + '</button>' +
+                '</div>' +
+              '</div></div>';
+          }).join('');
+          list.querySelectorAll('button[data-video-id]').forEach(function(btn) {
+            btn.addEventListener('click', function() { decideVideoItem(btn); });
+          });
+        })
+        .catch(function() { panel.style.display = 'none'; });
+    }
+    function decideVideoItem(btn) {
+      var decision = btn.getAttribute('data-decision');
+      var note = '';
+      if (decision === 'rejected') {
+        note = (prompt(btn.getAttribute('data-ask')) || '').trim();
+        if (!note) return; // a reason is required; cancel = no decision
+      }
+      btn.disabled = true;
+      fetch('https://ambientpixels-nova-api.azurewebsites.net/api/proposalDecide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': (window.AP_SECRET || 'pixelpusher') },
+        body: JSON.stringify({ id: btn.getAttribute('data-video-id'), decision: decision, ceoNote: note })
+      })
+        .then(function(r) { return r.json().catch(function() { return {}; }).then(function(b) { if (!r.ok) alert('Not saved (' + r.status + '): ' + (b.error || 'try again')); }); })
+        .catch(function() { alert('Not saved: the network call failed. Try again.'); })
+        .then(function() { renderVideoApprovals(); });
     }
 
     // ── Objective Proposals ──

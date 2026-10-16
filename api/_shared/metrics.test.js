@@ -64,6 +64,11 @@ t('pending: no status counts as pending; resolved and expired do not; oldest fir
     { id: 'v', taskType: 'video_request', status: 'in-progress' }] });
   assert.deepStrictEqual(p.map((x) => x.id), ['c', 'a', 'b']);
 });
+t('pending: a video request with a pending queue item counts once, as the queue item', () => {
+  const p = M.pendingDecisions({ approvalQueue: [{ id: 'aq-video-v1', type: 'video_request', taskId: 'v1', status: 'pending', submittedAt: iso(-DAY) }],
+    tasks: [{ id: 'v1', taskType: 'video_request', status: 'todo', createdAt: iso(-DAY) }, { id: 'v2', taskType: 'video_request', status: 'todo', createdAt: iso(-DAY) }] });
+  assert.deepStrictEqual(p.map((x) => x.id).sort(), ['aq-video-v1', 'v2']);
+});
 t('agent pace: an empty queue is 0 days, nothing finished is null', () => {
   assert.strictEqual(M.agentPace([], 'nova', NOW).daysToClear, 0);
   assert.strictEqual(M.agentPace([{ assignee: 'nova', status: 'todo' }], 'nova', NOW).daysToClear, null);

@@ -28,6 +28,9 @@ function isPendingQueueItem(q) {
 function pendingDecisions(input) {
   input = input || {};
   const out = [];
+  // A video request also sits in the queue (videoApprovals, 2026-10-16): count it once, as the queue item.
+  const queuedTaskIds = new Set((Array.isArray(input.approvalQueue) ? input.approvalQueue : [])
+    .filter((q) => isPendingQueueItem(q) && q.taskId).map((q) => q.taskId));
   (Array.isArray(input.approvalQueue) ? input.approvalQueue : []).forEach((q) => {
     if (!isPendingQueueItem(q)) return;
     out.push({
@@ -43,6 +46,7 @@ function pendingDecisions(input) {
     const human = HUMANS.indexOf(lc(t.assignee)) !== -1;
     const video = t.taskType === 'video_request' && lc(t.status) === 'todo';
     if (!human && !video) return;
+    if (video && queuedTaskIds.has(t.id)) return;
     out.push({
       id: t.id, kind: 'task', type: video ? 'video_request' : 'ceo_task', title: t.title || 'Task',
       from: t.created_by || t.source || null, since: t.createdAt || null

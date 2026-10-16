@@ -147,6 +147,27 @@ function commentsOf(task) {
 const MARK = /^\[studio:([a-z_]+)(?:\s+video=([A-Za-z0-9._-]+))?(?:\s+project=([a-z0-9-]+))?\]/;
 const studioMark = (stage, video, project) => `[studio:${stage}${video ? ' video=' + video : ''}${project ? ' project=' + project : ''}]`;
 
+// Chad's two checkpoints on a video in production (approvals queue, 2026-10-16). The Studio opens one with
+// "[studio:checkpoint script]" when the Board's work reaches review; Chad's decision lands as "[ceo:approved script]"
+// or "[ceo:sent back script] <reason>". The latest marker per kind is its state; each re-open is a new round.
+const CHECKPOINTS = ['script', 'cut'];
+const CP_MARK = /^\[studio:checkpoint (script|cut)\]\s*([\s\S]*)$/;
+const CEO_MARK = /^\[ceo:(approved|sent back) (script|cut)\]\s*([\s\S]*)$/;
+const checkpointMark = (kind) => `[studio:checkpoint ${kind}]`;
+const ceoMark = (decision, kind) => `[ceo:${decision === 'approved' ? 'approved' : 'sent back'} ${kind}]`;
+function checkpointsOf(comments) {
+  const cp = {};
+  for (const c of comments) {
+    let m;
+    if (c.who === INBOX && (m = CP_MARK.exec(c.text))) {
+      cp[m[1]] = { status: 'pending', round: ((cp[m[1]] && cp[m[1]].round) || 0) + 1, at: c.at, note: str(m[2], 300) };
+    } else if (c.who === 'ceo' && (m = CEO_MARK.exec(c.text)) && cp[m[2]]) {
+      cp[m[2]] = Object.assign({}, cp[m[2]], { status: m[1] === 'approved' ? 'approved' : 'sent_back', decidedAt: c.at, reason: str(m[3], 300) });
+    }
+  }
+  return cp;
+}
+
 // A company task → the request as the department sees it, or null if it isn't one.
 function parseRequest(task) {
   if (!isRequestTask(task)) return null;
@@ -181,6 +202,7 @@ function parseRequest(task) {
     taskId: task.id, from: task.created_by || r.from, createdAt: task.createdAt, updatedAt: task.updatedAt || task.createdAt,
     status, video, project, releaseUrl,
     reason: status === 'declined' && ceo.length ? str(ceo[ceo.length - 1].text, 300) : null,
+    checkpoints: checkpointsOf(comments),
     comments: comments.slice(-6),
   });
 }
@@ -235,4 +257,5 @@ module.exports = {
   CATALOG, VIDEO_TASK_TYPE, INBOX, TRIGGERS, STATUSES, OPEN, STAGES,
   formatIds, moodIds, styleIds, styleFor, validSource,
   cleanRequest, requestTask, isRequestTask, commentsOf, studioMark, parseRequest, requestsFrom, fleetLoad, demand,
+  CHECKPOINTS, checkpointMark, ceoMark, checkpointsOf,
 };
