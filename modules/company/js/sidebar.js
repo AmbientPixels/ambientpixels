@@ -35,7 +35,7 @@
     { id: 'plan', label: 'Plan', icon: 'fa-compass', href: BASE + 'campaigns.html',
       pages: ['objectives.html', 'campaigns.html', 'directives.html', 'calendar.html', 'tasks.html', 'standup.html'],
       subs: [{ label: 'Goals', href: BASE + 'objectives.html' }, { label: 'Campaigns', href: BASE + 'campaigns.html' }, { label: 'Tasks', href: BASE + 'tasks.html' }, { label: 'Calendar', href: BASE + 'calendar.html' }] },
-    { id: 'team', label: 'Team', icon: 'fa-users', href: BASE + 'fleet.html',
+    { id: 'team', label: 'Team', icon: 'fa-users', href: BASE + 'org.html',
       pages: ['org.html', 'agents.html', 'fleet.html', 'agent-performance.html', 'agent-intelligence.html', 'agent-progress.html', 'awareness.html', 'memories.html', 'seasons.html', 'agent-chat.html', 'voice.html'],
       subs: [{ label: 'Org chart', href: BASE + 'org.html' }, { label: 'Fleet', href: BASE + 'fleet.html' }, { label: 'Agents', href: BASE + 'agents.html' }, { label: 'Memory', href: BASE + 'memories.html' }] },
     { id: 'results', label: 'Results', icon: 'fa-chart-line', href: BASE + 'attribution.html',
