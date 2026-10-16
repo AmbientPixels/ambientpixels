@@ -71,8 +71,10 @@ module.exports = async function (context, req) {
         return;
       }
       let outcome = null;
+      const sysCfg = (await storage.getState('systemConfig')) || {};
+      const autoPublish = !!(sysCfg.youtube && sysCfg.youtube.audited === true);
       await storage.mutateState('tasks', function (fresh) {
-        outcome = videoApprovals.decide(target, decision, ceoNote, fresh, nowIso);
+        outcome = videoApprovals.decide(target, decision, ceoNote, fresh, nowIso, { autoPublish: autoPublish });
         return outcome.ok ? fresh : undefined;
       });
       if (!outcome || !outcome.ok) {

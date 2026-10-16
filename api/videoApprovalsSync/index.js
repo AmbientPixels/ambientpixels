@@ -16,9 +16,11 @@ module.exports = async function (context) {
       return;
     }
     const now = new Date().toISOString();
+    const cfg = (await storage.getState('systemConfig')) || {};
+    const autoPublish = !!(cfg.youtube && cfg.youtube.audited === true);
     let changed = false;
     await storage.mutateState('approvalQueue', function (fresh) {
-      const res = syncQueue(Array.isArray(fresh) ? fresh : [], tasksRead.value, now);
+      const res = syncQueue(Array.isArray(fresh) ? fresh : [], tasksRead.value, now, { autoPublish: autoPublish });
       changed = res.changed;
       return res.changed ? res.queue : undefined;
     });

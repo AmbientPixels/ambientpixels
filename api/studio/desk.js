@@ -150,9 +150,40 @@ const studioMark = (stage, video, project) => `[studio:${stage}${video ? ' video
 // Chad's two checkpoints on a video in production (approvals queue, 2026-10-16). The Studio opens one with
 // "[studio:checkpoint script]" when the Board's work reaches review; Chad's decision lands as "[ceo:approved script]"
 // or "[ceo:sent back script] <reason>". The latest marker per kind is its state; each re-open is a new round.
-const CHECKPOINTS = ['script', 'cut'];
-const CP_MARK = /^\[studio:checkpoint (script|cut)\]\s*([\s\S]*)$/;
-const CEO_MARK = /^\[ceo:(approved|sent back) (script|cut)\]\s*([\s\S]*)$/;
+// "publish" (2026-10-16) is the YouTube step: approved with a pasted link (manual upload) or without one (the
+// youtubePublishCron uploads it once the API audit has passed and systemConfig.youtube.audited is true).
+const CHECKPOINTS = ['script', 'cut', 'publish'];
+const CP_MARK = /^\[studio:checkpoint (script|cut|publish)\]\s*([\s\S]*)$/;
+const CEO_MARK = /^\[ceo:(approved|sent back) (script|cut|publish)\]\s*([\s\S]*)$/;
+// What the uploader reports on the task: "[studio:youtube https://youtu.be/<id>]" or "[studio:youtube-failed] why".
+const YT_MARK = /^\[studio:youtube (https:\/\/youtu\.be\/[A-Za-z0-9_-]{6,20})\]/;
+const YT_FAIL = /^\[studio:youtube-failed\]/;
+const YT_URL = /^https:\/\/(youtu\.be\/[A-Za-z0-9_-]{6,20}|(www\.)?youtube\.com\/(watch\?v=|shorts\/)[A-Za-z0-9_-]{6,20})\S*$/;
+const youtubeOf = (comments) => {
+  const out = { url: null, failures: 0 };
+  for (const c of comments) {
+    if (c.who !== INBOX) continue;
+    const m = YT_MARK.exec(c.text);
+    if (m) out.url = m[1];
+    else if (YT_FAIL.test(c.text)) out.failures++;
+  }
+  return out;
+};
+// The upload package the Studio sends with a publish checkpoint: metadata + repo-relative render paths (the files
+// are in the studio container under projects/<project>/files/<path>). → clean package or a reason string.
+function cleanPackage(p, project) {
+  if (!p || typeof p !== 'object') return 'package must be an object';
+  const path = (x) => (typeof x === 'string' && /^renders\/[a-z0-9-]+\/[A-Za-z0-9._\/-]+$/.test(x) && x.indexOf('..') === -1 && x.startsWith('renders/' + project + '/') ? x : null);
+  const files = p.files || {};
+  if (!path(files.video) || !/\.mp4$/i.test(files.video)) return 'package.files.video must be an .mp4 under renders/' + project + '/';
+  const title = String(p.title || '').replace(/[<>]/g, '').trim().slice(0, 100);
+  if (title.length < 6) return 'package.title is required';
+  return {
+    title, description: String(p.description || '').replace(/[<>]/g, '').slice(0, 4900),
+    tags: list(p.tags, 15, 60),
+    files: { video: files.video, captions: path(files.captions), thumbnail: path(files.thumbnail) },
+  };
+}
 const checkpointMark = (kind) => `[studio:checkpoint ${kind}]`;
 const ceoMark = (decision, kind) => `[ceo:${decision === 'approved' ? 'approved' : 'sent back'} ${kind}]`;
 function checkpointsOf(comments) {
@@ -203,6 +234,8 @@ function parseRequest(task) {
     status, video, project, releaseUrl,
     reason: status === 'declined' && ceo.length ? str(ceo[ceo.length - 1].text, 300) : null,
     checkpoints: checkpointsOf(comments),
+    youtube: youtubeOf(comments),
+    youtubePackage: task.youtubePackage || null,
     comments: comments.slice(-6),
   });
 }
@@ -257,5 +290,5 @@ module.exports = {
   CATALOG, VIDEO_TASK_TYPE, INBOX, TRIGGERS, STATUSES, OPEN, STAGES,
   formatIds, moodIds, styleIds, styleFor, validSource,
   cleanRequest, requestTask, isRequestTask, commentsOf, studioMark, parseRequest, requestsFrom, fleetLoad, demand,
-  CHECKPOINTS, checkpointMark, ceoMark, checkpointsOf,
+  CHECKPOINTS, checkpointMark, ceoMark, checkpointsOf, cleanPackage, youtubeOf, YT_URL,
 };

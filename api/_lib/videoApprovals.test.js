@@ -128,4 +128,52 @@ t('onlyTaskId leaves other requests and their items alone', () => {
   assert.ok(q.every((x) => x.status === 'pending'));
 });
 
+t('Ready for YouTube: the package shows; approve needs a YouTube link until the audit switch is on', () => {
+  const pkg = desk.cleanPackage({ title: 'What a free scan shows you', description: 'Run a free scan.\nMore.', tags: ['AmbientScore'],
+    files: { video: 'renders/ambientpixels/01/01-scan-d4-master.mp4', captions: 'renders/ambientpixels/01/01-scan-d4.srt', thumbnail: 'renders/ambientpixels/01/01-scan-d4-poster.png' } }, 'ambientpixels');
+  assert.strictEqual(typeof pkg, 'object', pkg);
+  const task = reqTask({ status: 'in-progress', youtubePackage: pkg, comments: marked('review', [studio(desk.checkpointMark('publish'))]) });
+  const q = [];
+  V.syncQueue(q, [task], NOW);
+  const it = q.find((x) => x.checkpoint === 'publish');
+  assert.match(it.title, /^Ready for YouTube: /);
+  assert.match(it.summary, /"What a free scan shows you" · Run a free scan\. · captions · thumbnail/);
+  assert.strictEqual(it.autoPublish, false);
+  assert.strictEqual(V.decide(it, 'approved', '', [task], LATER).code, 400); // no link, no audit
+  assert.strictEqual(V.decide(it, 'approved', 'https://example.com/x', [task], LATER).code, 400);
+  assert.ok(V.decide(it, 'approved', 'https://youtu.be/KFTzJqT7c9k', [task], LATER).ok);
+  assert.strictEqual(desk.parseRequest(task).checkpoints.publish.reason, 'https://youtu.be/KFTzJqT7c9k');
+  // After the audit: the item offers Publish now, and approving without a link is allowed.
+  const t2 = reqTask({ id: 'task-1792000000003-gh78', status: 'in-progress', youtubePackage: pkg, comments: marked('review', [studio(desk.checkpointMark('publish'))]) });
+  const q2 = [];
+  V.syncQueue(q2, [t2], NOW, { autoPublish: true });
+  const it2 = q2.find((x) => x.checkpoint === 'publish');
+  assert.strictEqual(it2.autoPublish, true);
+  assert.ok(V.decide(it2, 'approved', '', [t2], LATER, { autoPublish: true }).ok);
+});
+
+t('the package check refuses paths outside the project\'s renders and a missing title', () => {
+  assert.match(desk.cleanPackage({ title: 'Long enough', files: { video: '../secrets.mp4' } }, 'ambientpixels'), /files\.video/);
+  assert.match(desk.cleanPackage({ title: 'Long enough', files: { video: 'renders/hanson-agents/x.mp4' } }, 'ambientpixels'), /files\.video/);
+  assert.match(desk.cleanPackage({ title: 'x', files: { video: 'renders/ambientpixels/x.mp4' } }, 'ambientpixels'), /title/);
+  const p = desk.cleanPackage({ title: 'A good title', files: { video: 'renders/ambientpixels/a/x-master.mp4', captions: 'C:/x.srt' } }, 'ambientpixels');
+  assert.strictEqual(p.files.captions, null);
+});
+
+t('the publish timer picks an approved, link-less, not-yet-uploaded request; the YouTube marker closes it', () => {
+  const C = require('../youtubePublishCron/index.js');
+  const pkg = desk.cleanPackage({ title: 'A good title', files: { video: 'renders/ambientpixels/a/x-master.mp4' } }, 'ambientpixels');
+  const base = marked('review', [studio(desk.checkpointMark('publish'))]);
+  const ready = reqTask({ status: 'in-progress', youtubePackage: pkg, comments: base.concat([ceo(desk.ceoMark('approved', 'publish'))]) });
+  assert.strictEqual(C.nextToPublish([ready]).task.id, ready.id);
+  const manual = reqTask({ status: 'in-progress', youtubePackage: pkg, comments: base.concat([ceo(desk.ceoMark('approved', 'publish') + ' https://youtu.be/KFTzJqT7c9k')]) });
+  assert.strictEqual(C.nextToPublish([manual]), null);
+  ready.comments.push(studio('[studio:youtube https://youtu.be/KFTzJqT7c9k] On YouTube (public).'));
+  assert.strictEqual(C.nextToPublish([ready]), null);
+  assert.strictEqual(desk.parseRequest(ready).youtube.url, 'https://youtu.be/KFTzJqT7c9k');
+  const failing = reqTask({ status: 'in-progress', youtubePackage: pkg, comments: base.concat([ceo(desk.ceoMark('approved', 'publish')),
+    studio('[studio:youtube-failed] a'), studio('[studio:youtube-failed] b'), studio('[studio:youtube-failed] c')]) });
+  assert.strictEqual(C.nextToPublish([failing]), null);
+});
+
 console.log(`videoApprovals: ${passed} passed${process.exitCode ? ', FAILURES above' : ''}`);

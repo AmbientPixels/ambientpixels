@@ -13,7 +13,7 @@ const desk = require('../studio/desk');
 
 const SITE = 'https://www.ambientpixels.ai';
 const TYPES = ['video_request', 'video_checkpoint'];
-const KIND_LABEL = { script: 'Script ready', cut: 'Final cut ready' };
+const KIND_LABEL = { script: 'Script ready', cut: 'Final cut ready', publish: 'Ready for YouTube' };
 
 const requestItemId = (taskId) => 'aq-video-' + taskId;
 const checkpointItemId = (taskId, kind, round) => 'aq-videocp-' + taskId + '-' + kind + '-' + round;
@@ -29,6 +29,13 @@ function recommendation(task) {
 function studioLink(r, kind) {
   if (!r.project || !r.video) return null;
   return SITE + '/studio/#/p/' + encodeURIComponent(r.project) + '/v/' + encodeURIComponent(r.video) + '/' + (kind === 'script' ? 'script' : 'review');
+}
+
+function publishSummary(r) {
+  const p = r.youtubePackage;
+  if (!p) return 'The master is ready to publish.';
+  const first = String(p.description || '').split('\n').filter(Boolean)[0] || '';
+  return '"' + p.title + '"' + (first ? ' · ' + first.slice(0, 140) : '') + (p.files && p.files.captions ? ' · captions' : '') + (p.files && p.files.thumbnail ? ' · thumbnail' : '');
 }
 
 function requestItem(task, r, nowIso) {
@@ -47,7 +54,8 @@ function checkpointItem(task, r, kind, cp, nowIso) {
     id: checkpointItemId(task.id, kind, cp.round), type: 'video_checkpoint', checkpoint: kind, round: cp.round,
     taskId: task.id, video: r.video, project: r.project,
     title: KIND_LABEL[kind] + ': ' + r.title, taskTitle: task.title,
-    summary: cp.note || (kind === 'script' ? 'The script is ready for your approval.' : 'A draft is ready for your review.'),
+    summary: kind === 'publish' ? publishSummary(r) : (cp.note || (kind === 'script' ? 'The script is ready for your approval.' : 'A draft is ready for your review.')),
+    package: kind === 'publish' ? r.youtubePackage : undefined,
     link: studioLink(r, kind), originAgent: 'studio',
     status: 'pending', createdAt: nowIso, submittedAt: nowIso,
   };
@@ -61,6 +69,7 @@ function boardOutcome(r) {
 
 // Bring the queue in line with the board. Mutates and returns { queue, changed }.
 // opts.onlyTaskId: look at one task only (the Studio's own checkpoint write).
+// opts.autoPublish: systemConfig.youtube.audited — a "Ready for YouTube" item offers Publish now (else paste a link).
 function syncQueue(queue, tasks, nowIso, opts) {
   opts = opts || {};
   const q = Array.isArray(queue) ? queue : [];
@@ -102,6 +111,8 @@ function syncQueue(queue, tasks, nowIso, opts) {
       const cid = checkpointItemId(task.id, kind, cp.round);
       live.add(cid);
       if (!byId.has(cid)) { const it = checkpointItem(task, r, kind, cp, nowIso); q.push(it); byId.set(cid, it); changed = true; }
+      const it = byId.get(cid);
+      if (kind === 'publish' && isPending(it) && it.autoPublish !== !!opts.autoPublish) { it.autoPublish = !!opts.autoPublish; changed = true; }
     }
     for (const it of q) {
       if (!it || it.type !== 'video_checkpoint' || it.taskId !== task.id || !isPending(it) || live.has(it.id)) continue;
@@ -125,7 +136,8 @@ function syncQueue(queue, tasks, nowIso, opts) {
 }
 
 // Apply Chad's decision on an item to its task (in a fresh `tasks` array). → { ok, task } or { ok: false, error, code }.
-function decide(item, decision, note, tasks, nowIso) {
+function decide(item, decision, note, tasks, nowIso, opts) {
+  opts = opts || {};
   if (!isVideoItem(item)) return { ok: false, code: 400, error: 'not a video item' };
   if (decision !== 'approved' && decision !== 'rejected') return { ok: false, code: 400, error: 'decision must be approved or rejected' };
   const reason = String(note || '').trim().slice(0, 500);
@@ -146,6 +158,11 @@ function decide(item, decision, note, tasks, nowIso) {
   } else {
     const cp = (r.checkpoints || {})[item.checkpoint];
     if (!cp || cp.status !== 'pending' || cp.round !== item.round) return { ok: false, code: 409, error: 'this checkpoint is no longer open' };
+    if (item.checkpoint === 'publish' && decision === 'approved') {
+      // Approve = "it is on YouTube at <link>" (uploaded by hand) or, once the audit passed, "publish it now".
+      if (reason && !desk.YT_URL.test(reason)) return { ok: false, code: 400, error: 'that is not a YouTube video link' };
+      if (!reason && !opts.autoPublish) return { ok: false, code: 400, error: 'Upload it in YouTube Studio and paste the link: direct publishing turns on after the YouTube API audit passes.' };
+    }
     comment(desk.ceoMark(decision, item.checkpoint) + (reason ? ' ' + reason : ''));
   }
   task.updatedAt = nowIso;

@@ -1744,7 +1744,11 @@
     var VIDEO_KIND = {
       video_request: { label: 'New request', icon: 'fa-film', yes: 'Accept', no: 'Decline', ask: 'Why decline? (the agent who asked learns from this)' },
       script: { label: 'Script ready', icon: 'fa-file-lines', yes: 'Approve script', no: 'Send back', ask: 'What should change in the script?' },
-      cut: { label: 'Final cut ready', icon: 'fa-clapperboard', yes: 'Approve cut', no: 'Send back', ask: 'What should change in the cut?' }
+      cut: { label: 'Final cut ready', icon: 'fa-clapperboard', yes: 'Approve cut', no: 'Send back', ask: 'What should change in the cut?' },
+      // YouTube (2026-10-16): until the API audit passes, upload in YouTube Studio and paste the link here; after it
+      // (item.autoPublish, from systemConfig.youtube.audited) Publish now uploads from the studio container.
+      publish: { label: 'Ready for YouTube', icon: 'fa-upload', yes: 'Add YouTube link', no: 'Send back', ask: 'What should change before it goes on YouTube?',
+        link: 'Upload it in YouTube Studio (studio.youtube.com), then paste the video link here:' }
     };
     function renderVideoApprovals() {
       var panel = document.getElementById('video-approvals-panel');
@@ -1764,7 +1768,10 @@
           countEl.textContent = items.length;
           list.innerHTML = items.map(function(q) {
             var k = VIDEO_KIND[q.type === 'video_request' ? 'video_request' : q.checkpoint] || VIDEO_KIND.video_request;
-            var title = q.type === 'video_request' ? q.title : String(q.title || '').replace(/^(Script ready|Final cut ready):\s*/, '');
+            var title = q.type === 'video_request' ? q.title : String(q.title || '').replace(/^(Script ready|Final cut ready|Ready for YouTube):\s*/, '');
+            var yes = q.checkpoint === 'publish' && q.autoPublish ? 'Publish now' : k.yes;
+            var pkgFiles = q.checkpoint === 'publish' && q.package && q.package.files
+              ? 'On this PC: C:\\Dev\\ai-video-pipeline\\' + String(q.package.files.video || '').replace(/\//g, '\\') : '';
             var meta = q.type === 'video_request'
               ? 'from ' + (q.originAgent === 'ceo' ? 'Chad' : (q.originAgent || '?')) + ' · ' + (q.summary || '')
               : (q.summary || '');
@@ -1782,9 +1789,11 @@
                   (meta ? '<div class="act-row-meta">' + esc(meta) + '</div>' : '') +
                   (note ? '<div class="act-row-meta" style="opacity:0.85;">' + esc(note) + '</div>' : '') +
                   (link ? '<div class="act-row-meta" style="opacity:0.85;">' + link + '</div>' : '') +
+                  (pkgFiles ? '<div class="act-row-meta" style="opacity:0.6;overflow-wrap:anywhere;">' + esc(pkgFiles) + '</div>' : '') +
                 '</div>' +
                 '<div style="display:flex;gap:0.4rem;margin-left:auto;">' +
-                  '<button class="act-btn act-btn--approve" data-video-id="' + esc(q.id) + '" data-decision="approved">' + k.yes + '</button>' +
+                  '<button class="act-btn act-btn--approve" data-video-id="' + esc(q.id) + '" data-decision="approved"' +
+                    (q.checkpoint === 'publish' && !q.autoPublish ? ' data-link="' + esc(k.link) + '"' : '') + '>' + yes + '</button>' +
                   '<button class="act-btn act-btn--reject" data-video-id="' + esc(q.id) + '" data-decision="rejected" data-ask="' + esc(k.ask) + '">' + k.no + '</button>' +
                 '</div>' +
               '</div></div>';
@@ -1801,6 +1810,10 @@
       if (decision === 'rejected') {
         note = (prompt(btn.getAttribute('data-ask')) || '').trim();
         if (!note) return; // a reason is required; cancel = no decision
+      } else if (btn.getAttribute('data-link')) {
+        note = (prompt(btn.getAttribute('data-link')) || '').trim();
+        if (!note) return;
+        if (!/^https:\/\/(youtu\.be\/|(www\.)?youtube\.com\/(watch\?v=|shorts\/))/.test(note)) { alert('That is not a YouTube video link (youtu.be/… or youtube.com/watch?v=…).'); return; }
       }
       btn.disabled = true;
       fetch('https://ambientpixels-nova-api.azurewebsites.net/api/proposalDecide', {
