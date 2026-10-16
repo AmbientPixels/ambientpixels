@@ -1,7 +1,7 @@
-// fleet-video.js — the Video department on the HQ Fleet page, beside the agents.
-// The department is the Studio crew (human-run, not in the heartbeat). Agents suggest videos as tasks on the company
-// board assigned to 'studio'; Chad decides there; the crew makes them in the Studio and reports in the task thread.
-// Data: GET /api/video-department (read-only). Spec: docs/superpowers/specs/2026-10-14-video-desk-design.md §9.
+// fleet-video.js — the Design department on the HQ Fleet page: Pixel as head, its divisions, and the Video division
+// in full. Video is the Studio crew (human-run on Chad's PC, not in the heartbeat). Agents suggest videos as tasks on
+// the company board assigned to 'studio'; Chad decides there; the crew makes them in the Studio and reports in the
+// task thread. Data: GET /api/video-department (read-only). Spec: docs/superpowers/specs/2026-10-14-video-desk-design.md §9–10.
 (function () {
   'use strict';
   var API = (location.hostname.indexOf('ambientpixels.ai') !== -1) ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
@@ -16,6 +16,7 @@
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function day(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+  function when(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
   function label(list, id) { var x = (list || []).filter(function (f) { return f.id === id; })[0]; return x ? x.name : id; }
 
   function crewHtml(crew) {
@@ -27,6 +28,23 @@
     }).join('') + '</div>';
   }
 
+  // Pixel heads Design; a dormant Pixel is shown as dormant, never hidden.
+  function headHtml(dep, studio) {
+    var head = dep && dep.head;
+    var who = head
+      ? '<div class="fl-vd-head"><span class="fl-vd-head-name">' + esc(head.name) + ' <span class="fl-vd-tag">Head</span></span>' +
+        '<span class="fl-vd-meta">' + esc(head.role) + '</span>' +
+        '<span class="fl-vd-state fl-vd-state--' + esc(head.status) + '">' + esc(head.status) + '</span></div>'
+      : '<div class="fl-vd-meta">The agent registry could not be read, so the head of Design is unknown.</div>';
+    var divs = dep ? '<div class="fl-vd-divs">' + dep.divisions.map(function (v) {
+      return '<span class="fl-vd-div' + (v.id === 'video' ? ' fl-vd-div--on' : '') + '" title="' + esc(v.description || '') + '">' + esc(v.name) + '</span>';
+    }).join('') + '</div>' : '';
+    var pc = !studio ? '<span class="fl-vd-pc">Studio: unknown</span>'
+      : studio.online ? '<span class="fl-vd-pc fl-vd-pc--on">Studio online</span>'
+      : '<span class="fl-vd-pc">Studio offline' + (studio.lastSeen ? ', last seen ' + esc(when(studio.lastSeen)) : ', never seen') + '</span>';
+    return '<div class="fl-vd-top">' + who + divs + pc + '</div>';
+  }
+
   function requestsHtml(d) {
     if (!d.requests.length) {
       return '<div class="fl-empty">No video requests yet. Nova, Echo and Scout suggest one only when a major release, a winning bet or a new campaign gives them a reason.</div>';
@@ -34,11 +52,14 @@
     return d.requests.slice(0, 8).map(function (r) {
       var said = r.reason ? 'Chad: “' + r.reason + '”'
         : r.last ? (r.last.who === 'studio' ? 'Studio' : r.last.who === 'ceo' ? 'Chad' : r.last.who) + ': ' + String(r.last.text || '').replace(/^\[studio:[^\]]*\]\s*/, '') : '';
+      // Accepted work can't move while the PC is off: say so instead of letting it look stuck.
+      var held = d.studio && !d.studio.online && ['accepted', 'scripting', 'in_production', 'review'].indexOf(r.status) !== -1;
       return '<a class="fl-vd-req" href="' + BOARD + encodeURIComponent(r.taskId) + '">' +
         '<span class="fl-vd-status fl-vd-status--' + esc(r.status) + '">' + esc(STATUS[r.status] || r.status) + '</span>' +
         '<span class="fl-vd-req-main"><span class="fl-vd-req-title">' + esc(r.title) + '</span>' +
         '<span class="fl-vd-meta">' + esc([r.from, r.product, label(d.formats, r.format), day(r.createdAt)].filter(Boolean).join(' · ')) + '</span>' +
-        (said ? '<span class="fl-vd-said">' + esc(said.slice(0, 160)) + '</span>' : '') + '</span></a>';
+        (said ? '<span class="fl-vd-said">' + esc(said.slice(0, 160)) + '</span>' : '') +
+        (held ? '<span class="fl-vd-held">Waiting for Studio</span>' : '') + '</span></a>';
     }).join('');
   }
 
@@ -79,7 +100,8 @@
     .then(function (d) {
       var waiting = d.requests.filter(function (r) { return r.status === 'waiting'; }).length;
       if (count) count.textContent = d.open ? d.open + ' open' + (waiting ? ' · ' + waiting + ' waiting for you' : '') : '';
-      root.innerHTML =
+      root.innerHTML = headHtml(d.department, d.studio) +
+        '<div class="fl-vd-sub">Video division</div>' +
         '<div class="fl-vd-intro">The Studio crew, human-run on Chad\'s PC: not part of the heartbeat. Nova, Echo and Scout suggest videos as tasks on the board (assigned to <b>studio</b>); you accept (in-progress) or decline (cancel with a comment) there, and the crew talks to the fleet in that task\'s thread. ' +
         '<a href="' + STUDIO + '" target="_blank" rel="noopener">Open the Studio →</a></div>' +
         '<div class="fl-vd-grid">' +
@@ -89,6 +111,6 @@
         '</div>';
     })
     .catch(function (err) {
-      root.innerHTML = '<div class="fl-empty">The Video department could not be loaded (' + esc(err.message) + ').</div>';
+      root.innerHTML = '<div class="fl-empty">The Design department could not be loaded (' + esc(err.message) + ').</div>';
     });
 })();
