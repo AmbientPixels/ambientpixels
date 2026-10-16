@@ -72,6 +72,11 @@ module.exports = {
       const at = new Date(now).toISOString();
       t.comments.push({ id: 'cmt-' + now, author: D.INBOX, text: (stage ? D.studioMark(stage, video, project) + ' ' : '') + text, type: 'comment', createdAt: at });
       t.updatedAt = at;
+      // One board (Design fold, 2026-10-15): the task itself carries the stage, so the board, HQ and the fleet read
+      // one record. The comment marker stays as the history.
+      if (stage) t.videoStage = stage;
+      if (video) t.videoId = video;
+      if (project) t.videoProject = project;
       if (stage === 'released') { t.status = 'done'; t.completedAt = at; }
       saved = t;
       return list;

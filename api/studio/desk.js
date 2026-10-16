@@ -166,6 +166,10 @@ function parseRequest(task) {
     const u = /https:\/\/\S+/.exec(c.text);
     if (x[1] === 'released' && u) releaseUrl = u[0].replace(/[).,]+$/, '');
   }
+  // The task's own fields win (desk-comment writes them, 2026-10-15); markers cover requests from before that.
+  if (STAGES.includes(task.videoStage)) stage = task.videoStage;
+  if (task.videoId) video = task.videoId;
+  if (task.videoProject) project = task.videoProject;
   const st = String(task.status || '').toLowerCase();
   let status;
   if (st === 'canceled' || st === 'cancelled' || st === 'archived') status = 'declined';

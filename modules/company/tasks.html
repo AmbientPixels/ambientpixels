@@ -1184,6 +1184,11 @@
         if (_cardType !== 'general') {
           meta += '<span style="font-size:var(--c-text-xs); opacity:0.5; background:rgba(255,255,255,0.04); padding:1px 5px; border-radius:3px; margin-left:2px;">' + escapeHtml(_cardTypeLabel) + '</span>';
         }
+        // A video request carries its Studio stage on the task (one board, 2026-10-15).
+        var VIDEO_STAGE_LABELS = { scripting: 'Script', in_production: 'In production', review: 'Review', released: 'Released' };
+        if (_cardType === 'video_request' && VIDEO_STAGE_LABELS[task.videoStage]) {
+          meta += '<span style="font-size:var(--c-text-xs); color:#93c5fd; background:rgba(96,165,250,0.15); padding:1px 5px; border-radius:3px; margin-left:2px;"><i class="fas fa-film"></i> ' + VIDEO_STAGE_LABELS[task.videoStage] + '</span>';
+        }
 
         if (agent) {
           meta += '<span class="tm-card-assignee" style="--agent-color:' + agent.color + '"><i class="' + agent.icon + '"></i> ' + agent.name + '</span>';

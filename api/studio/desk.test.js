@@ -94,6 +94,16 @@ function onBoard(request, over) {
     assert.strictEqual(D.parseRequest({ taskType: 'general' }), null);
     assert.strictEqual(D.parseRequest({ taskType: 'video_request', description: 'no payload' }), null);
   });
+  await t('one board: the task\'s own stage fields win over the comment markers', () => {
+    const r = D.cleanRequest(good(), 'echo');
+    const p = D.parseRequest(onBoard(r, { status: 'in-progress', videoStage: 'review', videoId: '05-scan', videoProject: 'ambientpixels', comments: [
+      { author: 'studio', text: D.studioMark('scripting', '04-free-scan') + ' On the Board.', createdAt: iso(NOW) },
+    ] }));
+    assert.strictEqual(p.status, 'review');
+    assert.strictEqual(p.video, '05-scan');
+    assert.strictEqual(p.project, 'ambientpixels');
+    assert.strictEqual(D.parseRequest(onBoard(r, { status: 'in-progress', videoStage: 'launch' })).status, 'accepted'); // unknown stage ignored
+  });
   await t('a fake studio marker from anyone but the studio is ignored', () => {
     const r = D.cleanRequest(good(), 'echo');
     const p = D.parseRequest(onBoard(r, { status: 'in-progress', comments: [{ author: 'echo', text: D.studioMark('review', 'x'), createdAt: iso(NOW) }] }));
