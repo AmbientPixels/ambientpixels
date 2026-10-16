@@ -117,34 +117,6 @@
   color: #60a5fa;
 }
 
-/* Places (2026-10-16): six labelled links, icon over word — no tooltips needed. */
-.sb-rail-chip--place {
-  flex-direction: column;
-  gap: 3px;
-  width: 54px;
-  height: 50px;
-  text-decoration: none;
-}
-.sb-rail-chip--place i { font-size: 16px; }
-.sb-rail-chip-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1;
-}
-
-/* Footer buttons look like the footer links (was inline style= in sidebar.js). */
-.sb-rail-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-  padding: 0;
-}
-.sb-rail-globe--dim,
-.sb-rail-btn--pending { opacity: 0.5; }
-
 /* Rail footer */
 .sb-rail-footer {
   display: flex;
@@ -202,12 +174,12 @@
   opacity: 1;
 }
 
-/* ── Right side: the page ── */
+/* ── Right side: topbar + content ── */
 .sb-main {
   margin-left: 60px;
   flex: 1;
-  /* A flex item defaults to min-width:auto, so one wide child (the old sub-bar's links) set the
-     whole column's width and every page scrolled sideways on a phone. */
+  /* Without this a flex item takes its widest child's width (the sub-link bar), and pages scrolled
+     sideways on a phone (2026-10-16). No effect on desktop. */
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -417,7 +389,7 @@
     left: 0;
     right: 0;
     width: 100%;
-    height: 56px;
+    height: 52px;
     flex-direction: row;
     border-right: none;
     border-top: 1px solid rgba(255,255,255,0.07);
@@ -448,10 +420,8 @@
 
   .sb-main {
     margin-left: 0;
-    margin-bottom: 56px;
+    margin-bottom: 52px;
   }
-
-  .sb-rail-chip--place { height: 56px; width: auto; }
 
   .sb-topbar {
     padding: 0 10px;

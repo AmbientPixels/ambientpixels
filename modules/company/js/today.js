@@ -9,7 +9,7 @@
   var REFRESH_MS = 2 * 60 * 1000;
   var BASE = '/modules/company/';
   // Interim homes until Inbox / Plan / Team ship (plan phases 2 and 5).
-  var LINKS = { inbox: BASE + 'actions.html', tasks: BASE + 'tasks.html', plan: BASE + 'campaigns.html', team: BASE + 'org.html' };
+  var LINKS = { inbox: BASE + 'actions.html', tasks: BASE + 'tasks.html', plan: BASE + 'campaigns.html', team: BASE };
 
   // Same rule as CompanyStore.resolveServerBase: only local dev proxies /api; everywhere else a POST or a
   // secret-bearing GET must go to the Function App directly.

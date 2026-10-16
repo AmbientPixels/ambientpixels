@@ -32,7 +32,8 @@ function pendingDecisions(input) {
     if (!isPendingQueueItem(q)) return;
     out.push({
       id: q.id, kind: 'approval', type: q.type || q.kind || 'approval',
-      title: q.title || q.taskTitle || q.summary || (q.type || q.kind || 'Approval'),
+      // Proposals carry their title in 'name' (campaign_proposal, objective_proposal).
+      title: q.title || q.name || q.taskTitle || q.summary || (q.type || q.kind || 'Approval'),
       from: q.originAgent || q.proposedBy || q.agentId || q.created_by || null,
       since: q.submittedAt || q.createdAt || q.created_at || null
     });

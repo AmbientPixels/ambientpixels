@@ -1,157 +1,585 @@
-// ── HQ rail: six places, nothing else (2026-10-16) ──
-// Today · Inbox · Plan · Team · Results · Workshop. No sub-bar, no UI modes: every page shows everything it has,
-// and every tool page is listed in Workshop (≤ 2 clicks from anywhere).
-// Plan: docs/superpowers/plans/2026-10-16-hq-simplification-plan.md §1c.
-// Include this script on every company page (it wraps the page in the rail layout).
-
-// APMode stays as a shim for legacy pages that still ask (data-mode CSS gating, atLeast checks). The three
-// executive/operator/admin modes hid nav items and page parts behind a localStorage flag; now nothing is hidden.
+// ── APMode — UI Mode Manager (inline for all sidebar pages) ──
 (function () {
   'use strict';
+  var MODES = ['executive', 'operator', 'admin'];
+  var KEY = 'ap_ui_mode';
   window.APMode = {
-    MODES: ['admin'],
-    get: function () { return 'admin'; },
-    set: function () {},
-    atLeast: function () { return true; },
-    cycle: function () { return 'admin'; }
+    MODES: MODES,
+    get: function () { return localStorage.getItem(KEY) || 'executive'; },
+    set: function (mode) {
+      if (MODES.indexOf(mode) === -1) return;
+      localStorage.setItem(KEY, mode);
+      window.dispatchEvent(new CustomEvent('ap-mode-change', { detail: { mode: mode } }));
+    },
+    atLeast: function (required) {
+      var current = this.get();
+      return MODES.indexOf(current) >= MODES.indexOf(required);
+    },
+    cycle: function () {
+      var idx = MODES.indexOf(this.get());
+      var next = MODES[(idx + 1) % MODES.length];
+      this.set(next);
+      return next;
+    }
   };
 })();
+
+// ── Hybrid Nav: Left Rail Chips + Top Sub-link Bar ──
+// Left rail = category icon chips (like VS Code activity bar)
+// Top bar = sub-links for the active category
+// Include this script on every company page.
 
 (function () {
   'use strict';
 
   var BASE = '/modules/company/';
 
-  // Each place: where the rail goes, the pages that belong to it, and (subs) the few pages you switch between
-  // inside it — shown as one slim row at the top of those pages (Chad 10-16: in Plan, both Goals and Campaigns).
-  // A page in a place's list lights that place up. Inbox, Plan, Team and Results point at their closest
-  // current page until their own page ships.
-  var PLACES = [
-    { id: 'today', label: 'Today', icon: 'fa-sun', href: BASE + 'today.html',
-      pages: ['today.html', 'index.html', 'dashboard.html', 'cockpit.html', 'office.html'] },
-    { id: 'inbox', label: 'Inbox', icon: 'fa-inbox', href: BASE + 'actions.html',
-      pages: ['actions.html', 'goals.html', 'allocation.html', 'meetings.html', 'content-overview.html', 'engagement.html', 'inbound.html'],
-      subs: [{ label: 'Approvals', href: BASE + 'actions.html' }, { label: 'Engagement', href: BASE + 'engagement.html' }, { label: 'Inbound', href: BASE + 'inbound.html' }] },
-    { id: 'plan', label: 'Plan', icon: 'fa-compass', href: BASE + 'campaigns.html',
-      pages: ['objectives.html', 'campaigns.html', 'directives.html', 'calendar.html', 'tasks.html', 'standup.html'],
-      subs: [{ label: 'Goals', href: BASE + 'objectives.html' }, { label: 'Campaigns', href: BASE + 'campaigns.html' }, { label: 'Tasks', href: BASE + 'tasks.html' }, { label: 'Calendar', href: BASE + 'calendar.html' }] },
-    { id: 'team', label: 'Team', icon: 'fa-users', href: BASE + 'org.html',
-      pages: ['org.html', 'agents.html', 'fleet.html', 'agent-performance.html', 'agent-intelligence.html', 'agent-progress.html', 'awareness.html', 'memories.html', 'seasons.html', 'agent-chat.html', 'voice.html'],
-      subs: [{ label: 'Org chart', href: BASE + 'org.html' }, { label: 'Fleet', href: BASE + 'fleet.html' }, { label: 'Agents', href: BASE + 'agents.html' }, { label: 'Memory', href: BASE + 'memories.html' }] },
-    { id: 'results', label: 'Results', icon: 'fa-chart-line', href: BASE + 'attribution.html',
-      pages: ['attribution.html', 'cost-overview.html', 'analytics-hub.html', 'revenue.html'],
-      subs: [{ label: 'Attribution', href: BASE + 'attribution.html' }, { label: 'Costs', href: BASE + 'cost-overview.html' }, { label: 'Analytics', href: BASE + 'analytics-hub.html' }] },
-    { id: 'workshop', label: 'Workshop', icon: 'fa-toolbox', href: BASE + 'workshop/index.html', pages: [] }
+  // ── Mode helpers ──
+  function _modeIcon(m) {
+    return m === 'admin' ? 'fa-wrench' : m === 'operator' ? 'fa-terminal' : 'fa-crown';
+  }
+  function _modeLabel(m) {
+    return m === 'admin' ? 'Admin' : m === 'operator' ? 'Operator' : 'Executive';
+  }
+  function _modeTint(m) {
+    return m === 'admin' ? '#fbbf24' : m === 'operator' ? '#34d399' : '#c084fc';
+  }
+
+  // Navigation structure: 5 categories
+  var NAV = [
+    {
+      id: 'command',
+      label: 'Command',
+      icon: 'fa-tower-broadcast',
+      overview: BASE + 'dashboard.html',
+      links: [
+        { href: BASE + 'today.html', label: 'Today', icon: 'fa-sun', match: ['today.html'] },
+        { href: BASE + 'dashboard.html', label: 'Dashboard', icon: 'fa-gauge-high', match: ['dashboard.html'] },
+        { href: BASE + 'cockpit.html', label: 'Cockpit', icon: 'fa-tower-observation', match: ['cockpit.html'] },
+        { href: BASE + 'agent-progress.html', label: 'Agent Progress', icon: 'fa-chart-line', match: ['agent-progress.html'] },
+        { href: BASE + 'seasons.html', label: 'Seasons', icon: 'fa-trophy', match: ['seasons.html'] },
+        { href: BASE + 'standup.html', label: 'Standup', icon: 'fa-users', match: ['standup.html'] },
+        { href: BASE + 'meetings.html', label: 'Meetings', icon: 'fa-video', match: ['meetings.html'] }
+      ]
+    },
+    {
+      id: 'work',
+      label: 'Work',
+      icon: 'fa-list-check',
+      overview: BASE + 'tasks.html',
+      links: [
+        { href: BASE + 'tasks.html', label: 'Tasks', icon: 'fa-tasks', match: ['tasks.html'] },
+        { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] },
+        { href: BASE + 'inbound.html', label: 'Inbound', icon: 'fa-satellite-dish', match: ['inbound.html'] }
+      ]
+    },
+    {
+      id: 'plan',
+      label: 'Plan',
+      icon: 'fa-compass',
+      overview: BASE + 'objectives.html',
+      links: [
+        { href: BASE + 'objectives.html', label: 'Goals', icon: 'fa-bullseye', match: ['objectives.html'] },
+        { href: BASE + 'campaigns.html', label: 'Campaigns', icon: 'fa-layer-group', match: ['campaigns.html', 'directives.html'] },
+        { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
+        { href: BASE + 'trends.html', label: 'Trends', icon: 'fa-chart-line', match: ['trends.html'] },
+        { href: BASE + 'governance.html', label: 'Playbook', icon: 'fa-scroll', match: ['governance.html'] }
+      ]
+    },
+    {
+      id: 'content',
+      label: 'Content',
+      icon: 'fa-feather-pointed',
+      overview: BASE + 'content-overview.html',
+      links: [
+        { href: BASE + 'content-overview.html', label: 'Content Hub', icon: 'fa-layer-group', match: ['content-overview.html'] },
+        { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
+        { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] },
+        { href: BASE + 'analytics-hub.html', label: 'Analytics Hub', icon: 'fa-chart-simple', match: ['analytics-hub.html'] },
+        { href: BASE + 'engagement.html', label: 'Engagement', icon: 'fa-comments', match: ['engagement.html'] },
+        { href: BASE + 'attribution.html', label: 'Attribution', icon: 'fa-chart-line', match: ['attribution.html'] },
+        { href: BASE + 'bluesky-discovery.html', label: 'Bluesky', icon: 'fa-satellite-dish', match: ['bluesky-discovery.html'] }
+      ]
+    },
+    {
+      id: 'system',
+      label: 'System',
+      icon: 'fa-gear',
+      // overview resolved dynamically — see resolveSystemOverview()
+      groups: [
+        {
+          id: 'overview',
+          label: 'Overview',
+          icon: 'fa-compass',
+          links: [
+            { href: BASE + 'config-overview.html', label: 'Config', icon: 'fa-sliders', match: ['config-overview.html'] },
+            { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
+            { href: BASE + 'world-state.html', label: 'World State', icon: 'fa-globe', match: ['world-state.html'], minMode: 'admin' },
+            { href: BASE + 'heartbeat.html', label: 'Heartbeat', icon: 'fa-heartbeat', match: ['heartbeat.html'], minMode: 'admin' },
+            { href: BASE + 'promo-codes.html', label: 'Codes', icon: 'fa-ticket', match: ['promo-codes.html'], minMode: 'admin' }
+          ]
+        },
+        {
+          id: 'agents',
+          label: 'Agents',
+          icon: 'fa-users-gear',
+          links: [
+            { href: BASE + 'agents.html', label: 'Agents', icon: 'fa-users', match: ['agents.html'] },
+            { href: BASE + 'fleet.html', label: 'Fleet', icon: 'fa-users-gear', match: ['fleet.html'], minMode: 'admin' },
+            { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
+            { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },
+            { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] },
+            { href: BASE + 'awareness.html', label: 'Awareness', icon: 'fa-brain', match: ['awareness.html'], minMode: 'admin' }
+          ]
+        },
+        {
+          id: 'finance',
+          label: 'Finance',
+          icon: 'fa-coins',
+          links: [
+            { href: BASE + 'revenue.html', label: 'Revenue', icon: 'fa-chart-line', match: ['revenue.html'] },
+            { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
+            { href: BASE + 'allocation.html', label: 'Allocation', icon: 'fa-coins', match: ['allocation.html'] },
+            { href: BASE + 'goals.html', label: 'Goals', icon: 'fa-bullseye', match: ['goals.html'] }
+          ]
+        },
+        {
+          id: 'audit',
+          label: 'Audit',
+          icon: 'fa-shield-halved',
+          links: [
+            { href: BASE + 'emergence.html', label: 'Emergence', icon: 'fa-wave-square', match: ['emergence.html'], minMode: 'admin' },
+            { href: BASE + 'governance-report.html', label: 'Governance', icon: 'fa-shield-halved', match: ['governance-report.html'], minMode: 'admin' },
+            { href: BASE + 'action-audit.html', label: 'Action Audit', icon: 'fa-receipt', match: ['action-audit.html'], minMode: 'admin' },
+            { href: BASE + 'memory-stack.html', label: 'Diagnostics', icon: 'fa-microscope', match: ['memory-stack.html'], minMode: 'admin' }
+          ]
+        }
+      ]
+    }
   ];
 
+  // ── Helpers for grouped categories ──
+  function _canAccess(link) {
+    return !link.minMode || (window.APMode && window.APMode.atLeast(link.minMode));
+  }
+
+  function _firstAccessibleHref(links) {
+    for (var i = 0; i < links.length; i++) {
+      if (_canAccess(links[i])) return links[i].href;
+    }
+    return null;
+  }
+
+  function _allLinks(cat) {
+    if (cat.links) return cat.links;
+    var out = [];
+    if (cat.groups) {
+      cat.groups.forEach(function (g) { out = out.concat(g.links); });
+    }
+    return out;
+  }
+
+  function resolveSystemOverview() {
+    if (window.APMode && window.APMode.atLeast('admin')) return BASE + 'world-state.html';
+    return BASE + 'config-overview.html';
+  }
+
+  // Detect current page
   var path = window.location.pathname;
   var currentFile = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
-  var inWorkshopDir = path.indexOf(BASE + 'workshop/') === 0;
-  var activeId = 'workshop'; // any page not claimed by a place is a Workshop tool
-  if (!inWorkshopDir) {
-    PLACES.forEach(function (p) { if (p.pages.indexOf(currentFile) !== -1) activeId = p.id; });
+  if (currentFile === '' || currentFile === 'company' || path.endsWith('/company/')) currentFile = 'index.html';
+
+  function isActive(match) {
+    for (var i = 0; i < match.length; i++) {
+      if (match[i] === currentFile) return true;
+      if (match[i] === '' && (currentFile === 'index.html' || currentFile === '')) return true;
+    }
+    return false;
   }
 
-  function el(tag, cls, html) {
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (html !== undefined) e.innerHTML = html;
-    return e;
-  }
+  // Find active category — default to command
+  // Searches inside groups for grouped categories
+  var activeCatId = 'command';
+  NAV.forEach(function (cat) {
+    _allLinks(cat).forEach(function (link) {
+      if (isActive(link.match)) activeCatId = cat.id;
+    });
+  });
 
-  // ── Rail ──
-  var rail = el('aside', 'sb-rail');
-  rail.setAttribute('aria-label', 'HQ');
+  var selectedCatId = activeCatId;
 
-  var logo = el('a', 'sb-rail-logo', '<i class="fas fa-building" aria-hidden="true"></i>');
-  logo.href = BASE + 'today.html';
+  // ── Build Left Rail ──
+  var rail = document.createElement('aside');
+  rail.className = 'sb-rail';
+
+  // Logo at top
+  var logo = document.createElement('a');
+  logo.href = BASE;
+  logo.className = 'sb-rail-logo';
   logo.setAttribute('aria-label', 'AmbientPixels HQ');
   logo.setAttribute('data-tooltip', 'AmbientPixels HQ');
+  logo.innerHTML = '<i class="fas fa-building"></i>';
   rail.appendChild(logo);
 
-  var nav = el('nav', 'sb-rail-chips');
-  PLACES.forEach(function (p) {
-    var a = el('a', 'sb-rail-chip sb-rail-chip--place' + (p.id === activeId ? ' sb-rail-chip--active' : ''),
-      '<i class="fas ' + p.icon + '" aria-hidden="true"></i><span class="sb-rail-chip-label">' + p.label + '</span>');
-    a.href = p.href;
-    a.setAttribute('data-place', p.id);
-    if (p.id === activeId) a.setAttribute('aria-current', 'page');
-    nav.appendChild(a);
-  });
-  rail.appendChild(nav);
+  // Category chips
+  var chipsWrap = document.createElement('div');
+  chipsWrap.className = 'sb-rail-chips';
 
-  // Theme: the three token themes stay (tokens already cover them).
+  var chipMap = {};
+
+  NAV.forEach(function (cat) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'sb-rail-chip' + (cat.id === activeCatId ? ' sb-rail-chip--active' : '');
+    chip.setAttribute('aria-label', cat.label);
+    chip.setAttribute('data-tooltip', cat.label);
+    chip.innerHTML = '<i class="fas ' + cat.icon + '"></i>';
+    chip.addEventListener('click', function () {
+      // Navigate to overview page for this category
+      if (cat.id !== activeCatId) {
+        var dest = cat.groups ? resolveSystemOverview() : cat.overview;
+        if (dest) window.location.href = dest;
+      } else {
+        selectCategory(cat.id);
+      }
+    });
+    chipMap[cat.id] = chip;
+    chipsWrap.appendChild(chip);
+  });
+
+  rail.appendChild(chipsWrap);
+
+  // Theme cycling helper
   var THEMES = ['dark', 'dim', 'light'];
   var THEME_ICONS = { dark: 'fa-moon', dim: 'fa-circle-half-stroke', light: 'fa-sun' };
   var THEME_LABELS = { dark: 'Dark', dim: 'Medium (Blue)', light: 'Light (Grey)' };
-  function _getTheme() { try { return localStorage.getItem('preferred-theme') || 'dark'; } catch (e) { return 'dark'; } }
+  function _getTheme() { return localStorage.getItem('preferred-theme') || 'dark'; }
   function _applyTheme(t) {
-    try { localStorage.setItem('preferred-theme', t); } catch (e) {}
+    localStorage.setItem('preferred-theme', t);
     document.body.setAttribute('data-theme', t);
+    document.body.style.background = '';
   }
+  // Apply stored theme on load
   _applyTheme(_getTheme());
-  document.body.setAttribute('data-mode', 'admin');
 
-  // Footer: Wiki · Main site · Blog · Theme · Sign in/out
+  // Footer: Wiki + Globe + Blog + Theme + Mode + Auth
+  var curMode = window.APMode ? window.APMode.get() : 'executive';
   var curTheme = _getTheme();
-  var footer = el('div', 'sb-rail-footer');
-  footer.innerHTML =
-    '<a href="' + BASE + 'documents.html" class="sb-rail-globe" aria-label="Wiki" data-tooltip="Wiki"><i class="fas fa-book" aria-hidden="true"></i></a>' +
-    '<a href="/" class="sb-rail-globe" aria-label="Main Site" data-tooltip="Main Site"><i class="fas fa-globe" aria-hidden="true"></i></a>' +
-    '<a href="/blog/" class="sb-rail-globe sb-rail-globe--dim" aria-label="Public Blog" data-tooltip="Public Blog"><i class="fas fa-newspaper" aria-hidden="true"></i></a>' +
-    '<button type="button" id="sb-theme-btn" class="sb-rail-globe sb-rail-btn" aria-label="Theme: ' + THEME_LABELS[curTheme] + '" data-tooltip="Theme: ' + THEME_LABELS[curTheme] + '"><i class="fas ' + (THEME_ICONS[curTheme] || 'fa-moon') + '" aria-hidden="true"></i></button>' +
-    '<button type="button" id="sb-auth-btn" class="sb-rail-globe sb-rail-btn sb-rail-btn--pending" aria-label="Checking sign-in" data-tooltip="Checking sign-in"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i></button>';
+  var footer = document.createElement('div');
+  footer.className = 'sb-rail-footer';
+  footer.innerHTML = '<a href="' + BASE + 'documents.html" class="sb-rail-globe" aria-label="Wiki" data-tooltip="Wiki"><i class="fas fa-book"></i></a>' +
+    '<a href="/" class="sb-rail-globe" aria-label="Main Site" data-tooltip="Main Site"><i class="fas fa-globe"></i></a>' +
+    '<a href="/blog/" class="sb-rail-globe" aria-label="Public Blog" data-tooltip="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
+    '<button type="button" id="sb-theme-btn" class="sb-rail-globe" aria-label="Theme: ' + THEME_LABELS[curTheme] + '" data-tooltip="Theme: ' + THEME_LABELS[curTheme] + '" style="background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0; opacity:0.6;"><i class="fas ' + (THEME_ICONS[curTheme] || 'fa-moon') + '"></i></button>' +
+    '<button type="button" id="sb-mode-btn" class="sb-rail-globe sb-mode-btn" aria-label="Mode: ' + _modeLabel(curMode) + '" data-tooltip="Mode: ' + _modeLabel(curMode) + '" style="background:none; border:none; cursor:pointer; color:' + _modeTint(curMode) + '; font-size:inherit; padding:0; opacity:0.7;"><i class="fas ' + _modeIcon(curMode) + '"></i></button>' +
+    '<button type="button" id="sb-auth-btn" class="sb-rail-globe" aria-label="Loading..." data-tooltip="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
   rail.appendChild(footer);
 
+  // Theme toggle handler
   var themeBtn = footer.querySelector('#sb-theme-btn');
-  themeBtn.addEventListener('click', function () {
-    var next = THEMES[(THEMES.indexOf(_getTheme()) + 1) % THEMES.length];
-    _applyTheme(next);
-    themeBtn.setAttribute('aria-label', 'Theme: ' + THEME_LABELS[next]);
-    themeBtn.setAttribute('data-tooltip', 'Theme: ' + THEME_LABELS[next]);
-    themeBtn.innerHTML = '<i class="fas ' + THEME_ICONS[next] + '" aria-hidden="true"></i>';
-  });
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      var cur = _getTheme();
+      var idx = THEMES.indexOf(cur);
+      var next = THEMES[(idx + 1) % THEMES.length];
+      _applyTheme(next);
+      themeBtn.setAttribute('aria-label', 'Theme: ' + THEME_LABELS[next]);
+      themeBtn.setAttribute('data-tooltip', 'Theme: ' + THEME_LABELS[next]);
+      themeBtn.innerHTML = '<i class="fas ' + THEME_ICONS[next] + '"></i>';
+    });
+  }
 
+  // Mode toggle handler
+  var modeBtn = footer.querySelector('#sb-mode-btn');
+  if (modeBtn && window.APMode) {
+    modeBtn.addEventListener('click', function () {
+      var next = window.APMode.cycle();
+      modeBtn.setAttribute('aria-label', 'Mode: ' + _modeLabel(next));
+      modeBtn.setAttribute('data-tooltip', 'Mode: ' + _modeLabel(next));
+      modeBtn.style.color = _modeTint(next);
+      modeBtn.innerHTML = '<i class="fas ' + _modeIcon(next) + '"></i>';
+      // renderSubLinks is triggered by ap-mode-change event in _applyModeAttr
+    });
+  }
+
+  // Check auth status and update button
   fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (data) {
     var btn = document.getElementById('sb-auth-btn');
     if (!btn) return;
     var user = data && data.clientPrincipal;
-    var label = user ? 'Sign out (' + (user.userDetails || 'user') + ')' : 'Sign in';
-    btn.setAttribute('aria-label', label);
-    btn.setAttribute('data-tooltip', label);
-    btn.innerHTML = '<i class="fas ' + (user ? 'fa-sign-out-alt' : 'fa-sign-in-alt') + '" aria-hidden="true"></i>';
-    btn.classList.remove('sb-rail-btn--pending');
-    btn.addEventListener('click', function () {
-      window.location.href = user
-        ? '/.auth/logout?post_logout_redirect_uri=/'
-        : '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
-    });
+    if (user) {
+      btn.setAttribute('aria-label', 'Logout (' + (user.userDetails || 'user') + ')');
+      btn.setAttribute('data-tooltip', 'Logout (' + (user.userDetails || 'user') + ')');
+      btn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+      btn.style.opacity = '0.6';
+      btn.addEventListener('click', function () {
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
+      });
+    } else {
+      btn.setAttribute('aria-label', 'Sign In');
+      btn.setAttribute('data-tooltip', 'Sign In');
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
+      btn.style.opacity = '0.6';
+      btn.addEventListener('click', function () {
+        window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+      });
+    }
   }).catch(function () {
     var btn = document.getElementById('sb-auth-btn');
-    if (btn) btn.hidden = true;
+    if (btn) { btn.style.display = 'none'; }
   });
 
-  // ── Assemble layout: rail + the page ──
-  var body = document.body;
-  var layout = el('div', 'sb-layout');
-  var main = el('div', 'sb-main');
-  var content = el('div', 'sb-content');
-  while (body.firstChild) content.appendChild(body.firstChild);
-  var place = PLACES.filter(function (p) { return p.id === activeId; })[0];
-  if (place && place.subs) {
-    var sub = el('nav', 'sb-topbar');
-    sub.setAttribute('aria-label', place.label);
-    place.subs.forEach(function (link) {
-      var a = el('a', 'sb-sub');
-      a.href = link.href;
-      a.textContent = link.label;
-      if (link.href.slice(link.href.lastIndexOf('/') + 1) === currentFile) { a.className += ' sb-sub--active'; a.setAttribute('aria-current', 'page'); }
-      sub.appendChild(a);
-    });
-    main.appendChild(sub);
+  // ── Build Top Sub-link Bar ──
+  var topbar = document.createElement('nav');
+  topbar.className = 'sb-topbar';
+
+  // Detect which group the current page belongs to (for grouped categories)
+  function _findActiveGroup(groups) {
+    for (var i = 0; i < groups.length; i++) {
+      for (var j = 0; j < groups[i].links.length; j++) {
+        if (isActive(groups[i].links[j].match)) return groups[i].id;
+      }
+    }
+    return 'overview'; // fallback per spec
   }
+
+  function renderSubLinks(catId) {
+    topbar.innerHTML = '';
+    var cat = NAV.filter(function (c) { return c.id === catId; })[0];
+    if (!cat) return;
+
+    // ── Grouped category (System) ──
+    if (cat.groups) {
+      topbar.classList.add('sb-grouped');
+      var activeGroupId = _findActiveGroup(cat.groups);
+
+      // Row 1: group tabs
+      var groupRow = document.createElement('div');
+      groupRow.className = 'sb-top-groups';
+
+      cat.groups.forEach(function (group) {
+        // Hide group if ALL links require admin and user isn't admin
+        var hasVisible = group.links.some(function (l) { return _canAccess(l); });
+        if (!hasVisible) return;
+
+        var tab = document.createElement('a');
+        tab.innerHTML = '<i class="fas ' + group.icon + '"></i>' + group.label;
+        tab.className = 'sb-sub' + (group.id === activeGroupId ? ' sb-sub--active' : '');
+        tab.href = '#';
+        tab.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (group.id === activeGroupId) return; // no-op if already in group
+          var dest = _firstAccessibleHref(group.links);
+          if (dest) window.location.href = dest;
+        });
+        groupRow.appendChild(tab);
+      });
+      topbar.appendChild(groupRow);
+
+      // Row 2: sub-links for active group
+      var activeGroup = cat.groups.filter(function (g) { return g.id === activeGroupId; })[0];
+      if (activeGroup) {
+        var subRow = document.createElement('div');
+        subRow.className = 'sb-top-sublinks';
+        activeGroup.links.forEach(function (link) {
+          if (!_canAccess(link)) return;
+          var a = document.createElement('a');
+          a.href = link.href;
+          a.className = 'sb-sub' + (isActive(link.match) ? ' sb-sub--active' : '');
+          a.innerHTML = '<i class="fas ' + link.icon + '"></i>' + link.label;
+          subRow.appendChild(a);
+        });
+        topbar.appendChild(subRow);
+      }
+      return;
+    }
+
+    // ── Flat category (Command, Work, Plan, Content) ──
+    topbar.classList.remove('sb-grouped');
+
+    // Category label
+    var label = document.createElement('span');
+    label.className = 'sb-topbar-label';
+    label.textContent = cat.label;
+    topbar.appendChild(label);
+
+    // Sub-links (filtered by mode)
+    cat.links.forEach(function (link) {
+      if (link.minMode && window.APMode && !window.APMode.atLeast(link.minMode)) return;
+      var a = document.createElement('a');
+      a.href = link.href;
+      a.className = 'sb-sub' + (isActive(link.match) ? ' sb-sub--active' : '');
+      a.innerHTML = '<i class="fas ' + link.icon + '"></i>' + link.label;
+      topbar.appendChild(a);
+    });
+
+    // Every re-render rebuilds these anchors, so any badge attached to one is
+    // gone. Re-apply from the count we already have rather than re-fetching.
+    applyEngagementBadge();
+  }
+
+  function selectCategory(catId) {
+    selectedCatId = catId;
+    Object.keys(chipMap).forEach(function (id) {
+      chipMap[id].className = 'sb-rail-chip' + (id === catId ? ' sb-rail-chip--active' : '');
+    });
+    renderSubLinks(catId);
+  }
+
+  // Initial render
+  renderSubLinks(selectedCatId);
+
+  // ── Apply APMode attribute to body for CSS-based mode gating ──
+  function _applyModeAttr() {
+    document.body.setAttribute('data-mode', window.APMode ? window.APMode.get() : 'executive');
+    renderSubLinks(selectedCatId);
+  }
+  _applyModeAttr();
+  window.addEventListener('ap-mode-change', _applyModeAttr);
+
+  // ── Assemble layout ──
+  var body = document.body;
+  var layout = document.createElement('div');
+  layout.className = 'sb-layout';
+
+  var main = document.createElement('div');
+  main.className = 'sb-main';
+
+  var content = document.createElement('div');
+  content.className = 'sb-content';
+
+  while (body.firstChild) {
+    content.appendChild(body.firstChild);
+  }
+
+  main.appendChild(topbar);
   main.appendChild(content);
+
   layout.appendChild(rail);
   layout.appendChild(main);
   body.appendChild(layout);
+
+  // ── Awareness badge (Self-Awareness Phase 6b) ──
+  // Conservative thresholds: badge only shows when clearly actionable. Tune
+  // down after 30 days of live data if signals are being missed.
+  //   - reflectionsOverdue >= 3 (most of the fleet overdue, not just one straggler)
+  //   - roleDriftCount >= 2 (multiple agents drifting is pattern, not outlier)
+  // fatigueSignalsCount intentionally excluded — across 8 agents, 5+ signals is
+  // steady-state not alarm. Badge would permanently light and train CEO to
+  // ignore it.
+  function attachAwarenessBadge() {
+    try {
+      var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+        ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+        : '/api';
+      fetch(API + '/awarenessDigest', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); })
+        .then(function (data) {
+          var g = (data && data.digest && data.digest.globals) || {};
+          var overdueHit = (g.reflectionsOverdue || 0) >= 3;
+          var driftHit = (g.roleDriftCount || 0) >= 2;
+          if (!overdueHit && !driftHit) return;
+          var count = (overdueHit ? g.reflectionsOverdue : 0) + (driftHit ? g.roleDriftCount : 0);
+          var link = topbar.querySelector('a[href$="awareness.html"]');
+          if (!link) return;
+          var badge = document.createElement('span');
+          badge.textContent = String(count);
+          badge.title = (overdueHit ? g.reflectionsOverdue + ' reflections overdue. ' : '')
+            + (driftHit ? g.roleDriftCount + ' agents drifting off-role.' : '');
+          badge.style.cssText = 'display:inline-block;margin-left:0.3rem;padding:0.05rem 0.35rem;font-size:0.55rem;background:#f87171;color:#fff;border-radius:8px;font-weight:600;line-height:1;';
+          link.appendChild(badge);
+        })
+        .catch(function () { /* silent — badge is additive, never blocking */ });
+    } catch (_e) { /* silent */ }
+  }
+  // Fire once, ~500ms after initial render so the sub-links are in the DOM.
+  setTimeout(attachAwarenessBadge, 500);
+
+  // ── Engagement Inbox badge (2026-08-09) ──
+  //
+  // How many strangers are waiting on an answer. Unlike every other number in
+  // this nav it represents a person, so it is worth carrying on every page.
+  //
+  // CACHED IN sessionStorage FOR 10 MINUTES, deliberately. sidebar.js loads on
+  // all 52 company pages and /api/engagement-inbox reads five blobs, so an
+  // uncached badge would add an API call to every click around the dashboard —
+  // real money on a fleet whose burn is already the constraint. The store it
+  // reads is written once a day by the outcomeRefresh cron, so ten minutes of
+  // staleness costs nothing.
+  //
+  // It renders only when the count is > 0. A grey zero on every page is
+  // furniture, and furniture is what people stop seeing.
+  var EI_CACHE_KEY = 'ap_engagement_needs';
+  var EI_TTL_MS = 10 * 60 * 1000;
+  var _eiNeeds = 0;
+
+  function _eiAuthHeaders() {
+    // secretHeaders() wraps CompanyStore.getWriteHeaders() and falls back to
+    // window.AP_SECRET. Returning null rather than guessing matters: an
+    // unauthenticated call 403s, and a 403 must not be drawn as "nobody is
+    // waiting".
+    try {
+      if (typeof APApi !== 'undefined' && APApi.secretHeaders) {
+        var h = APApi.secretHeaders();
+        if (h && h['x-company-secret']) return h;
+      }
+    } catch (e) { /* helper is best-effort */ }
+    try {
+      if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) {
+        var w = CompanyStore.getWriteHeaders();
+        if (w && w['x-company-secret']) return w;
+      }
+    } catch (e2) { /* helper is best-effort */ }
+    return null;
+  }
+
+  // Re-applied after every renderSubLinks(), because switching UI mode rebuilds
+  // the whole top bar and would otherwise drop the badge on the floor.
+  function applyEngagementBadge() {
+    if (!_eiNeeds) return;
+    var link = topbar.querySelector('a[href$="engagement.html"]');
+    if (!link || link.querySelector('.sb-sub-badge')) return;
+    var badge = document.createElement('span');
+    badge.className = 'sb-sub-badge';
+    badge.textContent = String(_eiNeeds);
+    badge.title = _eiNeeds + (_eiNeeds === 1 ? ' conversation has' : ' conversations have')
+      + ' had no reply from anyone.';
+    link.appendChild(badge);
+  }
+
+  function attachEngagementBadge() {
+    // This nav only renders the sub-links of the ACTIVE category, so the
+    // Engagement link exists only while you are somewhere under Content — the
+    // same limitation the Emergence badge lives with. No link, no fetch: paying
+    // for five blob reads to populate a badge with nowhere to go is pure waste.
+    if (!topbar.querySelector('a[href$="engagement.html"]')) return;
+
+    try {
+      var cached = JSON.parse(sessionStorage.getItem(EI_CACHE_KEY) || 'null');
+      if (cached && (Date.now() - cached.t) < EI_TTL_MS) {
+        _eiNeeds = cached.n;
+        applyEngagementBadge();
+        return;
+      }
+    } catch (e) { /* sessionStorage may be blocked — just fetch */ }
+
+    var headers = _eiAuthHeaders();
+    if (!headers) return; // nothing to authenticate with; silent beats a wrong zero
+
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    // limit=1 is safe: counts are computed over the whole window server-side and
+    // only the returned rows are trimmed. This badge is why that is true.
+    fetch(API + '/engagement-inbox?days=60&limit=1', { headers: headers })
+      .then(function (r) { if (!r.ok) throw r; return r.json(); })
+      .then(function (data) {
+        _eiNeeds = (data && data.counts && data.counts.needsAttention) || 0;
+        try { sessionStorage.setItem(EI_CACHE_KEY, JSON.stringify({ n: _eiNeeds, t: Date.now() })); } catch (e) {}
+        applyEngagementBadge();
+      })
+      .catch(function () { /* silent — the badge is additive, never blocking */ });
+  }
+  setTimeout(attachEngagementBadge, 500);
+
 })();

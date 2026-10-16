@@ -1,13 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/modules/company/runtime-config.js"></script>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0;url=/modules/company/today.html" />
-  <title>AmbientPixels HQ</title>
-  <!-- HQ lands on Today (2026-10-16). The old marketing hero that lived here is in git history. -->
-  <script>window.location.replace('/modules/company/today.html' + (window.location.hash || ''));</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Virtual Company — AI agents running every department." />
+  <meta property="og:title" content="AmbientPixels — Virtual Company" />
+  <meta property="og:description" content="Meet the AI agents running AmbientPixels. CEO, CFO, Design, DevOps, Marketing, Research — all autonomous." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>AmbientPixels — Virtual Company</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <link rel="stylesheet" href="/modules/company/css/hq.css" />
 </head>
-<body>
-  <p><a href="/modules/company/today.html">Go to Today</a></p>
+<body data-theme="dark">
+
+
+  <main id="hq-main" class="content-section">
+
+    <!-- Hero -->
+    <div class="hq-hero">
+      <h1 class="hq-hero-headline">AmbientPixels — <em>AI Orchestration</em> with Human Governance</h1>
+      <p class="hq-hero-sub">Run work through agents, approvals, and audit trails — so automation moves fast without losing control.</p>
+      <div class="hq-cta-row">
+        <a href="/modules/company/dashboard.html" class="hq-cta hq-cta--primary"><i class="fas fa-tachometer-alt"></i> View Live Console</a>
+        <a href="/modules/company/governance.html" class="hq-cta hq-cta--secondary"><i class="fas fa-book"></i> Read the Playbook</a>
+      </div>
+      <div class="hq-trust-line">
+        <span class="hq-trust-chip">Approval-gated execution</span>
+        <span class="hq-trust-chip">Full audit log</span>
+        <span class="hq-trust-chip">Multi-agent ops</span>
+        <span class="hq-trust-chip">Drift detection</span>
+      </div>
+    </div>
+
+    <!-- Quick Nav -->
+    <div class="hq-quick-nav">
+      <a href="/modules/company/dashboard.html" class="hq-nav-pill"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/modules/company/voice.html" class="hq-nav-pill"><i class="fas fa-microphone"></i> Voice</a>
+      <a href="/modules/company/tasks.html" class="hq-nav-pill"><i class="fas fa-tasks"></i> Tasks</a>
+      <a href="/modules/company/actions.html" class="hq-nav-pill"><i class="fas fa-bolt"></i> Actions</a>
+      <a href="/modules/company/calendar.html" class="hq-nav-pill"><i class="fas fa-calendar-alt"></i> Calendar</a>
+      <a href="/modules/company/meetings.html" class="hq-nav-pill"><i class="fas fa-handshake"></i> Meetings</a>
+      <a href="/modules/company/office.html" class="hq-nav-pill"><i class="fas fa-briefcase"></i> Office</a>
+    </div>
+
+    <!-- Org Chart -->
+    <div class="org-chart" id="org-chart">
+      <!-- Tier 1: CEO -->
+      <div class="org-tier-label">Tier 1 — Executive</div>
+      <div class="org-tier" id="tier-1"></div>
+
+      <!-- Connector -->
+      <div class="org-connector"></div>
+
+      <!-- Tier 2: Prime Operator -->
+      <div class="org-tier-label">Tier 2 — Prime Operator</div>
+      <div class="org-tier" id="tier-2"></div>
+
+      <!-- Connector -->
+      <div class="org-connector"></div>
+      <div class="org-branch-line"></div>
+
+      <!-- Tier 3: Department Heads -->
+      <div class="org-tier-label">Tier 3 — Department Heads</div>
+      <div class="org-tier" id="tier-3"></div>
+
+      <!-- Connector -->
+      <div class="org-connector"></div>
+
+      <!-- Tier 4: Sub-Agents -->
+      <div class="org-tier-label">Tier 4 — Sub-Agents <span class="org-tier-sub">(Content)</span></div>
+      <div class="org-tier" id="tier-4"></div>
+    </div>
+
+    <!-- Agent Detail Panel (shown when clicking a card) -->
+    <div class="agent-detail" id="agent-detail"></div>
+
+    <!-- Proof Strip -->
+    <div class="hq-proof-strip">
+      <div class="hq-proof-card">
+        <div class="hq-proof-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="hq-proof-title">Governance</div>
+        <ul class="hq-proof-list">
+          <li><i class="fas fa-check"></i> Approval Queue</li>
+          <li><i class="fas fa-check"></i> Audit Log</li>
+          <li><i class="fas fa-check"></i> Drift Alerts</li>
+        </ul>
+        <a href="/modules/company/governance.html" class="hq-proof-link">Open <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-proof-card">
+        <div class="hq-proof-icon"><i class="fas fa-bolt"></i></div>
+        <div class="hq-proof-title">Execution</div>
+        <ul class="hq-proof-list">
+          <li><i class="fas fa-check"></i> Action Center</li>
+          <li><i class="fas fa-check"></i> Integrations</li>
+          <li><i class="fas fa-check"></i> Rate Limits</li>
+        </ul>
+        <a href="/modules/company/actions.html" class="hq-proof-link">Open <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-proof-card">
+        <div class="hq-proof-icon"><i class="fas fa-brain"></i></div>
+        <div class="hq-proof-title">Intelligence</div>
+        <ul class="hq-proof-list">
+          <li><i class="fas fa-check"></i> Bottleneck Detection</li>
+          <li><i class="fas fa-check"></i> Overload Alerts</li>
+          <li><i class="fas fa-check"></i> Recommendations</li>
+        </ul>
+        <a href="/modules/company/dashboard.html" class="hq-proof-link">Open <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <!-- Trends Radar Widget -->
+    <div class="hq-trends-widget">
+      <div class="hq-trends-header">
+        <h3><i class="fas fa-chart-line"></i> Trends Radar</h3>
+        <a href="/modules/company/trends.html" class="hq-trends-link">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-trends-list" id="hq-trends-list">
+        <div class="hq-trends-empty">Loading trends...</div>
+      </div>
+    </div>
+
+    <!-- Agent Performance Widget -->
+    <div class="hq-trends-widget">
+      <div class="hq-trends-header">
+        <h3><i class="fas fa-gauge-high"></i> Agent Performance</h3>
+        <a href="/modules/company/agent-performance.html" class="hq-trends-link">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-trends-list" id="hq-perf-list">
+        <div class="hq-trends-empty">Loading agent scores...</div>
+      </div>
+    </div>
+
+    <!-- Standup Quick Link -->
+    <div class="hq-standup-section">
+      <a href="/modules/company/standup.html" class="hq-standup-link">
+        <i class="fas fa-users hq-standup-icon"></i>
+        <div>
+          <div class="hq-standup-title">Daily Standup</div>
+          <div class="hq-standup-status" id="standup-quick-status">Run today's standup →</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Company Activity Feed -->
+    <div class="company-activity">
+      <h3><i class="fas fa-pulse hq-activity-icon"></i>Agent Activity</h3>
+      <ul class="activity-feed" id="activity-feed">
+        <li class="activity-item hq-activity-placeholder">Loading agent activity...</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <script src="/modules/company/js/demo-toast.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var orgChart = document.getElementById('org-chart');
+      var tier1 = document.getElementById('tier-1');
+      var tier2 = document.getElementById('tier-2');
+      var tier3 = document.getElementById('tier-3');
+      var tier4 = document.getElementById('tier-4');
+      var detailPanel = document.getElementById('agent-detail');
+      var activityFeed = document.getElementById('activity-feed');
+      var selectedAgent = null;
+
+      // Load and render
+      AgentEngine.loadRegistry().then(function (data) {
+        if (!data || !data.agents) {
+          orgChart.innerHTML = '<p style="opacity:0.4; text-align:center;">Failed to load agent registry.</p>';
+          return;
+        }
+
+        data.agents.forEach(function (agent) {
+          var card = createAgentCard(agent);
+          var tier = agent.tier || 3;
+          if (tier === 1) tier1.appendChild(card);
+          else if (tier === 2) tier2.appendChild(card);
+          else if (tier === 4) tier4.appendChild(card);
+          else tier3.appendChild(card);
+        });
+
+        renderActivityFeed();
+      });
+
+      function createAgentCard(agent) {
+        var card = document.createElement('div');
+        card.className = 'agent-card' + (
+          agent.tier === 1 ? ' agent-card--ceo' :
+          agent.tier === 2 ? ' agent-card--prime' :
+          agent.tier === 4 ? ' agent-card--sub' :
+          ''
+        );
+        card.style.setProperty('--agent-color', agent.color);
+        card.setAttribute('data-agent-id', agent.id);
+
+        var avatarContent = agent.avatar
+          ? '<img src="' + agent.avatar + '" alt="' + agent.name + '" />'
+          : '<i class="' + agent.icon + '"></i>';
+
+        var statusClass = agent.status === 'active' ? 'agent-status--active' : 'agent-status--idle';
+
+        var divTags = (agent.divisions || []).map(function (div) {
+          return '<span class="agent-division-tag"><i class="' + div.icon + '"></i> ' + div.name + '</span>';
+        }).join('');
+
+        card.innerHTML =
+          '<div class="agent-status ' + statusClass + '"></div>' +
+          '<div class="agent-avatar">' + avatarContent + '</div>' +
+          '<h3 class="agent-name">' + agent.name + '</h3>' +
+          '<p class="agent-role">' + agent.role + '</p>' +
+          (agent.department ? '<span class="agent-dept-badge">' + agent.department + '</span>' : '') +
+          (divTags ? '<div class="agent-divisions">' + divTags + '</div>' : '');
+
+        card.addEventListener('click', function () {
+          showAgentDetail(agent);
+        });
+
+        return card;
+      }
+
+      function showAgentDetail(agent) {
+        selectedAgent = agent;
+
+        // Remove active state from all cards
+        document.querySelectorAll('.agent-card').forEach(function (c) {
+          c.style.borderColor = '';
+        });
+
+        // Highlight selected card
+        var activeCard = document.querySelector('[data-agent-id="' + agent.id + '"]');
+        if (activeCard) {
+          activeCard.style.borderColor = agent.color;
+        }
+
+        detailPanel.style.setProperty('--agent-color', agent.color);
+        detailPanel.className = 'agent-detail active';
+
+        var avatarContent = agent.avatar
+          ? '<img src="' + agent.avatar + '" alt="' + agent.name + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />'
+          : '<i class="' + agent.icon + '"></i>';
+
+        var capsHtml = (agent.capabilities || []).map(function (cap) {
+          return '<span class="agent-capability-tag">' + cap + '</span>';
+        }).join('');
+
+        var autoHtml = (agent.automations || []).map(function (auto) {
+          return '<li>' +
+            '<div class="automation-icon"><i class="fas fa-bolt"></i></div>' +
+            '<div class="automation-info">' +
+              '<div class="automation-name">' + auto.name + '</div>' +
+              '<div class="automation-schedule">' + auto.schedule + ' — ' + auto.description + '</div>' +
+            '</div>' +
+          '</li>';
+        }).join('');
+
+        detailPanel.innerHTML =
+          '<div class="agent-detail-header">' +
+            '<div class="agent-detail-avatar">' + avatarContent + '</div>' +
+            '<div class="agent-detail-info">' +
+              '<h2>' + agent.name + ' — ' + agent.title + '</h2>' +
+              (agent.department ? '<p>' + agent.department + ' Department</p>' : '<p>Prime Operator</p>') +
+            '</div>' +
+          '</div>' +
+          '<div class="agent-description">' + agent.description + '</div>' +
+          buildDivisionsHtml(agent) +
+          (capsHtml ? '<div class="agent-capabilities">' + capsHtml + '</div>' : '') +
+          (autoHtml ? '<h4 style="font-size:var(--c-text-xs); opacity:0.5; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:1px;">Automations</h4><ul class="agent-automations">' + autoHtml + '</ul>' : '') +
+          '<div class="agent-actions">' +
+            '<a href="/modules/company/agent-chat.html?agent=' + agent.id + '" class="agent-action-btn agent-action-btn--primary"><i class="fas fa-comment"></i> Chat with ' + agent.name + '</a>' +
+            '<button class="agent-action-btn" id="btn-request-report"><i class="fas fa-file-alt"></i> Request Report</button>' +
+            (agent.isHuman ? '' : '<a href="/ambientos/agents/' + agent.id + '/" class="agent-action-btn"><i class="fas fa-id-card"></i> View Profile</a>') +
+          '</div>';
+
+        // Bind report button
+        var reportBtn = document.getElementById('btn-request-report');
+        if (reportBtn) {
+          reportBtn.addEventListener('click', function () {
+            window.location.href = '/modules/company/agent-chat.html?agent=' + agent.id + '&mode=report';
+          });
+        }
+
+        detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function buildDivisionsHtml(agent) {
+        if (!agent.divisions || agent.divisions.length === 0) return '';
+        var items = agent.divisions.map(function (div) {
+          return '<div class="division-item">' +
+            '<div class="division-icon"><i class="' + div.icon + '"></i></div>' +
+            '<div class="division-info">' +
+              '<div class="division-name">' + div.name + '</div>' +
+              '<div class="division-desc">' + div.description + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+        return '<div class="agent-detail-divisions">' +
+          '<h4><i class="fas fa-sitemap" style="margin-right:4px;"></i>Divisions</h4>' +
+          '<div class="division-list">' + items + '</div>' +
+        '</div>';
+      }
+
+      function renderActivityFeed() {
+        var summary = AgentEngine.getActivitySummary();
+        activityFeed.innerHTML = '';
+
+        var hasActivity = false;
+
+        summary.forEach(function (agent) {
+          if (agent.messageCount > 0 || agent.lastActive) {
+            hasActivity = true;
+            var timeAgo = agent.lastActive ? formatTimeAgo(new Date(agent.lastActive)) : 'never';
+            var li = document.createElement('li');
+            li.className = 'activity-item';
+            li.innerHTML =
+              '<span class="activity-dot" style="background:' + agent.color + ';"></span>' +
+              '<span class="activity-text"><strong>' + agent.name + '</strong> (' + agent.role + ') — ' + agent.messageCount + ' messages</span>' +
+              '<span class="activity-time">' + timeAgo + '</span>';
+            activityFeed.appendChild(li);
+          }
+        });
+
+        if (!hasActivity) {
+          activityFeed.innerHTML = '<li class="activity-item" style="opacity:0.3; font-style:italic;">No agent conversations yet. Click an agent to get started.</li>';
+        }
+      }
+
+      function formatTimeAgo(date) {
+        var diff = Date.now() - date.getTime();
+        var mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        var hours = Math.floor(mins / 60);
+        if (hours < 24) return hours + 'h ago';
+        var days = Math.floor(hours / 24);
+        return days + 'd ago';
+      }
+
+      // Update standup quick link status
+      var quickStatus = document.getElementById('standup-quick-status');
+      if (AgentEngine.hasStandupToday()) {
+        quickStatus.textContent = '✓ Completed today — view transcript →';
+      }
+
+      // ── Trends Radar Widget ──
+      (function () {
+        var el = document.getElementById('hq-trends-list');
+        if (!el) return;
+        var STAGE_COLORS = { exploding: '#f87171', growing: '#fbbf24', emerging: '#34d399', early_signal: '#60a5fa' };
+        var CAT_LABELS = { ai_ml: 'AI / ML', devtools: 'Dev Tools', design: 'Design', marketing: 'Marketing', infrastructure: 'Infrastructure', product: 'Product' };
+        var apiBase = window.location.hostname.indexOf('ambientpixels.ai') !== -1
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+        fetch(apiBase + '/company-state?key=trendRadar')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            var arr = data && data.value ? data.value : data;
+            if (!Array.isArray(arr) || !arr.length) { el.innerHTML = '<div class="hq-trends-empty">No trend data yet.</div>'; return; }
+            var latest = arr[arr.length - 1];
+            var trends = Array.isArray(latest.trends) ? latest.trends.slice() : [];
+            trends.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+            var top3 = trends.slice(0, 3);
+            if (!top3.length) { el.innerHTML = '<div class="hq-trends-empty">No trends available.</div>'; return; }
+            el.innerHTML = top3.map(function (t) {
+              var color = STAGE_COLORS[t.stage] || '#a78bfa';
+              var cat = CAT_LABELS[t.category] || t.category;
+              return '<a href="/modules/company/trends.html" class="hq-trend-row" style="--tr-accent:' + color + '">'
+                + '<div class="hq-trend-score" style="color:' + color + '">' + (t.score || '—') + '</div>'
+                + '<div class="hq-trend-info">'
+                +   '<div class="hq-trend-name">' + (t.name || 'Unknown') + '</div>'
+                +   '<div class="hq-trend-cat">' + cat + '</div>'
+                + '</div>'
+                + '<span class="hq-trend-stage hq-trend-stage--' + (t.stage || 'emerging') + '">' + (t.stage || 'emerging').replace('_', ' ') + '</span>'
+                + '</a>';
+            }).join('');
+          })
+          .catch(function () { el.innerHTML = '<div class="hq-trends-empty">Could not load trends.</div>'; });
+      })();
+
+      // ── Agent Performance Widget ──
+      (function () {
+        var el = document.getElementById('hq-perf-list');
+        if (!el) return;
+        var SCORE_COLORS = { high: '#34d399', mid: '#facc15', low: '#f87171' };
+        var TREND_ICONS = { improving: '<i class="fas fa-arrow-up" style="color:#34d399;font-size:0.6rem"></i>', declining: '<i class="fas fa-arrow-down" style="color:#f87171;font-size:0.6rem"></i>', stable: '<i class="fas fa-minus" style="color:#888;font-size:0.6rem"></i>' };
+        fetch('/api/company-state?key=runtimeMemory', { headers: { 'x-company-secret': (window.AP_SECRET || 'pixelpusher') } })
+          .then(function (r) { var ct = r.headers.get('content-type') || ''; if (!r.ok || ct.indexOf('json') === -1) return null; return r.json(); })
+          .then(function (data) {
+            var runtime = data && data.value !== undefined ? data.value : data;
+            var digest = runtime && runtime.agentPerformance;
+            if (!digest || !digest.agents) { el.innerHTML = '<div class="hq-trends-empty"><i class="fas fa-gauge-high" style="opacity:0.4;margin-right:6px"></i>Scores compile after the weekly performance digest. <a href="/modules/company/agent-performance.html" style="text-decoration:underline">Open leaderboard &rarr;</a></div>'; return; }
+            var ids = Object.keys(digest.agents).sort(function (a, b) { return (digest.agents[b].qualityScore || 0) - (digest.agents[a].qualityScore || 0); });
+            var top5 = ids.slice(0, 5);
+            if (!top5.length) { el.innerHTML = '<div class="hq-trends-empty">No agent data.</div>'; return; }
+            // Check for any declining agents
+            var declining = ids.filter(function (id) { return digest.agents[id].qualityTrend === 'declining'; });
+            var warnHtml = '';
+            if (declining.length > 0) {
+              warnHtml = '<div style="padding:4px 8px;margin-bottom:8px;border-radius:6px;background:rgba(248,113,113,0.1);font-size:var(--c-text-xs);color:#f87171">'
+                + '<i class="fas fa-triangle-exclamation" style="margin-right:4px"></i>'
+                + declining.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); }).join(', ')
+                + ' declining</div>';
+            }
+            el.innerHTML = warnHtml + top5.map(function (id, idx) {
+              var a = digest.agents[id];
+              var sc = a.qualityScore || 0;
+              var color = sc >= 70 ? SCORE_COLORS.high : (sc >= 45 ? SCORE_COLORS.mid : SCORE_COLORS.low);
+              var trend = TREND_ICONS[a.qualityTrend] || TREND_ICONS.stable;
+              var name = id.charAt(0).toUpperCase() + id.slice(1);
+              var crown = idx === 0 ? ' <i class="fas fa-crown" style="color:#facc15;font-size:0.55rem"></i>' : '';
+              return '<a href="/modules/company/agent-performance.html" class="hq-trend-row" style="--tr-accent:' + color + '">'
+                + '<div class="hq-trend-score" style="color:' + color + '">' + sc + '</div>'
+                + '<div class="hq-trend-info">'
+                +   '<div class="hq-trend-name">' + name + crown + '</div>'
+                +   '<div class="hq-trend-cat">' + (a.tasksCompleted || 0) + ' tasks, ' + Math.round((a.ceoApprovalRate || 0) * 100) + '% CEO approval</div>'
+                + '</div>'
+                + '<span style="font-size:var(--c-text-xs)">' + trend + '</span>'
+                + '</a>';
+            }).join('');
+          })
+          .catch(function () { el.innerHTML = '<div class="hq-trends-empty"><i class="fas fa-gauge-high" style="opacity:0.4;margin-right:6px"></i>Scores compile after the weekly performance digest. <a href="/modules/company/agent-performance.html" style="text-decoration:underline">Open leaderboard &rarr;</a></div>'; });
+      })();
+    })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
 </body>
 </html>
