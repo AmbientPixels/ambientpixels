@@ -304,3 +304,8 @@ How Pixel is held to triage (all code):
 
 Commits: AP `6d920c77` (Fleet + presence), `cf52c254` (Pixel triage), `93154ad0` (one board); pipeline `d120717`
 (launcher), `49c39c3` (worker log).
+
+**Hero images back to Pixel (Chad, 2026-10-16):** "he is the designer". Design routes Pixel → Echo → Scribe again;
+`routing.HOLDS_ONLY = {pixel: ['design']}` keeps any other work off Pixel; Pixel runs for an assigned design task or a
+video request; gate `pixel_jobs_only` allows generate-image, comment-task (video request or own design task) and
+remember. The three hero tasks stuck with Scribe since 10-07/08/11 moved to Pixel. Commit AP `5a874fb4`.
