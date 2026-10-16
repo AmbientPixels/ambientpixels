@@ -2,6 +2,7 @@
 // Extracted from index.js to reduce heartbeat orchestrator size.
 
 const { normalizeCampaignRef } = require('../_shared/campaignMatcher');
+const routing = require('./routing');
 
 var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_reddit', 'social_facebook', 'social_instagram', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
 
@@ -205,7 +206,8 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog, log 
     }
 
     const label = _taskTypeLabels[chosenType] || chosenType.replace(/_/g, ' ');
-    const assignee = _taskTypeToAgent[chosenType] || 'echo';
+    // The usual owner of this task type, unless it doesn't run — then whoever holds the role now (routing.js).
+    const assignee = routing.routeTask({ taskType: chosenType, assignee: _taskTypeToAgent[chosenType] || 'echo' }) || 'nova';
     const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5, monthly: 7 };
     const _dueDays = _cadenceDays[c.cadence] || 3;
 
@@ -230,7 +232,7 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog, log 
       campaign_id: c.id,
       objective_id: c.objective_id || null,
       priority: c.priority || 'medium',
-      dueDate: new Date(Date.now() + _dueDays * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: routing.capacityDueDate(tasks, assignee, new Date(Date.now() + _dueDays * 24 * 60 * 60 * 1000).toISOString()),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       source: { type: 'campaign_scheduler', campaignId: c.id, campaignTitle: c.title }

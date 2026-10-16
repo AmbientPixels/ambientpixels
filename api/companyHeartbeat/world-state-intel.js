@@ -29,7 +29,7 @@ const RECENT_EVENT_WINDOW_DAYS = 7;
 const MATERIAL_EVENT_TYPES = new Set([
   'ceo-reject', 'ceo-revision', 'ceo-cancel',
   'campaign_auto_complete', 'campaign_enddate_complete',
-  'stall-alert', 'system-directive-created',
+  'stall-alert', 'system-directive-created', 'routing-gap', 'task-handoff',
   'experiment-auto-concluded'
 ]);
 
@@ -101,6 +101,8 @@ function summarizeEvent(e) {
   if (type === 'ceo-cancel') return 'CEO cancelled ' + (data.type || 'action');
   if (type === 'campaign_auto_complete' || type === 'campaign_enddate_complete') return 'campaign completed: ' + (data.campaignTitle || data.campaignId || 'unknown');
   if (type === 'stall-alert') return 'stall alert: ' + (data.agent || 'agent') + ' (' + (data.zeroRuns || '?') + ' zero-action runs)';
+  if (type === 'routing-gap') return 'routing gap: nobody running holds the ' + (data.role || '?') + ' role (' + String(data.what || '').slice(0, 80) + ')';
+  if (type === 'task-handoff') return 'handoff: ' + (data.taskId || 'task') + ' ' + (data.from || '?') + ' → ' + (data.to || '?');
   if (type === 'system-directive-created') return 'directive from ' + (data.authorAgent || '?') + ' to ' + (data.targetAgent || '?');
   if (type === 'experiment-auto-concluded') return 'experiment concluded: ' + (data.hypothesis || '?') + ' ' + (data.verdict || '');
   return type;

@@ -41,6 +41,7 @@ const { isPlaceholderText } = require('./memory-select');
 const { validateBet, checkBetKeyAgainst, newestEvidenceAsOf } = require('./bet-schema');
 const { appendDecision } = require('./_utils/decisionLog');
 const { buildCampaignAvailabilityBlock } = require('./_utils/campaignAvailability');
+const routing = require('./routing'); // who does what NOW: work routed by role to agents that actually run
 const videoDesk = require('./video-desk'); // Video department: suggest-video gates + the VIDEO DEPARTMENT / RECENT RELEASES blocks
 const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId } = require('../proposalDecide/materialize');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
@@ -61,6 +62,15 @@ function _pausedProductIn() {
 }
 // A campaign with heroImage === false publishes its posts type-only: no Pixel hero task is
 // spawned and submit-for-publish does not wait for one (Monthly Journal, 2026-10-15; Pixel dormant).
+// An open "Generate hero image" task, held by anyone (optionally: for this title or this doc id).
+function _isOpenHeroTaskFor(t, heroTitle, docId) {
+  if (!t || ['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) !== -1) return false;
+  const isHero = (t.tags && t.tags.indexOf('hero-image') !== -1) || String(t.title || '').indexOf('Generate hero image for:') === 0;
+  if (!isHero) return false;
+  if (!heroTitle && !docId) return true;
+  return (heroTitle && t.title === heroTitle) || (docId && t.description && t.description.indexOf(docId) !== -1);
+}
+
 function _campaignSkipsHero(campaignId, campaigns) {
   if (!campaignId) return false;
   var c = (campaigns || []).find(function (x) { return x && x.id === campaignId; });
@@ -519,6 +529,43 @@ async function runAgentHeartbeat(ctx) {
     );
   } catch (_caErr) {
     context.log('[Heartbeat]', agentId, 'campaign availability block failed (non-fatal):', String(_caErr).substring(0, 160));
+  }
+
+  // A role with nobody running to do it (routing.js) — e.g. design while Pixel is dormant and no fallback runs.
+  // Logged once per role per run as a governance event the CEO and Forge can see, instead of work silently waiting.
+  const _routingGapsLogged = new Set();
+  async function _logRoutingGap(role, what) {
+    if (_routingGapsLogged.has(role)) return;
+    _routingGapsLogged.add(role);
+    context.log('[Heartbeat] ROUTING GAP: no running agent holds the', role, 'role —', what);
+    try { await logEvent('routing-gap', agentId, 'No running agent holds the ' + role + ' role: ' + what, cycleId, { runId: cycleId, role: role, what: what }); } catch (_) { /* non-fatal */ }
+  }
+
+  // Handoff (2026-10-16): open work held by an agent that doesn't run (dormant, archived, unknown) moves to whoever
+  // holds that role now (routing.js), with a comment saying why. Runs in Nova's turn because Nova always runs; it
+  // edits the board directly (system work, like the hero-task auto-create), since agents can't reassign tasks.
+  // Nobody to take it = a routing gap the CEO and Forge see, instead of work silently waiting.
+  if (agentId === 'nova') {
+    try {
+      const _closed = ['done', 'canceled', 'cancelled', 'archived'];
+      for (const t of tasks) {
+        if (!t || t._archived || !t.assignee || _closed.indexOf(String(t.status || '').toLowerCase()) !== -1) continue;
+        if (routing.isRunnable(t.assignee) || routing.isHuman(t.assignee)) continue;
+        const _from = t.assignee;
+        const _to = routing.routeTask(t);
+        if (!_to) { await _logRoutingGap(routing.roleForTask(t), 'task ' + t.id + ' "' + String(t.title || '').slice(0, 60) + '" held by ' + _from); continue; }
+        const _at = new Date().toISOString();
+        t.assignee = _to;
+        t.updatedAt = _at;
+        if (!Array.isArray(t.comments)) t.comments = [];
+        t.comments.push({ id: 'cmt-handoff-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), author: 'system',
+          text: 'Handoff: ' + _from + ' is not running, so this ' + routing.roleForTask(t) + ' work moves to ' + _to + '.', type: 'system', createdAt: _at });
+        context.log('[Heartbeat] HANDOFF:', t.id, _from, '→', _to);
+        try { await logEvent('task-handoff', 'system', 'Handoff ' + t.id + ': ' + _from + ' → ' + _to, cycleId, { runId: cycleId, taskId: t.id, from: _from, to: _to, role: routing.roleForTask(t) }); } catch (_) { /* non-fatal */ }
+      }
+    } catch (_hoErr) {
+      context.log('[Heartbeat] handoff sweep failed (non-fatal):', String(_hoErr).substring(0, 160));
+    }
   }
 
   // Video department (2026-10-15): the Studio crew, reached through the company task board. Every agent sees the
@@ -1547,7 +1594,8 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // SERVER-SIDE GUARD: block agents from creating hero image tasks — system auto-creates them
-      if ((action.task.assignee || '').toLowerCase() === 'pixel' && /hero\s*image/i.test(action.task.title || '')) {
+      if (/hero\s*image/i.test(action.task.title || '') &&
+          ((action.task.assignee || '').toLowerCase() === 'pixel' || /^generate hero image/i.test(action.task.title || ''))) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: hero image tasks are auto-created by the system, not agents. Title:', action.task.title);
         _countSilentDrop('hero_image_autocreated', action.task.title);
         continue;
@@ -1696,7 +1744,9 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // ── System Directive Guards ──
-      if (_taskCategory === 'system_directive') {
+      // A directive is recognized by its category OR its "DIRECTIVE:" title: Forge's directives often came without the
+      // category, so none of these guards ran and eight piled onto Nova (2026-10-16).
+      if (_taskCategory === 'system_directive' || /^DIRECTIVE:/i.test(action.task.title || '')) {
         // Only Forge and Nova can issue directives
         if (agentId !== 'forge' && agentId !== 'nova') {
           context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: only forge and nova can issue directives');
@@ -1715,9 +1765,9 @@ Write the full deliverable first, then the structured JSON block.`;
         }
         // Anti-loop: max 1 active directive per target agent
         const _existingDirective = tasks.find(t =>
-          (t.category || '') === 'system_directive' &&
+          ((t.category || '') === 'system_directive' || /^DIRECTIVE:/i.test(t.title || '')) &&
           (t.assignee || '').toLowerCase() === _directiveTarget &&
-          t.status !== 'done'
+          !t._archived && ['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) === -1
         );
         if (_existingDirective) {
           context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: active directive already exists for', _directiveTarget, ':', _existingDirective.id);
@@ -2532,15 +2582,15 @@ Write the full deliverable first, then the structured JSON block.`;
                   await storage.setState('documents', _etDocsStore);
                   context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created marketing_post from execute-task deliverable:', _etDocId, 'for blog task:', action.taskId, 'qg.pass:', _etDoc.qualityGate.pass, _etDoc.qualityGate.failOpen ? '(fail-open)' : '');
 
-                  // Auto-create Pixel hero image task (same logic as create-doc handler)
+                  // Auto-create the hero image task (same logic as create-doc handler), for whoever holds the
+                  // design role NOW (routing.js) — not Pixel by name: a dormant Pixel jammed every blog draft.
                   // SPAWN GUARD: do not spawn child tasks from auto-created tasks (prevents auto→auto chains)
                   const _etSourceAutoCreated = task.tags && task.tags.indexOf('auto-created') !== -1;
                   const _etHeroTitle = 'Generate hero image for: ' + stripTaskPrefixes(_etDoc.title);
-                  const _etHeroExists = tasks.some(t =>
-                    t.assignee === 'pixel' && t.status !== 'done' &&
-                    (t.title === _etHeroTitle || (t.description && t.description.indexOf(_etDocId) !== -1))
-                  );
-                  if (!_etHeroExists && !_etSourceAutoCreated && !_campaignSkipsHero(_etDoc.campaign_id, activeDirectives)) {
+                  const _etHeroExists = tasks.some(t => _isOpenHeroTaskFor(t, _etHeroTitle, _etDocId));
+                  const _etDesigner = routing.resolveRole('design');
+                  if (!_etDesigner) await _logRoutingGap('design', 'hero image for "' + _etDoc.title + '"');
+                  if (_etDesigner && !_etHeroExists && !_etSourceAutoCreated && !_campaignSkipsHero(_etDoc.campaign_id, activeDirectives)) {
                     const _etHeroTask = {
                       id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
                       title: _etHeroTitle,
@@ -2548,8 +2598,8 @@ Write the full deliverable first, then the structured JSON block.`;
                       taskType: 'design_asset',
                       status: 'todo',
                       priority: task.priority || 'high',
-                      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-                      assignee: 'pixel',
+                      dueDate: routing.capacityDueDate(tasks, _etDesigner, null),
+                      assignee: _etDesigner,
                       source: 'heartbeat',
                       created_by: 'system',
                       parent_task_id: action.taskId,
@@ -2561,19 +2611,20 @@ Write the full deliverable first, then the structured JSON block.`;
                       comments: [{
                         id: 'cmt-hero-' + Date.now(),
                         author: 'nova',
-                        text: 'Pixel, generate a hero image for the blog post "' + _etDoc.title + '" (doc: ' + _etDocId + '). Use generate-image with purpose blog_header and attachTo the document.',
+                        text: _etDesigner + ', generate a hero image for the blog post "' + _etDoc.title + '" (doc: ' + _etDocId + '). Use generate-image with purpose blog_header and attachTo the document.',
                         type: 'system',
                         createdAt: new Date().toISOString()
                       }]
                     };
                     tasks.push(_etHeroTask);
-                    context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created Pixel hero image task:', _etHeroTask.id, 'for auto-doc:', _etDocId);
+                    context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created hero image task for', _etDesigner + ':', _etHeroTask.id, 'for auto-doc:', _etDocId);
                   }
                   // Add visible diagnostic comment on the task
                   result.taskUpdates.push({
                     action: 'comment',
                     taskId: action.taskId,
-                    comment: '[AUTO-DOC] Blog post detected via execute-task — auto-created document (' + _etDocId + ', kind: marketing_post) and Pixel hero image task. Next: Pixel generates hero image, then submit-for-publish.',
+                    comment: '[AUTO-DOC] Blog post detected via execute-task — auto-created document (' + _etDocId + ', kind: marketing_post)' +
+                      (_etDesigner ? ' and a hero image task for ' + _etDesigner + '. Next: ' + _etDesigner + ' generates the hero image, then submit-for-publish.' : '. No design agent is running, so it can be submitted for publish without a hero image (the CEO decides).'),
                     agentId: 'system'
                   });
                 }
@@ -4173,9 +4224,11 @@ Write the full deliverable first, then the structured JSON block.`;
 
         // Fix 11b: External docs — hard cap at 5 unpublished drafts
         if (_isExternalKind) {
+          // Drafts held waiting on someone else's work (a hero image) don't count: the writer can't move them.
           const _activeExternalDocs = existingDocs.filter(d =>
             EXTERNAL_KINDS.indexOf(d.kind) !== -1 &&
-            d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived'
+            d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived' &&
+            !(d.awaiting_hero_image === true && !d.hero_image_asset_id)
           );
           if (_activeExternalDocs.length >= 5) {
             context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (external) — hard cap reached:', _activeExternalDocs.length, 'unpublished external docs. Title:', docPayload.title);
@@ -4371,7 +4424,9 @@ Write the full deliverable first, then the structured JSON block.`;
           const _heroTaskTitle = 'Generate hero image for: ' + stripTaskPrefixes(doc.title);
           const _heroNormTitle = doc.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
           const _heroTaskExists = tasks.some(t => {
-            if (t.assignee !== 'pixel' || t.status === 'done') return false;
+            // Any open hero task, whoever holds it (the design role moves when Pixel doesn't run).
+            if (!_isOpenHeroTaskFor(t, null, null) && !(t.title === _heroTaskTitle || (t.description && t.description.indexOf(doc.id) !== -1))) return false;
+            if (['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) !== -1) return false;
             if (t.title === _heroTaskTitle) return true;
             if (t.description && t.description.indexOf(doc.id) !== -1) return true;
             // Fuzzy: any active Pixel hero task whose title contains the same blog title words
@@ -4388,8 +4443,10 @@ Write the full deliverable first, then the structured JSON block.`;
           if (action.taskId) {
             result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[DIAG] hero dedup check — exists: ' + _heroTaskExists + ', looking for: ' + _heroTaskTitle, agentId: 'system' });
           }
-          if (!_heroTaskExists) {
-            // Create a task for Pixel to generate the hero image
+          const _designer = routing.resolveRole('design');
+          if (!_designer) await _logRoutingGap('design', 'hero image for "' + doc.title + '"');
+          if (!_heroTaskExists && _designer) {
+            // Create a task for whoever holds the design role now (routing.js) to generate the hero image
             const heroTask = {
               id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
               title: _heroTaskTitle,
@@ -4397,8 +4454,8 @@ Write the full deliverable first, then the structured JSON block.`;
               taskType: 'design_asset',
               status: 'todo',
               priority: action.task && action.task.priority ? action.task.priority : 'high',
-              dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-              assignee: 'pixel',
+              dueDate: routing.capacityDueDate(tasks, _designer, null),
+              assignee: _designer,
               source: 'heartbeat',
               created_by: 'system',
               parent_task_id: action.taskId || null,
@@ -4410,19 +4467,21 @@ Write the full deliverable first, then the structured JSON block.`;
               comments: [{
                 id: 'cmt-hero-' + Date.now(),
                 author: 'nova',
-                text: 'Pixel, generate a hero image for the blog post "' + doc.title + '" (doc: ' + doc.id + ', kind: ' + kind + '). Use generate-image with purpose blog_header and attachTo the document. Choose a preset that matches the content tone.',
+                text: _designer + ', generate a hero image for the blog post "' + doc.title + '" (doc: ' + doc.id + ', kind: ' + kind + '). Use generate-image with purpose blog_header and attachTo the document. Choose a preset that matches the content tone.',
                 type: 'system',
                 createdAt: new Date().toISOString()
               }]
             };
             tasks.push(heroTask);
-            context.log('[Heartbeat]', agentId, 'AUTO-CREATED Pixel hero image task:', heroTask.id, 'for doc:', doc.id);
-          } else {
-            context.log('[Heartbeat]', agentId, 'Pixel hero image task already exists for doc:', doc.id, '— skipping auto-create');
+            context.log('[Heartbeat]', agentId, 'AUTO-CREATED hero image task for', _designer + ':', heroTask.id, 'for doc:', doc.id);
+          } else if (_heroTaskExists) {
+            context.log('[Heartbeat]', agentId, 'hero image task already exists for doc:', doc.id, '— skipping auto-create');
           }
 
-          // Mark doc as awaiting hero image
-          doc.awaiting_hero_image = true;
+          // Mark doc as awaiting hero image — only when someone can make it; with no design agent running the
+          // publish gate lets the draft through and the CEO decides (no dead-end wait).
+          doc.awaiting_hero_image = !!_designer;
+          if (_designer && !doc.awaiting_hero_since) doc.awaiting_hero_since = new Date().toISOString();
           doc.updated_at = new Date().toISOString();
           const _awIdx = docsStore.findIndex(d => d.id === docId);
           if (_awIdx !== -1) docsStore[_awIdx] = doc;
@@ -4542,10 +4601,19 @@ Write the full deliverable first, then the structured JSON block.`;
             continue;
           }
 
-          // Hard guardrail: BLOCK submit-for-publish on visual doc kinds without hero image
+          // Guardrail: hold submit-for-publish on visual doc kinds without a hero image — but never forever.
+          // It waits only while someone who RUNS holds the design role and the image is under 24 h overdue; after
+          // that, or with no design agent, the draft goes to the CEO marked missing_hero_image and the CEO decides.
+          // (A dormant Pixel held every blog draft here for a week, filling the 5-draft cap — 2026-10-16.)
           const VISUAL_KINDS = ['marketing_post', 'product_brief'];
-          if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id && !_campaignSkipsHero(doc.campaign_id, activeDirectives)) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED submit-for-publish on', doc.kind, 'doc without hero_image_asset_id:', doc.id, doc.title, '— waiting for Pixel hero image');
+          const _gateDesigner = routing.resolveRole('design');
+          const _heroWaitSince = Date.parse(doc.awaiting_hero_since || doc.created_at || doc.createdAt || '') || Date.now();
+          const _heroStillComing = !!_gateDesigner && (Date.now() - _heroWaitSince) < 24 * 60 * 60 * 1000;
+          if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id && !_campaignSkipsHero(doc.campaign_id, activeDirectives) && !_heroStillComing) {
+            context.log('[Heartbeat]', agentId, 'submit-for-publish WITHOUT hero image (' + (_gateDesigner ? 'waited 24h+' : 'no design agent running') + '):', doc.id, doc.title);
+            if (!_gateDesigner) await _logRoutingGap('design', 'blog draft "' + doc.title + '" going to the CEO without a hero image');
+          } else if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id && !_campaignSkipsHero(doc.campaign_id, activeDirectives)) {
+            context.log('[Heartbeat]', agentId, 'HELD submit-for-publish on', doc.kind, 'doc without hero_image_asset_id:', doc.id, doc.title, '— waiting for', _gateDesigner, '(under 24h)');
             docsStore[docIdx].missing_hero_image = true;
             await storage.setState('documents', docsStore);
             // Notify via task comment
@@ -4553,7 +4621,7 @@ Write the full deliverable first, then the structured JSON block.`;
               result.taskUpdates.push({
                 action: 'comment',
                 taskId: action.taskId,
-                comment: 'Publish BLOCKED: doc "' + doc.title + '" (' + doc.id + ') is a ' + doc.kind + ' and has no hero image yet. Waiting for Pixel to generate one. Submit again after hero_image_asset_id is set.',
+                comment: 'Publish held: doc "' + doc.title + '" (' + doc.id + ') is a ' + doc.kind + ' and has no hero image yet. Waiting for ' + _gateDesigner + ' to make one; if it is not there within 24 h, submit again and it goes to the CEO without one.',
                 agentId: 'system'
               });
             }

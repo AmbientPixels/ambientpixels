@@ -375,9 +375,12 @@ async function handleDocPublish(context, req, body) {
     if (decisionNote && _designKeywords.test(decisionNote)) {
       try {
         const _tasks = (await storage.getState('tasks')) || [];
-        // Dedup: check if an active Pixel design-revision task already exists for this doc
-        const _existingPixelTask = _tasks.find(t =>
-          t.assignee === 'pixel' && t.status !== 'done' &&
+        // Whoever holds the design role NOW (routing.js: Pixel, else Echo, else Scribe) — not Pixel by name.
+        const _routing = require('../companyHeartbeat/routing');
+        const _designer = _routing.resolveRole('design', await _routing.loadRunning(storage));
+        // Dedup: check if an active design-revision task already exists for this doc (whoever holds it)
+        const _existingPixelTask = !_designer || _tasks.find(t =>
+          ['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) === -1 &&
           ((t.title || '').indexOf(documentId) !== -1 || (t.description || '').indexOf(documentId) !== -1) &&
           (t.title || '').indexOf('Design revision') !== -1
         );
@@ -393,7 +396,7 @@ async function handleDocPublish(context, req, body) {
               'If other design work is needed, produce the deliverable and attach it to the document.',
             status: 'todo',
             priority: 'high',
-            assignee: 'pixel',
+            assignee: _designer,
             parent_task_id: (function() { var _pt = _tasks.find(function(t2) { return t2.status !== 'done' && t2.description && t2.description.indexOf(documentId) !== -1 && (t2.assignee === 'scribe' || t2.tags && t2.tags.indexOf('hero-image') !== -1); }); return _pt ? _pt.id : null; })(),
             createdAt: now,
             updatedAt: now,
@@ -412,7 +415,7 @@ async function handleDocPublish(context, req, body) {
           await storage.setState('tasks', _tasks);
           context.log('[DocsExecute] Auto-created Pixel design-revision task:', _pixelTask.id, 'for doc:', documentId);
         } else {
-          context.log('[DocsExecute] Pixel design-revision task already exists for doc:', documentId, '— skipping');
+          context.log('[DocsExecute] design-revision task not created for doc:', documentId, _designer ? '— one already exists' : '— no design agent is running (routing gap)');
         }
       } catch (_pixelErr) {
         context.log.warn('[DocsExecute] Failed to auto-create Pixel task (non-fatal):', _pixelErr.message);

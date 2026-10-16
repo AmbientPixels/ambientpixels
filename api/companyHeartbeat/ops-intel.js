@@ -364,7 +364,7 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   };
 }
 
-function _buildForgeOpsPromptBlock(agent, opsDigest) {
+function _buildForgeOpsPromptBlock(agent, opsDigest, tasks) {
   if (!opsDigest || !agent || agent.id !== 'forge') return '';
 
   var hb = opsDigest.heartbeatHealth || {};
@@ -400,8 +400,14 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
     lines.push('- Agent issues: ' + agentIssues.join(' | '));
   }
 
-  // Stalled agents (0 actions over multiple consecutive runs)
-  var stalled = hb.stalledAgents || [];
+  // Stalled agents (0 actions over multiple consecutive runs) — but only those with open work assigned: zero actions
+  // with an empty queue is idle, not stalled. Nova is left out: Forge may not direct Nova (escalate to the CEO).
+  // Before 2026-10-16 every quiet agent counted, and Forge piled eight duplicate directives onto Nova.
+  var stalled = (hb.stalledAgents || []).filter(function (s) {
+    if (s.agent === 'nova') return false;
+    if (!Array.isArray(tasks)) return true;
+    return tasks.some(function (t) { return t && String(t.assignee || '').toLowerCase() === s.agent; });
+  });
   if (stalled.length > 0) {
     lines.push('- STALLED AGENTS (0 output, ' + stalled[0].zeroRuns + '+ runs):');
     stalled.forEach(function (s) {

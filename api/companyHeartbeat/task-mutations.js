@@ -3,6 +3,7 @@
 
 const { CFO_THRESHOLD, AGENT_IDS, VALID_TASK_STATUSES, NON_AGENT_ASSIGNEES } = require("./constants");
 const { stripTaskPrefixes, extractPublishReadyCopy } = require("./helpers");
+const routing = require("./routing");
 // ── Apply task mutation ──
 function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
   if (update.action === 'create') {
@@ -25,16 +26,19 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
 
     const requiresApproval = classification === 'executive_required' || classification === 'advisory';
 
-    // Validate and normalize dueDate — Gemini may send partial dates or weird formats
+    // Assignee — an agent that RUNS, or a department inbox (NON_AGENT_ASSIGNEES: 'studio'). Anyone else (a dormant
+    // agent, a typo) is routed by the task's role to whoever does that work now (routing.js), not dumped on Nova.
+    const rawAssignee = (update.task.assignee || '').toLowerCase();
+    const validAssignee = (AGENT_IDS.indexOf(rawAssignee) !== -1 || NON_AGENT_ASSIGNEES.indexOf(rawAssignee) !== -1)
+      ? rawAssignee
+      : (routing.routeTask({ taskType: update.task.taskType, assignee: rawAssignee }) || 'nova');
+
+    // Due date — when the assignee can realistically reach it (its queue ÷ its real throughput), never earlier
+    // than asked. A fixed "3 days out" made most of the board overdue on arrival (2026-10-16).
     const rawDue = update.task.dueDate;
     const parsedDue = rawDue ? new Date(rawDue) : null;
-    const validDueDate = (parsedDue && !isNaN(parsedDue.getTime()))
-      ? parsedDue.toISOString()
-      : new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(); // fallback: 3 days out
-
-    // Validate assignee — a known agent ID, or a department inbox that never runs (NON_AGENT_ASSIGNEES: 'studio')
-    const rawAssignee = (update.task.assignee || '').toLowerCase();
-    const validAssignee = (AGENT_IDS.indexOf(rawAssignee) !== -1 || NON_AGENT_ASSIGNEES.indexOf(rawAssignee) !== -1) ? rawAssignee : 'nova';
+    const validDueDate = routing.capacityDueDate(tasks, validAssignee,
+      (parsedDue && !isNaN(parsedDue.getTime())) ? parsedDue.toISOString() : null);
 
     const task = {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
@@ -62,7 +66,10 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
       escalated: requiresApproval,
       classification: classification,
       campaign_id: update.task.campaign_id || null,
-      objective_id: update.task.objective_id || null
+      objective_id: update.task.objective_id || null,
+      // Kept so the system_directive guards (agent-runner) can see it. It used to be dropped here, so "max one
+      // directive per agent" never matched and eight directives piled onto Nova (2026-10-16).
+      category: update.task.category || null
     };
     tasks.push(task);
     if (tasks.length > 500) tasks.splice(0, tasks.length - 500);
