@@ -187,12 +187,25 @@ console errors, no horizontal overflow, before/after attached in the commit mess
 ### Phase 4 — Fewer decisions (2 sessions)
 | # | Task | Files | Check |
 |---|---|---|---|
-| 4.1 | Content tasks require an active campaign that allows the type (agent create-task, pipelines inherit the parent's campaign; blocked attempts tell the agent to propose a campaign) | `agent-runner.js` create-task guard, `campaign-lifecycle.js`, `publishDocument.js` (promotion), hero creation | Test: Scribe can't create a blog task outside a campaign; promotion inherits |
+| 4.1 | **Every work task belongs to a campaign** (decided with Chad 10-16, see "Campaigns hold all work" below). Content tasks require an active campaign that allows the type (agent create-task, pipelines inherit the parent's campaign; blocked attempts tell the agent to propose a campaign). **Video is a campaign type like Blog** (`video_request`, routed to the Video department): add it to `_validTaskTypes` + agent/label maps, materialize `VALID_TASK_TYPES`, and a "Video" checkbox on the campaigns page (screenshot to Chad first). Only exception: tasks assigned to Chad himself. | `agent-runner.js` create-task guard, `campaign-lifecycle.js`, `proposalDecide/materialize.js`, `publishDocument.js` (promotion), hero creation, `campaigns.html` | Test: Scribe can't create a blog task outside a campaign; promotion inherits; a campaign allowing Blog + Video creates both |
 | 4.2 | Bluesky replies and engagement replies become capped campaigns Chad approves (cap e.g. 3/week) | `bluesky-participation.js`, `engagement-reply.js`, a campaign seed proposal | Lane stops when the campaign is paused or capped |
 | 4.3 | Publish inside approved campaigns without per-post approval (decision 3 boundary), with a weekly 5-post sample in the Inbox; kill switch in systemConfig | `_utils/graceWindow.js` / actions scheduler, campaign flag `autoPublish` | Test matrix by item type; kill switch stops it |
-| 4.4 | Campaign approval carries volume (posts/week, platforms) shown in the Inbox card | `proposalDecide`, materialize | — |
+| 4.4 | Campaign approval carries volume **per type** ("1 blog post + 1 video a month", "3 X posts a week") instead of one `frequency` for the whole campaign, shown in the Inbox card; pace (metrics.js `campaignPace`) and auto-replenish count per type | `proposalDecide`, materialize, `campaign-lifecycle.js` replenish, `api/_shared/metrics.js` | Test: a Blog + Video campaign is on pace only when both are |
 | 4.5 | Spread load off Scribe: Quill does copy editing for real; Echo holds design (routing.js already); reply lane capped | routing / prompts | Scribe's queue days drops (Today shows it) |
 | 4.6 | One-time board clean (approved 10-16): cancel Scribe's 6 self-made blog drafts + 3 hero images; link the live post's promotion to a campaign | data script with backup | Today shows only campaign work |
+
+**Campaigns hold all work (Chad, 2026-10-16).** The board on 10-16 had 22 open tasks and only 2 in a campaign: 6 blog
+drafts Scribe gave itself (two the same post; one already published), 6 Bluesky reply drafts from the reply lane, 6
+promotion tasks for the published post (publishing makes them with no campaign), 2 video requests. The model is
+goal → campaign → task, so nothing may hang off a goal directly. Decisions:
+- A video is a campaign type, like a blog post. A campaign can mix types (e.g. Monthly Journal = 1 post + 1 video a
+  month), each with its own volume (4.4). No standing "Video" campaign; every video serves a campaign.
+- Current videos: #1275 *Inside AmbientOS ep 01* → Monthly Journal (pairs with its "the company gets a video team"
+  post) once that campaign allows Video. #1274 *AmbientScore walkthrough* → an AmbientScore campaign (to be proposed),
+  or it waits. Chad picks.
+- A campaign-made video request needs the request details (product, format, seconds, audience). Filling them from the
+  campaign belongs to the video pipeline (`api/studio/desk.js`, Actions Video panel) — handoff
+  `handoffs/2026-10-16-video-as-campaign-type.md`.
 
 ### Phase 5 — Plan, Team, Results (3 sessions)
 - **Plan** (`plan.html`): goal → its campaigns (pace, volume, bet) → open work per campaign; calendar as a toggle;
