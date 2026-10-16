@@ -22,19 +22,25 @@
 
   var BASE = '/modules/company/';
 
-  // Each place: where the rail goes, and the pages that belong to it (so the right item lights up on old pages
-  // until they are replaced). Inbox, Plan, Team and Results point at their closest current page until they ship.
+  // Each place: where the rail goes, the pages that belong to it, and (subs) the few pages you switch between
+  // inside it — shown as one slim row at the top of those pages (Chad 10-16: in Plan, both Goals and Campaigns).
+  // A page in a place's list lights that place up. Inbox, Plan, Team and Results point at their closest
+  // current page until their own page ships.
   var PLACES = [
     { id: 'today', label: 'Today', icon: 'fa-sun', href: BASE + 'today.html',
       pages: ['today.html', 'index.html', 'dashboard.html', 'cockpit.html', 'office.html'] },
     { id: 'inbox', label: 'Inbox', icon: 'fa-inbox', href: BASE + 'actions.html',
-      pages: ['actions.html', 'goals.html', 'allocation.html', 'meetings.html', 'content-overview.html', 'engagement.html', 'inbound.html'] },
+      pages: ['actions.html', 'goals.html', 'allocation.html', 'meetings.html', 'content-overview.html', 'engagement.html', 'inbound.html'],
+      subs: [{ label: 'Approvals', href: BASE + 'actions.html' }, { label: 'Engagement', href: BASE + 'engagement.html' }, { label: 'Inbound', href: BASE + 'inbound.html' }] },
     { id: 'plan', label: 'Plan', icon: 'fa-compass', href: BASE + 'campaigns.html',
-      pages: ['objectives.html', 'campaigns.html', 'directives.html', 'calendar.html', 'tasks.html', 'standup.html'] },
+      pages: ['objectives.html', 'campaigns.html', 'directives.html', 'calendar.html', 'tasks.html', 'standup.html'],
+      subs: [{ label: 'Goals', href: BASE + 'objectives.html' }, { label: 'Campaigns', href: BASE + 'campaigns.html' }, { label: 'Tasks', href: BASE + 'tasks.html' }, { label: 'Calendar', href: BASE + 'calendar.html' }] },
     { id: 'team', label: 'Team', icon: 'fa-users', href: BASE + 'fleet.html',
-      pages: ['org.html', 'agents.html', 'fleet.html', 'agent-performance.html', 'agent-intelligence.html', 'agent-progress.html', 'awareness.html', 'memories.html', 'seasons.html', 'agent-chat.html', 'voice.html'] },
+      pages: ['org.html', 'agents.html', 'fleet.html', 'agent-performance.html', 'agent-intelligence.html', 'agent-progress.html', 'awareness.html', 'memories.html', 'seasons.html', 'agent-chat.html', 'voice.html'],
+      subs: [{ label: 'Org chart', href: BASE + 'org.html' }, { label: 'Fleet', href: BASE + 'fleet.html' }, { label: 'Agents', href: BASE + 'agents.html' }, { label: 'Memory', href: BASE + 'memories.html' }] },
     { id: 'results', label: 'Results', icon: 'fa-chart-line', href: BASE + 'attribution.html',
-      pages: ['attribution.html', 'cost-overview.html', 'analytics-hub.html', 'revenue.html'] },
+      pages: ['attribution.html', 'cost-overview.html', 'analytics-hub.html', 'revenue.html'],
+      subs: [{ label: 'Attribution', href: BASE + 'attribution.html' }, { label: 'Costs', href: BASE + 'cost-overview.html' }, { label: 'Analytics', href: BASE + 'analytics-hub.html' }] },
     { id: 'workshop', label: 'Workshop', icon: 'fa-toolbox', href: BASE + 'workshop/index.html', pages: [] }
   ];
 
@@ -131,6 +137,19 @@
   var main = el('div', 'sb-main');
   var content = el('div', 'sb-content');
   while (body.firstChild) content.appendChild(body.firstChild);
+  var place = PLACES.filter(function (p) { return p.id === activeId; })[0];
+  if (place && place.subs) {
+    var sub = el('nav', 'sb-topbar');
+    sub.setAttribute('aria-label', place.label);
+    place.subs.forEach(function (link) {
+      var a = el('a', 'sb-sub');
+      a.href = link.href;
+      a.textContent = link.label;
+      if (link.href.slice(link.href.lastIndexOf('/') + 1) === currentFile) { a.className += ' sb-sub--active'; a.setAttribute('aria-current', 'page'); }
+      sub.appendChild(a);
+    });
+    main.appendChild(sub);
+  }
   main.appendChild(content);
   layout.appendChild(rail);
   layout.appendChild(main);
