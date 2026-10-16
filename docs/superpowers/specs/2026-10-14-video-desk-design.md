@@ -276,3 +276,31 @@ Chad: the Studio's Desk page had no use, and the Video department belongs with t
 - **Studio**: the Video page is gone; `/api/studio` keeps only the PC's `desk`, `desk-sync`, `desk-comment`.
 
 Commits: AP `a7eda9c0`, pipeline `98a68c0` (crew export) + `8cd9353`.
+
+---
+
+## 10. Video joins Design, under Pixel (2026-10-15)
+
+Chad: the department "feels a bit disconnected"; it belongs in the **Design department under Pixel**. Six decisions,
+taken one at a time (handoff `docs/superpowers/handoffs/2026-10-15-video-team-into-design.md`):
+
+| Question | Decision |
+|---|---|
+| Wake Pixel? | **Yes, gated.** `agentRegistry` row active (2026-10-16 02:27 UTC); `C.VIDEO_TRIAGE_AGENTS = {pixel}`. |
+| Pixel's video job | **Triage only:** one `RECOMMEND: accept\|decline` comment per new request. Briefs and draft reviews stay with the Editor/director. |
+| One board | **The company task is the record:** `videoStage` / `videoId` / `videoProject` on the task (desk-comment writes them; markers stay as history). The Studio Board stays the crew's working detail and pushes the stage up. |
+| Crew roles | **Divisions under Design** on the Fleet page (DESIGN DEPARTMENT section; board label "Design · Video"). Roles, not agents. |
+| Studio worker | **Starts with the Studio** (`OPEN-STUDIO.cmd`); HQ shows "Studio offline, last seen …" after 15 min, and accepted requests say "Waiting for Studio". |
+| First run | **The AmbientScore walkthrough**, filed by the CEO with a `manual` trigger (`task-1792117698828-7uj5`). |
+
+How Pixel is held to triage (all code):
+- `helpers.shouldRunAgent`: Pixel runs only when a waiting request has no Pixel comment (full thread, raw task).
+  Assigned tasks and @mentions never wake it.
+- `agent-runner`: Pixel may only `comment-task` on a `video_request` (plus `remember`); anything else is blocked
+  (`gate: video_triage_only`). The unreachable `generate-video` handler and its prompt lines are gone.
+- `routing.isRunnable()` never counts Pixel, so design work stays Echo → Scribe and anything named for Pixel is
+  routed or handed off by role, as before. Old Pixel design prompt blocks are skipped; Pixel left
+  `PROPOSAL_AUTHORIZED_AGENTS`.
+
+Commits: AP `6d920c77` (Fleet + presence), `cf52c254` (Pixel triage), `93154ad0` (one board); pipeline `d120717`
+(launcher), `49c39c3` (worker log).
