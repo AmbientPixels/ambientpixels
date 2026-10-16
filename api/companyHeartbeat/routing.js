@@ -11,6 +11,7 @@
 'use strict';
 
 const C = require('./constants');
+const metrics = require('../_shared/metrics');
 
 // Role → agents that can do it, in order of preference. Design goes to Echo, then Scribe: both may generate-image
 // (agent-runner IMG_ALLOWED_AGENTS). Pixel heads Design but only triages video (C.VIDEO_TRIAGE_AGENTS), so it is not
@@ -103,13 +104,10 @@ async function loadRunning(storage) {
 const DAY = 86400000;
 function capacityDueDate(tasks, assignee, requestedIso, nowMs) {
   const now = nowMs || Date.now();
-  const a = String(assignee || '').toLowerCase();
-  const all = Array.isArray(tasks) ? tasks : [];
-  const open = all.filter((t) => t && !t._archived && String(t.assignee || '').toLowerCase() === a &&
-    ['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) === -1).length;
-  const doneWeek = all.filter((t) => t && String(t.assignee || '').toLowerCase() === a && t.status === 'done' &&
-    now - Date.parse(t.completedAt || t.updatedAt || 0) <= 7 * DAY).length;
-  const perDay = Math.max(0.5, doneWeek / 7);
+  // Queue and throughput are the shared definitions HQ shows (api/_shared/metrics.js agentPace).
+  const pace = metrics.agentPace(tasks, assignee, now);
+  const open = pace.queue;
+  const perDay = Math.max(0.5, pace.doneWeek / 7);
   const days = Math.min(30, Math.ceil((open + 1) / perDay));
   const capacity = now + days * DAY;
   const asked = Date.parse(requestedIso || '');

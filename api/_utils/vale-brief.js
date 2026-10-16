@@ -3,6 +3,7 @@
 'use strict';
 
 var DAY_MS = 86400000;
+var metrics = require('../_shared/metrics');
 
 function buildBriefFacts(input, now) {
   now = now || Date.now();
@@ -12,9 +13,8 @@ function buildBriefFacts(input, now) {
   var actionList = Array.isArray(input.ceoActionList) ? input.ceoActionList : [];
 
   var lastRun = runs.length ? runs[runs.length - 1] : null;
-  var pendingApprovals = approvals.filter(function (q) {
-    return q && (q.status === 'pending' || q.status === 'pending_approval' || !q.status);
-  }).length;
+  // One definition of "waiting on the CEO" queue items, shared with HQ Today (api/_shared/metrics.js).
+  var pendingApprovals = approvals.filter(metrics.isPendingQueueItem).length;
   var openActions = actionList.filter(function (a) { return a.status !== 'done'; });
   var dueSoon = openActions.filter(function (a) {
     if (!a.deadline) return false;
