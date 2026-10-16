@@ -691,9 +691,8 @@
     }
 
     function renderAll() {
-      // Reconcile approval queue and artifacts before rendering
-      if (AE.reconcileApprovalQueue) AE.reconcileApprovalQueue();
-      if (AE.reconcileArtifacts) AE.reconcileArtifacts();
+      // Rendering only reads (2026-10-16): the queue/artifact reconcilers used to write the
+      // whole approvalQueue and actions arrays here on every render.
       renderActionDrift();
       renderExecutionPulse();
       renderRawStats();

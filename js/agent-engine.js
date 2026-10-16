@@ -2103,7 +2103,8 @@ var AgentEngine = (function () {
       for (var k = 0; k < unnumbered.length; k++) {
         unnumbered[k].taskNumber = ++maxNum;
       }
-      _saveStorage(TASKS_KEY, list);
+      // Numbers are filled in memory for display only. Saving here wrote the whole tasks
+      // array on every getTasks() — i.e. on page load (removed 2026-10-16).
     }
     return maxNum;
   }

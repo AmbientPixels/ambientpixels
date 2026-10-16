@@ -1255,8 +1255,8 @@
 
       function renderAll() {
         _govEntriesCache = null; // clear gov cache for fresh data
-        try { if (AgentEngine.reconcileProposals) AgentEngine.reconcileProposals(); } catch(e) { console.warn('[Dashboard] reconcileProposals error:', e); }
-        try { if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue(); } catch(e) { console.warn('[Dashboard] reconcileApprovalQueue error:', e); }
+        // Looking never changes anything (2026-10-16): the reconcilers used to run here and
+        // approved pending directives as the CEO on every render. Rendering only reads now.
         [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderGrowthTraffic, refreshSocialCommand,
          renderCeoObsHealth, renderStats, renderFleet, renderAgentStatus, renderSessions,
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
