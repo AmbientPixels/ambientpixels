@@ -1,0 +1,286 @@
+/* ════════════════════════════════════════════
+   HQ Kit v2 — the whole visual vocabulary of the simplified HQ (2026-10-16).
+   Plan: docs/superpowers/plans/2026-10-16-hq-simplification-plan.md §1b.
+   Living reference: /modules/company/workshop/kit.html
+
+   Eight components. Two already exist in company.css and are used as they are:
+     2  Stat         .ap-kpi  (+ .hq-meter for "3 of 10")
+     3  Status chip  .ap-state--good | --warn | --critical | --info | --neutral
+   The other six live here:
+     1  Page header  .hq-head      4  Row          .hq-row
+     5  Section      .hq-section   6  Empty state  .hq-empty
+     7  Button       .hq-btn       8  Health line  .hq-health
+
+   Rules: AmbientOS v1.1 tokens only (--c-*), never --ap-* site tokens.
+   Colour is status only (green ok · amber attention · red broken · blue in progress).
+   Four type sizes: page title (xl), section title (xs caps), body (base), small (xs).
+   Spacing: --c-pad / --c-gap only. No inline styles, no <style> blocks, no el.style.
+   ════════════════════════════════════════════ */
+
+/* Page base for kit pages (they do not load the site's base.css). */
+.hq-body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--c-font);
+  -webkit-font-smoothing: antialiased;
+}
+/* Kit pages carry no browser margins; spacing comes from gap, never from element defaults. */
+.hq-body :where(p, h1, h2, h3, ul, ol, dl, dd, figure) { margin: 0; }
+
+/* Page frame: one readable column of blocks, the width of a laptop screen. */
+.hq-page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--c-pad-lg) var(--c-pad-lg) calc(var(--c-pad-lg) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--c-gap-lg);
+  color: var(--c-text);
+  font-size: var(--c-text-base);
+  box-sizing: border-box;
+}
+
+/* ── 1 · Page header ── title, one plain sentence, "as of" */
+.hq-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--c-gap);
+  flex-wrap: wrap;
+}
+.hq-head-title {
+  margin: 0;
+  font-size: var(--c-text-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.hq-head-purpose {
+  margin: 4px 0 0;
+  color: var(--c-text-2);
+  font-size: var(--c-text-base);
+}
+.hq-head-asof {
+  color: var(--c-text-3);
+  font-size: var(--c-text-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── 8 · Health line ── one line: green "All systems normal", or the one thing that isn't */
+.hq-health {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px var(--c-pad);
+  border-radius: var(--c-r);
+  border: 1px solid var(--c-sep-strong);
+  background: var(--c-surface);
+  font-weight: 600;
+}
+.hq-health::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-text-3);
+  flex: none;
+}
+.hq-health > span { flex: 1 1 0; min-width: 0; }
+.hq-health--ok        { border-color: rgba(52,211,153,0.30); }
+.hq-health--ok::before        { background: var(--c-green); }
+.hq-health--attention { border-color: rgba(251,191,36,0.40); }
+.hq-health--attention::before { background: var(--c-amber); }
+.hq-health--broken    { border-color: rgba(239,68,68,0.45); }
+.hq-health--broken::before    { background: var(--c-red); }
+.hq-health-more {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex-basis: 100%;
+  padding-left: 18px;
+  color: var(--c-text-2);
+  font-size: var(--c-text-xs);
+  font-weight: 500;
+}
+
+/* ── 5 · Section ── title + up to 7 rows + "See all (N) →" */
+.hq-section {
+  background: var(--c-surface);
+  border-radius: var(--c-r);
+  padding: var(--c-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.hq-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--c-gap);
+}
+.hq-section-title {
+  margin: 0;
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--c-text-2);
+}
+.hq-section-count {
+  margin-left: 6px;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+.hq-section-link,
+.hq-section-foot {
+  color: var(--c-link);
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.hq-section-link:hover,
+.hq-section-foot:hover { color: var(--c-link-hover); text-decoration: underline; }
+.hq-section-foot { align-self: flex-start; }
+.hq-section-body {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 4 · Row ── title, one meta line, a chip, at most one value; the whole row is the link */
+.hq-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px var(--c-gap);
+  padding: 8px 0;
+  border-top: 1px solid var(--c-sep);
+  color: inherit;
+  text-decoration: none;
+}
+.hq-section-body > li:first-child > .hq-row,
+.hq-section-body > .hq-row:first-child { border-top: none; padding-top: 2px; }
+a.hq-row:hover .hq-row-title { color: var(--c-link); }
+.hq-row-main { min-width: 0; }
+.hq-row-title {
+  display: block;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hq-row-meta {
+  display: block;
+  margin-top: 2px;
+  color: var(--c-text-2);
+  font-size: var(--c-text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hq-row-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-text-2);
+  font-size: var(--c-text-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hq-row--wrap .hq-row-title { white-space: normal; }
+
+/* ── 6 · Empty state ── says what's normal, never just "nothing" */
+.hq-empty {
+  margin: 0;
+  padding: 6px 0;
+  color: var(--c-text-2);
+  line-height: 1.45;
+}
+.hq-empty--loading { color: var(--c-text-3); }
+.hq-empty--error   { color: var(--c-text); }
+.hq-empty--error::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--c-amber);
+  vertical-align: middle;
+}
+
+/* ── 7 · Button ── two weights only */
+.hq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: var(--c-r-sm);
+  border: 1px solid var(--c-sep-strong);
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font: inherit;
+  font-size: var(--c-text-base);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.hq-btn:hover { background: var(--c-surface-3); }
+.hq-btn:focus-visible,
+.hq-row:focus-visible,
+.hq-section-link:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.hq-btn--primary { background: var(--c-accent); border-color: var(--c-accent); color: #000; }
+.hq-btn--primary:hover { background: var(--c-link); }
+.hq-btn--quiet { background: none; border-color: transparent; color: var(--c-link); padding: 0 6px; }
+.hq-btn--quiet:hover { background: var(--c-accent-dim); }
+
+/* ── 2 · Stat additions ── the denominator as a bar: "3 of 10" */
+.hq-meter {
+  height: 6px;
+  border-radius: var(--c-r-pill);
+  background: var(--c-surface-3);
+  overflow: hidden;
+}
+.hq-meter-fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--hq-pct, 0) * 1%);
+  border-radius: inherit;
+  background: var(--c-blue);
+}
+/* Width comes from a class, never el.style: .hq-p0 … .hq-p100 in steps of 5 set --hq-pct. */
+.hq-p0 { --hq-pct: 0; } .hq-p5 { --hq-pct: 5; } .hq-p10 { --hq-pct: 10; } .hq-p15 { --hq-pct: 15; }
+.hq-p20 { --hq-pct: 20; } .hq-p25 { --hq-pct: 25; } .hq-p30 { --hq-pct: 30; } .hq-p35 { --hq-pct: 35; }
+.hq-p40 { --hq-pct: 40; } .hq-p45 { --hq-pct: 45; } .hq-p50 { --hq-pct: 50; } .hq-p55 { --hq-pct: 55; }
+.hq-p60 { --hq-pct: 60; } .hq-p65 { --hq-pct: 65; } .hq-p70 { --hq-pct: 70; } .hq-p75 { --hq-pct: 75; }
+.hq-p80 { --hq-pct: 80; } .hq-p85 { --hq-pct: 85; } .hq-p90 { --hq-pct: 90; } .hq-p95 { --hq-pct: 95; }
+.hq-p100 { --hq-pct: 100; }
+
+/* A small list of label/value pairs inside a section ("Posts published  3"). */
+.hq-pairs { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px var(--c-gap); }
+.hq-pairs dt { color: var(--c-text-2); }
+.hq-pairs dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.hq-pairs dd.is-none { color: var(--c-text-3); font-weight: 500; }
+.hq-small { color: var(--c-text-3); font-size: var(--c-text-xs); }
+
+/* ── Themes: darker ink for status colours on light grounds (same rule company.css uses) ── */
+body[data-theme="light"] .hq-health--ok::before        { background: #17734a; }
+body[data-theme="light"] .hq-health--attention::before { background: #8a5a06; }
+body[data-theme="light"] .hq-health--broken::before    { background: #b02a1f; }
+body[data-theme="light"] .hq-meter-fill                { background: #1d4ed8; }
+body[data-theme="light"] .hq-btn--primary              { color: #fff; }
+
+@media (max-width: 768px) {
+  .hq-page { padding: var(--c-pad) var(--c-pad) 96px; gap: var(--c-gap); }
+  .hq-row-title { white-space: normal; }
+}

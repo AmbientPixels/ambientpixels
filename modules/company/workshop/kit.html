@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="HQ Kit v2 — every component of the simplified HQ, in every state." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>HQ Kit — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/hq-kit.css" />
+  <link rel="stylesheet" href="/modules/company/css/kit.css" />
+</head>
+<body class="hq-body">
+  <main class="hq-page">
+    <header class="hq-head">
+      <div>
+        <h1 class="hq-head-title">HQ Kit</h1>
+        <p class="hq-head-purpose">The eight components every HQ page is built from, in every state. Nothing else.</p>
+      </div>
+      <span class="hq-head-asof">v2 · 2026-10-16 · css/hq-kit.css</span>
+    </header>
+
+    <!-- 8 · Health line -->
+    <section class="hq-section" aria-labelledby="k8">
+      <h2 class="hq-section-title" id="k8">8 · Health line <code>.hq-health</code></h2>
+      <div class="hq-health hq-health--ok">All systems normal</div>
+      <div class="hq-health hq-health--attention">Quill has 1 waiting and finished nothing this week</div>
+      <div class="hq-health hq-health--broken"><span>The fleet missed its 06:00 UTC run</span>
+        <ul class="hq-health-more"><li>2 pieces of work had nobody to take them (24 h)</li><li>and 1 more</li></ul></div>
+      <div class="hq-health">Checking the fleet…</div>
+    </section>
+
+    <div class="kit-grid">
+      <!-- 1 · Page header -->
+      <section class="hq-section" aria-labelledby="k1">
+        <h2 class="hq-section-title" id="k1">1 · Page header <code>.hq-head</code></h2>
+        <header class="hq-head">
+          <div><p class="hq-head-title">Today</p><p class="hq-head-purpose">What the company is doing, and what needs you.</p></div>
+          <span class="hq-head-asof">as of 12:00 UTC · next fleet run 18:00 UTC</span>
+        </header>
+      </section>
+
+      <!-- 2 · Stat -->
+      <section class="hq-section" aria-labelledby="k2">
+        <h2 class="hq-section-title" id="k2">2 · Stat <code>.ap-kpi</code> + <code>.hq-meter</code></h2>
+        <div class="kit-row">
+          <div class="ap-kpi">
+            <p class="ap-kpi-label">The goal</p>
+            <p class="ap-kpi-value">3<span class="ap-kpi-unit"> of 10</span></p>
+            <div class="hq-meter" role="img" aria-label="3 of 10"><span class="hq-meter-fill hq-p30"></span></div>
+            <p class="ap-kpi-sub">Target 10 a week by Dec 3</p>
+          </div>
+          <div class="ap-kpi">
+            <p class="ap-kpi-label">The goal</p>
+            <p class="ap-kpi-value ap-kpi-value--none">Not measured</p>
+            <p class="ap-kpi-sub">A missing number never shows as 0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · Status chip -->
+      <section class="hq-section" aria-labelledby="k3">
+        <h2 class="hq-section-title" id="k3">3 · Status chip <code>.ap-state</code></h2>
+        <p class="kit-chips">
+          <span class="ap-state ap-state--good">On pace</span>
+          <span class="ap-state ap-state--warn">Behind</span>
+          <span class="ap-state ap-state--critical">Broken</span>
+          <span class="ap-state ap-state--info">In progress</span>
+          <span class="ap-state ap-state--neutral">Frozen</span>
+        </p>
+      </section>
+
+      <!-- 7 · Button -->
+      <section class="hq-section" aria-labelledby="k7">
+        <h2 class="hq-section-title" id="k7">7 · Button <code>.hq-btn</code></h2>
+        <p class="kit-chips">
+          <button type="button" class="hq-btn hq-btn--primary">Approve</button>
+          <button type="button" class="hq-btn">Decline…</button>
+          <button type="button" class="hq-btn hq-btn--quiet">Later</button>
+        </p>
+      </section>
+    </div>
+
+    <div class="kit-grid">
+      <!-- 4 + 5 · Row in a Section, normal -->
+      <section class="hq-section" aria-labelledby="k5">
+        <div class="hq-section-head">
+          <h2 class="hq-section-title" id="k5">4 + 5 · Section with rows<span class="hq-section-count">3</span></h2>
+          <a class="hq-section-link" href="#k5">Plan →</a>
+        </div>
+        <ul class="hq-section-body">
+          <li><a class="hq-row" href="#k5"><span class="hq-row-main"><span class="hq-row-title">Monthly Journal</span><span class="hq-row-meta">1 open task · 1 of 1 this month</span></span><span class="hq-row-end"><span class="ap-state ap-state--good">On pace</span></span></a></li>
+          <li><a class="hq-row" href="#k5"><span class="hq-row-main"><span class="hq-row-title">Weekly Scoreboard</span><span class="hq-row-meta">2 open tasks · 0 of 1 this week</span></span><span class="hq-row-end"><span class="ap-state ap-state--warn">Behind</span></span></a></li>
+          <li><a class="hq-row" href="#k5"><span class="hq-row-main"><span class="hq-row-title">Scribe</span><span class="hq-row-meta">~0.9 a day · clear by Nov 9</span></span><span class="hq-row-end">20 queued</span></a></li>
+        </ul>
+        <a class="hq-section-foot" href="#k5">See all (12) →</a>
+      </section>
+
+      <!-- 6 · Empty states -->
+      <section class="hq-section" aria-labelledby="k6">
+        <h2 class="hq-section-title" id="k6">6 · Empty state <code>.hq-empty</code></h2>
+        <ul class="hq-section-body">
+          <li><p class="hq-empty">Nothing waiting on you. The fleet runs at 00, 06, 12 and 18 UTC.</p></li>
+          <li><p class="hq-empty hq-empty--loading">Loading…</p></li>
+          <li><p class="hq-empty hq-empty--error">Couldn't read campaigns — pace is not measured.</p></li>
+        </ul>
+      </section>
+
+      <!-- Pairs (inside a Stat) -->
+      <section class="ap-kpi" aria-labelledby="k9">
+        <h2 class="ap-kpi-label" id="k9">Stat with pairs <code>.hq-pairs</code></h2>
+        <dl class="hq-pairs">
+          <dt>Posts published</dt><dd>3</dd>
+          <dt>Tasks done</dt><dd>11</dd>
+          <dt>AI spend</dt><dd>$4.20</dd>
+          <dt>Visitors</dt><dd class="is-none">not measured</dd>
+        </dl>
+      </section>
+    </div>
+
+    <section class="hq-section" aria-labelledby="krules">
+      <h2 class="hq-section-title" id="krules">Rules</h2>
+      <ul class="hq-section-body kit-rules">
+        <li>Tokens are AmbientOS v1.1 (<code>--c-*</code>). Colour means status only.</li>
+        <li>No inline styles, no &lt;style&gt; blocks, no <code>el.style</code> — classes only.</li>
+        <li>A page loads company.css, sidebar.css, hq-kit.css and at most one page stylesheet of 150 lines or fewer.</li>
+        <li>At most 7 rows per section, 4 stats per row, 4 sections above the fold. No tabs inside tabs, no UI modes.</li>
+        <li>Every number names its window and source. A number we can't measure says "not measured", never 0.</li>
+      </ul>
+    </section>
+  </main>
+<script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

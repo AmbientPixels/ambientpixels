@@ -1,0 +1,22 @@
+/* kit.css — layout only for the HQ Kit reference page (modules/company/workshop/kit.html). */
+.kit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--c-gap);
+  align-items: start;
+}
+.kit-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--c-gap);
+}
+.kit-row .ap-kpi { background: var(--c-surface-2); }
+.kit-chips { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.kit-rules li { padding: 4px 0; color: var(--c-text-2); }
+.hq-page code {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-2);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
