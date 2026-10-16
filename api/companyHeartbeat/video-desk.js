@@ -16,6 +16,7 @@
 'use strict';
 
 const desk = require('../studio/desk');
+const C = require('./constants');
 
 const VIDEO_AGENTS = ['nova', 'echo', 'scout'];
 const MAX_OPEN = 2;
@@ -118,6 +119,15 @@ function catalogLine() {
 
 // Comments on requests that @mention this agent, from Chad or the department, in the last 72 h, that the agent
 // has not answered since. → [{ taskId, title, who, text }]
+// Requests still waiting for Chad that this agent (a video-triage agent: Pixel) has not commented on yet. Reads the
+// full thread on the raw task, not the request's last-6 comments, so a busy thread can't re-trigger triage.
+function untriaged(tasks, agentId) {
+  return (Array.isArray(tasks) ? tasks : [])
+    .filter((t) => desk.isRequestTask(t) && ['todo', 'backlog'].indexOf(String(t.status || '').toLowerCase()) !== -1 &&
+      !desk.commentsOf(t).some((c) => c.who === agentId))
+    .map(desk.parseRequest).filter(Boolean);
+}
+
 function asksFor(agentId, agentName, requests, nowMs) {
   const needle = '@' + String(agentName || agentId).toLowerCase();
   const out = [];
@@ -139,6 +149,7 @@ function asksFor(agentId, agentName, requests, nowMs) {
 // The VIDEO DEPARTMENT prompt block for one agent, or '' when there is nothing to see or do.
 function buildVideoDeskBlock(agentId, agentName, data, nowMs) {
   if (!data || !Array.isArray(data.tasks)) return '';
+  if (C.VIDEO_TRIAGE_AGENTS.has(agentId)) return buildTriageBlock(agentId, data);
   const requests = requestsOf(data);
   const asks = asksFor(agentId, agentName, requests, nowMs);
   const canSuggest = VIDEO_AGENTS.indexOf(agentId) !== -1;
@@ -171,6 +182,21 @@ function buildVideoDeskBlock(agentId, agentName, data, nowMs) {
   return L.join('\n');
 }
 
+// VIDEO TRIAGE: Pixel's whole job (Design fold, 2026-10-15). One recommendation per new request; Chad decides.
+function buildTriageBlock(agentId, data) {
+  const list = untriaged(data.tasks, agentId).slice(0, 4);
+  if (!list.length) return '';
+  const L = ['', '', 'VIDEO TRIAGE: you head Design, and Video (the Studio crew, human-run on Chad\'s PC) is your division. Your only job this cycle: advise Chad on each new video request below. He decides on the board; you never move, edit, execute or create tasks, and never make a video.'];
+  list.forEach((r) => {
+    const claims = Array.isArray(r.claims) ? r.claims.length : 0;
+    L.push(`- task ${r.taskId} "${clip(r.title, 70)}" from ${r.from}: product=${r.product}, format=${r.format}, mood=${r.mood}, ${r.seconds || '?'}s, trigger=${r.trigger ? r.trigger.type + ':' + r.trigger.ref : '?'}${r.trigger && r.trigger.evidence ? ' ("' + clip(r.trigger.evidence, 100) + '")' : ''}; audience: "${clip(r.audience, 80)}"; goal: "${clip(r.goal, 120)}"; ${claims} sourced claim${claims === 1 ? '' : 's'}.`);
+  });
+  L.push(catalogLine());
+  L.push('Weigh: does the trigger justify a video rather than posts; does the format fit the goal and audience; is every claim sourced (product-facts or a live page); is the Studio already busy (at most 2 open requests).');
+  L.push('Reply ONCE per request in taskUpdates: {"type":"comment-task","taskId":"<id>","comment":"RECOMMEND: accept|decline. <one or two plain sentences why>"}. Nothing else is allowed for you; any other action is blocked.');
+  return L.join('\n');
+}
+
 // RECENT RELEASES: what is actually live, from the Release Watcher. Hidden entries never show.
 function buildReleasesBlock(releases, nowMs) {
   const live = (releases || []).filter((e) => e.status !== 'hidden' && ageDays(e.at, nowMs) <= RELEASE_WINDOW_DAYS)
@@ -193,5 +219,5 @@ async function loadReleases(storage, nowMs) {
 
 module.exports = {
   VIDEO_AGENTS, MAX_OPEN, AGENT_COOLDOWN_DAYS,
-  requestsOf, validTriggers, capacity, gateSuggestion, noteFiled, asksFor, buildVideoDeskBlock, buildReleasesBlock, loadReleases, _resetPending,
+  requestsOf, validTriggers, capacity, gateSuggestion, noteFiled, asksFor, untriaged, buildTriageBlock, buildVideoDeskBlock, buildReleasesBlock, loadReleases, _resetPending,
 };

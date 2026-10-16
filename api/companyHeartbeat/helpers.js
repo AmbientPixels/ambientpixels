@@ -185,6 +185,12 @@ function shouldRunTier4Agent(tasks, agentId) {
 // heartbeatRuns.skippedAgents, so a wrongly-silent agent is visible rather than mysterious.
 function shouldRunAgent(tasks, agentId) {
   if (C.ALWAYS_RUN_AGENTS.has(agentId)) return { run: true, reason: 'always_run_agent' };
+  // A video-triage agent (Pixel) runs only when a video request waits for its recommendation. Assigned tasks and
+  // @mentions don't wake it: it has no other job, so an idle cycle costs nothing.
+  if (C.VIDEO_TRIAGE_AGENTS.has(agentId)) {
+    return require('./video-desk').untriaged(tasks, agentId).length
+      ? { run: true, reason: 'video_triage_pending' } : { run: false, reason: 'no_video_request_to_triage' };
+  }
   if (_hasAssignedActiveTasks(tasks, agentId)) return { run: true, reason: 'assigned_active_task' };
   if (_hasRecentMention(tasks, agentId)) return { run: true, reason: 'recent_mention_ping' };
   return { run: false, reason: 'no_assigned_tasks_or_mentions' };

@@ -12,14 +12,15 @@
 
 const C = require('./constants');
 
-// Role → agents that can do it, in order of preference. Design falls back to Echo, then Scribe: both may
-// generate-image (agent-runner IMG_ALLOWED_AGENTS).
+// Role → agents that can do it, in order of preference. Design goes to Echo, then Scribe: both may generate-image
+// (agent-runner IMG_ALLOWED_AGENTS). Pixel heads Design but only triages video (C.VIDEO_TRIAGE_AGENTS), so it is not
+// on any work list.
 const ROLES = {
   orchestration: ['nova'],
   content: ['scribe', 'nova'],
   editing: ['quill', 'scribe'],
   social: ['echo', 'nova'],
-  design: ['pixel', 'echo', 'scribe'],
+  design: ['echo', 'scribe'],
   research: ['scout', 'nova'],
   ops: ['forge', 'nova'],
   finance: ['cipher', 'nova'],
@@ -50,6 +51,7 @@ const isHuman = (assignee) => HUMANS.indexOf(String(assignee || '').toLowerCase(
 function isRunnable(assignee, running) {
   const r = running || runningNow();
   const a = String(assignee || '').toLowerCase();
+  if (C.VIDEO_TRIAGE_AGENTS && C.VIDEO_TRIAGE_AGENTS.has(a)) return false; // runs, but takes no routed work
   return r.indexOf(a) !== -1 || (C.NON_AGENT_ASSIGNEES || []).indexOf(a) !== -1;
 }
 

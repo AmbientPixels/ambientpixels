@@ -81,26 +81,48 @@ test('DEADLOCK: an unassigned task still wakes Nova so it can be triaged', () =>
 
 test('DEADLOCK: a skipped agent wakes the moment work is assigned to it', () => {
   const board = [task({ assignee: 'echo' })];
-  assert.strictEqual(H.shouldRunAgent(board, 'pixel').run, false);
-  board.push(task({ id: 't2', assignee: 'pixel', status: 'todo' }));
-  assert.strictEqual(H.shouldRunAgent(board, 'pixel').run, true, 'must self-heal next cycle');
+  assert.strictEqual(H.shouldRunAgent(board, 'scout').run, false);
+  board.push(task({ id: 't2', assignee: 'scout', status: 'todo' }));
+  assert.strictEqual(H.shouldRunAgent(board, 'scout').run, true, 'must self-heal next cycle');
 });
 
 test('an @mention inside the window wakes an idle agent', () => {
-  const name = (C.AGENT_ROLES.pixel && C.AGENT_ROLES.pixel.name) || 'pixel';
+  const name = (C.AGENT_ROLES.scout && C.AGENT_ROLES.scout.name) || 'scout';
   const board = [task({
     assignee: 'scribe',
-    comments: [{ text: 'need a hero image @' + name + ' please', createdAt: iso(WELL_INSIDE_WINDOW) }]
+    comments: [{ text: 'need some research @' + name + ' please', createdAt: iso(WELL_INSIDE_WINDOW) }]
   })];
-  const r = H.shouldRunAgent(board, 'pixel');
+  const r = H.shouldRunAgent(board, 'scout');
   assert.strictEqual(r.run, true);
   assert.strictEqual(r.reason, 'recent_mention_ping');
 });
 
 test('a stale @mention does NOT wake an idle agent forever', () => {
-  const name = (C.AGENT_ROLES.pixel && C.AGENT_ROLES.pixel.name) || 'pixel';
+  const name = (C.AGENT_ROLES.scout && C.AGENT_ROLES.scout.name) || 'scout';
   const old = iso(WELL_OUTSIDE_WINDOW);
   const board = [task({ assignee: 'scribe', comments: [{ text: '@' + name + ' ping', createdAt: old }] })];
+  assert.strictEqual(H.shouldRunAgent(board, 'scout').run, false);
+});
+
+// VIDEO TRIAGE GATE (Design fold, 2026-10-15): Pixel runs only for a video request it hasn't commented on yet.
+test('Pixel runs only when a waiting video request has no Pixel comment', () => {
+  const desk = require('../studio/desk');
+  const r0 = desk.cleanRequest({ trigger: { type: 'release', ref: 'rel_x' }, product: 'AmbientScore', format: 'walkthrough', mood: 'ambient',
+    title: 'What a free scan shows you', goal: 'Run a free scan', claims: [{ claim: 'Eight dimensions', source: 'product-facts:AmbientScore' }] }, 'nova');
+  const req = (status, comments) => Object.assign(task({ id: 'vr-' + status + (comments ? comments.length : 0), comments: comments || [] }), desk.requestTask(r0), { status });
+  assert.strictEqual(H.shouldRunAgent([], 'pixel').run, false);
+  assert.strictEqual(H.shouldRunAgent([req('in-progress')], 'pixel').run, false, 'accepted: Chad already decided');
+  assert.strictEqual(H.shouldRunAgent([req('todo', [{ author: 'pixel', text: 'RECOMMEND: accept.' }])], 'pixel').run, false, 'already triaged');
+  const r = H.shouldRunAgent([req('todo', [{ author: 'nova', text: 'filed' }])], 'pixel');
+  assert.strictEqual(r.run, true);
+  assert.strictEqual(r.reason, 'video_triage_pending');
+});
+
+test('Pixel is not woken by assigned work or @mentions (it has no other job)', () => {
+  const board = [
+    task({ id: 'a', assignee: 'pixel', status: 'todo' }),
+    task({ id: 'b', assignee: 'scribe', comments: [{ text: '@Pixel hero please', createdAt: iso(WELL_INSIDE_WINDOW) }] }),
+  ];
   assert.strictEqual(H.shouldRunAgent(board, 'pixel').run, false);
 });
 

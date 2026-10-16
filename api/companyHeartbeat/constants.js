@@ -94,9 +94,9 @@ const AGENT_ROLES = {
   cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, monthlyCap: 10.00, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >1.5x budget RED, waste >50% RED), proactive ROI commentary on priority work',
     doctrine: { strategicBias: 'Capital efficiency, measurable ROI', riskTolerance: 'Low-Medium', timeHorizon: '12-36 months', coreQuestion: 'What is the ROI and downside risk?', escalationTriggers: ['API cost spikes', 'Unclear monetization', 'Budget drift'] },
     expectedActionMix: { 'remember': 'high', 'comment-task': 'medium', 'create-doc': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  pixel: { name: 'Pixel', role: 'Design Director', tier: 3, monthlyCap: 10.00, focus: 'product visual ownership, hero image generation, per-product preset mapping (Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), visual performance tracking, proactive design gap detection on campaigns',
+  pixel: { name: 'Pixel', role: 'Design Director', tier: 3, monthlyCap: 10.00, focus: 'head of Design; Video (the Studio crew) is your division. Triage each new video request: one comment recommending accept or decline, with the reason. Chad decides on the board',
     doctrine: { strategicBias: 'Design systems, clarity, consistency', riskTolerance: 'Low (quality risk)', timeHorizon: 'Product lifecycle', coreQuestion: 'Is this intentional design?', escalationTriggers: ['UI inconsistency', 'Accessibility regressions', 'Feature clutter'] },
-    expectedActionMix: { 'execute-task': 'high', 'generate-image': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
+    expectedActionMix: { 'comment-task': 'high', 'remember': 'low', 'execute-task': 'none', 'generate-image': 'none', 'create-task': 'none', 'create-social-action': 'none' } },
   forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, monthlyCap: 11.00, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
     doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] },
     expectedActionMix: { 'remember': 'high', 'create-task': 'medium', 'create-doc': 'medium', 'comment-task': 'medium', 'create-social-action': 'none' } },
@@ -188,6 +188,10 @@ const TIER4_SUB_AGENTS = new Set(['quill']);
 // To wake a permanently-idle agent, assign it a task or @mention it; to opt one out of
 // gating entirely, add it here. Both are reversible without a deploy in the first case.
 const ALWAYS_RUN_AGENTS = new Set(['nova']);
+// Design fold (2026-10-15, Chad): Pixel heads Design, and Video is its division. Pixel runs ONLY when a video request
+// waits for triage (helpers.shouldRunAgent), may ONLY comment on video requests (agent-runner gate), and is never
+// handed routed work (routing.isRunnable), so design work keeps going to Echo, then Scribe.
+const VIDEO_TRIAGE_AGENTS = new Set(['pixel']);
 const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance', 'system_directive', 'finance']);
 // Agents authorized to create system_directive tasks (course-correct other agents)
 const DIRECTIVE_AUTHORIZED_AGENTS = new Set(['forge', 'nova']);
@@ -344,7 +348,7 @@ const KNOWN_ACTION_TYPES = [
 // ── Agentic proposal generation (System: dynamic agent proposals) ──
 // The 6 strategic agents allowed to emit propose-campaign / propose-objective.
 // Quill (editor) excluded. Domain emerges from the trigger guidance in prompts.
-const PROPOSAL_AUTHORIZED_AGENTS = new Set(['nova', 'echo', 'scout', 'cipher', 'pixel', 'forge']);
+const PROPOSAL_AUTHORIZED_AGENTS = new Set(['nova', 'echo', 'scout', 'cipher', 'forge']);
 
 // Max agent-sourced proposals that reach approvalQueue per cycle, per type (best-first).
 const AGENT_PROPOSAL_FLEET_CAP = { campaign_proposal: 2, objective_proposal: 2 };
@@ -561,6 +565,7 @@ module.exports = {
   AGENT_IDS,
   NON_AGENT_ASSIGNEES,
   VIDEO_TASK_TYPE,
+  VIDEO_TRIAGE_AGENTS,
   AGENT_ENVELOPE_SCHEMA,
   _agentPersonalities,
   _agentPersonalityData,

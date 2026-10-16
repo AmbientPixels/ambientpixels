@@ -150,4 +150,19 @@ t('releases block: live, not hidden, newest first, ≤6, empty when none', () =>
   assert.strictEqual(V.buildReleasesBlock([], NOW), '');
 });
 
+t('triage block: Pixel sees untriaged waiting requests only, others never see it', () => {
+  const fresh = filed('nova', 1, 'todo');
+  const done = filed('echo', 1, 'todo', null, [{ author: 'pixel', text: 'RECOMMEND: decline. Posts would do.' }]);
+  const accepted = filed('scout', 1, 'in-progress');
+  const d = data({ tasks: [fresh, done, accepted] });
+  assert.deepStrictEqual(V.untriaged(d.tasks, 'pixel').map((r) => r.taskId), [fresh.id]);
+  const b = V.buildVideoDeskBlock('pixel', 'Pixel', d, NOW);
+  assert.match(b, /VIDEO TRIAGE/);
+  assert.ok(b.indexOf(fresh.id) !== -1 && b.indexOf(done.id) === -1 && b.indexOf(accepted.id) === -1);
+  assert.match(b, /RECOMMEND: accept\|decline/);
+  assert.doesNotMatch(b, /suggest-video/);
+  assert.strictEqual(V.buildVideoDeskBlock('pixel', 'Pixel', data({ tasks: [done, accepted] }), NOW), '');
+  assert.doesNotMatch(V.buildVideoDeskBlock('nova', 'Nova', d, NOW), /VIDEO TRIAGE/);
+});
+
 Promise.all(pending).then(() => console.log(`video-desk: ${passed} passed${process.exitCode ? ', FAILURES above' : ''}`));
