@@ -84,6 +84,22 @@
       '<div style="margin-top:.5rem"><button class="ap-btn ap-btn--primary" id="vale-r-save">Save rules</button> <span id="vale-r-msg" style="font-size:.8rem;opacity:.7"></span></div></details>';
   }
 
+  // Day-job hours (Pacific) — the brief flags client meetings inside them. days: 1=Mon … 7=Sun.
+  var DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  function hoursForm(wh) {
+    var days = (wh && wh.days) || [1, 2, 3, 4, 5];
+    return '<div class="vale-hours">' +
+      '<span class="vale-hours__label">Your day-job hours <span class="vale-hours__hint">(Pacific)</span></span>' +
+      '<span class="vale-hours__days">' + DAY_NAMES.map(function (n, i) {
+        return '<label class="vale-hours__day"><input type="checkbox" value="' + (i + 1) + '"' + (days.indexOf(i + 1) !== -1 ? ' checked' : '') + '> ' + n + '</label>';
+      }).join('') + '</span>' +
+      '<input type="time" class="ap-input" id="vale-h-start" value="' + h((wh && wh.start) || '') + '" aria-label="Start">' +
+      '<span class="vale-hours__to">to</span>' +
+      '<input type="time" class="ap-input" id="vale-h-end" value="' + h((wh && wh.end) || '') + '" aria-label="End">' +
+      '<button class="ap-btn ap-btn--primary" id="vale-h-save">Save hours</button>' +
+      '<span id="vale-h-msg" class="vale-hours__msg">' + (wh ? '' : 'Not set yet — the brief can\'t flag clashes.') + '</span></div>';
+  }
+
   function lines(id) {
     return document.getElementById(id).value.split(/\n|,/).map(function (s) { return s.trim(); }).filter(Boolean);
   }
@@ -120,6 +136,10 @@
         runs.map(function (r) { return '<tr><td>' + h(when(r.at)) + '</td><td>' + h(r.run) + '</td><td>' + h(r.messages) + '</td><td>' + h(r.events) + '</td><td>' + (r.ok ? '✓' : '✗ ' + h(r.error || '')) + '</td></tr>'; }).join('') +
         '</table></details>';
     }
+    var prof = await api('/vale-state?key=ceoProfile');
+    html += prof.status === 200
+      ? hoursForm(prof.body.value && prof.body.value.workHours)
+      : '<p class="vale-hours__msg">Couldn\'t load your day-job hours (' + h(prof.status) + ').</p>';
     var rr = await api('/vale-state', { method: 'POST', body: JSON.stringify({ op: 'rules.get' }) });
     html += rulesForm(rr.body && rr.body.rules);
     body(html);
@@ -134,6 +154,15 @@
       if (!confirm('Disconnect Vale from your mailbox? Her stored access is deleted.')) return;
       await api('/vale-connect/disconnect', { method: 'POST' });
       render();
+    };
+    var hs = document.getElementById('vale-h-save');
+    if (hs) hs.onclick = async function () {
+      var msg = document.getElementById('vale-h-msg');
+      var days = Array.prototype.map.call(document.querySelectorAll('.vale-hours__day input:checked'), function (c) { return Number(c.value); });
+      var start = document.getElementById('vale-h-start').value, end = document.getElementById('vale-h-end').value;
+      if (!days.length || !start || !end || start >= end) { msg.textContent = 'Pick at least one day and a start before the end.'; return; }
+      var r = await api('/vale-state', { method: 'POST', body: JSON.stringify({ op: 'workHours.set', workHours: { days: days, start: start, end: end } }) });
+      msg.textContent = r.status === 200 ? 'Saved.' : 'Not saved (' + r.status + ').';
     };
     document.getElementById('vale-r-save').onclick = async function () {
       var rules = Object.assign({}, rr.body && rr.body.rules, {

@@ -160,6 +160,21 @@ const req = (headers) => ({ headers: headers || {} });
     assert.strictEqual(valeState.cleanRules({ vips: new Array(201).fill('a@b.c') }), null);
     assert.strictEqual(valeState.cleanRules(null), null);
   });
+  await test('cleanWorkHours accepts Mon–Fri 07:00–16:00, sorts/dedups days, pads hours', () => {
+    assert.deepStrictEqual(valeState.cleanWorkHours({ days: [5, 1, 2, 3, 4, 1], start: '7:00', end: '16:00' }),
+      { days: [1, 2, 3, 4, 5], start: '07:00', end: '16:00' });
+  });
+  await test('cleanWorkHours rejects bad times, start >= end, bad or empty days', () => {
+    assert.strictEqual(valeState.cleanWorkHours({ days: [1], start: '25:00', end: '26:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: [1], start: '09:60', end: '17:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: [1], start: '17:00', end: '09:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: [1], start: '09:00', end: '09:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: [0], start: '09:00', end: '17:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: [8], start: '09:00', end: '17:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: ['1'], start: '09:00', end: '17:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours({ days: [], start: '09:00', end: '17:00' }), null);
+    assert.strictEqual(valeState.cleanWorkHours(null), null);
+  });
 
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);

@@ -56,6 +56,28 @@ function cleanRules(r) {
   return out;
 }
 
+function _hm(s) {
+  var m = /^(\d{1,2}):(\d{2})$/.exec(String(s || ''));
+  if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) return null;
+  return (m[1].length === 1 ? '0' : '') + m[1] + ':' + m[2];
+}
+
+// Validates the CEO's day-job hours (Pacific). days: 1=Mon … 7=Sun (brief.js WEEKDAY_NUM).
+// Returns { days, start, end } or null.
+function cleanWorkHours(w) {
+  if (!w || typeof w !== 'object' || !Array.isArray(w.days) || !w.days.length || w.days.length > 7) return null;
+  var days = [];
+  for (var i = 0; i < w.days.length; i++) {
+    var d = w.days[i];
+    if (typeof d !== 'number' || !Number.isInteger(d) || d < 1 || d > 7) return null;
+    if (days.indexOf(d) === -1) days.push(d);
+  }
+  days.sort();
+  var start = _hm(w.start), end = _hm(w.end);
+  if (!start || !end || start >= end) return null;
+  return { days: days, start: start, end: end };
+}
+
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') { context.res = { status: 204, headers: CORS, body: '' }; return; }
 
@@ -96,6 +118,15 @@ module.exports = async function (context, req) {
       return;
     }
 
+    if (op === 'workHours.set') {
+      var wh = cleanWorkHours(body.workHours);
+      if (!wh) { context.res = { status: 400, headers: CORS, body: { error: 'Invalid hours.' } }; return; }
+      // Read-modify-write on the server: keeps every other ceoProfile field, refuses to write over a failed read.
+      await vs.mutateVale('ceoProfile', function (cur) { return Object.assign({}, cur || {}, { workHours: wh }); });
+      context.res = { status: 200, headers: CORS, body: { ok: true, workHours: wh } };
+      return;
+    }
+
     if (op.indexOf('action.') === 0) {
       var list = (await vs.getVale('ceoActionList')) || [];
       if (op === 'action.add') list = actions.addAction(list, body.action || {}, Date.now());
@@ -116,3 +147,4 @@ module.exports = async function (context, req) {
 };
 
 module.exports.cleanRules = cleanRules;
+module.exports.cleanWorkHours = cleanWorkHours;

@@ -217,6 +217,22 @@
 
 textarea.ap-input { resize: vertical; line-height: 1.4; }
 
+/* ── Office Mail card: day-job hours row (vale-mail.js) ── */
+.vale-hours {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+  margin-top: 1rem;
+  padding-top: .75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.vale-hours__label { font-weight: 500; }
+.vale-hours__hint, .vale-hours__to { opacity: .6; font-size: .8rem; }
+.vale-hours__days { display: flex; flex-wrap: wrap; gap: .5rem; }
+.vale-hours__day { display: inline-flex; align-items: center; gap: .25rem; font-size: .85rem; cursor: pointer; }
+.vale-hours__msg { font-size: .8rem; opacity: .7; }
+
 /* ── Shared Page Header ── */
 .ap-page-header {
   display: flex;
