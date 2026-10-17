@@ -836,6 +836,62 @@ module.exports = async function (context) {
       const _author = _pra.created_by || _pra.origin_agent || 'scribe';
       const _feedback = (_pra.approval && _pra.approval.decision_note) || 'CEO requested revision on the published draft.';
       const _dedupTag = 'publish-revision-for-' + _actionId;
+
+      // ── Fold Design into the revision when it needs an image ──
+      // Scribe cannot make hero images (Pixel's job) and Pixel only wakes for a design task
+      // assigned to it — so a revision asking for an image hung with nobody able to act
+      // (2026-10-17). Spawn a hero task for whoever holds design: when the feedback asks about
+      // the image (tagged 'hero-replace' so an existing hero may be overwritten), or when the
+      // doc has no hero at all. Runs before the revision-task dedup so open revisions get it too.
+      const _heroRevTag = 'hero-revision-for-' + _actionId;
+      const _revDocForHero = _docId ? documents.find(d => d.id === _docId) : null;
+      const _feedbackWantsImage = /hero|imag|imge|picture|photo|illustrat|visual|graphic|artwork|thumbnail/i.test(_pra.approval && _pra.approval.decision_note || '');
+      const _heroCampaign = _revDocForHero && _revDocForHero.campaign_id ? campaigns.find(c => c && c.id === _revDocForHero.campaign_id) : null;
+      const _docMissingHero = !!_revDocForHero && !_revDocForHero.hero_image_asset_id && !(_heroCampaign && _heroCampaign.heroImage === false);
+      const _heroRevExists = tasks.some(t => !t._archived && Array.isArray(t.tags) && t.tags.indexOf(_heroRevTag) !== -1 &&
+        ['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) === -1);
+      if (_revDocForHero && (_feedbackWantsImage || _docMissingHero) && !_heroRevExists) {
+        const _heroRouting = require('./routing');
+        const _designer = _heroRouting.resolveRole('design');
+        if (!_designer) {
+          context.log('[Heartbeat] Publish revision: hero image needed for', _docId, 'but no design agent is running');
+        } else {
+          const _replace = !!_revDocForHero.hero_image_asset_id;
+          const _heroTitle = (_revDocForHero.title || _docTitle).replace(/^(Publish|Write|Draft):\s*/i, '');
+          tasks.push({
+            id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
+            title: 'Generate hero image for: ' + _heroTitle,
+            description: (_replace ? 'The CEO asked for a new hero image' : 'The CEO asked for a hero image') + ' for the blog post "' + _heroTitle + '" during a publish revision.\n\n'
+              + 'CEO feedback:\n' + _feedback + '\n\n'
+              + 'Document ID: ' + _docId + '\n'
+              + 'Use generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + _docId + '" }.\n'
+              + (_replace ? 'This replaces the current hero image — make it answer the feedback above.\n' : '')
+              + 'Choose an appropriate preset based on the content tone.',
+            taskType: 'design_asset',
+            status: 'todo',
+            priority: 'critical',
+            dueDate: _heroRouting.capacityDueDate(tasks, _designer, null),
+            assignee: _designer,
+            source: 'heartbeat',
+            created_by: 'system',
+            parent_task_id: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            campaign_id: _revDocForHero.campaign_id || null,
+            objective_id: _revDocForHero.objective_id || null,
+            tags: ['hero-image', 'auto-created', 'visual-workflow', _heroRevTag].concat(_replace ? ['hero-replace'] : []),
+            comments: [{
+              id: 'cmt-herorev-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+              author: 'system',
+              text: 'Auto-spawned after CEO requested revision on publish action ' + _actionId + '. The revision goes back to the CEO once this image is attached.',
+              type: 'system',
+              createdAt: new Date().toISOString()
+            }]
+          });
+          context.log('[Heartbeat] Publish revision: spawned hero task for', _designer, 'doc', _docId, _replace ? '(replace)' : '(missing)');
+        }
+      }
+
       const _existing = tasks.find(t =>
         Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 &&
         t.status !== 'done' && !t._archived
@@ -856,7 +912,8 @@ module.exports = async function (context) {
           + '- Rewrite the draft to address every point in the CEO feedback above.\n'
           + '- Do NOT call submit-for-publish again — the action is already in the queue and revise-action flips it back to pending.\n'
           + '- Preserve the original title unless feedback explicitly says otherwise.\n'
-          + '- Do not include meta-commentary ("Notes:", "Revision Notes:", etc.) — the handler strips it but cleaner content is preferred.',
+          + '- Do not include meta-commentary ("Notes:", "Revision Notes:", etc.) — the handler strips it but cleaner content is preferred.\n'
+          + '- Do not add image markdown. Hero images are Design\'s job: if the feedback is about the image, Design gets its own task and the image is attached to the post automatically.',
         taskType: 'internal_doc',
         category: 'maintenance',
         status: 'todo',
@@ -901,6 +958,14 @@ module.exports = async function (context) {
         t.status === 'done' && !t._revision_promoted && !t._archived
       );
       if (!_doneTask) continue;
+      // Hold the promote while Design is still making the image, so the post goes back to the
+      // CEO with it. Only todo/in-progress holds: a hero task parked in review can't wedge it.
+      const _heroPending = tasks.find(t => !t._archived && Array.isArray(t.tags) &&
+        t.tags.indexOf('hero-revision-for-' + _actionId) !== -1 && (t.status === 'todo' || t.status === 'in-progress'));
+      if (_heroPending) {
+        context.log('[Heartbeat] Promote waiting — hero image task', _heroPending.id, 'still open for action', _actionId);
+        continue;
+      }
       const _deliverables = (_doneTask.comments || []).filter(c =>
         c.type === 'deliverable' && c.author === _doneTask.assignee && c.text && c.text.length > 50
       );
@@ -914,6 +979,10 @@ module.exports = async function (context) {
       _revText = _revText.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
       _revText = _revText.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
       _revText = _revText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
+      // Drop image markdown pointing at a site-relative path: agents cannot put files on the site,
+      // so these are invented (e.g. /images/blog/<slug>-hero.png, a 404). The real hero rides on
+      // hero_image_asset_id below.
+      _revText = _revText.replace(/^[ \t]*!\[[^\]]*\]\(\/[^)]*\)[ \t]*\r?\n?/gm, '').replace(/\n{3,}/g, '\n\n').trim();
       // Placeholder bracket gate (mirrors agent-runner.js:3118)
       if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(_revText)) {
         context.log('[Heartbeat] Promote BLOCKED — placeholder brackets in task', _doneTask.id);

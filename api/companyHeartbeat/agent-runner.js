@@ -5229,12 +5229,22 @@ Write the full deliverable first, then the structured JSON block.`;
           const imgDoc = imgDocsStore[imgDocIdx];
 
           if (imgPurpose === 'blog_header') {
+            // A CEO revision on this doc's publish action. Its action already sits in the queue as
+            // revision_requested, so Scribe must NOT be told to submit-for-publish (that mints a
+            // duplicate action): the heartbeat sends the revision back with the attached hero.
+            const _pubRevTask = tasks.find(t => !t._archived && !t._revision_promoted &&
+              Array.isArray(t.tags) && t.tags.indexOf('publish-revision') !== -1 &&
+              (t.description || '').indexOf(attachTo.id) !== -1);
+            // A revision that asks for a new image tags its hero task 'hero-replace' — only then may
+            // an existing hero be overwritten.
+            const _heroReplace = tasks.some(t => _isOpenHeroTaskFor(t, null, attachTo.id) &&
+              Array.isArray(t.tags) && t.tags.indexOf('hero-replace') !== -1);
             // Guard: skip if document already has a hero image attached
-            if (imgDoc.hero_image_asset_id) {
+            if (imgDoc.hero_image_asset_id && !_heroReplace) {
               context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: doc', attachTo.id, 'already has hero_image_asset_id:', imgDoc.hero_image_asset_id, '— not overwriting');
               // Still notify Scribe that hero image is available (may have been missed on prior cycle)
               const _heroDocIdExisting = attachTo.id;
-              const _originTaskExisting = tasks.find(t =>
+              const _originTaskExisting = !_pubRevTask && tasks.find(t =>
                 t.assignee === 'scribe' && t.status !== 'done' &&
                 t.comments && t.comments.some(c => c.text && c.text.indexOf(_heroDocIdExisting) !== -1)
               );
@@ -5269,9 +5279,31 @@ Write the full deliverable first, then the structured JSON block.`;
             // Clear awaiting flag
             imgDoc.awaiting_hero_image = false;
 
+            // The image is attached, so the hero task's job is done. Close it here: an open hero task
+            // re-fires the forced generate-image every cycle, and a revision waits on it.
+            tasks.forEach(function (t) {
+              if (!_isOpenHeroTaskFor(t, null, attachTo.id)) return;
+              t.status = 'done';
+              t.updatedAt = new Date().toISOString();
+              t.comments = t.comments || [];
+              t.comments.push({ id: 'cmt-hero-done-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4), author: 'system', text: 'Hero image attached to document ' + attachTo.id + ' (asset: ' + imgJobId + ').', type: 'system', createdAt: new Date().toISOString() });
+            });
+
+            if (_pubRevTask && _pubRevTask.status !== 'done') {
+              _pubRevTask.comments = _pubRevTask.comments || [];
+              _pubRevTask.comments.push({
+                id: 'cmt-hero-ready-' + Date.now(),
+                author: 'system',
+                text: 'Hero image generated and attached to document ' + attachTo.id + ' (asset: ' + imgJobId + '). Finish your revision as a deliverable on this task; once it is done the heartbeat sends the post back to the CEO with this image. Do NOT call submit-for-publish, and do not put image markdown in the text.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              context.log('[Heartbeat]', agentId, 'notified publish-revision task', _pubRevTask.id, 'that hero image is ready for doc:', attachTo.id);
+            }
+
             // Notify originating Scribe task that hero image is ready
             const _heroDocId = attachTo.id;
-            const _originTask = tasks.find(t =>
+            const _originTask = !_pubRevTask && tasks.find(t =>
               t.assignee === 'scribe' &&
               t.comments && t.comments.some(c => c.text && c.text.indexOf(_heroDocId) !== -1)
             );
@@ -5291,7 +5323,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat]', agentId, 'moved Scribe task', _originTask.id, 'from review → in-progress for submit-for-publish step');
               }
               context.log('[Heartbeat]', agentId, 'notified originating task', _originTask.id, 'that hero image is ready for doc:', _heroDocId);
-            } else {
+            } else if (!_pubRevTask) {
               // Scribe task already done — auto-submit for publish since no agent will do it
               var _heroDoc = imgDoc;
               if (_heroDoc && _heroDoc.kind && ['marketing_post', 'product_brief'].indexOf(_heroDoc.kind) !== -1 && _heroDoc.status !== 'published') {
