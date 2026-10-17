@@ -54,6 +54,7 @@
       overview: BASE + 'dashboard.html',
       links: [
         { href: BASE + 'today.html', label: 'Today', icon: 'fa-sun', match: ['today.html'] },
+        { href: BASE + 'office.html', label: 'Office', icon: 'fa-briefcase', match: ['office.html'] },
         { href: BASE + 'dashboard.html', label: 'Dashboard', icon: 'fa-gauge-high', match: ['dashboard.html'] },
         { href: BASE + 'cockpit.html', label: 'Cockpit', icon: 'fa-tower-observation', match: ['cockpit.html'] },
         { href: BASE + 'agent-progress.html', label: 'Agent Progress', icon: 'fa-chart-line', match: ['agent-progress.html'] },
