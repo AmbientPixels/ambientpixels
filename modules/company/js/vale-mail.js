@@ -71,14 +71,14 @@
     rules = rules || {};
     function ta(id, label, list, hint) {
       return '<label style="display:block;margin-top:.5rem;font-size:.8rem;opacity:.8">' + h(label) + ' <span style="opacity:.6">' + h(hint) + '</span></label>' +
-        '<textarea id="' + id + '" rows="2" style="width:100%;box-sizing:border-box">' + h((list || []).join('\n')) + '</textarea>';
+        '<textarea id="' + id + '" class="ap-input" rows="2" style="width:100%">' + h((list || []).join('\n')) + '</textarea>';
     }
     return '<details style="margin-top:1rem"><summary style="cursor:pointer">Sorting rules</summary>' +
       ta('vale-r-vips', 'Important people', rules.vips, 'one address or domain per line — always "needs you"') +
       ta('vale-r-muted', 'Muted', rules.muted, 'never shown as needing you') +
       ta('vale-r-rulesonly', 'Client domains (rules only)', rules.rulesOnlyDomains, 'sorted by rules alone, never sent to an AI model') +
       ta('vale-r-receipts', 'Receipt senders', rules.receipts, 'counted, not shown') +
-      '<div style="margin-top:.5rem"><button class="btn" id="vale-r-save">Save rules</button> <span id="vale-r-msg" style="font-size:.8rem;opacity:.7"></span></div></details>';
+      '<div style="margin-top:.5rem"><button class="ap-btn ap-btn--primary" id="vale-r-save">Save rules</button> <span id="vale-r-msg" style="font-size:.8rem;opacity:.7"></span></div></details>';
   }
 
   function lines(id) {
@@ -88,7 +88,7 @@
   async function render() {
     if (!state.account) {
       body(banner() + '<p>Sign in with your <strong>chad@ambientpixels.ai</strong> Microsoft account so Vale\'s pages only open for you.</p>' +
-        '<button class="btn" id="vale-signin">Sign in with Microsoft</button>');
+        '<button class="ap-btn ap-btn--primary" id="vale-signin">Sign in with Microsoft</button>');
       document.getElementById('vale-signin').onclick = function () { getToken(true); };
       return;
     }
@@ -106,8 +106,8 @@
       (c.account ? ' · ' + h(c.account) : '') + '</div>' +
       '<div style="opacity:.75">Last brief sent: ' + (lb ? h(when(lb.at)) : 'never') + '</div>' +
       '<div style="margin-left:auto">' + (c.connected
-        ? '<button class="btn" id="vale-disconnect">Disconnect</button>'
-        : '<button class="btn" id="vale-connect">' + (c.needsReconnect ? 'Reconnect' : 'Connect') + '</button>') + '</div></div>' +
+        ? '<button class="ap-btn" id="vale-disconnect">Disconnect</button>'
+        : '<button class="ap-btn ap-btn--primary" id="vale-connect">' + (c.needsReconnect ? 'Reconnect' : 'Connect') + '</button>') + '</div></div>' +
       '<p style="font-size:.8rem;opacity:.7;margin-top:.5rem">Read-only: Vale can read mail and calendar; she can\'t send, delete or change anything. ' +
       'Chat answers use ' + h((state.cfg && state.cfg.chatProvider) || 'the fleet chat model') + '; client domains are never sent to a model.</p>';
 

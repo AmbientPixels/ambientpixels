@@ -193,6 +193,30 @@
   border-color: rgba(96,165,250,0.5);
 }
 
+/* ── Shared Input / Textarea (matches the global dark select) ── */
+.ap-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 7px 10px;
+  font-family: var(--c-font);
+  font-size: var(--c-text-base);
+  color-scheme: dark; /* native date picker + scrollbars in dark */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.ap-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+.ap-input:focus {
+  outline: none;
+  border-color: rgba(90, 228, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(90, 228, 255, 0.12);
+}
+
+textarea.ap-input { resize: vertical; line-height: 1.4; }
+
 /* ── Shared Page Header ── */
 .ap-page-header {
   display: flex;

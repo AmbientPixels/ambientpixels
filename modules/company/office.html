@@ -34,9 +34,9 @@
         <div class="ap-panel-header"><span class="ap-panel-title"><i class="fas fa-list-check"></i> Your action list</span></div>
         <div style="padding:var(--c-pad);">
           <form id="office-action-form" style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem;">
-            <input id="office-action-title" type="text" placeholder="Something only you can do..." required style="flex:1; min-width:160px;" />
-            <input id="office-action-deadline" type="date" />
-            <button type="submit" class="btn">Add</button>
+            <input id="office-action-title" class="ap-input" type="text" placeholder="Something only you can do..." required style="flex:1; min-width:160px;" />
+            <input id="office-action-deadline" class="ap-input" type="date" />
+            <button type="submit" class="ap-btn ap-btn--primary">Add</button>
           </form>
           <ul id="office-action-list" class="office-action-items" style="list-style:none; margin:0; padding:0;"><li>Loading...</li></ul>
         </div>
@@ -55,9 +55,9 @@
       <div style="padding:var(--c-pad);">
         <div id="office-chat-log" class="office-chat-log" style="min-height:160px; max-height:360px; overflow:auto;"></div>
         <form id="office-chat-form" class="office-chat-form" style="display:flex; gap:.5rem; margin-top:.5rem; align-items:center;">
-          <input id="office-chat-input" type="text" placeholder="Ask Vale, or tell her something to remember..." style="flex:1;" required />
+          <input id="office-chat-input" class="ap-input" type="text" placeholder="Ask Vale, or tell her something to remember..." style="flex:1;" required />
           <label style="display:flex; align-items:center; gap:.25rem; font-size:.8rem; white-space:nowrap;"><input id="office-chat-remember" type="checkbox" /> remember</label>
-          <button type="submit" class="btn">Send</button>
+          <button type="submit" class="ap-btn ap-btn--primary">Send</button>
         </form>
       </div>
     </div>
