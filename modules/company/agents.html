@@ -242,7 +242,8 @@
     var awPer = (aware && aware.digest && aware.digest.perAgent) || {};
     var runPer = (run && run.perAgent) || {};
     var allocPer = (alloc && alloc.perAgent) || {};
-    var tiers = (rewards && rewards.privileges && rewards.privileges.tiers) || {};
+    // Privilege tiers no longer do anything (2026-10-16), so stop badging agents with them.
+    var tiers = (rewards && rewards.privileges && rewards.privileges.enabled !== false && rewards.privileges.tiers) || {};
 
     return reg.map(function (a) {
       var r = per[a.id] || {};
@@ -259,7 +260,9 @@
         achievements: r.achievements || [],
         // Absent ladderStatus means the season has never been judged.
         // Never render that as "Safe" — it is unknown, not good news.
-        ladder: Object.prototype.hasOwnProperty.call(r, 'ladderStatus') ? r.ladderStatus : null,
+        // Display-only since 2026-10-16: the ladder no longer rules, so show 'off' rather than a stale verdict.
+        ladder: (rewards && rewards.laddersActive === false) ? 'off'
+          : Object.prototype.hasOwnProperty.call(r, 'ladderStatus') ? r.ladderStatus : null,
         privilege: tiers[a.id] || null,
         drift: (w.roleAdherence && w.roleAdherence.drift) || null,
         actual: (w.roleAdherence && w.roleAdherence.actual) || {},
@@ -338,7 +341,7 @@
       var met = par && a.seasonXp >= par;
       // Unscored is its own state. Do not colour it as passing.
       var ladder = a.ladder
-        ? '<span class="ap-state ap-state--' + (a.ladder === 'safe' ? 'good' : a.ladder === 'watch' ? 'warn' : 'critical') + '">' + esc(a.ladder) + '</span>'
+        ? '<span class="ap-state ap-state--' + (a.ladder === 'off' ? 'neutral' : a.ladder === 'safe' ? 'good' : a.ladder === 'watch' ? 'warn' : 'critical') + '">' + esc(a.ladder) + '</span>'
         : '<span class="ap-state ap-state--neutral">Unscored</span>';
       return '<tr class="ag-clickable" data-agent="' + esc(a.id) + '" tabindex="0">'
         + '<td>' + (i + 1) + '</td>'

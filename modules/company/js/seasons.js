@@ -174,7 +174,7 @@
     document.getElementById('sn-header').innerHTML =
       '<div class="sn-statechip">' + stateChip +
         (champ ? '<span class="sn-champ">Last champion: ' + esc(cap(champ)) + '</span>' : '') +
-        (r.laddersActive === false ? '<span class="sn-badge red">LADDER DISABLED</span>' : '') +
+        (r.laddersActive === false ? '<span class="sn-badge blue" title="Since 2026-10-16 levels are display-only: no tiers, no budget shifts, no retirement drafts.">Levels only · no perks or penalties</span>' : '') +
       '</div>' +
       '<div class="sn-hero">' + cards.map(function (c) {
         return '<div class="sn-hero-card"><div class="sn-label">' + c.l + '</div>' +
@@ -200,8 +200,10 @@
             ' <span class="sn-dim">(' + row.revenueShare + '% rev)</span>';
         var parCell = pct == null ? '<span class="sn-dim">unscored</span>'
           : '<div class="sn-bar" title="' + row.seasonXp + ' / ' + par + '"><div class="sn-bar-fill" style="width:' + pct + '%"></div></div>';
-        var ladderCell = row.ladderStatus == null
-          ? '<span class="sn-dim" title="The ladder only rules at a season rollover. No season has been scored yet, so nobody has been judged.">not yet judged</span>'
+        var offCell = '<span class="sn-dim" title="Display-only since 2026-10-16: this no longer changes anything for the agent.">off</span>';
+        var ladderCell = r.laddersActive === false ? offCell
+          : row.ladderStatus == null
+          ?'<span class="sn-dim" title="The ladder only rules at a season rollover. No season has been scored yet, so nobody has been judged.">not yet judged</span>'
           : '<span class="sn-badge ' + (LADDER_CLASS[row.ladderStatus] || 'blue') + '">' + esc(LADDER_LABEL[row.ladderStatus] || row.ladderStatus) + '</span>';
         return '<tr>' +
           '<td>' + (i + 1) + '</td>' +
@@ -210,7 +212,7 @@
           '<td>' + split + '</td>' +
           '<td>' + parCell + '</td>' +
           '<td>' + ladderCell + '</td>' +
-          '<td><span class="sn-badge ' + (TIER_CLASS[row.tier] || 'blue') + '">' + esc(TIER_LABEL[row.tier] || row.tier) + '</span></td>' +
+          '<td>' + (r.laddersActive === false ? offCell : '<span class="sn-badge ' + (TIER_CLASS[row.tier] || 'blue') + '">' + esc(TIER_LABEL[row.tier] || row.tier) + '</span>') + '</td>' +
           '<td class="sn-num">' + (alloc.cap != null ? dollars(alloc.cap) : '—') +
             (alloc.spent != null ? ' <span class="sn-dim">/ ' + dollars(alloc.spent) + '</span>' : '') + '</td>' +
           '</tr>';
