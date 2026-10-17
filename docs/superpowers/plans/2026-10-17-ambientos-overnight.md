@@ -40,8 +40,7 @@ Chad's answers, 2026-10-17 ~06:45 UTC, before he went to sleep.
 ## 2. Vision: what "done" means
 
 - **Agents know where money can come from.** The COMPANY STRATEGY block shows qualified uses **per product** (7d) next to the north star, so Echo/Scout/Nova can see which product actually moves and stop spreading effort over eight.
-- **Every LLM dollar has an owner.** Fleet LLM usage entries carry the `campaignId` / `taskId` they were spent on (when known). The cost summary has a `byCampaign` rollup.
-- **Bets are judged on efficiency.** The bet ledger shows, per campaign, spend to date and cost per qualified use, and the proposal evidence block shows the same so agents learn which mechanisms are cheap.
+- ~~Every LLM dollar has an owner / bets judged on spend~~ **CANCELLED by Chad 2026-10-17 ~07:00 UTC:** new plumbing through every LLM call with 2 active campaigns and 0 real users is added complexity, not value. The existing fleet-wide `EFFICIENCY (7d)` line is enough for now.
 - **No dead ends for the people agents send.** Product pages never offer a purchase that cannot complete (Pixel Agents run packs today say "Buy a run pack" while the price is not configured).
 - **(Optional, §0) AmbientScore scans complete.** Today 32 of 167 lifetime scan records have a score; a failed scan is not a qualified use. Find and fix the main failure causes.
 - **(Optional, §0) One read-only HQ page answers "is it working?"**: north star, cost per use, per-product uses, live bets with verdicts. Added alongside existing pages, not in place of any; no nav changes.
@@ -82,7 +81,11 @@ Out of scope: agent prompts beyond the blocks named here, Nova closing pass / in
 - [ ] Implement minimal code; `node api/companyHeartbeat/strategy-intel.test.js` green; §7 suite green.
 - [ ] Commit `AmbientOS: per-product qualified uses in COMPANY STRATEGY`; push.
 
-### Task 2: LLM spend attribution
+### Task 2: CANCELLED (Chad, 2026-10-17 ~07:00 UTC). DO NOTHING.
+
+**Builder for Task 2: make no changes, no commits. Return `done: true, testsGreen: true, commits: [], notes: "cancelled by Chad: adds complexity without value"`.** Reviewers: do not ask for this work. The original spec is kept below for the record only.
+
+#### (cancelled) LLM spend attribution
 
 **Files:** `api/companyHeartbeat/gemini.js`, `api/_utils/companyStorage.js`, `api/companyHeartbeat/agent-runner.js` (call site only), tests.
 
@@ -95,7 +98,11 @@ Out of scope: agent prompts beyond the blocks named here, Nova closing pass / in
 - [ ] Implement; pass context only where agent-runner already holds a task object with `campaign_id`; do not change prompts.
 - [ ] Suite green; commit `AmbientOS: tag fleet LLM spend with campaign and task`; push.
 
-### Task 3: Cost per bet
+### Task 3: CANCELLED (Chad, 2026-10-17 ~07:00 UTC). DO NOTHING.
+
+**Builder for Task 3: make no changes, no commits. Return `done: true, testsGreen: true, commits: [], notes: "cancelled by Chad: depends on cancelled Task 2"`.** Reviewers: do not ask for this work. The original spec is kept below for the record only.
+
+#### (cancelled) Cost per bet
 
 **Files:** `api/companyHeartbeat/bet-ledger.js`, `api/companyHeartbeat/bet-ledger.test.js` (+ the module that builds `outcomeDigest`, if it is not `index.js`; find with grep `outcomeDigest =` / `buildOutcomeDigest`).
 
