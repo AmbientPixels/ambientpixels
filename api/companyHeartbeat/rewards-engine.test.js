@@ -3,8 +3,8 @@
 const assert = require('assert');
 const {
   levelFromXp, rankFromLevel, classFor,
-  applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock,
-  resolveContributors, conversionFallbackAgents, rolloverSeason, computeBudgetPlan,
+  applyEvents, applyCompany, extractEvents,
+  resolveContributors, conversionFallbackAgents, rolloverSeason,
   runRewardsEngine, SEASON_PAR_CEILING
 } = require('./rewards-engine');
 
@@ -194,28 +194,6 @@ test('a landed review awards 1 XP and ticks the reviews counter', () => {
   const { rewards } = applyEvents([{ id: 'rev_tk1', type: 'review_done', agentId: 'quill', at: at(0) }], null, NOW);
   assert.strictEqual(agent(rewards, 'quill').xp, 1);
   assert.strictEqual(agent(rewards, 'quill').counters.reviews, 1);
-});
-
-// ── buildProgressionPromptBlock (Stage 5: the prompt nudge) ──
-test('progression block renders level, next-level, fleet rank, and outcome-only reminder', () => {
-  const rewards = { updatedAt: new Date().toISOString(), perAgent: {
-    scribe: { xp: 120, level: 2, rank: 'Rookie', class: 'Scribe the Author', renown: 21, streakDays: 3, achievements: [{ label: 'First Blog Shipped', tier: 'bronze' }] },
-    nova:   { xp: 16, level: 1, rank: 'Rookie', class: 'Orchestrator', renown: 10, streakDays: 2, achievements: [] }
-  } };
-  const block = buildProgressionPromptBlock('nova', rewards);
-  assert.ok(block.indexOf('YOUR PROGRESSION') !== -1, 'header');
-  assert.ok(block.indexOf('Level 1') !== -1, 'shows level');
-  assert.ok(block.indexOf('to Level 2') !== -1, 'shows next level');
-  assert.ok(/#2 of 2/.test(block), 'shows fleet rank');
-  assert.ok(block.indexOf('Scribe') !== -1, 'names the leader');
-  assert.ok(/only from outcomes/i.test(block), 'reinforces outcome-only earning');
-});
-
-test('progression block: leader gets a lead message; empty for unknown/no data', () => {
-  const rewards = { updatedAt: new Date().toISOString(), perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
-  assert.ok(/lead the fleet/i.test(buildProgressionPromptBlock('scribe', rewards)), 'leader message');
-  assert.strictEqual(buildProgressionPromptBlock('ghost', rewards), '', 'unknown agent -> empty');
-  assert.strictEqual(buildProgressionPromptBlock('nova', null), '', 'no rewards -> empty');
 });
 
 // ── Task 1: attribution resolver ──
@@ -414,9 +392,7 @@ test('task_done lane cap composes with the global 12/day cap regardless of event
 
 // ── Task 4: season rollover ──
 const mkLedger = (season, perAgent, seasonMeta) => ({
-  // A real ledger always carries updatedAt (applyEvents stamps it). Fixtures must too, or
-  // buildProgressionPromptBlock's staleness guard correctly refuses to render the block —
-  // it fails CLOSED on an unknown age, which is the whole point of it.
+  // A real ledger always carries updatedAt (applyEvents stamps it). Fixtures must too.
   updatedAt: new Date(AUG).toISOString(),
   season, seasonMeta: seasonMeta || null, perAgent, company: { counters: {} }, processedEventIds: [], assistPairs: {}
 });
@@ -577,54 +553,6 @@ testAsync('retirement drafts skip roles exempted from the ladder', async () => {
     'but no retirement is drafted for a ladder-exempt support role');
 });
 
-test('a mid-month reallocation never puts an agent retroactively over cap', () => {
-  // Caps are MONTHLY but recomputed hourly from a 14-day window and compared against
-  // month-to-date spend. Without a floor at spend, the first real sale drops the
-  // non-earners' caps below what they already spent and flips them RED — which blocks
-  // campaign proposals and trips the budget-panic loop, on money already spent.
-  // Exact live scenario from 2026-07-31: two $199 teardown sales paid echo+scribe,
-  // and 7 of 9 agents flipped RED because their new caps fell under month-to-date spend.
-  const base = { nova: 20, cipher: 10, pixel: 10, forge: 11, scribe: 16, quill: 10, echo: 16, scout: 10, vale: 7 };
-  const spent = { nova: 8.72, cipher: 5.62, pixel: 7.13, forge: 6.29, scribe: 7.17, quill: 5.41, echo: 8.41, scout: 7.07, vale: 5.51 };
-  const per = {};
-  Object.keys(base).forEach(id => { per[id] = mkA(0); });
-  [['echo', 168], ['scribe', 148]].forEach(([id, xp]) => {
-    per[id].revenueRecent = [{ at: new Date(AUG - 86400000).toISOString(), xp: xp }];
-  });
-  const ids = Object.keys(base);
-  const plan = computeBudgetPlan(mkLedger('2026-08', per, { par: 40 }), {
-    poolDollars: 110, activeIds: ids, baselineCaps: base, spentByAgent: spent, nowMs: AUG
-  });
-  ids.forEach(id => {
-    assert.ok(plan.perAgent[id] >= spent[id],
-      id + ' cap ($' + plan.perAgent[id] + ') must not fall under its $' + spent[id] + ' already spent');
-    // and not merely equal to it — a frozen agent is barely better than a RED one
-    const headroom = (plan.perAgent[id] - spent[id]) / plan.perAgent[id];
-    assert.ok(headroom > 0.30, id + ' keeps working headroom (got ' + (headroom * 100).toFixed(0) + '%)');
-  });
-  assert.ok(plan.perAgent.echo > base.echo, 'the earners still gain (echo $' + plan.perAgent.echo + ')');
-});
-
-test('merit budget needs a minimum signal before it reallocates', () => {
-  const led = mkLedger('2026-08', {
-    nova: mkA(0), scribe: mkA(0),
-    echo: mkA(0, { revenueRecent: [{ at: new Date(AUG - 86400000).toISOString(), xp: 1 }] })
-  }, { par: 40 });
-  const base = { nova: 50, scribe: 30, echo: 20 };
-  // one lone scan point must NOT hand echo the entire merit pool
-  const plan = computeBudgetPlan(led, {
-    poolDollars: 100, activeIds: ['nova', 'scribe', 'echo'], baselineCaps: base, nowMs: AUG
-  });
-  assert.strictEqual(plan.perAgent.nova, 50, 'baseline holds below the signal threshold');
-  assert.strictEqual(plan.perAgent.echo, 20, 'one point of noise buys nothing');
-  // above the threshold, merit engages normally
-  led.perAgent.echo.revenueRecent = [{ at: new Date(AUG - 86400000).toISOString(), xp: 60 }];
-  const live = computeBudgetPlan(led, {
-    poolDollars: 100, activeIds: ['nova', 'scribe', 'echo'], baselineCaps: base, nowMs: AUG
-  });
-  assert.ok(live.perAgent.echo > 20, 'real earnings do move the budget (got ' + live.perAgent.echo + ')');
-});
-
 // ── Payout idempotence across fallback-set drift (final-review hardening) ──
 test('an unattributed event pays ONCE — a later fallback-set change never re-pays it', () => {
   const mkState = (assignees) => ({
@@ -715,169 +643,6 @@ test('with a real season spread, ties break on lifetime XP before alphabetical',
   // so it ranks #2 — the alphabetical order (cipher, echo, forge...) would have buried it.
   assert.strictEqual(tiers.scribe, 'vanguard', 'lifetime leader outranks alphabetical peers on a tie');
   assert.notStrictEqual(tiers.scribe, 'probation', 'the fleet top producer is never demoted on a tie');
-});
-
-test('pre-revenue budget plan preserves baseline (CEO-tuned) caps instead of flattening', () => {
-  const led = mkLedger('2026-08', { nova: mkA(0), scribe: mkA(0), vale: mkA(0) }, { par: 40 });
-  const baseline = { nova: 20, scribe: 16, vale: 7 };   // sums 43
-  const plan = computeBudgetPlan(led, {
-    poolDollars: 43, activeIds: ['nova', 'scribe', 'vale'], baselineCaps: baseline, nowMs: AUG
-  });
-  assert.strictEqual(plan.perAgent.nova, 20, 'hand-tuned cap preserved pre-revenue');
-  assert.strictEqual(plan.perAgent.scribe, 16);
-  assert.strictEqual(plan.perAgent.vale, 7);
-});
-
-test('with revenue, the floor stays baseline-proportional and merit follows earnings', () => {
-  const led = mkLedger('2026-08', {
-    nova: mkA(0), scribe: mkA(0),
-    vale: mkA(0, { revenueRecent: [{ at: new Date(AUG - 86400000).toISOString(), xp: 100 }] })
-  }, { par: 40 });
-  const plan = computeBudgetPlan(led, {
-    poolDollars: 100, activeIds: ['nova', 'scribe', 'vale'],
-    baselineCaps: { nova: 50, scribe: 30, vale: 20 }, nowMs: AUG
-  });
-  // floor 40 by baseline share: nova 20, scribe 12, vale 8. merit 60 all to vale.
-  assert.strictEqual(plan.perAgent.nova, 20);
-  assert.strictEqual(plan.perAgent.scribe, 12);
-  assert.strictEqual(plan.perAgent.vale, 68, 'sole earner takes the whole merit pool');
-});
-
-test('every active agent gets a floor even with no ledger entry yet (pool not concentrated)', () => {
-  // Only scribe has earned anything; the other two must still receive their baseline floor
-  // rather than letting scribe+peers absorb the entire pool.
-  const led = mkLedger('2026-08', { scribe: mkA(0) }, { par: 40 });
-  const plan = computeBudgetPlan(led, {
-    poolDollars: 100, activeIds: ['nova', 'scribe', 'vale'],
-    baselineCaps: { nova: 50, scribe: 30, vale: 20 }, nowMs: AUG
-  });
-  assert.strictEqual(Object.keys(plan.perAgent).length, 3, 'all three active agents present');
-  assert.strictEqual(plan.perAgent.nova, 50, 'ledger-less agent keeps its baseline allocation');
-  assert.strictEqual(plan.perAgent.vale, 20);
-  const sum = Object.values(plan.perAgent).reduce((s, v) => s + v, 0);
-  assert.ok(Math.abs(sum - 100) < 0.05, 'plan still sums to the pool');
-});
-
-test('missing/partial baselineCaps falls back to an even split (no crash)', () => {
-  const led = mkLedger('2026-08', { nova: mkA(0), scribe: mkA(0) }, { par: 40 });
-  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['nova', 'scribe'], nowMs: AUG });
-  assert.strictEqual(plan.perAgent.nova, 50, 'no baseline -> even split');
-  const partial = computeBudgetPlan(led, {
-    poolDollars: 100, activeIds: ['nova', 'scribe'], baselineCaps: { nova: 10 }, nowMs: AUG
-  });
-  const sum = Object.values(partial.perAgent).reduce((s, v) => s + v, 0);
-  assert.ok(sum <= 100 + 1e-6 && sum > 0, 'partial baseline still yields a sane plan');
-});
-
-// ── Task 5: merit budget plan ──
-test('pre-revenue (all trailing 0) the plan is an even split of the pool', () => {
-  const led = mkLedger('2026-08', { echo: mkA(0), scribe: mkA(0), nova: mkA(0), quill: mkA(0) }, { par: 40 });
-  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
-  assert.strictEqual(plan.perAgent.echo, 25);
-  assert.strictEqual(plan.perAgent.quill, 25);
-});
-
-test('trailing revenue XP shifts the 60% merit share; floor guarantees survival', () => {
-  const led = mkLedger('2026-08', {
-    echo: mkA(0, { revenueRecent: [{ at: new Date(AUG - 2 * 86400000).toISOString(), xp: 60 }] }),
-    scribe: mkA(0, { revenueRecent: [{ at: new Date(AUG - 3 * 86400000).toISOString(), xp: 20 }] }),
-    nova: mkA(0), quill: mkA(0)
-  }, { par: 40 });
-  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
-  // total trailing 80 >= MERIT_MIN_SIGNAL, so merit engages.
-  // floor: 40/4 = 10 each. merit 60: echo 45, scribe 15, others 0.
-  assert.strictEqual(plan.perAgent.echo, 55);
-  assert.strictEqual(plan.perAgent.scribe, 25);
-  assert.strictEqual(plan.perAgent.nova, 10);
-  // entries older than 14d are ignored — echo's earnings age out, scribe becomes the
-  // sole earner. Scribe's 40 still clears the signal threshold, so merit stays live.
-  led.perAgent.echo.revenueRecent = [{ at: new Date(AUG - 20 * 86400000).toISOString(), xp: 60 }];
-  led.perAgent.scribe.revenueRecent = [{ at: new Date(AUG - 3 * 86400000).toISOString(), xp: 40 }];
-  const plan2 = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
-  assert.strictEqual(plan2.perAgent.scribe, 70, 'scribe now sole earner: 10 + 60');
-  assert.strictEqual(plan2.perAgent.echo, 10, 'aged-out earnings buy nothing');
-});
-
-test('squeezed agents lose 30%, redistributed to the previous champion', () => {
-  const led = mkLedger('2026-08', {
-    echo: mkA(0), scribe: mkA(0), nova: mkA(0), quill: mkA(0, { ladderStatus: 'squeezed' })
-  }, { par: 40 });
-  led.seasonMeta = { par: 40, previousChampion: 'echo' };
-  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
-  assert.strictEqual(plan.perAgent.quill, 17.5, '25 * 0.7');
-  assert.strictEqual(plan.perAgent.echo, 32.5, '25 + freed 7.5');
-});
-
-test('a squeezed champion does not refund their own cut to themselves', () => {
-  const led = mkLedger('2026-08', {
-    echo: mkA(0, { ladderStatus: 'squeezed' }), scribe: mkA(0), nova: mkA(0), quill: mkA(0)
-  }, { par: 40 });
-  led.seasonMeta = { par: 40, previousChampion: 'echo' };
-  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
-  assert.strictEqual(plan.perAgent.echo, 17.5, 'squeezed champion keeps the 30% cut');
-});
-
-test('invalid floor/merit percentages fall back to defaults; sum never exceeds pool', () => {
-  const led = mkLedger('2026-08', { echo: mkA(0), scribe: mkA(0) }, { par: 40 });
-  const plan = computeBudgetPlan(led, { poolDollars: 100, floorPct: 0.6, meritPct: 0.6, activeIds: ['echo', 'scribe'], nowMs: AUG });
-  assert.strictEqual(plan.perAgent.echo, 50, 'invalid 0.6+0.6 config ignored, defaults used');
-  const total = Object.values(plan.perAgent).reduce((s, v) => s + v, 0);
-  assert.ok(total <= 100 + 1e-6, 'never allocates more than the pool');
-});
-
-test('disabled-plan fallback shape for empty roster or zero pool', () => {
-  const empty = computeBudgetPlan({ perAgent: {} }, { poolDollars: 100, nowMs: AUG });
-  assert.strictEqual(empty.enabled, false);
-  assert.deepStrictEqual(empty.perAgent, {});
-  const noPool = computeBudgetPlan(mkLedger('2026-08', { echo: mkA(0) }, null), { poolDollars: 0, activeIds: ['echo'], nowMs: AUG });
-  assert.strictEqual(noPool.enabled, false);
-});
-
-// ── Task 6: prompt block v2 ──
-test('prompt block shows season standings, par progress and earning guide', () => {
-  const led = mkLedger('2026-08', {
-    echo: mkA(0, { seasonXp: 50, level: 4, rank: 'Rookie', xp: 388 }),
-    scribe: mkA(0, { seasonXp: 30, level: 5, rank: 'Rookie', xp: 543 }),
-    nova: mkA(0, { seasonXp: 5, level: 1, rank: 'Rookie', xp: 37 })
-  }, { par: 40, previousChampion: null });
-  led.privileges = { enabled: true, season: '2026-08', tiers: { echo: 'vanguard', scribe: 'line', nova: 'probation' } };
-  // This test reads the block 10 days into the season, so the ledger has to have been
-  // updated around then — mkLedger's default stamp is season-start and would read as
-  // 10 days stale.
-  led.updatedAt = new Date(AUG + 10 * 86400000).toISOString();
-  const block = buildProgressionPromptBlock('nova', led, AUG + 10 * 86400000);
-  assert.ok(/SEASON/.test(block), 'season header');
-  assert.ok(/#3 of 3/.test(block), 'season rank');
-  assert.ok(/5\/40/.test(block), 'par progress seasonXp/par');
-  assert.ok(/days (left|remain)/i.test(block), 'days remaining');
-  assert.ok(/probation/i.test(block), 'privilege tier shown');
-  assert.ok(/sale/i.test(block) && /lead/i.test(block), 'earning guide names the revenue lane');
-});
-
-test('ladder consequence lines are stated verbatim for hot states', () => {
-  const led = mkLedger('2026-08', {
-    echo: mkA(0, { seasonXp: 50 }), nova: mkA(0, { seasonXp: 5, parMisses: 2, ladderStatus: 'squeezed' }),
-    quill: mkA(0, { seasonXp: 1, parMisses: 3, ladderStatus: 'retirement_pending' })
-  }, { par: 40 });
-  assert.ok(/budget is cut 30%/i.test(buildProgressionPromptBlock('nova', led, AUG)), 'squeeze line');
-  const rp = buildProgressionPromptBlock('quill', led, AUG);
-  assert.ok(/retirement/i.test(rp) && /successor/i.test(rp), 'existential line');
-});
-
-test('non-fleet agent ids render without a season rank line (no rank #0 garbage)', () => {
-  const led = mkLedger('2026-08', { nova: mkA(5), ceo: mkA(3) }, { par: 40 });
-  const block = buildProgressionPromptBlock('ceo', led, AUG);
-  assert.ok(block.length > 0, 'still renders for known perAgent entry');
-  assert.ok(!/rank #0/i.test(block), 'no rank #0');
-  assert.ok(!/#0 of/.test(block), 'no zero-index rank at all');
-});
-
-test('bare mid-season ledger degrades cleanly: no ladder line, LINE tier, assists in guide', () => {
-  const led = { updatedAt: new Date(AUG).toISOString(), perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
-  const block = buildProgressionPromptBlock('nova', led, AUG);
-  assert.ok(!/LADDER:/.test(block), 'no ladder line when no status');
-  assert.ok(/LINE/.test(block), 'defaults to LINE tier');
-  assert.ok(/assists/i.test(block), 'assists restored to earning guide');
 });
 
 // ── Task 7: IO wiring ──
@@ -1028,7 +793,7 @@ testAsync('an existing pending draft suppresses a fresh transition draft (dedup 
   assert.strictEqual(drafts[0].id, 'retpr_seeded');
 });
 
-testAsync('kill switch also silences the ladder text agents read (no stale threats)', async () => {
+testAsync('kill switch leaves the ledger marked ladder-off, and it stays off', async () => {
   const per = {};
   FLEET_TEST_IDS.forEach(id => { per[id] = mkA(50); });
   per.quill.ladderStatus = 'retirement_pending';
@@ -1046,10 +811,6 @@ testAsync('kill switch also silences the ladder text agents read (no stale threa
   assert.strictEqual(res.ok, true);
   const led = st.db.agentRewards;
   assert.strictEqual(led.laddersActive, false, 'ledger records that the ladder is off');
-  const quillBlock = buildProgressionPromptBlock('quill', led, AUG);
-  assert.ok(!/LADDER:/.test(quillBlock), 'no ladder line while disabled');
-  assert.ok(!/retirement/i.test(quillBlock), 'no stale retirement threat');
-  assert.ok(!/budget is cut/i.test(buildProgressionPromptBlock('vale', led, AUG)), 'no stale squeeze claim');
   // and it stays off when re-enabled — ladders were removed 2026-10-16
   st.db.systemConfig = { rewards: { enabled: true } };
   await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
@@ -1125,58 +886,6 @@ testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but le
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail > 0 ? 1 : 0);
 })();
-
-// ── Staleness guard (2026-08-09) ──
-// rewardsEngineCron was disabled 08-05 → 08-09. For four days every agent was told
-// "36-day streak / 23 days left" from a ledger that had stopped moving, with nothing in
-// the prompt saying so. A stopped engine must not assert live standings.
-{
-  const { buildProgressionPromptBlock, PROGRESSION_STALE_MS } = require('./rewards-engine');
-  const NOW_S = Date.parse('2026-08-09T06:00:00.000Z');
-  const ledgerAt = (iso) => ({
-    updatedAt: iso,
-    season: '2026-08',
-    perAgent: {
-      nova: { xp: 300, level: 4, rank: 'Rookie', streakDays: 36, seasonXp: 40, renown: 12, achievements: [] },
-      echo: { xp: 100, level: 2, rank: 'Rookie', streakDays: 3, seasonXp: 10, renown: 4, achievements: [] }
-    }
-  });
-
-  test('fresh ledger still renders the full progression block', () => {
-    const b = buildProgressionPromptBlock('nova', ledgerAt('2026-08-09T05:30:00.000Z'), NOW_S);
-    assert.ok(/Level 4/.test(b), 'level shown when fresh');
-    assert.ok(/36-day streak/.test(b), 'streak shown when fresh');
-    assert.ok(!/NOT BEING SCORED/.test(b), 'no stale banner when fresh');
-  });
-
-  test('stale ledger omits every number instead of asserting it', () => {
-    const b = buildProgressionPromptBlock('nova', ledgerAt('2026-08-05T01:30:00.000Z'), NOW_S);
-    assert.ok(/NOT BEING SCORED/.test(b), 'must announce it is not scoring');
-    assert.ok(!/Level 4/.test(b), 'no level claim');
-    assert.ok(!/36-day streak/.test(b), 'no streak claim — this is the exact string agents saw for 4 days');
-    assert.ok(!/days left/.test(b), 'no season countdown');
-    assert.ok(!/Rank #/.test(b), 'no standings');
-  });
-
-  test('stale block keeps the earning doctrine — a rule is true whether or not anyone scores', () => {
-    const b = buildProgressionPromptBlock('nova', ledgerAt('2026-08-05T01:30:00.000Z'), NOW_S);
-    assert.ok(/ONLY from outcomes that land/.test(b), 'doctrine survives');
-    assert.ok(/Proposing, commenting, or messaging earns nothing/.test(b), 'anti-activity rule survives');
-  });
-
-  test('missing updatedAt is treated as stale, not as fresh', () => {
-    const led = ledgerAt(undefined);
-    delete led.updatedAt;
-    const b = buildProgressionPromptBlock('nova', led, NOW_S);
-    assert.ok(/NOT BEING SCORED/.test(b), 'unknown age must fail closed');
-  });
-
-  test('threshold is on the safe side of one heartbeat gap', () => {
-    assert.ok(PROGRESSION_STALE_MS > 6 * 3600e3, 'must not fire between 6h heartbeats');
-    const justUnder = new Date(NOW_S - (PROGRESSION_STALE_MS - 60000)).toISOString();
-    assert.ok(!/NOT BEING SCORED/.test(buildProgressionPromptBlock('nova', ledgerAt(justUnder), NOW_S)), 'just under threshold = fresh');
-  });
-}
 
 // ── Outcome lane (2026-10-06): the only XP that reads a real person ──
 {

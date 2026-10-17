@@ -81,14 +81,11 @@ const PROBATION_RANKS = 2;     // bottom-2 = probation (only when fleet >= 6)
 // Minimum trailing revenue XP across the fleet before merit reallocation engages.
 // Below it, one stray point of signal — a single anonymous scan credited by fallback —
 // would hand one agent the entire merit pool and flip everyone else over cap mid-month.
-const MERIT_MIN_SIGNAL = 30;
 // A mid-month reallocation floors each cap at spend × this, so a constrained agent still
 // has room to work rather than being frozen at exactly what it already spent.
-const SPEND_FLOOR_HEADROOM = 1.5;
 const MERIT_FLOOR_PCT = 0.4;
 const MERIT_PCT = 0.6;
 const SQUEEZE_CAP_MULT = 0.7;
-const TRAILING_REVENUE_WINDOW_MS = 14 * 86400000;
 
 const PROTECTED_AGENTS = { nova: true, cipher: true };   // mirror constants.js PROTECTED_AGENTS — never auto-draft retirement
 const FLEET_MIN = 5;                                     // mirror constants.js FLEET_MIN_SIZE
@@ -687,218 +684,6 @@ function rolloverSeason(prev, nowMs, opts) {
   return { rewards: r, rolled: true, transitions: transitions };
 }
 
-function _round2(n) { return Math.round(n * 100) / 100; }
-
-function computeTrailingRevenueXp(A, nowMs) {
-  var cutoff = nowMs - TRAILING_REVENUE_WINDOW_MS;
-  return _arr(A && A.revenueRecent).reduce(function (s, r) {
-    var t = Date.parse(r && r.at || 0) || 0;
-    return t >= cutoff ? s + (Number(r.xp) || 0) : s;
-  }, 0);
-}
-
-// The continuous meritocracy: floor + performance share, squeeze redistribution.
-// Pre-revenue (all trailing 0) this reduces to an even split == current behavior.
-function computeBudgetPlan(rewards, opts) {
-  opts = opts || {};
-  var nowMs = opts.nowMs || Date.now();
-  var pool = Number(opts.poolDollars) || 0;
-  var floorPct = Number.isFinite(opts.floorPct) ? opts.floorPct : MERIT_FLOOR_PCT;
-  var meritPct = Number.isFinite(opts.meritPct) ? opts.meritPct : MERIT_PCT;
-  if (!(floorPct >= 0 && floorPct <= 1 && meritPct >= 0 && meritPct <= 1 &&
-        Math.abs(floorPct + meritPct - 1) < 1e-9)) {
-    floorPct = MERIT_FLOOR_PCT; meritPct = MERIT_PCT;   // invalid config: fall back to defaults
-  }
-  var squeezeMult = Number.isFinite(opts.squeezeMult) ? opts.squeezeMult : SQUEEZE_CAP_MULT;
-  if (!(squeezeMult >= 0 && squeezeMult <= 1)) squeezeMult = SQUEEZE_CAP_MULT;
-  // An explicit roster is authoritative: EVERY active agent gets a floor whether or not it
-  // has earned a ledger entry yet. Filtering to ledger-present agents would divide the whole
-  // pool among the handful who happen to have earned, inflating their caps far above the
-  // registry. Without a roster, fall back to fleet agents that do have entries.
-  var per = (rewards && rewards.perAgent) || {};
-  var ids = (opts.activeIds && opts.activeIds.length)
-    ? opts.activeIds.slice()
-    : FLEET_AGENTS.filter(function (id) { return per[id]; });
-  if (!ids.length || pool <= 0) return { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
-
-  var trail = {};
-  var total = 0;
-  ids.forEach(function (id) { trail[id] = computeTrailingRevenueXp(per[id], nowMs); total += trail[id]; });
-
-  // The survival floor follows the CEO's hand-tuned per-agent caps (role weight), NOT an
-  // even split — flattening them would silently overwrite deliberate allocation. Only the
-  // merit portion is performance-driven. Pre-revenue this reproduces today's caps exactly.
-  // Falls back to an even split when no usable baseline is supplied.
-  var base = opts.baselineCaps || null;
-  var baseTotal = 0;
-  if (base) ids.forEach(function (id) { var v = Number(base[id]); if (Number.isFinite(v) && v > 0) baseTotal += v; });
-  var baseShare = function (id) {
-    if (!base || baseTotal <= 0) return 1 / ids.length;
-    var v = Number(base[id]);
-    return (Number.isFinite(v) && v > 0) ? (v / baseTotal) : 0;
-  };
-
-  var meritLive = total >= MERIT_MIN_SIGNAL;
-  var perAgent = {};
-  ids.forEach(function (id) {
-    var floorShare = pool * floorPct * baseShare(id);
-    var meritShare = meritLive ? pool * meritPct * (trail[id] / total) : pool * meritPct * baseShare(id);
-    perAgent[id] = floorShare + meritShare;
-  });
-
-  var champion = rewards.seasonMeta && rewards.seasonMeta.previousChampion;
-  var freed = 0;
-  ids.forEach(function (id) {
-    if (((per[id] && per[id].ladderStatus) || 'safe') === 'squeezed') {
-      var cut = perAgent[id] * (1 - squeezeMult);
-      perAgent[id] -= cut;
-      freed += cut;
-    }
-  });
-  var championSqueezed = champion && per[champion] &&
-    (per[champion].ladderStatus || 'safe') === 'squeezed';
-  // Freed budget is deliberately DROPPED (not redistributed) when the champion is
-  // absent from the active roster or is themselves squeezed — the pool may sum
-  // below poolDollars in those cases. Consumers must not assume exact-sum.
-  if (freed > 0 && champion && perAgent[champion] != null && !championSqueezed) perAgent[champion] += freed;
-
-  // Caps are MONTHLY but this plan is recomputed continuously from a 14-day window, while
-  // allocation-intel compares each cap to MONTH-TO-DATE spend. Without this floor the first
-  // real sale drops every non-earner's cap below money they already spent and flips them
-  // RED — which blocks campaign proposals and trips the budget-panic loop, retroactively,
-  // for spending that was legitimate when it happened. A reallocation may take away future
-  // headroom; it must never make the past a violation. The plan can exceed the pool while
-  // floors bind — that is the honest trade, and it resets next month.
-  // Floor at spend PLUS working headroom — a cap equal to money already spent leaves an
-  // agent frozen (YELLOW with nothing left) rather than merely constrained. At month start
-  // spend is ~0 so this is a no-op and the plan is exactly the merit split.
-  var spentBy = opts.spentByAgent || null;
-  if (spentBy) {
-    ids.forEach(function (id) {
-      var s = Number(spentBy[id]);
-      if (Number.isFinite(s) && s > 0) {
-        var floorWithHeadroom = _round2(s * SPEND_FLOOR_HEADROOM);
-        if (floorWithHeadroom > perAgent[id]) perAgent[id] = floorWithHeadroom;
-      }
-    });
-  }
-
-  ids.forEach(function (id) { perAgent[id] = _round2(perAgent[id]); });
-  return { enabled: true, perAgent: perAgent, poolDollars: pool, trailing: trail, computedAt: _iso(nowMs) };
-}
-
-// ── IO orchestration ──────────────────────────────────────────────────────────
-// Prompt block (Stage 5: the "nudge each other" progression block).
-// Pure: given an agentId + the rewards ledger, render the per-agent YOUR PROGRESSION
-// block. Reinforces the cardinal rule (XP comes from OUTCOMES, not activity) so the
-// competitive nudge orients agents toward shipping real work, never toward gaming.
-function _cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
-
-// How old the ledger may be before its numbers stop being presentable as fact. The engine
-// runs hourly and the heartbeat every 6h, so 26h means "the engine has actually stopped",
-// not "we caught it between runs". Matches the freshness convention the emergence digest
-// already uses.
-var PROGRESSION_STALE_MS = 26 * 60 * 60 * 1000;
-
-function buildProgressionPromptBlock(agentId, rewards, nowMs) {
-  if (!agentId || !rewards || !rewards.perAgent) return '';
-  var me = rewards.perAgent[agentId];
-  if (!me) return '';
-
-  var nowT = nowMs || Date.now();
-
-  // A STOPPED engine must not keep asserting live standings — exactly the reasoning the
-  // ladder kill switch uses below, applied to the whole block.
-  //
-  // rewardsEngineCron was disabled 2026-08-05 → 2026-08-09. For four days every agent was
-  // told, with total confidence, things like "36-day streak" and "23 days left" from a
-  // ledger that had stopped moving. Nothing in the prompt said otherwise, and the token
-  // cost was paid the entire time. A frozen number stated as current is worse than no
-  // number: the agent cannot tell it is reading history.
-  //
-  // The earning doctrine survives because it is a RULE, not a measurement — it stays true
-  // whether or not anyone is keeping score, and it is the part of this block that actually
-  // steers behaviour.
-  var _upd = Date.parse(rewards.updatedAt || '');
-  var _ageMs = Number.isFinite(_upd) ? (nowT - _upd) : Infinity;
-  if (_ageMs > PROGRESSION_STALE_MS) {
-    var _ageTxt = Number.isFinite(_ageMs) ? (Math.floor(_ageMs / 86400000) + 'd') : 'unknown';
-    return '\n═══ YOUR PROGRESSION — NOT BEING SCORED ═══\n' +
-      'The rewards ledger has not updated in ' + _ageTxt + ', so levels, XP, streaks, rank and season standings are STALE and deliberately omitted. Do not quote or act on any progression figure you remember — none of it is current, and no ladder consequence is being enforced.\n' +
-      'What still holds regardless of scoring: you earn credit ONLY from outcomes that land — revenue, CEO-approved work, published content, real engagement, completed peer-reviewed tasks, and assists where the helped work ships. Proposing, commenting, or messaging earns nothing. Ship something that sells.\n';
-  }
-
-  var lvl = me.level || 1;
-  var xpForNext = 50 + 25 * lvl;
-  var cumLvl = 50 * (lvl - 1) + 25 * (lvl - 1) * lvl / 2;
-  var into = Math.max(0, (me.xp || 0) - cumLvl);
-
-  var ranked = Object.keys(rewards.perAgent)
-    .map(function (id) { return { id: id, xp: rewards.perAgent[id].xp || 0 }; })
-    .sort(function (a, b) { return b.xp - a.xp; });
-  var myIdx = ranked.findIndex(function (r) { return r.id === agentId; });
-  var myPos = myIdx + 1, N = ranked.length, leader = ranked[0];
-
-  var peerLine;
-  if (myPos === 1) {
-    var second = ranked[1];
-    peerLine = 'You lead the fleet by XP' + (second ? ' (' + _cap(second.id) + ' is #2 with ' + second.xp + ' XP, ' + ((me.xp || 0) - second.xp) + ' behind).' : '.');
-  } else {
-    var above = ranked[myIdx - 1];
-    peerLine = 'Fleet rank #' + myPos + ' of ' + N + '. ' + _cap(leader.id) + ' leads with ' + leader.xp + ' XP. Next up: ' + _cap(above.id) + ' (' + (above.xp - (me.xp || 0)) + ' XP ahead).';
-  }
-
-  var recent = Array.isArray(me.achievements) ? me.achievements.slice(-2).map(function (a) { return a.label || a.id; }) : [];
-  var recentLine = recent.length ? 'Recent unlocks: ' + recent.join(', ') + '.' : 'No achievements unlocked yet.';
-
-  var seasonRanked = Object.keys(rewards.perAgent)
-    .filter(function (id) { return _FLEET_SET[id]; })
-    .map(function (id) { return { id: id, sx: rewards.perAgent[id].seasonXp || 0 }; })
-    .sort(function (a, b) { return (b.sx - a.sx) || (a.id < b.id ? -1 : 1); });
-  var sIdx = seasonRanked.findIndex(function (x) { return x.id === agentId; });
-  var par = (rewards.seasonMeta && rewards.seasonMeta.par) || null;
-  var month = rewards.season || _iso(nowT).substring(0, 7);
-  var monthEnd = Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 1);
-  var daysLeft = Math.max(0, Math.ceil((monthEnd - nowT) / 86400000));
-  var top3 = seasonRanked.slice(0, 3).map(function (x, i) { return (i + 1) + '. ' + _cap(x.id) + ' ' + x.sx; }).join('  ');
-
-  var seasonLine = sIdx >= 0
-    ? 'Rank #' + (sIdx + 1) + ' of ' + seasonRanked.length +
-      '. Top: ' + top3 + '. Your season XP ' + (me.seasonXp || 0) + (par ? '/' + par + ' par' : '') +
-      '. ' + daysLeft + ' days left.'
-    : '';
-
-  // A disabled ladder must not keep threatening agents with consequences that are no
-  // longer enforced — the prompt is the one channel a kill switch could otherwise miss.
-  var status = (rewards.laddersActive === false) ? 'safe' : (me.ladderStatus || 'safe');
-  var ladderLine = '';
-  if (status === 'watch') {
-    ladderLine = 'LADDER: You are on relegation watch (1 below-par season). Finish at or above par or your budget gets cut next season.\n';
-  } else if (status === 'squeezed') {
-    ladderLine = 'LADDER: Your budget is cut 30% this season (2 below-par seasons). Finishing at or above par restores it. One more below-par season auto-drafts a retirement proposal.\n';
-  } else if (status === 'retirement_pending') {
-    ladderLine = 'LADDER: A retirement proposal for you has been drafted for CEO decision. You are one CEO decision from retirement. Finishing the season at or above par is the only thing that resets this — and revenue-lane outcomes are by far the fastest way there. Your successor would inherit your memories.\n';
-  }
-
-  var tier = (rewards.privileges && rewards.privileges.enabled !== false && rewards.privileges.tiers && rewards.privileges.tiers[agentId]) || 'line';
-  var tierLine = tier === 'vanguard'
-    ? 'Privileges: VANGUARD — +1 action slot, full model tier, proposal rights.'
-    : tier === 'probation'
-      ? 'Privileges: PROBATION — -1 action slot, economy model, campaign/objective proposals blocked. Climb the season board to restore them.'
-      : 'Privileges: LINE — standard slots and model.';
-
-  return '\n═══ YOUR PROGRESSION — SEASON ' + month + ' ═══\n' +
-    'Level ' + lvl + ' ' + (me.rank || 'Rookie') + (me.class ? ' (' + me.class + ')' : '') + '. ' +
-      into + '/' + xpForNext + ' XP to Level ' + (lvl + 1) + '. Renown ' + (me.renown || 0) + '. ' + (me.streakDays || 0) + '-day streak.\n' +
-    (seasonLine ? seasonLine + '\n' : '') +
-    peerLine + '\n' +
-    ladderLine +
-    tierLine + '\n' +
-    recentLine + '\n' +
-    'Revenue lane pays most: attributed sale 100+ XP, lead 15, public scan 3 — split across every agent in the chain that produced it (writer, assignee, reviewer). Tasks pay at most 3 XP/day. ' +
-    'You earn XP ONLY from outcomes that land: revenue, CEO-approved work, published content, real engagement, completed peer-reviewed tasks, and assists where the helped work ships. Proposing, commenting, or messaging earns nothing. To climb, ship something that sells.\n';
-}
-
 async function runRewardsEngine(opts) {
   opts = opts || {};
   var storage = opts.storage;
@@ -1014,12 +799,9 @@ async function runRewardsEngine(opts) {
 module.exports = {
   levelFromXp: levelFromXp, rankFromLevel: rankFromLevel, classFor: classFor,
   extractEvents: extractEvents, applyEvents: applyEvents, applyCompany: applyCompany,
-  buildProgressionPromptBlock: buildProgressionPromptBlock,
   resolveContributors: resolveContributors, conversionFallbackAgents: conversionFallbackAgents,
   rolloverSeason: rolloverSeason,
-  computeBudgetPlan: computeBudgetPlan, computeTrailingRevenueXp: computeTrailingRevenueXp,
   normalizeRewardsConfig: normalizeRewardsConfig,
   runRewardsEngine: runRewardsEngine,
-  SEASON_PAR_CEILING: SEASON_PAR_CEILING, MERIT_MIN_SIGNAL: MERIT_MIN_SIGNAL,
-  PROGRESSION_STALE_MS: PROGRESSION_STALE_MS
+  SEASON_PAR_CEILING: SEASON_PAR_CEILING
 };
