@@ -383,6 +383,35 @@ test('noFallback: a transport error is still one attempt', async () => {
   assert.strictEqual(requests.length, 1);
 });
 
+test('redactDetail: the fallback record keeps codes, never the provider error text', async () => {
+  reset();
+  responses = [creditError, geminiOk('ok')];
+  const errs = [];
+  const realErr = console.error;
+  console.error = (...a) => errs.push(a.join(' '));
+  try {
+    await callModel({ prompt: 'p', caller: 'some-mail-caller', redactDetail: true });
+    await new Promise(r => setImmediate(r));
+  } finally { console.error = realErr; }
+  const entry = stateWrites.llmFallbackLog[0];
+  assert.strictEqual(entry.detail, '');
+  assert.strictEqual(entry.reason, 'credits');
+  assert.ok(errs.length >= 1 && errs.every(l => !/credit balance|too low/i.test(l)), errs.join('\n'));
+});
+
+test('caller vale-draft is always redacted; other callers keep the detail', async () => {
+  reset();
+  responses = [creditError, geminiOk('ok')];
+  await callModel({ prompt: 'p', caller: 'vale-draft' });
+  await new Promise(r => setImmediate(r));
+  assert.strictEqual(stateWrites.llmFallbackLog[0].detail, '');
+  reset();
+  responses = [creditError, geminiOk('ok')];
+  await callModel({ prompt: 'p', caller: 'pixel-agent-run' });
+  await new Promise(r => setImmediate(r));
+  assert.ok(stateWrites.llmFallbackLog[0].detail.length > 0);
+});
+
 // ── classification, directly ──
 
 test('classify distinguishes credits from capacity from error', () => {

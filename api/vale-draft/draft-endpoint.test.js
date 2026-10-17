@@ -96,6 +96,8 @@ async function post(d, b, method) {
     assert.strictEqual(o.model, 'claude-sonnet'); assert.strictEqual(o.caller, 'vale-draft');
     assert.strictEqual(o.maxTokens, 800); assert.strictEqual(o.temperature, 0.4);
     assert.strictEqual(o.noFallback, false);
+    // Fallback records for mail drafts carry error codes only (plan section 1.6).
+    assert.strictEqual(o.redactDetail, true);
     assert.ok(o.system && o.prompt.indexOf('<email>') !== -1);
   });
   await test('the rate record holds only the hour and a count', async () => {

@@ -226,6 +226,8 @@ async function callGemini(modelId, opts) {
  *   legitimately run for minutes) — too low a value aborts a healthy call and
  *   burns a fallback attempt on a request that was going to succeed.
  * @param {boolean} [opts.noFallback] - try the primary model only, never another provider
+ * @param {boolean} [opts.redactDetail] - fallback records carry reason/status codes only, never
+ *   the provider's error text (callers whose prompts hold mail content; vale-draft always is)
  * @param {number} [opts.deadlineAt] - absolute epoch-ms ceiling for the WHOLE
  *   chain. `timeoutMs` bounds one attempt; this bounds all of them, so a caller
  *   behind a hard limit (Azure kills an HTTP request at 230s) can guarantee it
@@ -354,7 +356,8 @@ function recordFallback(fromKey, toKey, attempts, opts) {
     to: toKey,                       // null = the entire chain failed
     reason: failure.reason || null,
     status: failure.status || null,
-    detail: (failure.detail || '').slice(0, 200)
+    // Error codes only for mail-related callers: a transport error message is arbitrary text.
+    detail: opts.redactDetail || opts.caller === 'vale-draft' ? '' : (failure.detail || '').slice(0, 200)
   };
   console.error('[llm] fallback', JSON.stringify(entry));
 

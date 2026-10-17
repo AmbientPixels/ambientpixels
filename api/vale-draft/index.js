@@ -78,7 +78,7 @@ async function handle(context, req, deps) {
     try {
       out = await deps.callModel({
         system: p.system, prompt: p.prompt, model: 'claude-sonnet', caller: 'vale-draft',
-        maxTokens: 800, temperature: 0.4, noFallback: client
+        maxTokens: 800, temperature: 0.4, noFallback: client, redactDetail: true
       });
     } catch (e) {
       if (e && e.name === 'LlmUnavailableError') {
