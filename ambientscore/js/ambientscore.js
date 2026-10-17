@@ -68,7 +68,7 @@
   var STEP_ORDER = ['fetch', 'extract', 'evaluate', 'score'];
 
   var STAGE_MESSAGES = {
-    fetch: 'Fetching your page. A full audit takes three to four minutes.',
+    fetch: 'Fetching your page. Your score is ready in about three minutes.',
     extract: 'Extracting conversion elements.',
     evaluate: 'Evaluating eight dimensions. This is the long stage.',
     score: 'Computing score and writing rewrites.'
