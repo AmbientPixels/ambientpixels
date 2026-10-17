@@ -20,7 +20,7 @@ This spec covers **Stage 0 (real lock)** and **Stage 1 (read + brief + chat)** i
 | Voice | Drafts in Chad's voice in Stage 4 (§11). |
 | Advisory role | "Vale's take": 1–3 evidence-backed observations per brief. Business/priorities/time only; legal/tax/medical → "ask a professional". |
 | Orchestration | Stage 5 at authority level **B** (§11). |
-| Build | Built **interactively in this session**, in a **git worktree on branch `vale-assistant`** (the main checkout auto-commits and pushes to prod, and another session edits it). Merged to master piece by piece once tested; visible Office-page changes shown to Chad first. |
+| Build | Built **interactively in this session**, in the main checkout on master, one complete tested piece at a time; visible Office-page changes shown to Chad first. |
 
 ## 2. Environment facts
 
@@ -147,7 +147,7 @@ A failed read is never reported as "nothing new".
 
 ## 8. Build rules
 
-- Work in a **git worktree on branch `vale-assistant`**; merge to master only tested, self-contained pieces. Every timer no-ops on its flags before any I/O, so merged code is dormant.
+- Build in the **main checkout on master** (Chad's call, 2026-10-17). Because the checkout auto-commits and pushes, every change is written **complete and tested in one step** — never left half-edited on disk — and committed by path right away. Every timer and mail path no-ops on its flags before any I/O, so shipped code stays dormant until Chad turns it on.
 - **Agents never write to Entra, Exchange or Function App settings.** They generate scripts and exact steps; Chad (or the main session, with Chad's go-ahead) runs them.
 - Order: (1) pure modules + tests: JWT verify, AES-GCM, `shouldSendBrief`, rules, rendering · (2) storage split + `valeStorage.test.js` · (3) `requireCeoAsync` + callers + CORS, one commit · (4) `vale-connect` returning 503 until configured · (5) Graph client on fixtures · (6) brief function · (7) chat mail context · (8) Office page behind `?vale=1` · (9) setup script + checklist.
 - No changes to `companyHeartbeat/index.js`, `company-state`, `staticwebapp.config.json`, `package-lock.json`.
