@@ -233,9 +233,24 @@ textarea.ap-input { resize: vertical; line-height: 1.4; }
 .vale-hours__day { display: inline-flex; align-items: center; gap: .25rem; font-size: .85rem; cursor: pointer; }
 .vale-hours__msg { font-size: .8rem; opacity: .7; }
 
-/* ── Office "Talk to Vale" chat bubbles (office.html) ── */
+/* ── Office "Talk to Vale" chat (office.html) — Vale's signature periwinkle #9b8cff,
+   the same color as her portrait on /ambientos/agents/ and her standup card ── */
+.office-chat-log {
+  --vale-color: #9b8cff;
+  --vale-text: #cfc8ff;
+  background: linear-gradient(135deg, rgba(155, 140, 255, 0.12), rgba(155, 140, 255, 0.04));
+  border: 1px solid rgba(155, 140, 255, 0.28);
+  border-radius: 10px;
+  padding: .875rem 1rem;
+}
 .office-bubble { margin-bottom: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
-.office-bubble__link { color: rgba(90, 228, 255, 0.9); white-space: nowrap; }
+.office-bubble:last-child { margin-bottom: 0; }
+.office-bubble--user { color: rgba(255, 255, 255, 0.75); }
+.office-bubble--vale { color: var(--vale-text); }
+.office-bubble--vale > strong:first-child { color: var(--vale-color); }
+.office-bubble--vale strong { color: #e4dfff; }
+.office-bubble__link { color: var(--vale-color); white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; }
+.office-bubble__link:hover { color: #e4dfff; }
 
 /* ── Shared Page Header ── */
 .ap-page-header {
