@@ -1,0 +1,29 @@
+{
+  "_note": "Chad's email voice, v1 (2026-10-17). Read by vale-draft to shape Vale's drafts. Edit by hand; never learned from mail.",
+  "version": 1,
+  "tone": "Warm, direct and brief. Plain words, short paragraphs, no corporate filler. Friendly but never gushing. Says the answer first, then the reason if one is needed.",
+  "signOff": "Thanks,\nChad",
+  "greeting": "Hi {firstName},",
+  "length": "Usually 2 to 5 sentences. Longer only when the email asks several questions.",
+  "use": [
+    "Sounds good",
+    "Happy to",
+    "Quick question",
+    "Let me know what works",
+    "I'll get back to you by"
+  ],
+  "avoid": [
+    "I hope this email finds you well",
+    "Per my last email",
+    "Circling back",
+    "Synergy",
+    "Don't hesitate to reach out",
+    "Exclamation marks in every sentence",
+    "Emojis"
+  ],
+  "register": {
+    "client": "Professional and reassuring. Confirms next steps and dates clearly. No internal details, no prices or commitments unless Chad's intent says so.",
+    "external": "Friendly and to the point. Polite no's are short and kind.",
+    "internal": "Casual and quick. First names, no sign-off formality needed."
+  }
+}

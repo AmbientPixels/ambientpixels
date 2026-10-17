@@ -8,7 +8,7 @@ async function test(name, fn) {
   catch (e) { fail++; console.log('  FAIL ', name, '\n        ', e.message); }
 }
 
-const MAIL_SENSITIVE = ['valeConversations', 'valeMailState', 'valeMailBriefs', 'valeMailRules', 'valeMailToken', 'valeConnectPending', 'valeMailAudit', 'valeBriefLog'];
+const MAIL_SENSITIVE = ['valeConversations', 'valeMailState', 'valeMailBriefs', 'valeMailRules', 'valeMailToken', 'valeConnectPending', 'valeMailAudit', 'valeBriefLog', 'valeDraftRate'];
 
 (async () => {
   await test('_key prefixes every personal key with vale/', () => {
@@ -16,14 +16,14 @@ const MAIL_SENSITIVE = ['valeConversations', 'valeMailState', 'valeMailBriefs', 
     assert.strictEqual(vs._key('ceoActionList'), 'vale/ceoActionList');
   });
   // Deliberately exact: adding a key must be a conscious decision about its class.
-  await test('ALLOWED_KEYS covers exactly the thirteen personal keys', () => {
+  await test('ALLOWED_KEYS covers exactly the fourteen personal keys', () => {
     const keys = Object.keys(vs.ALLOWED_KEYS).sort();
-    assert.deepStrictEqual(keys, ['ceoActionList', 'ceoProfile', 'valeBriefLog', 'valeBriefs', 'valeConnectPending', 'valeConversations',
+    assert.deepStrictEqual(keys, ['ceoActionList', 'ceoProfile', 'valeBriefLog', 'valeBriefs', 'valeConnectPending', 'valeConversations', 'valeDraftRate',
       'valeMailAudit', 'valeMailBriefs', 'valeMailRules', 'valeMailState', 'valeMailToken', 'valeMemory', 'valeSeed']);
   });
   await test('every key has a class', () => Object.keys(vs.ALLOWED_KEYS).forEach((k) => assert.ok(vs.keyClass(k), k)));
   await test('secrets and logs are never exposed, to anyone', () => {
-    ['valeMailToken', 'valeConnectPending', 'valeMailAudit', 'valeBriefLog'].forEach((k) => {
+    ['valeMailToken', 'valeConnectPending', 'valeMailAudit', 'valeBriefLog', 'valeDraftRate'].forEach((k) => {
       assert.strictEqual(vs.keyClass(k), 'never', k);
       ['read', 'write'].forEach((m) => ['bearer', 'principal', null].forEach((via) => assert.strictEqual(vs.accessFor(k, m, via), 'deny', k + ' ' + m + ' ' + via)));
     });

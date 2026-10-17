@@ -26,7 +26,8 @@ var KEY_CLASS = {
   valeMailToken: 'never',     // encrypted refresh token + connection status
   valeConnectPending: 'never', // OAuth state + PKCE verifier (10-min TTL)
   valeMailAudit: 'never',     // one entry per run, no message content
-  valeBriefLog: 'never'       // per-Pacific-date send status + inbox watermark
+  valeBriefLog: 'never',      // per-Pacific-date send status + inbox watermark
+  valeDraftRate: 'never'      // vale-draft hourly counter: { hour, count } only, no content
 };
 
 var ALLOWED_KEYS = {};
