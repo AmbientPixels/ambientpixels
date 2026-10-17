@@ -71,7 +71,12 @@ body[data-theme="light"] .vmail .ap-input {
   color-scheme: light;
 }
 body[data-theme="light"] .vmail .ap-input::placeholder { color: rgba(0, 0, 0, 0.45); }
-body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-border); box-shadow: 0 0 0 2px var(--vm-agent-dim); }
+.vmail .ap-input:focus,
+body[data-theme] .vmail .ap-input:focus {
+  border-color: var(--vm-agent-border);
+  box-shadow: var(--vm-focus);
+  outline: 2px solid transparent;
+}
 
 /* Neutralise the site-wide base.css list/button/margin rules inside the app. :where() keeps
    these at element specificity, so every .vmail-* class rule below still wins. */
@@ -111,7 +116,7 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 }
 /* The reading pane takes focus programmatically after Enter; it shows no ring of its own. */
 .vmail-reader:focus-visible { outline: none; box-shadow: none; }
-.vmail-reader:focus-within .vmail-reader__bar { border-top: 2px solid var(--vm-agent-border); }
+.vmail-reader:focus-within .vmail-reader__bar { border-top-color: var(--vm-agent-border); }
 @media (forced-colors: active) {
   .vmail :focus-visible,
   .vmail-list:focus-visible { outline: 2px solid CanvasText; }
@@ -204,6 +209,7 @@ body[data-theme] a.vmail-skip:focus-visible {
   text-overflow: ellipsis;
 }
 .vmail-checked--stale { color: var(--vm-warn); }
+.vmail-checked--phone { display: none; }
 
 .vmail-avatar {
   flex: none;
@@ -583,7 +589,7 @@ body[data-theme] a.vmail-skip:focus-visible {
   outline: none;
   padding: 4px 0 24px;
 }
-.vmail-list:focus-visible { box-shadow: inset 0 0 0 2px var(--vm-agent-border); border-radius: 0; }
+.vmail-list:focus-visible { box-shadow: none; border-radius: 0; }
 
 .vmail-row {
   position: relative;
@@ -607,7 +613,8 @@ body[data-theme] a.vmail-skip:focus-visible {
   width: 2px;
   background: var(--vm-agent);
 }
-.vmail-list:focus-visible .vmail-row[aria-selected="true"] { box-shadow: inset 0 0 0 1px var(--vm-agent-border); }
+.vmail-list:focus-visible .vmail-row[aria-selected="true"] { box-shadow: inset 0 0 0 2px var(--vm-agent); }
+.vmail-list:focus-visible .vmail-row[aria-selected="true"]::before { width: 3px; }
 .vmail-row.is-leaving { opacity: 0; transform: translateX(12px); transition: opacity 0.16s, transform 0.16s; }
 
 .vmail-row__dot {
@@ -696,6 +703,13 @@ body[data-theme] a.vmail-skip:focus-visible {
 }
 .vmail-tag--needs_you { background: var(--vm-agent-dim); color: var(--vm-agent-text); }
 .vmail-tag--waiting { background: rgba(96, 165, 250, 0.12); color: var(--c-blue); }
+.vmail-tag--check {
+  border: 1px solid var(--vm-danger-border);
+  background: var(--vm-danger-bg);
+  color: var(--vm-danger);
+  line-height: 16px;
+}
+.vmail-tag--check i { font-size: 10px; }
 .vmail-tag--unsorted { background: transparent; border: 1px dashed var(--vm-sep-strong, var(--c-sep-strong)); color: var(--vm-text-3); font-weight: 500; }
 .vmail-client {
   display: inline-flex;
@@ -713,7 +727,12 @@ body[data-theme] a.vmail-skip:focus-visible {
 
 .vmail-more {
   display: block;
-  margin: 12px auto 0;
+  margin: 0 auto;
+}
+.vmail-list__more {
+  flex: none;
+  padding: 8px 12px;
+  border-top: 1px solid var(--vm-sep);
 }
 
 /* Skeletons */
@@ -780,13 +799,24 @@ body[data-theme] a.vmail-skip:focus-visible {
   gap: 4px;
   padding: 8px 16px;
   background: var(--vm-bg);
+  border-top: 2px solid transparent;
   border-bottom: 1px solid var(--vm-sep);
+  transition: box-shadow 0.15s;
 }
+.vmail-reader__bar.vmail-toolbar--with-subject {
+  border-bottom-color: var(--c-sep-strong, var(--vm-sep));
+  box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.6);
+}
+body[data-theme="light"] .vmail-reader__bar.vmail-toolbar--with-subject { box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.12); }
+.vmail-toolbar--with-subject .vmail-spacer { display: none; }
 .vmail-reader__bar .vmail-spacer { flex: 1; }
 .vmail-toolbar__subject {
   display: none;
+  flex: 1 1 0;
   min-width: 0;
-  max-width: 50%;
+  max-width: none;
+  padding-left: 12px;
+  text-align: right;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -797,8 +827,10 @@ body[data-theme] a.vmail-skip:focus-visible {
 .vmail-toolbar--with-subject .vmail-toolbar__subject { display: block; }
 .vmail-tool {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   height: 30px;
   padding: 0 10px;
   border: 0;
@@ -812,6 +844,13 @@ body[data-theme] a.vmail-skip:focus-visible {
 .vmail-tool kbd { height: 17px; min-width: 17px; font-size: 10px; }
 .vmail-tool.is-on { color: var(--vm-danger); }
 .vmail-back { display: none; }
+/* With the subject pinned: shortcut hints go first, then (narrow) the labels; icons + names stay. */
+@media (max-width: 1365px) {
+  .vmail-toolbar--with-subject .vmail-tool kbd { display: none; }
+}
+@media (max-width: 1099px) {
+  .vmail-toolbar--with-subject .vmail-tool__label { display: none; }
+}
 
 .vmail-article {
   max-width: 860px;
@@ -951,10 +990,32 @@ body[data-theme] a.vmail-skip:focus-visible {
 }
 .vmail-iconbtn,
 .vmail-chip { justify-content: center; }
-.vmail-stance.is-picked {
+.vmail .vmail-stance.is-picked {
+  background: var(--vm-agent-dim);
+  border: 1px solid var(--vm-agent);
+  color: var(--vm-agent-text);
+}
+.vmail-stance.is-picked i { font-size: 11px; }
+.vmail .ap-btn.vmail-btn-send {
   background: var(--vm-agent);
   border-color: var(--vm-agent);
   color: var(--vm-agent-ink);
+}
+.vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--vm-agent) 92%, #ffffff);
+  border-color: color-mix(in srgb, var(--vm-agent) 92%, #ffffff);
+  color: var(--vm-agent-ink);
+}
+/* Light theme: the deeper periwinkle, so white text keeps 4.5:1. */
+body[data-theme="light"] .vmail .ap-btn.vmail-btn-send {
+  background: var(--vm-agent-text);
+  border-color: var(--vm-agent-text);
+  color: #ffffff;
+}
+body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--vm-agent-text) 90%, #000000);
+  border-color: color-mix(in srgb, var(--vm-agent-text) 90%, #000000);
+  color: #ffffff;
 }
 .vmail-tell {
   display: flex;
@@ -1156,6 +1217,7 @@ body[data-theme] a.vmail-skip:focus-visible {
   border-left: 2px solid var(--vm-sep);
   color: var(--vm-text-2);
 }
+.vmail-plainbody__quote--html { white-space: normal; }
 .vmail-plainbody--html p,
 .vmail-plainbody--html ul,
 .vmail-plainbody--html ol { margin: 0 0 10px; }
@@ -1356,6 +1418,9 @@ body[data-theme] a.vmail-skip:focus-visible {
   .vmail-back { display: inline-flex; }
   .vmail-top { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; padding: 8px 12px; }
   .vmail-brand__text { display: none; }
+  .vmail-checked--phone { display: block; flex: 0 1 auto; min-width: 0; }
+  .vmail-checked--phone::before { content: "·"; margin-right: 6px; }
+  .vmail-listhead__count { flex: none; }
   .vmail-search__kbd { display: none; }
   .vmail-top__actions .ap-btn span { display: none; }
   .vmail-top__actions .vmail-btn-agent { width: 32px; height: 32px; padding: 0; justify-content: center; }

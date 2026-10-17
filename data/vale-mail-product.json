@@ -33,7 +33,9 @@
     "sendFailed": "Not sent. Your reply is safe in Drafts. Try again.",
     "checkedAt": "{agent} sorted at {time}",
     "checkedOn": "{agent} sorted {when}",
-    "checkedTitle": "Mail is live; {agent} last sorted it at {time}. Newer mail says Not sorted yet.",
+    "checkedTitle": "Mail is live; {agent} last sorted it at {time}. Newer mail says Not sorted yet; mail without a label wasn't in {agent}'s last sort.",
+    "notInSort": "Not in {agent}'s last sort",
+    "checkSender": "Check sender",
     "composeBriefLabel": "Ask {agent} to draft it",
     "newsletterNote": "Newsletters and low-priority mail {agent} set aside from your inbox",
     "filters": {

@@ -67,6 +67,7 @@
               <i class="fas fa-chevron-down vmail-folder-select__chev" aria-hidden="true"></i>
             </label>
             <span class="vmail-listhead__count" id="vmail-count" aria-live="polite"></span>
+            <span class="vmail-checked vmail-checked--phone" id="vmail-checked-phone"></span>
           </div>
           <!-- The search line sits in the chips' place (same grid cell), so the header never changes height. -->
           <div class="vmail-listhead__filters">
@@ -80,6 +81,7 @@
           <button type="button" class="vmail-nextup" id="vmail-nextup" aria-haspopup="dialog" aria-controls="vmail-schedule" hidden></button>
         </div>
         <div class="vmail-list" id="vmail-list" role="listbox" tabindex="0" aria-label="Messages"></div>
+        <div class="vmail-list__more" id="vmail-more-slot" hidden></div>
       </section>
 
       <section class="vmail-reader" id="vmail-reader" aria-label="Reading pane" tabindex="-1"></section>

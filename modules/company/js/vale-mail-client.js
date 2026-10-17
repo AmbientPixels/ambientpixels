@@ -166,7 +166,12 @@
   }
 
   function renderStamp() {
-    var el = $('vmail-checked');
+    renderStampInto($('vmail-checked'));
+    // Phones hide the header stamp; the list header carries the same line there.
+    var ph = $('vmail-checked-phone');
+    if (ph) renderStampInto(ph);
+  }
+  function renderStampInto(el) {
     el.classList.remove('vmail-checked--stale');
     if (S.sortState === 'loading') { el.textContent = ''; return; }
     if (S.sortState === 'failed') {
@@ -283,12 +288,26 @@
 
   // ── List ───────────────────────────────────────────────────────────────────
 
+  // In a filtered inbox view the label that defines the filter isn't repeated on every row.
+  function filterImpliesLabel(l) {
+    return !!l && S.folder === 'inbox' && !S.search && S.filter !== 'all' && l.label === S.filter;
+  }
+  function checkTagHtml(m) {
+    var g = guardFor(m);
+    if (!g) return '';
+    var why = g.kind === 'replyto' ? 'Replies would go to a different address than the sender\'s.'
+      : g.kind === 'lookalike' ? 'This looks like ' + g.known + ', but it\'s from ' + g.from + '.'
+        : 'This claims to be from ' + g.from + ' but came from outside your organization.';
+    return '<span class="vmail-tag vmail-tag--check" title="' + h(why) + '"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>' +
+      h(copy('checkSender', 'Check sender')) + '<span class="vmail-visually-hidden">: ' + h(why) + '</span></span>';
+  }
   function tagHtml(m) {
     var l = labelFor(m);
+    if (filterImpliesLabel(l)) return '';
     var name = l && C.labelName(l.label);
     // "Low priority" and "Newsletter" share the Newsletters filter, so they share one tag style.
     if (name) return '<span class="vmail-tag vmail-tag--' + h(l.label === 'noise' ? 'newsletter' : l.label) + '">' + h(name) + '</span>';
-    if (C.bucketOf(m, null) === 'newsletter') return '<span class="vmail-tag vmail-tag--newsletter">Newsletter</span>';
+    if (C.bucketOf(m, null) === 'newsletter') return filterImpliesLabel({ label: 'newsletter' }) ? '' : '<span class="vmail-tag vmail-tag--newsletter">Newsletter</span>';
     return '<span class="vmail-tag vmail-tag--unsorted">' + h(copy('notSorted', 'Not sorted yet')) + '</span>';
   }
   function whyFor(m) {
@@ -299,7 +318,9 @@
     if (C.bucketOf(m, null) === 'newsletter') return '';
     var t = Date.parse(m.receivedDateTime || '');
     if (S.triagedAt && isFinite(t) && t > Date.parse(S.triagedAt)) return 'Arrived after ' + S.agent + '\'s last check';
-    return S.sortState === 'failed' ? '' : S.agent + ' hasn\'t looked at this one';
+    if (S.sortState === 'failed') return '';
+    // Older than the last sort but unlabeled: it wasn't part of that sort (never "Vale missed it").
+    return S.triagedAt ? copy('notInSort', 'Not in {agent}\'s last sort').replace('{agent}', S.agent) : S.agent + ' hasn\'t looked at this one';
   }
 
   function rowHtml(m) {
@@ -313,7 +334,8 @@
     var vale = '';
     if (!sentView && !isMine(m)) {
       var why = whyFor(m);
-      vale = '<div class="vmail-row__vale">' + tagHtml(m) + (why ? '<span class="vmail-row__why">' + h(why) + '</span>' : '') + '</div>';
+      var tags = checkTagHtml(m) + tagHtml(m);
+      if (tags || why) vale = '<div class="vmail-row__vale">' + tags + (why ? '<span class="vmail-row__why">' + h(why) + '</span>' : '') + '</div>';
     }
     var selected = m.id === S.selectedId;
     // Waiting on them: you wrote last, so the row shows what you sent and when.
@@ -357,9 +379,17 @@
     return copy('empty.all', 'This folder is empty.');
   }
 
+  function setMore(html) {
+    var slot = $('vmail-more-slot');
+    if (!slot) return;
+    slot.innerHTML = html || '';
+    slot.hidden = !html;
+  }
+
   function renderList() {
     var box = $('vmail-list');
     var L = list(S.folder);
+    setMore('');
     if (S.search && S.search.loading) { box.innerHTML = skeletonHtml(4); box.setAttribute('aria-busy', 'true'); return; }
     if (S.search && S.search.error) { box.innerHTML = errorHtml(S.search.error, 'data-act="research"'); return; }
     if (!S.search && L.loading && !L.items.length) { box.innerHTML = skeletonHtml(9); box.setAttribute('aria-busy', 'true'); return; }
@@ -373,12 +403,12 @@
       box.removeAttribute('aria-activedescendant');
       return;
     }
-    var html = items.map(rowHtml).join('');
+    box.innerHTML = items.map(rowHtml).join('');
+    // A listbox owns only options, so "Load older mail" sits in its own slot after the list.
     if (!S.search && L.next) {
-      html += '<button type="button" class="ap-btn vmail-btn-sm vmail-more" data-act="more"' + (L.loading ? ' disabled' : '') + '>' +
-        (L.loading ? 'Loading…' : 'Load older mail') + '</button>';
+      setMore('<button type="button" class="ap-btn vmail-btn-sm vmail-more" data-act="more"' + (L.loading ? ' disabled' : '') + '>' +
+        (L.loading ? 'Loading…' : 'Load older mail') + '</button>');
     }
-    box.innerHTML = html;
     syncSelection();
   }
 
@@ -621,7 +651,7 @@
     var archived = m.parentFolderId === 'archive';
     var flagged = isFlagged(m);
     function tool(act, icon, label, key, extra) {
-      return '<button type="button" class="vmail-tool' + (extra || '') + '" data-act="' + act + '" title="' + h(label) + (key ? ' (' + key + ')' : '') + '">' +
+      return '<button type="button" class="vmail-tool' + (extra || '') + '" data-act="' + act + '" aria-label="' + h(label) + '" title="' + h(label) + (key ? ' (' + key + ')' : '') + '">' +
         '<i class="fas ' + icon + '" aria-hidden="true"></i><span class="vmail-tool__label">' + h(label) + '</span>' + (key ? '<kbd>' + key + '</kbd>' : '') + '</button>';
     }
     // A plain group of buttons (each its own Tab stop), so no toolbar arrow-key pattern is promised.
@@ -728,7 +758,8 @@
   function stanceBtn(st, s, dis, label, extraAttr) {
     var picked = s && s.stance === st && (!extraAttr || s.option === extraAttr);
     return '<button type="button" class="ap-btn vmail-btn-agent vmail-stance' + (picked ? ' is-picked' : '') + '" data-stance="' + st + '"' +
-      (extraAttr ? ' data-option="' + h(extraAttr) + '"' : '') + dis + '>' + h(label) + '</button>';
+      (extraAttr ? ' data-option="' + h(extraAttr) + '"' : '') + ' aria-pressed="' + !!picked + '"' + dis + '>' +
+      (picked ? '<i class="fas fa-check" aria-hidden="true"></i>' : '') + h(label) + '</button>';
   }
 
   function renderValeSlot() {
@@ -763,6 +794,7 @@
       var after = S.triagedAt && isFinite(t) && t > Date.parse(S.triagedAt);
       why = '<p class="vmail-vale__why vmail-vale__why--quiet">' + h(copy('notSorted', 'Not sorted yet')) + '. ' +
         h(after ? 'This came in after ' + S.agent + '\'s last check' + (S.triagedAt ? (/^\d/.test(stampTime(S.triagedAt)) ? ' at ' : ' ') + stampTime(S.triagedAt) : '') + ', so there\'s no read on it yet.'
+          : S.triagedAt ? 'It wasn\'t in ' + S.agent + '\'s last sort, so there\'s no guess here.'
           : S.agent + ' hasn\'t judged this one, so there\'s no guess here.') + '</p>';
     }
 
@@ -771,10 +803,13 @@
       var rt = mismatch.replyTo.map(function (r) { return r.address; }).join(', ');
       // The safe address (From) is the default; only an explicit choice replies to Reply-To.
       var useRt = useReplyTo(m);
+      var safeSess = S.session && S.session.key === m.id && S.session.stance === 'verify';
       warn = '<div class="vmail-warn vmail-warn--replyto" role="note" id="vmail-replyto-warn"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i><div>' +
         '<strong>Check who you\'re replying to.</strong> ' +
         h(copy('replyToWarning', 'Replies go to {replyTo}, not {from}.').replace('{replyTo}', rt).replace('{from}', mismatch.from.address)) +
-        '<div class="vmail-warn__actions">' + (useRt
+        '<div class="vmail-warn__actions">' + (safeSess
+          ? '<span>Your safe reply goes to ' + h(mismatch.from.address) + ', the sender\'s own address.</span>'
+          : useRt
           ? '<span>Your reply will go to ' + h(rt) + ', not the sender\'s address.</span> <button type="button" class="ap-btn vmail-btn-sm" data-act="use-from">Reply to ' + h(mismatch.from.address) + ' instead</button>'
           : '<span>Your reply will go to ' + h(mismatch.from.address) + '.</span> <button type="button" class="ap-btn vmail-btn-sm" data-act="use-replyto">Use the Reply-To address</button>') +
         '</div></div></div>';
@@ -793,7 +828,10 @@
     if (th) facts.push('<li><i class="fas fa-layer-group" aria-hidden="true"></i>' + h(th) + '</li>');
     // "Last time you spoke" and "waiting on you" mean nothing for newsletters and robots, and
     // repeat the send itself right after Chad answered.
-    var spoke = automated || answered ? '' : lastSpoke(m);
+    // A faked or lookalike sender borrows the real one's history: say where real mail comes from instead.
+    var spoke = automated || answered ? '' : guard && guard.kind === 'lookalike'
+      ? 'Real mail from ' + first + ' comes from ' + guard.known
+      : guard && guard.kind === 'outside' ? 'Real ' + guard.from + ' mail comes from inside your organization' : lastSpoke(m);
     if (spoke) facts.push('<li><i class="fas fa-clock-rotate-left" aria-hidden="true"></i>' + h(spoke) + '</li>');
     var waiting = automated || answered || newer || theirTurn || !askLabel ? null : C.waitingOnYou(m, sentInThread(m), now(), { ownDomain: S.cfg.ownDomain });
     if (waiting) facts.push('<li class="is-urgent"><i class="fas fa-hourglass-half" aria-hidden="true"></i>' + h(waitingText(waiting.since)) + '</li>');
@@ -958,14 +996,15 @@
     if (!isHtml || C.isSimpleHtml(m.body && m.body.content)) {
       var plain = document.createElement('div');
       plain.className = 'vmail-plainbody' + (isHtml ? ' vmail-plainbody--html' : '');
-      var quote = '';
+      var quote = '', quoteNodes = null;
       if (!isHtml) {
         // Plain-text history ("On … wrote:" / "> …") folds away behind a small toggle.
         var parts = C.splitQuoted(String((m.body && m.body.content) || ''));
         plain.textContent = parts.body;
         quote = parts.quote;
       } else if (!simpleHtmlInto(plain, m.body.content)) { plain.className = 'vmail-plainbody'; plain.textContent = C.htmlToText(m.body.content); }
-      if (quote) {
+      else quoteNodes = splitSimpleQuote(plain);
+      if (quote || quoteNodes) {
         var toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'vmail-quotetoggle';
@@ -979,7 +1018,10 @@
         q.className = 'vmail-plainbody__quote';
         q.id = 'vmail-quote';
         q.hidden = true;
-        q.textContent = quote;
+        if (quoteNodes) {
+          q.className += ' vmail-plainbody__quote--html';
+          quoteNodes.forEach(function (n) { q.appendChild(n); });
+        } else q.textContent = quote;
         plain.appendChild(toggle);
         plain.appendChild(q);
       }
@@ -1022,6 +1064,32 @@
       });
     })(doc.body, target);
     return true;
+  }
+
+  // HTML replies rebuilt on the app's surface: the quoted history (a <blockquote>, or an <hr> /
+  // block whose text starts "From: … Sent:") is taken out so it can fold behind "···" like plain
+  // text. Returns the removed top-level nodes, or null when there is no quote or nothing before it.
+  function splitSimpleQuote(root) {
+    var kids = Array.prototype.slice.call(root.childNodes);
+    var headerAt = function (i) {
+      var t = '';
+      for (var j = i; j < kids.length && t.length < 400; j++) t += kids[j].textContent || '';
+      t = t.replace(/^\s+/, '');
+      return /^from:\s/i.test(t) && /\b(?:sent|date):/i.test(t.slice(0, 400));
+    };
+    var at = -1;
+    for (var i = 0; i < kids.length && at === -1; i++) {
+      var k = kids[i];
+      if (k.nodeType !== 1) continue;
+      if (k.tagName === 'BLOCKQUOTE') at = i;
+      else if (k.tagName === 'HR' ? headerAt(i + 1) : headerAt(i)) at = i;
+    }
+    if (at <= 0) return null;
+    var before = kids.slice(0, at).map(function (n) { return n.textContent || ''; }).join('');
+    if (!before.trim()) return null;
+    var out = kids.slice(at);
+    out.forEach(function (n) { root.removeChild(n); });
+    return out;
   }
 
   // Demo mailbox: replace <img src="https://*.example/..."> with a small drawn PNG (data: URL).
@@ -1199,6 +1267,12 @@
   function recipientsFor(s) {
     if (s.mode === 'compose') return parseAddresses(s.toText);
     var msg = (S.open && S.open.msg && S.open.msg.id === s.msgId ? S.open.msg : null) || findMsg(s.msgId);
+    if (msg && s.stance === 'verify') {
+      // The safe reply never goes where the guard pointed: From, or for a lookalike the real contact.
+      var g = guardFor(msg);
+      if (g && g.kind === 'lookalike') return [{ name: '', address: g.known }];
+      if (g && g.kind === 'replyto') return [{ name: nameOf(msg.from), address: addrOf(msg.from) }];
+    }
     // A mismatched Reply-To only gets the reply when Chad explicitly chose it.
     if (msg && C.replyToMismatch(msg) && !useReplyTo(msg)) return [{ name: nameOf(msg.from), address: addrOf(msg.from) }];
     return s.to;
@@ -1212,7 +1286,7 @@
   function toReplyToTarget(s) {
     if (s.mode !== 'reply') return false;
     var msg = (S.open && S.open.msg && S.open.msg.id === s.msgId ? S.open.msg : null) || findMsg(s.msgId);
-    return !!(msg && C.replyToMismatch(msg) && useReplyTo(msg));
+    return !!(msg && s.stance !== 'verify' && C.replyToMismatch(msg) && useReplyTo(msg));
   }
   function parseAddresses(text) {
     return String(text || '').split(/[,;\s]+/).map(function (x) { return x.trim(); }).filter(Boolean).map(function (a) { return { name: '', address: a }; });
@@ -1259,7 +1333,7 @@
       (s.note ? '<p class="vmail-editor__note vmail-editor__note--ok">' + h(s.note) + '</p>' : '') +
       (s.error ? '<div class="vmail-editor__error" role="alert">' + h(s.error) + '</div>' : '') +
       '<div class="vmail-editor__actions">' +
-      '<button type="button" class="ap-btn ap-btn--primary" id="vmail-send"' + (locked || drafting ? ' disabled' : '') + '><i class="fas fa-paper-plane" aria-hidden="true"></i>' + (st === 'failed' ? 'Try again' : 'Send') + '</button>' +
+      '<button type="button" class="ap-btn ap-btn--primary vmail-btn-send" id="vmail-send"' + (locked || drafting ? ' disabled' : '') + '><i class="fas fa-paper-plane" aria-hidden="true"></i>' + (st === 'failed' ? 'Try again' : 'Send') + '</button>' +
       '<button type="button" class="ap-btn" data-act="discard"' + (locked ? ' disabled' : '') + '>Discard</button>' +
       '<span class="vmail-spacer"></span><span class="vmail-editor__hint">' + h(S.cfg.undoSeconds || 10) + ' seconds to undo after Send</span>' +
       '</div></section>';
@@ -1321,6 +1395,8 @@
     // A who-sent-it guard (Reply-To, lookalike, outside) only ever drafts the "I'll verify first"
     // answer, whatever was pressed.
     if (msg && guardFor(msg) && !instruction) stance = 'verify';
+    // Choosing the safe reply also takes back an earlier "Use the Reply-To address".
+    if (msg && stance === 'verify') delete S.replyTo[msg.id];
     var mine = s.text.trim() && s.text !== s.lastVale ? s.text : null;
     s.m.next('draft');
     s.stance = stance;
@@ -1526,6 +1602,15 @@
     afterSent(s, to);
   }
 
+  // Focus may follow a finished send only when it was still on the send (reader, send bar, page).
+  function focusWithSend() {
+    var a = document.activeElement;
+    return !a || a === document.body || $('vmail-reader').contains(a) || $('vmail-sendbar').contains(a);
+  }
+  function sameEmailOpen(s) {
+    return !!(S.open && (s.mode === 'compose' ? S.open.compose : S.open.msg && S.open.msg.id === s.msgId));
+  }
+
   function sendFailed(s, e) {
     s.m.next('fail');
     $('vmail-sendbar').hidden = true;
@@ -1536,7 +1621,7 @@
     if (S.session === s && S.open && (S.open.compose || S.openId === s.key)) {
       renderEditorSlot();
       renderValeSlot();
-      focusQuiet($('vmail-send'));
+      if (focusWithSend()) focusQuiet($('vmail-send'));
     } else toast('Your reply didn\'t send. Open the email to try again.', null, 'error');
   }
 
@@ -1553,7 +1638,9 @@
     $('vmail-sendbar-sr').textContent = 'Sent.';
     setSending(false);
     // The sent editor goes away first, whatever happens to the refresh below.
-    try { if (!(S.open && S.open.compose)) renderEditorSlot(); } catch (x) { /* the refresh below re-renders */ }
+    var mayFocus = focusWithSend();
+    var still = sameEmailOpen(s);
+    try { if (still && !(S.open && S.open.compose)) renderEditorSlot(); } catch (x) { /* the refresh below re-renders */ }
     try {
       await loadFolder('sentitems');
       toast('Sent to ' + whoText(s, to) + '.');
@@ -1561,19 +1648,19 @@
         S.open = null;
         setReading(false);
         renderReader();
-        focusQuiet($('vmail-list'));
-      } else if (S.open && S.open.msg) {
+        if (mayFocus) focusQuiet($('vmail-list'));
+      } else if (still && S.open && S.open.msg) {
         renderEditorSlot();
         renderValeSlot();
         var r = $('vmail-reader');
-        focusQuiet(r.querySelector('[data-act="next"]') || r.querySelector('[data-act="draft"],[data-act="reply"]') || r);
+        if (mayFocus) focusQuiet(r.querySelector('[data-act="next"]') || r.querySelector('[data-act="draft"],[data-act="reply"]') || r);
       }
       renderListPane();
       renderGreetingIfIdle();
     } catch (x) {
       // The email went; only the page didn't catch up.
       toast('Sent. The list didn\'t refresh.');
-      if (!$('vmail-reader').contains(document.activeElement)) focusQuiet($('vmail-reader'));
+      if (mayFocus && still && !$('vmail-reader').contains(document.activeElement)) focusQuiet($('vmail-reader'));
     }
   }
 
@@ -1673,9 +1760,14 @@
         m.parentFolderId = from;
         A.items = A.items.filter(function (x) { return x.id !== id; });
         L.items.splice(Math.min(Math.max(idxAll, 0), L.items.length), 0, m);
-        S.selectedId = id;
+        // The reader still on the email that replaced it (or closed): reopen the restored one, so
+        // the selected row and the open email are the same message. Otherwise keep them matched.
+        var reopen = wasOpen && !isPhone() && (!S.openId || (nextMsg && S.openId === nextMsg.id));
+        var inReader = $('vmail-reader').contains(document.activeElement);
+        S.selectedId = reopen || !S.openId || isPhone() ? id : S.openId;
         renderListPane();
         renderFolders();
+        if (reopen) openMessage(id, { focusReader: inReader });
         toast('Moved back to ' + folderName(from) + '.');
       } catch (e) { toast('Couldn\'t move it back. ' + C.errorText(e).text, null, 'error'); }
     });
@@ -1813,6 +1905,10 @@
       if (jump) { setFilter(jump.getAttribute('data-filter-jump')); return; }
       var row = e.target.closest('[role="option"]');
       if (row) select(row.getAttribute('data-id'), { open: true, show: true });
+    });
+    $('vmail-more-slot').addEventListener('click', function (e) {
+      var act = e.target.closest('[data-act]');
+      if (act && !act.disabled) handleAct(act.getAttribute('data-act'), act);
     });
     $('vmail-chips').addEventListener('click', function (e) {
       var c = e.target.closest('[data-filter]');

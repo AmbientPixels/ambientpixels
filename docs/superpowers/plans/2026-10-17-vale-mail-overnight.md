@@ -187,7 +187,7 @@ Then **one fixer agent** takes the merged must-fix list (dedupe; order: security
 
 ## 6. Morning handoff (final step)
 
-Write `docs/superpowers/handoffs/2026-10-17-vale-mail-morning.md`: score table per round, what shipped, open must-fixes, screenshot paths, **the proposed CSP diff** (in `staticwebapp.config.json` `connect-src` add `https://graph.microsoft.com`; `img-src` add `https:` for Show images — nothing else), and Chad's setup checklist:
+Write `docs/superpowers/handoffs/2026-10-17-vale-mail-morning.md`: score table per round, what shipped, open must-fixes, screenshot paths, **the proposed CSP diff**, scoped to the mail page only: a `routes[]` entry for `/modules/company/mail.html` (and only that path) with its own `Content-Security-Policy` header = the global one + `connect-src https://graph.microsoft.com` + `img-src https:` (for Show images). The global CSP stays byte-for-byte unchanged, so no other page can load images from any https host. Show images stays disabled until Chad approves it. Never applied by the overnight run (`staticwebapp.config.json` is protected), and Chad's setup checklist:
 1. Create app registration **Vale Mail** (SPA, single tenant, redirect `https://ambientpixels.ai/pages/vale-auth.html`), delegated `User.Read Mail.ReadWrite Mail.Send Calendars.Read` + Vale `access_as_user`; add it to Vale's `preAuthorizedApplications`; admin consent.
 2. Verify the **Vale** app still has only its six read-only scopes.
 3. Function App setting `VALE_ALLOWED_CLIENTS=<Vale>,<Vale Mail>`; put Vale Mail's client ID in `data/vale-mail-product.json`.
@@ -199,7 +199,7 @@ Commit the handoff; push.
 
 ```bash
 cd /c/Dev/Ambientpixels/ambientpixels
-for f in api/_lib/vale/*.test.js api/_utils/vale*.test.js api/vale-connect/connect.test.js api/valeBriefCron/skip.test.js api/vale-draft/*.test.js modules/company/js/vale-mail-*.test.js modules/company/js/vale-graph-browser.test.js; do node "$f" 2>&1 | tail -1; done
+for f in api/_lib/vale/*.test.js api/_utils/vale*.test.js api/vale-connect/connect.test.js api/valeBriefCron/skip.test.js api/vale-draft/*.test.js api/_lib/llm/llm.test.js api/_lib/llm/spendMonitor.test.js modules/company/js/vale-mail-*.test.js modules/company/js/vale-graph-browser.test.js; do node "$f" 2>&1 | tail -1; done
 NODE_PATH="C:/tmp/node_modules" node scripts/vale-mail-e2e.cjs <screenshot-dir>
 ```
-Expected: every line `N passed, 0 failed`; E2E prints `E2E OK`.
+Expected: every line `N passed, 0 failed`; E2E prints `E2E OK`. The llm tests are in the loop because this build changed `api/_lib/llm/index.js` (noFallback, redactDetail), which every agent uses; fixers run this whole loop before each commit.

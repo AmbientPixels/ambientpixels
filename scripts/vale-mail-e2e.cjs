@@ -290,13 +290,21 @@ async function main() {
       check(!(await pg.$('.vmail-vale .vmail-stance[data-stance]')), 'Reply-To mismatch: no one-tap stance buttons (no Acknowledge)');
       check(/another way/.test(await pg.textContent('.vmail-vale .vmail-question')), 'Reply-To mismatch: Vale says to check another way first');
       check(/Draft a safe reply/.test(await pg.textContent('.vmail-vale [data-act="draft-safe"]')), 'Reply-To mismatch: the only draft button is "Draft a safe reply"');
+      // Even after "Use the Reply-To address", the safe reply goes to the sender's own address.
+      await pg.click('.vmail-warn--replyto [data-act="use-replyto"]');
       await pg.click('.vmail-vale [data-act="draft-safe"]');
       await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && t.value.trim().length > 0 && !t.disabled; }, null, { timeout: 5000 });
       const safe = await pg.inputValue('#vmail-editor-text');
       check(!/Sounds good/i.test(safe) && /call/.test(safe), 'Reply-To mismatch: the draft verifies by phone and never agrees');
       const head1 = await pg.textContent('.vmail-editor__head');
-      check(/dana@northwind-studio\.example/.test(head1) && !/quickmail/.test(head1), 'Draft a reply goes to the From address by default');
+      check(/dana@northwind-studio\.example/.test(head1) && !/quickmail/.test(head1) && !(await pg.$('.vmail-editor .vmail-warnchip')),
+        'Draft a safe reply goes to the From address, even after "Use the Reply-To address" (no "Not the sender\'s address" tag)');
+      check(!(await pg.$('.vmail-warn--replyto [data-act="use-replyto"]')) && /safe reply goes to dana@northwind-studio\.example/.test(await pg.textContent('.vmail-warn--replyto')),
+        'while the safe reply is open, the Reply-To toggle is replaced by where it goes');
+      await pg.click('.vmail-editor [data-act="discard"]');
       await pg.click('.vmail-warn--replyto [data-act="use-replyto"]');
+      await pg.click('.vmail-reader__bar [data-act="reply"]');
+      await pg.fill('#vmail-editor-text', 'Hi Dana, replying here.');
       const head2 = await pg.textContent('.vmail-editor__head');
       check(/quickmail\.example/.test(head2) && await pg.isVisible('.vmail-warnchip'), 'Use the Reply-To address switches the editor, with a "Not the sender\'s address" chip');
       await pg.click('#vmail-send');
@@ -717,8 +725,8 @@ async function main() {
       await pg.click('.vmail-chip[data-filter="newsletter"]');
       check(/Newsletters and low-priority mail/.test(await pg.getAttribute('.vmail-chip[data-filter="newsletter"]', 'title')), 'Newsletters chip: the long name is in its title');
       check(await pg.isVisible('#vmail-listnote') && /low-priority mail Vale set aside/.test(await pg.textContent('#vmail-listnote')), 'Newsletters filter: a caption explains the mix');
-      const tagLooks = await pg.$$eval('#vmail-list .vmail-tag', (ts) => ({ n: ts.length, kinds: new Set(ts.map((t) => t.textContent)).size, looks: new Set(ts.map((t) => { const s = getComputedStyle(t); return s.backgroundColor + '|' + s.color; })).size }));
-      check(tagLooks.kinds >= 2 && tagLooks.looks === 1, 'Newsletter and Low priority tags share one style (' + JSON.stringify(tagLooks) + ')');
+      const tagLooks = await pg.$$eval('#vmail-list .vmail-tag', (ts) => ({ n: ts.length, kinds: new Set(ts.map((t) => t.textContent)).size, names: ts.map((t) => t.textContent), looks: new Set(ts.map((t) => { const s = getComputedStyle(t); return s.backgroundColor + '|' + s.color; })).size }));
+      check(tagLooks.names.indexOf('Newsletter') === -1 && tagLooks.names.indexOf('Low priority') !== -1 && tagLooks.looks === 1, 'Newsletters filter: no repeated Newsletter tag; Low priority tags keep one style (' + JSON.stringify(tagLooks) + ')');
       await pg.click('.vmail-chip[data-filter="all"]');
       check(!(await pg.isVisible('#vmail-listnote')), 'the caption goes away with the Newsletters filter');
 
@@ -894,6 +902,163 @@ async function main() {
       await c.close();
     }
 
+    // ── Round 4: sender tags, undo keeps the reader in sync, late sends never steal focus, toolbar, quotes ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForFunction(() => (window.__vmCalls.listMessages || 0) >= 2, null, { timeout: 5000 });
+      await pg.waitForTimeout(500);
+      const open = opener(pg);
+      const rowText = (id) => pg.textContent('#vmail-list [data-id="' + id + '"]');
+      const hasCheckTag = (id) => pg.$('#vmail-list [data-id="' + id + '"] .vmail-tag--check').then((x) => !!x);
+
+      // In the Needs you view the "Needs you" tag isn't repeated on every row.
+      const needsTags = await pg.$$eval('#vmail-list .vmail-row .vmail-tag--needs_you', (x) => x.length);
+      check(needsTags === 0, 'Needs you view: no row repeats the "Needs you" tag (' + needsTags + ')');
+      await pg.click('.vmail-chip[data-filter="all"]');
+      check(await pg.$$eval('#vmail-list .vmail-row .vmail-tag--needs_you', (x) => x.length) > 0, 'All view: the label tags still show');
+
+      // Faked and lookalike senders carry "Check sender" in the list; ordinary mail doesn't.
+      for (const id of ['demo-inb-048', 'demo-inb-047', 'demo-inb-015']) {
+        check(await hasCheckTag(id) && /Check sender/.test(await rowText(id)), id + ': the row has a "Check sender" tag');
+      }
+      check(!(await hasCheckTag('demo-inb-024')) && !(await hasCheckTag('demo-inb-026')), 'ordinary rows (Ravi, Maya) have no "Check sender" tag');
+      await open('demo-inb-048');
+      const spoofPanel = await pg.textContent('#vmail-reader .vmail-vale');
+      check(!/last wrote/.test(spoofPanel) && /comes from inside your organization/.test(spoofPanel), 'spoofed Vale: the panel never borrows the real sender\'s history');
+      await open('demo-inb-047');
+      check(/Real mail from Dana comes from dana@northwind-studio\.example/.test(await pg.textContent('#vmail-reader .vmail-vale')), 'lookalike: the panel says where real mail from Dana comes from');
+
+      // Lookalike: the safe reply goes to the real contact, never the lookalike address.
+      await pg.click('.vmail-vale [data-act="draft-safe"]');
+      await draftLands(pg, /call/);
+      const lhead = await pg.textContent('.vmail-editor__head');
+      check(/dana@northwind-studio\.example/.test(lhead) && !/studlo/.test(lhead), 'lookalike: the safe reply is addressed to the known contact (' + lhead.trim() + ')');
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // Unlabeled mail older than Vale's sort never reads "Vale hasn't looked at this one".
+      const stampAt = Date.parse(fixture.triagedAt);
+      for (const m of inbox.filter((x) => !fixture.labels[x.id] && !(x.internetMessageHeaders || []).some((hh) => /list-unsubscribe/i.test(hh.name)))) {
+        const t = await rowText(m.id);
+        const ok = Date.parse(m.receivedDateTime) > stampAt ? /Arrived after Vale's last check/.test(t) : /Not in Vale's last sort/.test(t);
+        check(ok && !/hasn't looked at this one/.test(t), m.id + ': unlabeled row copy matches when it arrived');
+      }
+
+      // Undo after archive: the restored email is both the selected row and the open email.
+      const selSubj = () => pg.evaluate(() => {
+        const r = document.querySelector('#vmail-list [aria-selected="true"]');
+        return { id: r && r.getAttribute('data-id'), row: r && r.querySelector('.vmail-row__subject strong').textContent, reader: (document.querySelector('#vmail-subject') || {}).textContent };
+      });
+      await open('demo-inb-026');
+      await pg.focus('#vmail-list');
+      await pg.keyboard.press('e');
+      await pg.waitForFunction(() => !document.querySelector('#vmail-list [data-id="demo-inb-026"]'), null, { timeout: 5000 });
+      await pg.waitForFunction(() => /Archived/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+      await pg.waitForTimeout(400);
+      await pg.keyboard.press('z');
+      await pg.waitForFunction(() => /Moved back/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+      await pg.waitForFunction(() => (document.querySelector('#vmail-subject') || {}).textContent === 'Saturday?', null, { timeout: 5000 });
+      const u1 = await selSubj();
+      check(u1.id === 'demo-inb-026' && u1.row === u1.reader && u1.reader === 'Saturday?', 'demo: after e then z, the selected row and the reader are both "Saturday?" (' + JSON.stringify(u1) + ')');
+      await pg.focus('#vmail-list');
+      await pg.keyboard.press('e');
+      await pg.waitForFunction(() => !document.querySelector('#vmail-list [data-id="demo-inb-026"]'), null, { timeout: 5000 });
+      check(true, 'demo: e again archives the email the reader showed');
+      await pg.waitForTimeout(400);
+      await pg.keyboard.press('z');
+      await pg.waitForSelector('#vmail-list [data-id="demo-inb-026"]', { timeout: 5000 });
+
+      // A send that finishes after you moved on leaves focus where you are.
+      await open('demo-inb-024');
+      await pg.click('.vmail-stance[data-stance="yes"]');
+      await draftLands(pg, /\S/);
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
+      await pg.focus('#vmail-list');
+      await pg.keyboard.press('j');
+      await pg.waitForFunction(() => /Sent to/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      await pg.waitForTimeout(300);
+      check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-list'), 'a send finishing after you moved on leaves focus in the list');
+
+      // The HTML reply's quoted history is folded behind "···".
+      await open('demo-inb-006');
+      await pg.waitForSelector('#vmail-body-slot .vmail-quotetoggle', { timeout: 5000 });
+      const foldText = await pg.$eval('#vmail-body-slot', (x) => x.innerText);
+      check(/Thursday at 10am Pacific/.test(foldText) && !/Sent:/.test(foldText) && await pg.$eval('#vmail-quote', (q) => q.hidden),
+        'HTML reply: quoted history is folded (no "Sent: … GMT" until expanded)');
+      await pg.click('#vmail-body-slot .vmail-quotetoggle');
+      check(/Sent:/.test(await pg.$eval('#vmail-body-slot', (x) => x.innerText)), 'HTML reply: "···" expands the quoted history');
+
+      // Send leads (solid periwinkle); the picked stance is a tinted "selected" state.
+      await pg.click('.vmail-stance[data-stance="yes"]');
+      await draftLands(pg, /Thursday/);
+      const looks = await pg.evaluate(() => ({
+        send: getComputedStyle(document.querySelector('#vmail-send')).backgroundColor,
+        picked: getComputedStyle(document.querySelector('.vmail-stance.is-picked')).backgroundColor,
+        pressed: document.querySelector('.vmail-stance.is-picked').getAttribute('aria-pressed')
+      }));
+      const alpha = (cs) => { const m = /rgba?\(([^)]+)\)/.exec(cs); const p = m ? m[1].split(',').map(Number) : []; return p.length === 4 ? p[3] : 1; };
+      check(looks.send === 'rgb(155, 140, 255)' && alpha(looks.picked) < 0.2 && looks.pressed === 'true', 'Send is solid periwinkle; the picked stance is tinted (' + JSON.stringify(looks) + ')');
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // The reader bar keeps its height when focus moves between list and reader.
+      const barH = () => pg.$eval('.vmail-reader__bar', (b) => b.getBoundingClientRect().height);
+      await pg.focus('#vmail-list');
+      const hList = await barH();
+      await pg.focus('.vmail-reader__bar [data-act="reply"]');
+      const hReader = await barH();
+      check(hList === hReader, 'reader bar height is the same with focus in the list and the reader (' + hList + ' / ' + hReader + ')');
+
+      // List focus: no frame around the column; the selected row carries the ring.
+      await pg.keyboard.press('Escape');
+      await pg.click('#vmail-list [data-id="demo-inb-024"]');
+      await pg.focus('#vmail-search');
+      await pg.keyboard.press('Shift+Tab');
+      await pg.evaluate(() => document.getElementById('vmail-list').focus({ focusVisible: true }));
+      const lf = await pg.evaluate(() => ({ list: getComputedStyle(document.getElementById('vmail-list')).boxShadow, fv: document.getElementById('vmail-list').matches(':focus-visible'),
+        row: (document.querySelector('#vmail-list [aria-selected="true"]') && getComputedStyle(document.querySelector('#vmail-list [aria-selected="true"]')).boxShadow) || '' }));
+      check(lf.list === 'none' && (!lf.fv || /155, 140, 255/.test(lf.row)), 'list focus: no ring around the column; the selected row has the ring (' + JSON.stringify(lf) + ')');
+
+      // Compose To field: one periwinkle ring, no cyan border.
+      await pg.click('#vmail-compose');
+      await pg.focus('#vmail-compose-to');
+      await pg.waitForTimeout(350); // the border-color transition
+      const bc = await pg.$eval('#vmail-compose-to', (x) => getComputedStyle(x).borderColor);
+      check(/155, 140, 255/.test(bc) && !/90, 228, 255/.test(bc), 'compose To focus border is periwinkle, not cyan (' + bc + ')');
+      await pg.click('.vmail-editor [data-act="discard"]').catch(() => {});
+      await c.close();
+    }
+
+    // ── Round 4: toolbar with the pinned subject never wraps (1440 / 1280 / 1024) ──
+    for (const w of [1440, 1280, 1024]) {
+      const c = await browser.newContext({ viewport: { width: w, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [data-id="demo-inb-006"]', { timeout: 8000 });
+      await opener(pg)('demo-inb-006');
+      await pg.click('.vmail-stance[data-stance="yes"]');
+      await draftLands(pg, /Thursday/);
+      await pg.$eval('#vmail-reader', (r) => { r.scrollTop = 300; });
+      await pg.waitForTimeout(200);
+      await pg.waitForSelector('.vmail-toolbar--with-subject', { timeout: 3000 });
+      const m = await pg.evaluate(() => {
+        const bar = document.querySelector('.vmail-reader__bar');
+        const sub = bar.querySelector('.vmail-toolbar__subject');
+        return { tools: Array.from(bar.querySelectorAll('.vmail-tool')).filter((t) => t.offsetParent).map((t) => Math.round(t.getBoundingClientRect().height)),
+          bar: bar.getBoundingClientRect().height, sub: sub.getBoundingClientRect().width, shadow: getComputedStyle(bar).boxShadow,
+          ch: sub.scrollWidth / Math.max(1, sub.textContent.length) };
+      });
+      check(m.tools.length && m.tools.every((x) => x === 30) && m.bar <= 49 && m.sub >= 20 * m.ch && m.shadow !== 'none',
+        w + ': toolbar buttons stay one line with the subject pinned, bar ≤ 49px, subject ≥ 20 chars, raised edge (' + JSON.stringify(m) + ')');
+      if (w === 1440) await pg.screenshot({ path: path.join(SHOTS, '04b-editor-pinned.png') });
+      await c.close();
+    }
+
     // ── Real mode (MSAL + Microsoft Graph), fully stubbed: nothing leaves this machine ──
     // MSAL is a stub, the product config gets a client id, Graph answers from a small fixture
     // with OPAQUE folder ids (as the real Graph does), and vale-state / vale-draft are captured.
@@ -977,6 +1142,11 @@ async function main() {
           if (mode === 'expired' && /\/mailFolders\/inbox\/messages/.test(u)) return send(401, { error: { code: 'InvalidAuthenticationToken', message: 'expired' } });
           if (/^\/me\?/.test(u)) return send(200, { displayName: 'Chad Martin', mail: 'chad@ambientpixels.ai' });
           if ((m = /^\/me\/mailFolders\/(inbox|sentitems|archive|drafts)\?\$select=id$/.exec(u))) return send(200, { id: FID[m[1]] });
+          if (mode === 'paged' && /^\/me\/mailFolders\/inbox\/messages/.test(u)) {
+            const all = Object.values(msgs).filter((x) => x.parentFolderId === FID.inbox).map((x) => Object.assign({}, x, { body: undefined }));
+            if (/skiptoken=p2/i.test(u)) return send(200, { value: all.slice(2) });
+            return send(200, { value: all.slice(0, 2), '@odata.nextLink': 'https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$skiptoken=p2' });
+          }
           if (/^\/me\/mailFolders\/inbox\/messages/.test(u)) return send(200, { value: Object.values(msgs).filter((x) => x.parentFolderId === FID.inbox).map((x) => Object.assign({}, x, { body: undefined })) });
           if (/^\/me\/mailFolders\/(sentitems|archive)\/messages/.test(u)) return send(200, { value: [] });
           if (/^\/me\/calendarView/.test(u)) return send(200, { value: [] });
@@ -1034,8 +1204,33 @@ async function main() {
         await pg.waitForSelector('#vmail-list [data-id="r3"]', { timeout: 5000 });
         await pg.waitForFunction(() => /Moved back to Inbox/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
         check(out.moves[1] === 'r3>inbox' && msgs.r3.parentFolderId === FID.inbox, 'real mode: z moves it back to Inbox');
+        await pg.waitForFunction(() => (document.querySelector('#vmail-subject') || {}).textContent === 'Coffee soon', null, { timeout: 5000 }).catch(() => {});
+        const rs = await pg.evaluate(() => {
+          const r = document.querySelector('#vmail-list [aria-selected="true"]');
+          return { id: r && r.getAttribute('data-id'), row: r && r.querySelector('.vmail-row__subject strong').textContent, reader: (document.querySelector('#vmail-subject') || {}).textContent };
+        });
+        check(rs.id === 'r3' && rs.row === rs.reader && rs.reader === 'Coffee soon', 'real mode: after e then z, the selected row is the open email (' + JSON.stringify(rs) + ')');
         check(out.foreign.length === 0, 'real mode: no request leaves for any non-stubbed host' + (out.foreign.length ? ': ' + out.foreign.join(', ') : ''));
         await pg.screenshot({ path: path.join(SHOTS, '17-real-mode.png') });
+        await c.close();
+      }
+      // Paged inbox: every listbox child is an option; "Load older mail" is reachable and works.
+      {
+        const { c, pg } = await realPage('paged');
+        await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+        await pg.waitForSelector('#vmail-more-slot:not([hidden]) [data-act="more"]', { timeout: 5000 });
+        const kids = await pg.$$eval('#vmail-list > *', (x) => x.map((k) => k.getAttribute('role')));
+        check(kids.length === 2 && kids.every((r) => r === 'option'), 'real mode (paged): every child of the listbox is an option (' + kids.join(',') + ')');
+        await pg.focus('#vmail-list');
+        let reached = false;
+        for (let i = 0; i < 4 && !reached; i++) {
+          await pg.keyboard.press('Tab');
+          reached = await pg.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-act') === 'more');
+        }
+        check(reached, 'real mode (paged): Tab reaches "Load older mail"');
+        await pg.click('#vmail-more-slot [data-act="more"]');
+        await pg.waitForFunction(() => document.querySelectorAll('#vmail-list [role="option"]').length === 3, null, { timeout: 5000 });
+        check(await pg.$eval('#vmail-more-slot', (x) => x.hidden), 'real mode (paged): Load older mail loads the next page, then goes away');
         await c.close();
       }
       // Rules fail: every draft is client:true.
@@ -1070,6 +1265,8 @@ async function main() {
     check(!(await ph.isVisible('.vmail-nav')), 'phone: folder column hidden');
     const sw = await ph.evaluate(() => document.documentElement.scrollWidth);
     check(sw <= 390, 'phone: no horizontal scroll (' + sw + ')');
+    const pst = await ph.$eval('#vmail-checked-phone', (x) => { const r = x.getBoundingClientRect(); return { w: r.width, h: r.height, t: x.textContent }; });
+    check(pst.w > 0 && pst.h > 0 && /Vale sorted at/.test(pst.t) && await ph.isVisible('#vmail-checked-phone'), 'phone: the "Vale sorted at" stamp shows in the list header (' + JSON.stringify(pst) + ')');
     await ph.screenshot({ path: path.join(SHOTS, '08-phone.png') });
     await ph.tap('#vmail-list [data-id="demo-inb-006"]');
     await ph.waitForSelector('#vmail-reader', { state: 'visible', timeout: 5000 });
