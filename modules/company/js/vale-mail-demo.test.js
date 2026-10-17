@@ -307,7 +307,7 @@ const allMsgs = (f) => [].concat(...Object.values(f.folders));
     assert.strictEqual(m.from.emailAddress.address, fixture().me.mail);
     assert.strictEqual(Date.parse(m.sentDateTime), NOW);
     assert.strictEqual(m.isRead, true);
-    await assert.rejects(g.sendDraft(d.id), (e) => e.status === 400, 'cannot send twice');
+    await assert.rejects(g.sendDraft(d.id), (e) => e.status === 404 && e.code === 'ErrorItemNotFound', 'cannot send twice: the draft is gone');
     await assert.rejects(g.sendDraft('nope'), (e) => e.status === 404);
   });
   await test('a draft with no recipients cannot be sent', async () => {
@@ -345,6 +345,37 @@ const allMsgs = (f) => [].concat(...Object.values(f.folders));
   });
   await test('me returns the fixture mailbox owner', async () => {
     assert.deepStrictEqual(await demo().me(), fixture().me);
+  });
+
+  // ── Demo drafts (round 2) ──
+  const { rewriteInstruction, demoDraft } = require('./vale-mail-demo.js');
+  await test('rewriteInstruction turns "ask X if…" into a question, never echoing the instruction', () => {
+    assert.strictEqual(rewriteInstruction('ask Ravi if Tuesday works for a demo', 'Ravi'), 'Does Tuesday work for a demo?');
+    assert.strictEqual(rewriteInstruction('ask Ravi whether he can send the key', 'Ravi'), 'Can you send the key?');
+    assert.strictEqual(rewriteInstruction('ask Kim to send the redlines'), 'Could you send the redlines?');
+    assert.strictEqual(rewriteInstruction('tell Kim we ship Monday', 'Kim'), 'We ship Monday.');
+    assert.strictEqual(rewriteInstruction('let Kim know that she can use the sandbox', 'Kim'), 'You can use the sandbox.');
+    assert.strictEqual(rewriteInstruction('yes, send it Monday'), 'Yes, send it Monday.');
+  });
+  await test('demoDraft: written drafts per email and stance, generic fallback, no "Quick note:"', () => {
+    const fx = fixture();
+    const yes = demoDraft(fx.drafts, { id: 'demo-inb-006', stance: 'yes', firstName: 'Dana' });
+    assert.ok(/Thursday/.test(yes) && /^Hi Dana,/.test(yes), yes);
+    assert.ok(/sandbox/.test(demoDraft(fx.drafts, { id: 'demo-inb-024', stance: 'yes', firstName: 'Ravi' })));
+    assert.ok(/checking in/.test(demoDraft(fx.drafts, { id: 'demo-inb-011', stance: 'nudge', firstName: 'Jordan' })));
+    assert.ok(/checking in/i.test(demoDraft(fx.drafts, { id: 'nope', stance: 'nudge', firstName: 'Pat' })));
+    const compose = demoDraft(fx.drafts, { instruction: 'ask Ravi if Tuesday works for a demo', firstName: 'Ravi' });
+    assert.ok(/Does Tuesday work/.test(compose) && !/ask Ravi/.test(compose) && !/Quick note:/.test(compose), compose);
+    const choice = demoDraft(fx.drafts, { id: 'demo-inb-027', stance: 'choice', option: 'B', firstName: 'Elena' });
+    assert.ok(/go with B\./.test(choice), choice);
+    Object.keys(fx.drafts).forEach((k) => { if (typeof fx.drafts[k] === 'string') assert.ok(!/Quick note:/.test(fx.drafts[k]), k); });
+  });
+  await test('demoDraft: a mismatched Reply-To always gets the verify draft', () => {
+    const fx = fixture();
+    ['yes', 'ack', null].forEach((stance) => {
+      const t = demoDraft(fx.drafts, { id: 'demo-inb-015', stance, mismatch: true, firstName: 'Dana', instruction: stance ? '' : 'sounds good' });
+      assert.ok(/call/.test(t) && !/Sounds good/i.test(t), t);
+    });
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

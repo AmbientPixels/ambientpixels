@@ -182,7 +182,7 @@ async function main() {
     await page.waitForSelector('.vmail-stance[data-stance="yes"]', { timeout: 5000 });
     check(/\?/.test(await page.textContent('.vmail-question')), 'Vale quotes the question she found');
     await page.click('.vmail-stance[data-stance="yes"]');
-    await page.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /Yes, that works/.test(t.value); }, null, { timeout: 5000 });
+    await page.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /Thursday at 10am Pacific works/.test(t.value); }, null, { timeout: 5000 });
     await page.waitForTimeout(250); // let the editor's entrance settle before the screenshot
     check(/Dana/.test(await page.inputValue('#vmail-editor-text')), 'Vale\'s draft lands in the editor, addressed to Dana');
     await page.screenshot({ path: path.join(SHOTS, '04-editor.png') });
@@ -193,7 +193,7 @@ async function main() {
     await page.screenshot({ path: path.join(SHOTS, '05-undo-bar.png') });
     await page.click('#vmail-undo-send');
     await page.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 3000 });
-    check(/Yes, that works/.test(await page.inputValue('#vmail-editor-text')), 'after Undo the reply is still an editable draft');
+    check(/Thursday at 10am Pacific works/.test(await page.inputValue('#vmail-editor-text')), 'after Undo the reply is still an editable draft');
 
     await page.click('#vmail-send');
     await page.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
@@ -202,7 +202,7 @@ async function main() {
     await page.waitForFunction((n) => (document.querySelector('.vmail-chip[data-filter="needs_you"] .vmail-chip__count') || {}).textContent === String(n), want.needs_you - 1, { timeout: 5000 });
     check(await chipCount('needs_you') === String(want.needs_you - 1), 'after the reply, Needs you drops by one');
     check(await chipCount('waiting') === String(want.waiting + 1), 'after the reply, Waiting on others grows by one');
-    check(/You answered just now/.test(await page.textContent('.vmail-vale')), 'panel says "You answered just now"');
+    check(/Sent\. It's Dana's turn now\./.test(await page.textContent('.vmail-vale')), 'panel says "Sent. It\'s Dana\'s turn now."');
     check(!(await page.$('.vmail-vale .vmail-stance')), 'no stance buttons once answered');
     check(!(await page.$('#vmail-list [data-id="demo-inb-006"]')), 'the answered email leaves the Needs you list');
     await page.click('.vmail-folder[data-folder="sentitems"]');
@@ -274,8 +274,11 @@ async function main() {
       check(await pg.getAttribute('.vmail-warn--replyto', 'role') === 'note', 'Reply-To warning is a note, not a re-firing alert');
       check(!(await pg.$('.vmail-vale .vmail-stance[data-stance]')), 'Reply-To mismatch: no one-tap stance buttons (no Acknowledge)');
       check(/another way/.test(await pg.textContent('.vmail-vale .vmail-question')), 'Reply-To mismatch: Vale says to check another way first');
-      await pg.click('.vmail-vale [data-act="draft"]');
+      check(/Draft a safe reply/.test(await pg.textContent('.vmail-vale [data-act="draft-safe"]')), 'Reply-To mismatch: the only draft button is "Draft a safe reply"');
+      await pg.click('.vmail-vale [data-act="draft-safe"]');
       await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && t.value.trim().length > 0 && !t.disabled; }, null, { timeout: 5000 });
+      const safe = await pg.inputValue('#vmail-editor-text');
+      check(!/Sounds good/i.test(safe) && /call/.test(safe), 'Reply-To mismatch: the draft verifies by phone and never agrees');
       const head1 = await pg.textContent('.vmail-editor__head');
       check(/dana@northwind-studio\.example/.test(head1) && !/quickmail/.test(head1), 'Draft a reply goes to the From address by default');
       await pg.click('.vmail-warn--replyto [data-act="use-replyto"]');
@@ -328,7 +331,7 @@ async function main() {
       }
       check(onYes, 'keyboard: Tab reaches the Yes stance');
       await pg.keyboard.press('Enter');
-      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /Yes, that works/.test(t.value) && document.activeElement === t; }, null, { timeout: 5000 });
+      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /sandbox key/.test(t.value) && document.activeElement === t; }, null, { timeout: 5000 });
       check(true, 'keyboard: Enter on Yes drafts the reply and focuses the editor');
       await pg.keyboard.press('Control+Enter');
       await pg.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
@@ -338,7 +341,7 @@ async function main() {
       check(/Press Undo/.test(await pg.textContent('#vmail-sendbar-sr')), 'a11y: the send is announced once in its own live region');
       await pg.keyboard.press('Enter');
       await pg.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 3000 });
-      check(/Yes, that works/.test(await pg.inputValue('#vmail-editor-text')), 'keyboard: Enter on Undo stops the send');
+      check(/sandbox key/.test(await pg.inputValue('#vmail-editor-text')), 'keyboard: Enter on Undo stops the send');
 
       // Forced colors: the focus ring must survive (box-shadow is dropped there).
       await pg.emulateMedia({ forcedColors: 'active' });
@@ -392,7 +395,7 @@ async function main() {
       await pg.fill('#vmail-compose-subject', 'E2E compose check');
       await pg.fill('#vmail-compose-brief', 'confirm the Friday call');
       await pg.click('form[data-form="brief"] button[type="submit"]');
-      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /confirm the Friday call/.test(t.value) && !t.disabled; }, null, { timeout: 5000 });
+      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /Confirm the Friday call/.test(t.value) && !t.disabled; }, null, { timeout: 5000 });
       check(/Hi Pat/.test(await pg.inputValue('#vmail-editor-text')), 'compose: Vale drafts from the one-line brief');
       await pg.click('#vmail-send');
       await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
@@ -414,6 +417,205 @@ async function main() {
       await pg.click('#vmail-send');
       await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
       check(true, 'send failure: Try again sends it');
+      await c.close();
+    }
+
+    const allMsgs = [].concat(...Object.values(fixture.folders));
+    const subjOf = (id) => allMsgs.find((m) => m.id === id).subject;
+    const opener = (pg) => async (id) => {
+      await pg.click('#vmail-list [data-id="' + id + '"]');
+      await pg.waitForFunction(([i, s]) => {
+        const r = document.querySelector('#vmail-list [aria-selected="true"]');
+        const h1 = document.querySelector('#vmail-subject');
+        return r && r.getAttribute('data-id') === i && h1 && h1.textContent === s && document.querySelector('#vmail-reader .vmail-vale');
+      }, [id, subjOf(id)], { timeout: 5000 });
+    };
+    const draftLands = (pg, re) => pg.waitForFunction((src) => {
+      const t = document.querySelector('#vmail-editor-text');
+      return t && !t.disabled && new RegExp(src).test(t.value);
+    }, re.source, { timeout: 5000 });
+
+    // ── Round 2: the panel offers the right action for each kind of email ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+      await pg.waitForFunction(() => /, Chad\.$/.test((document.querySelector('.vmail-hello__title') || {}).textContent || ''), null, { timeout: 3000 });
+      check(true, '1440: the greeting names Chad on first load');
+      const chipsIn = await pg.$$eval('.vmail-chip', (cs) => {
+        const box = document.querySelector('#vmail-listpane').getBoundingClientRect();
+        return cs.length === 5 && cs.every((x) => { const r = x.getBoundingClientRect(); return r.width > 0 && r.left >= box.left && r.right <= box.right; });
+      });
+      check(chipsIn, '1440: all five filter chips are fully visible in the list header');
+      const open = opener(pg);
+      await pg.click('.vmail-chip[data-filter="all"]');
+
+      for (const id of ['demo-inb-019', 'demo-inb-020', 'demo-inb-028', 'demo-inb-029', 'demo-inb-030', 'demo-inb-033', 'demo-inb-034']) {
+        await open(id);
+        const t = await pg.textContent('#vmail-reader .vmail-vale');
+        const st = await pg.$('#vmail-reader .vmail-vale [data-stance]');
+        check(!/Waiting on your reply/.test(t) && !st && /Archive it/.test(t), id + ': nothing to answer (no waiting line, no stances, Archive it)');
+      }
+
+      await open('demo-inb-027');
+      check(!(await pg.$('.vmail-vale [data-stance="yes"]')) && !!(await pg.$('.vmail-vale [data-stance="choice"][data-option="A"]')) &&
+        !!(await pg.$('.vmail-vale [data-stance="choice"][data-option="B"]')), 'A-or-B question: one button per option, no Yes/No');
+      await pg.click('.vmail-vale [data-stance="choice"][data-option="B"]');
+      await draftLands(pg, /go with B\./);
+      check(true, 'choosing B drafts "Let\'s go with B."');
+      check(/Demo draft/.test(await pg.textContent('.vmail-editor__head')), 'demo drafts are marked "Demo draft"');
+      await pg.focus('.vmail-editor [data-act="discard"]');
+      await pg.keyboard.press('Enter');
+      await pg.waitForFunction(() => !document.querySelector('#vmail-editor-text'), null, { timeout: 3000 });
+      check(await pg.evaluate(() => !!document.activeElement && document.activeElement !== document.body), 'Enter on Discard: focus stays on a control, not <body>');
+      await pg.click('#vmail-toast-undo');
+      await draftLands(pg, /go with B\./);
+      const stored = await pg.evaluate(() => Object.keys(sessionStorage).filter((k) => /^vmail:draft:/.test(k)));
+      check(stored.length === 0, 'Undo on discard brings the draft back without storing an unedited Vale draft' + (stored.length ? ': ' + stored.join(',') : ''));
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      await open('demo-inb-025');
+      check(!(await pg.$('.vmail-vale [data-stance="yes"]')) && !(await pg.$('.vmail-vale [data-stance="no"]')) && /Draft an answer/.test(await pg.textContent('.vmail-vale')),
+        'open question: no Yes/No, one "Draft an answer"');
+
+      await open('demo-inb-011');
+      check(!!(await pg.$('.vmail-vale [data-stance="nudge"]')) && !(await pg.$('.vmail-vale [data-stance="ack"]')), 'Waiting thread: "Draft a nudge", no Acknowledge');
+      await pg.click('.vmail-vale [data-stance="nudge"]');
+      await draftLands(pg, /checking in/);
+      check(true, 'the nudge draft checks in');
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      await open('demo-inb-001');
+      check(/Open the latest/.test(await pg.textContent('.vmail-vale')) && !(await pg.$('.vmail-vale [data-stance]')), 'older message in an answered thread: "Open the latest", no stances');
+      await pg.click('.vmail-vale [data-act="open-latest"]');
+      await pg.waitForFunction(() => { const r = document.querySelector('#vmail-list [aria-selected="true"]'); return r && r.getAttribute('data-id') === 'demo-inb-006' && document.querySelector('#vmail-reader .vmail-vale [data-stance="yes"]'); }, null, { timeout: 5000 });
+      check(true, '"Open the latest" opens demo-inb-006');
+
+      // Toolbar actions keep keyboard focus on their re-rendered button.
+      await pg.focus('#vmail-reader .vmail-reader__bar [data-act="flag"]');
+      await pg.keyboard.press('Enter');
+      await pg.waitForFunction(() => { const a = document.activeElement; return a && a.getAttribute('data-act') === 'flag' && /Unflag/.test(a.textContent); }, null, { timeout: 3000 });
+      check(true, 'Enter on Flag: focus stays on the (now Unflag) button');
+      await pg.keyboard.press('Enter');
+      await pg.waitForFunction(() => { const a = document.activeElement; return a && a.getAttribute('data-act') === 'flag' && !/Unflag/.test(a.textContent); }, null, { timeout: 3000 });
+      await pg.waitForFunction(() => /Flag removed/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 3000 });
+      await pg.focus('#vmail-reader .vmail-reader__bar [data-act="unread"]');
+      await pg.keyboard.press('Enter');
+      await pg.waitForFunction(() => { const a = document.activeElement; return a && a.getAttribute('data-act') === 'unread' && /Mark read/.test(a.textContent); }, null, { timeout: 3000 });
+      check(true, 'Enter on Mark unread: focus stays on that button');
+      await pg.waitForFunction(() => /Marked unread/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 3000 });
+      await pg.focus('#vmail-reader .vmail-reader__bar [data-act="archive"]');
+      await pg.keyboard.press('Enter');
+      await pg.waitForTimeout(700);
+      check(await pg.evaluate(() => { const a = document.activeElement; return !!a && a !== document.body && (document.querySelector('#vmail-reader').contains(a) || a.id === 'vmail-list'); }),
+        'Enter on Archive: focus lands in the reader or the list, never <body>');
+      await pg.click('#vmail-toast-undo');
+      await pg.waitForSelector('#vmail-list [data-id="demo-inb-006"]', { timeout: 5000 });
+
+      // z undoes the last action from the keyboard.
+      await pg.focus('#vmail-list');
+      const zid = await pg.$eval('#vmail-list [aria-selected="true"]', (r) => r.getAttribute('data-id'));
+      await pg.keyboard.press('e');
+      await pg.waitForFunction((i) => !document.querySelector('#vmail-list [data-id="' + i + '"]'), zid, { timeout: 3000 });
+      check(/Press z to undo/.test(await pg.textContent('#vmail-toast')), 'the archive toast says "Press z to undo"');
+      await pg.keyboard.press('z');
+      await pg.waitForSelector('#vmail-list [data-id="' + zid + '"]', { timeout: 5000 });
+      await pg.waitForFunction(() => /Moved back to Inbox/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+      check(true, 'z undoes the archive ("Moved back to Inbox.")');
+
+      // A search with no results empties the reader and keeps the header height.
+      await open('demo-inb-024');
+      const top0 = await pg.$eval('#vmail-list', (l) => l.getBoundingClientRect().top);
+      await pg.fill('#vmail-search', 'zzzz');
+      await pg.press('#vmail-search', 'Enter');
+      await pg.waitForSelector('.vmail-empty', { timeout: 5000 });
+      const top1 = await pg.$eval('#vmail-list', (l) => l.getBoundingClientRect().top);
+      check(!(await pg.$('#vmail-reader .vmail-vale')) && /Nothing selected/.test(await pg.textContent('#vmail-reader')), 'no-result search: the reader goes quiet');
+      check(Math.abs(top1 - top0) <= 2, 'no-result search: the list header keeps its height (' + top0 + ' → ' + top1 + ')');
+      await pg.click('#vmail-search-clear');
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 5000 });
+
+      // A one-line compose brief becomes a real sentence.
+      await pg.click('#vmail-compose');
+      await pg.fill('#vmail-compose-to', 'ravi@oakline-dev.example');
+      await pg.fill('#vmail-compose-brief', 'ask Ravi if Tuesday works for a demo');
+      await pg.click('form[data-form="brief"] button[type="submit"]');
+      await draftLands(pg, /\S/);
+      const cb = await pg.inputValue('#vmail-editor-text');
+      check(/Does Tuesday work/.test(cb) && !/ask Ravi/.test(cb) && !/Quick note:/.test(cb), 'compose brief becomes a real sentence: ' + JSON.stringify(cb.split('\n')[2] || ''));
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // Send → "Next:" opens the next email that needs Chad.
+      await pg.click('.vmail-chip[data-filter="needs_you"]');
+      await open('demo-inb-024');
+      await pg.click('.vmail-vale [data-stance="yes"]');
+      await draftLands(pg, /sandbox/);
+      check(true, 'Ravi\'s yes draft hands over a sandbox key');
+      await pg.$eval('#vmail-reader', (r) => { r.scrollTop = r.scrollHeight; });
+      await pg.waitForTimeout(250);
+      const subjOut = await pg.evaluate(() => { const r = document.querySelector('#vmail-reader').getBoundingClientRect(); const s = document.querySelector('#vmail-subject').getBoundingClientRect(); return s.bottom < r.top + 46; });
+      if (subjOut) check(await pg.isVisible('.vmail-toolbar--with-subject .vmail-toolbar__subject'), 'the bar carries the subject once the heading scrolls away');
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('.vmail-vale [data-act="next"]', { timeout: 20000 });
+      const nextText = (await pg.textContent('.vmail-vale [data-act="next"]')).trim();
+      check(/^Next:/.test(nextText), 'after sending, the panel offers "' + nextText + '"');
+      check(((await pg.textContent('.vmail-vale')).match(/just now/g) || []).length <= 1, 'the post-send panel says "just now" at most once');
+      check(await pg.evaluate(() => !!document.activeElement && document.activeElement.getAttribute('data-act') === 'next'), 'after the send, focus is on Next (not <body>)');
+      await pg.click('.vmail-vale [data-act="next"]');
+      await pg.waitForFunction(() => { const r = document.querySelector('#vmail-list [aria-selected="true"]'); return r && r.getAttribute('data-id') !== 'demo-inb-024' && document.querySelector('#vmail-reader .vmail-vale'); }, null, { timeout: 5000 });
+      const nid = await pg.$eval('#vmail-list [aria-selected="true"]', (r) => r.getAttribute('data-id'));
+      check(fixture.labels[nid] && fixture.labels[nid].label === 'needs_you', 'Next opens another Needs you email (' + nid + ')');
+      await c.close();
+    }
+
+    // ── Round 2: sends that half-fail never double-send or report "Not sent" falsely ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+      const open = opener(pg);
+      await pg.click('.vmail-chip[data-filter="all"]');
+      await open('demo-inb-031');
+      await pg.click('.vmail-vale [data-stance="yes"]');
+      await draftLands(pg, /coffee/);
+      await pg.evaluate(() => {
+        const g = window.__vmGraph, real = g.sendDraft;
+        g.sendDraft = function (id) { g.sendDraft = real; return real.call(g, id).then(() => Promise.reject({ status: 0, code: 'network' })); };
+      });
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('.vmail-editor__error[role="alert"]', { timeout: 20000 });
+      check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-send'), 'send failure: focus is on Try again');
+      await pg.click('#vmail-send');
+      await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      const copies = await pg.evaluate(async () => (await window.__vmGraph.listMessages({ folder: 'sentitems' })).items.filter((m) => m.conversationId === 'conv-demo-inb-031').length);
+      check(copies === 1, 'a send that went through but reported failure: Try again finds it in Sent, exactly one copy (' + copies + ')');
+
+      await open('demo-inb-036');
+      await pg.click('.vmail-vale [data-stance="yes"]');
+      await draftLands(pg, /Marcus/);
+      await pg.evaluate(() => {
+        const g = window.__vmGraph, list = g.listMessages, send = g.sendDraft;
+        let armed = false;
+        g.sendDraft = function (id) { return send.call(g, id).then((r) => { armed = true; return r; }); };
+        g.listMessages = function (o) {
+          if (armed && o && o.folder === 'sentitems') { armed = false; return Promise.resolve({ items: [null], next: null }); }
+          return list.call(g, o);
+        };
+      });
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
+      await pg.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 20000 });
+      await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 5000 });
+      check(true, 'a UI error after a good send: the toast still says Sent');
+      check(!(await pg.$('#vmail-editor-text')), 'a UI error after a good send: the editor is gone');
+      check(!/Not sent/.test(await pg.textContent('#vmail-reader')), 'a UI error after a good send: nothing says "Not sent"');
+      check(await pg.evaluate(() => sessionStorage.getItem('vmail:draft:demo-inb-036') === null), 'a UI error after a good send: no saved draft left to resend');
       await c.close();
     }
 
@@ -450,8 +652,20 @@ async function main() {
       check(await pg.isVisible('#vmail-folder-select'), '1024: folder menu visible');
       const sw = await pg.evaluate(() => document.documentElement.scrollWidth);
       check(sw <= 1024, '1024: no horizontal scroll (' + sw + ')');
-      const tops = await pg.$$eval('.vmail-chip', (cs) => cs.map((x) => x.offsetTop));
-      check(new Set(tops).size === 1, '1024: filter chips sit on one line');
+      const clipped = await pg.$$eval('.vmail-chip', (cs) => { const box = document.querySelector('#vmail-chips').getBoundingClientRect(); return cs.filter((c) => { const r = c.getBoundingClientRect(); return r.left < box.left - 0.5 || r.right > box.right + 0.5; }).length; });
+      check(clipped === 0, '1024: no filter chip is cut off');
+      await pg.waitForFunction(() => /, Chad\.$/.test((document.querySelector('.vmail-hello__title') || {}).textContent || ''), null, { timeout: 3000 });
+      check(true, '1024: the greeting names Chad on first load');
+      await pg.waitForTimeout(400);
+      if (await pg.isVisible('#vmail-nextup')) {
+        await pg.click('#vmail-nextup');
+        await pg.waitForSelector('#vmail-schedule[open]', { timeout: 3000 });
+        check(/Investor call: Lumen Capital/.test(await pg.textContent('#vmail-schedule')), '1024: the schedule sheet shows today and tomorrow');
+        await pg.screenshot({ path: path.join(SHOTS, '11-1024-schedule.png') });
+        await pg.keyboard.press('Escape');
+        await pg.waitForSelector('#vmail-schedule:not([open])', { state: 'attached', timeout: 3000 });
+        check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-nextup'), '1024: Esc closes the schedule; focus returns to the strip');
+      } else console.log('  skip  1024 schedule: no meetings left today at this hour');
       await pg.screenshot({ path: path.join(SHOTS, '10-1024.png') });
       await c.close();
     }

@@ -7,7 +7,8 @@
     "name": "Vale",
     "role": "Chief of Staff",
     "color": "#9b8cff",
-    "icon": "mail"
+    "icon": "mail",
+    "address": "vale@ambientpixels.ai"
   },
   "tenantId": "96bfe658-4094-4192-88f8-5b0874471c7e",
   "clientId": "",
@@ -33,8 +34,8 @@
     "checkedAt": "Checked at {time}",
     "filters": {
       "needs_you": "Needs you",
-      "waiting": "Waiting on others",
-      "all": "Everything",
+      "waiting": "Waiting",
+      "all": "All",
       "newsletter": "Newsletters",
       "set_aside": "Set aside"
     },
@@ -51,7 +52,16 @@
       "no": "No",
       "later": "Later",
       "more": "Need more",
-      "ack": "Acknowledge"
-    }
+      "ack": "Acknowledge",
+      "nudge": "Draft a nudge"
+    },
+    "filterNames": {
+      "needs_you": "Needs you",
+      "waiting": "Waiting on others",
+      "all": "Everything",
+      "newsletter": "Newsletters",
+      "set_aside": "Set aside"
+    },
+    "rulesFailedNotice": "Couldn't load your client list, so Vale drafts with Claude only for now. If Claude is unavailable, there is no draft."
   }
 }

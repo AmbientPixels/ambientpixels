@@ -712,6 +712,13 @@ test('attribute names with quotes or junk are dropped, first duplicate wins', ()
   assert.strictEqual(b, '<p title="a">t</p>');
 });
 
+test('an unresolved cid: image is dropped (it can never load and trips the page CSP)', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<img src="cid:logo@x" alt="Logo">'), true));
+  assert.strictEqual(b, '<img alt="Logo">');
+  const ok = bodyOf(C.safeBodyDoc(html('<img src="cid:logo@x">'), false, { 'logo@x': 'data:image/png;base64,AA' }));
+  assert.strictEqual(ok, '<img src="data:image/png;base64,AA">');
+});
+
 // ── questionKind / choiceOptions ──
 test('questionKind: choice, open, yesno', () => {
   assert.strictEqual(C.questionKind('Which direction do you prefer, A or B?'), 'choice');

@@ -109,6 +109,8 @@
           var hit = inline[normCid(val.replace(/^\s*cid:/i, ''))];
           if (typeof hit === 'string' && /^data:image\//i.test(hit)) val = hit;
         }
+        // An unresolved cid: can never load in a browser (and trips the page CSP): drop it.
+        if (an === 'src' && /^cid:/.test(urlForCheck(val))) return;
         // Unsafe URLs are removed outright (never rewritten to "#", which would open this page).
         if (unsafeUrl(val, an)) return;
       }

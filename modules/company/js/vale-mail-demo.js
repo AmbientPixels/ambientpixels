@@ -138,7 +138,11 @@
       if (typeof id !== 'string' || !Object.prototype.hasOwnProperty.call(store, id)) throw notFound();
       return store[id];
     }
+    // A draft that was sent is gone from Drafts, as in Graph (404), so a retry after an ambiguous
+    // send failure can tell it went out.
+    var sentDrafts = {};
     function getDraft(id) {
+      if (typeof id === 'string' && sentDrafts[id]) throw notFound();
       var d = get(id);
       if (!d.isDraft) throw badArg('not a draft');
       return d;
@@ -295,6 +299,7 @@
           }
           var t = new Date(now()).toISOString();
           d.isDraft = false;
+          sentDrafts[draftId] = true;
           d.isRead = true;
           d.parentFolderId = 'sentitems';
           d.from = { emailAddress: { name: me.displayName, address: me.mail } };
@@ -327,7 +332,76 @@
     };
   }
 
-  var _exports = { createDemoGraph: createDemoGraph, shiftIso: shiftIso };
+  // ── Demo drafts ────────────────────────────────────────────────────────────
+  // The demo has no model, so it picks a written draft for the email and stance (fixture
+  // drafts.byId), and turns a one-line instruction into an email sentence. Real drafts come
+  // from the vale-draft API.
+
+  var VERB_S = /^(works|suits|fits|helps|sounds|makes|looks|matters|needs|wants)$/i;
+  var AUX_W = /^(is|are|can|could|would|will|should|has|have|does|do|did|was|were)$/i;
+  var PRONOUN = /^(he|she|they|him|her|them)$/i;
+
+  function capital(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function sentence(s) {
+    s = String(s || '').trim().replace(/\s+/g, ' ');
+    if (!s) return '';
+    s = capital(s);
+    return /[.!?]$/.test(s) ? s : s + '.';
+  }
+
+  // "Tuesday works for a demo" → "Does Tuesday work for a demo?"; "he can send it" → "Can you send it?"
+  function askQuestion(clause, name) {
+    var w = String(clause || '').trim().replace(/[.?!]+$/, '').split(/\s+/).filter(Boolean);
+    function who(words) {
+      var s = words.join(' ');
+      return PRONOUN.test(s) || (name && s.toLowerCase() === String(name).toLowerCase()) ? 'you' : s;
+    }
+    for (var i = 1; i < w.length; i++) {
+      var rest = w.length > i + 1 ? ' ' + w.slice(i + 1).join(' ') : '';
+      var subj = who(w.slice(0, i));
+      if (VERB_S.test(w[i])) return (subj === 'you' ? 'Do you ' : 'Does ' + subj + ' ') + w[i].replace(/s$/i, '') + rest + '?';
+      if (AUX_W.test(w[i])) {
+        var aux = w[i].toLowerCase();
+        if (subj === 'you') aux = { is: 'are', was: 'were', has: 'have', does: 'do' }[aux] || aux;
+        return capital(aux) + ' ' + subj + rest + '?';
+      }
+    }
+    return 'Could you let me know if ' + w.join(' ') + '?';
+  }
+
+  function rewriteInstruction(text, name) {
+    var s = String(text || '').trim().replace(/\s+/g, ' ');
+    var m;
+    if ((m = /^ask\s+(\S+)\s+(?:if|whether)\s+(.+)$/i.exec(s))) return askQuestion(m[2], m[1]);
+    if ((m = /^ask\s+(\S+)\s+to\s+(.+)$/i.exec(s))) return 'Could you ' + m[2].replace(/[.?!]+$/, '') + '?';
+    if ((m = /^ask\s+(\S+)\s+for\s+(.+)$/i.exec(s))) return 'Could you send me ' + m[2].replace(/[.?!]+$/, '') + '?';
+    if ((m = /^ask\s+(\S+)\s+about\s+(.+)$/i.exec(s))) return 'Could you tell me more about ' + m[2].replace(/[.?!]+$/, '') + '?';
+    if ((m = /^let\s+(\S+)\s+know\s+(?:that\s+)?(.+)$/i.exec(s)) || (m = /^tell\s+(\S+)\s+(?:that\s+)?(.+)$/i.exec(s))) {
+      var body = m[2].replace(new RegExp('^(?:he|she|they|' + m[1].replace(/[^\w-]/g, '') + ')\\b', 'i'), 'you');
+      return sentence(body);
+    }
+    if ((m = /^(?:say|reply|answer|respond)(?:\s+(?:that|with))?\s+(.+)$/i.exec(s))) return sentence(m[1]);
+    return sentence(s);
+  }
+
+  // o: { id, stance, instruction, option, firstName, mismatch }
+  function demoDraft(drafts, o) {
+    var d = drafts || {};
+    o = o || {};
+    var by = (d.byId && d.byId[o.id]) || {};
+    function fill(t, ins) {
+      return String(t || d['default'] || '').replace(/\{firstName\}/g, String(o.firstName || '').trim() || 'there')
+        .replace(/\{instruction\}/g, ins || '');
+    }
+    // A mismatched Reply-To never gets agreement, whatever was pressed or typed.
+    if (o.mismatch || o.stance === 'verify') return fill(d.verify);
+    if (o.stance === 'choice') return fill(by.choice || d.choice, String(o.option || '').trim());
+    if (o.instruction) return fill(d.compose, rewriteInstruction(o.instruction, o.firstName));
+    var key = o.stance || 'answer';
+    return fill(by[key] || d[key]);
+  }
+
+  var _exports = { createDemoGraph: createDemoGraph, shiftIso: shiftIso, rewriteInstruction: rewriteInstruction, demoDraft: demoDraft };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;
   else if (root) root.ValeMailDemo = _exports;
 })(typeof window !== 'undefined' ? window : this);

@@ -68,12 +68,15 @@
             </label>
             <span class="vmail-listhead__count" id="vmail-count" aria-live="polite"></span>
           </div>
-          <div class="vmail-chips" id="vmail-chips" role="group" aria-label="Filter by what Vale found"></div>
-          <div class="vmail-searchhead" id="vmail-searchhead" hidden>
-            <span id="vmail-searchhead-text"></span>
-            <button type="button" class="ap-btn vmail-btn-sm" id="vmail-search-clear"><i class="fas fa-xmark" aria-hidden="true"></i> Clear search</button>
+          <!-- The search line sits in the chips' place (same grid cell), so the header never changes height. -->
+          <div class="vmail-listhead__filters">
+            <div class="vmail-chips" id="vmail-chips" role="group" aria-label="Filter by what Vale found"></div>
+            <div class="vmail-searchhead" id="vmail-searchhead" hidden>
+              <span id="vmail-searchhead-text"></span>
+              <button type="button" class="ap-btn vmail-btn-sm" id="vmail-search-clear"><i class="fas fa-xmark" aria-hidden="true"></i> Clear search</button>
+            </div>
           </div>
-          <div class="vmail-nextup" id="vmail-nextup" role="note" hidden></div>
+          <button type="button" class="vmail-nextup" id="vmail-nextup" aria-haspopup="dialog" aria-controls="vmail-schedule" hidden></button>
         </div>
         <div class="vmail-list" id="vmail-list" role="listbox" tabindex="0" aria-label="Messages"></div>
       </section>
@@ -110,10 +113,19 @@
         <div><dt><kbd>d</kbd></dt><dd>Have <span class="js-agent-name">Vale</span> draft a reply</dd></div>
         <div><dt><kbd>f</kbd></dt><dd>Flag / unflag</dd></div>
         <div><dt><kbd>u</kbd></dt><dd>Mark unread / read</dd></div>
+        <div><dt><kbd>z</kbd></dt><dd>Undo the last action</dd></div>
         <div><dt><kbd>/</kbd></dt><dd>Search</dd></div>
         <div><dt><kbd>?</kbd></dt><dd>This list</dd></div>
         <div><dt><kbd>Esc</kbd></dt><dd>Close</dd></div>
       </dl>
+    </dialog>
+
+    <dialog class="vmail-sheet" id="vmail-schedule" aria-labelledby="vmail-schedule-title">
+      <div class="vmail-sheet__head">
+        <h2 id="vmail-schedule-title">Schedule</h2>
+        <button type="button" class="ap-btn vmail-iconbtn" id="vmail-schedule-close" aria-label="Close"><i class="fas fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <div class="vmail-sheet__body" id="vmail-schedule-body"></div>
     </dialog>
 
   </main>

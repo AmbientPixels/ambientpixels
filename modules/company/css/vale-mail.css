@@ -16,7 +16,7 @@
   --vm-bg: var(--c-bg);
   --vm-pane: var(--c-surface);
   --vm-raised: var(--c-surface-2);
-  --vm-hover: rgba(255, 255, 255, 0.035);
+  --vm-hover: rgba(255, 255, 255, 0.06);
   --vm-selected: rgba(155, 140, 255, 0.1);
   --vm-sep: var(--c-sep);
   --vm-text: var(--c-text);
@@ -45,7 +45,7 @@ body[data-theme="light"] .vmail {
   --vm-agent-border: rgba(124, 108, 242, 0.35);
   --vm-agent-ink: #ffffff;
   --vm-raised: var(--c-surface-3);
-  --vm-hover: rgba(0, 0, 0, 0.03);
+  --vm-hover: rgba(0, 0, 0, 0.045);
   --vm-selected: rgba(124, 108, 242, 0.1);
   --vm-text-2: rgba(0, 0, 0, 0.66);
   --vm-text-3: rgba(0, 0, 0, 0.6);
@@ -451,17 +451,21 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   font-variant-numeric: tabular-nums;
 }
 
+/* Wide panes: chips wrap to a second row rather than being clipped. Phones: one scrolling row
+   whose edges fade only when it overflows (see the max-width: 719px block). */
+.vmail-listhead__filters { display: grid; }
+.vmail-listhead__filters > * { grid-area: 1 / 1; min-width: 0; }
 .vmail-chips {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
+  row-gap: 6px;
   margin-top: 10px;
-  padding: 2px 18px 2px 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent);
-  mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent);
+  padding: 2px;
 }
+.vmail-chips[hidden] { display: none; }
+/* Kept in layout (holding the header's height) but out of sight while a search shows. */
+.vmail-chips.is-covered { visibility: hidden; }
 .vmail-chips::-webkit-scrollbar { display: none; }
 .vmail-chip {
   flex: none;
@@ -492,12 +496,16 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 }
 .vmail-chip[aria-pressed="true"] .vmail-chip__count { color: var(--vm-agent-text); }
 
+/* Same height as the chip row it replaces, so the list never jumps when a search starts. */
 .vmail-searchhead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 8px;
+  align-self: start;
+  min-height: 28px;
+  margin-top: 10px;
+  padding: 2px 0;
   font-size: var(--c-text-xs);
   color: var(--vm-text-2);
 }
@@ -511,9 +519,16 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   border-radius: var(--c-r-sm);
   background: var(--vm-agent-soft);
   color: var(--vm-text-2);
+  font: inherit;
   font-size: var(--c-text-xs);
   line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
 }
+.vmail-nextup:hover { border-color: var(--vm-agent-border); background: var(--vm-agent-dim); }
+.vmail-nextup__more i { margin-left: 6px; font-size: 9px; }
+.vmail-nextup[hidden] { display: none; }
 .vmail-nextup__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .vmail-nextup__more { flex: none; margin-left: auto; color: var(--vm-text-3); }
 .vmail-nextup strong { color: var(--vm-text); font-weight: 600; }
@@ -540,6 +555,7 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   transition: background 0.1s;
 }
 .vmail-row:hover { background: var(--vm-hover); }
+.vmail-row:hover .vmail-row__subject { color: var(--vm-text); }
 .vmail-row[aria-selected="true"] { background: var(--vm-selected); }
 .vmail-row[aria-selected="true"]::before {
   content: "";
@@ -723,6 +739,18 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   border-bottom: 1px solid var(--vm-sep);
 }
 .vmail-reader__bar .vmail-spacer { flex: 1; }
+.vmail-toolbar__subject {
+  display: none;
+  min-width: 0;
+  max-width: 50%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vm-text);
+}
+.vmail-toolbar--with-subject .vmail-toolbar__subject { display: block; }
 .vmail-tool {
   display: inline-flex;
   align-items: center;
@@ -917,6 +945,15 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   font-weight: 600;
   line-height: 18px;
 }
+.vmail-demochip {
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px solid var(--vm-agent-border);
+  border-radius: var(--c-r-pill);
+  font-size: 10px;
+  line-height: 16px;
+  color: var(--vm-text-2);
+}
 .vmail-editor__by {
   margin-left: auto;
   display: inline-flex;
@@ -1041,6 +1078,15 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.vmail-plainbody--html { white-space: normal; }
+.vmail-plainbody--html p,
+.vmail-plainbody--html ul,
+.vmail-plainbody--html ol { margin: 0 0 10px; }
+.vmail-plainbody--html hr { margin: 16px 0; border: 0; border-top: 1px solid var(--vm-sep); }
+.vmail-plainbody--html blockquote { margin: 0 0 10px; padding-left: 12px; border-left: 2px solid var(--vm-sep); color: var(--vm-text-2); }
+.vmail-plainbody--html h3,
+.vmail-plainbody--html h4 { margin: 12px 0 6px; font-size: var(--c-text-base); font-weight: 600; }
+.vmail-plainbody--html pre { margin: 0 0 10px; white-space: pre-wrap; font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .vmail-frame {
   display: block;
   width: 100%;
@@ -1060,6 +1106,8 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   text-align: center;
 }
 .vmail-hello .vmail-avatar { margin: 0 auto 16px; }
+.vmail-hello--quiet { margin-top: 24vh; }
+.vmail-hello--quiet .vmail-hello__text { color: var(--vm-text-3); }
 .vmail-hello__title {
   margin: 0 0 6px;
   font-size: var(--c-text-xl);
@@ -1126,7 +1174,8 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   from { transform: translateY(8px); }
   to { transform: none; }
 }
-.vmail-sendbar { border-color: var(--vm-agent-border); bottom: 20px; }
+/* A tinted ring plus the shadow keeps the bar distinct over both the dark app and a white email. */
+.vmail-sendbar { border-color: var(--vm-agent-border); bottom: 20px; box-shadow: 0 0 0 1px var(--vm-agent-border), var(--vm-shadow); }
 .vmail-sendbar:not([hidden]) ~ .vmail-toast:not([hidden]) { bottom: 78px; }
 .vmail .vmail-sendbar__undo {
   background: var(--vm-agent);
@@ -1187,6 +1236,7 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 }
 .vmail-sheet__head h2 { margin: 0; font-size: var(--c-text-md); font-weight: 600; }
 .vmail-keys { margin: 0; padding: 8px 16px 16px; }
+.vmail-sheet__body { padding: 8px 16px 16px; }
 .vmail-keys > div {
   display: flex;
   align-items: center;
@@ -1251,6 +1301,15 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   .vmail-hello__keys { display: none; }
   .vmail-sendbar,
   .vmail-toast { bottom: 16px; }
+  .vmail-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; scroll-padding-inline: 16px; }
+  .vmail-chips.is-overflowing {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 20px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 20px), transparent);
+    padding: 2px 18px;
+  }
+  .vmail-editor__fields { grid-template-columns: minmax(0, 1fr); }
+  .vmail-editor__fields .vmail-tell { flex-direction: column; }
+  .vmail-editor__fields .vmail-tell .ap-btn { align-self: flex-start; }
 }
 
 /* Sidebar top bar is 36px and the rail moves to the bottom (52px) at ≤768px. */

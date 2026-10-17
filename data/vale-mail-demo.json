@@ -2620,7 +2620,82 @@
     "later": "Hi {firstName},\n\nThanks for this. I can't give you a proper answer today; I'll get back to you by Tuesday.\n\nThanks,\nChad",
     "more": "Hi {firstName},\n\nHappy to help. Quick question before I commit: can you share a bit more detail on what you need and by when?\n\nThanks,\nChad",
     "ack": "Hi {firstName},\n\nGot it, thank you. Nothing needed from me right now; I'll keep an eye out.\n\nThanks,\nChad",
-    "compose": "Hi {firstName},\n\nQuick note: {instruction}\n\nLet me know what works.\n\nThanks,\nChad",
-    "default": "Hi {firstName},\n\nThanks for the note. Sounds good; I'll follow up shortly with next steps.\n\nThanks,\nChad"
+    "compose": "Hi {firstName},\n\n{instruction}\n\nThanks,\nChad",
+    "default": "Hi {firstName},\n\nThanks for the note. [Your reply here.]\n\nThanks,\nChad",
+    "verify": "Hi {firstName},\n\nI don't change payment details over email. I'll call you on the number we already have to confirm before anything moves.\n\nThanks,\nChad",
+    "nudge": "Hi {firstName},\n\nJust checking in on this one. Did you get a chance to look? Happy to help if anything is unclear.\n\nThanks,\nChad",
+    "choice": "Hi {firstName},\n\nLet's go with {instruction}. Thanks for putting both options together.\n\nThanks,\nChad",
+    "answer": "Hi {firstName},\n\nThanks for asking. [Your answer here.] Let me know if anything else would help.\n\nThanks,\nChad",
+    "byId": {
+      "demo-inb-006": {
+        "yes": "Hi {firstName},\n\nThursday at 10am Pacific works. Send the invite and I'll accept. Looking forward to the two homepage directions.\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nThursday at 10am doesn't work on my side, sorry. Could you send two or three other times this week?\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nThanks for this. Let me check Thursday and I'll confirm by tomorrow morning.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nHappy to move it. How long should I block for the kickoff, and who else is joining from your side?\n\nThanks,\nChad"
+      },
+      "demo-inb-024": {
+        "yes": "Hi {firstName},\n\nYes. I'll send you a sandbox key for the scoring API today, so you can wire it into staging this weekend. It's rate-limited and resets nightly.\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nI can't hand out a sandbox key just yet; we're still locking down the scoring API. I'll let you know as soon as it's ready.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nI'll sort out a sandbox key for you by Friday, so you're set for the weekend.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nHappy to set you up. Which staging URL will call the scoring API, and roughly how many requests a day do you expect?\n\nThanks,\nChad"
+      },
+      "demo-inb-023": {
+        "yes": "Hi {firstName},\n\nHappy to give you a quote. I'll send two or three sentences on how we use AI agents day to day before Friday.\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nThanks for thinking of me. I'll pass on this one, but good luck with the piece.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nI'd like to help. Let me see what I can put together and I'll get back to you by Thursday.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nHappy to help. What angle is the piece taking, and where will it run?\n\nThanks,\nChad"
+      },
+      "demo-inb-025": {
+        "answer": "Hi {firstName},\n\nThanks for reaching out. The audit scores your site on eight areas that affect sales (clarity, trust, speed, the path to buy and more) and gives you a short list of fixes in priority order. The report usually arrives in about three minutes.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nGreat question. I'll send you a full rundown of what the audit covers by tomorrow.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nHappy to help. What's your website, and what would you most like the audit to tell you?\n\nThanks,\nChad"
+      },
+      "demo-inb-026": {
+        "yes": "Hi Maya,\n\nYes, Saturday at 7 is on. Go ahead and book the place on Pike. See you then!\n\nChad",
+        "no": "Hi Maya,\n\nI can't make Saturday after all, sorry. Could we do next weekend instead?\n\nChad",
+        "later": "Hi Maya,\n\nLet me check Saturday and I'll tell you tonight.\n\nChad",
+        "more": "Hi Maya,\n\nSounds fun. What time were you thinking of booking for?\n\nChad"
+      },
+      "demo-inb-008": {
+        "yes": "Hi {firstName},\n\nConfirmed: milestone 2 lands before Nov 14, ahead of your board date. I will go through the redlines and send them back tomorrow.\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nI can't commit to milestone 2 before Nov 14 as scoped. Could we talk through what the board needs to see by then?\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nLet me check the plan against Nov 14 and I'll confirm by end of day tomorrow.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nBefore I confirm: does the board need milestone 2 live, or is a working demo enough for Nov 14?\n\nThanks,\nChad"
+      },
+      "demo-inb-027": {
+        "choice": "Hi {firstName},\n\nLet's go with {instruction}. Thanks for putting both directions together.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nBoth look great. Let me sit with them and I'll pick one by Monday.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nThanks for these. Could you show each direction on the homepage header, so I can see them in context?\n\nThanks,\nChad"
+      },
+      "demo-inb-022": {
+        "yes": "Hi {firstName},\n\nThanks for reaching out, and thanks to Ana for the intro. Happy to talk. Tuesday afternoon works for me; send a time and I will accept.\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nThanks for reaching out. We're not raising right now, but I'd be glad to stay in touch.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nThanks for reaching out. Let me check next week and I'll come back to you with a time by Monday.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nThanks for reaching out. Before we talk, could you share a bit about what Lumen looks for at seed?\n\nThanks,\nChad"
+      },
+      "demo-inb-031": {
+        "yes": "Hi {firstName},\n\nYes, coffee would be great. Wednesday morning works for me; does 9am near Pike Place suit you?\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nI'm swamped next week, sorry. Could we do a call instead?\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nI'd like to. Let me check my week and I'll send a time tomorrow.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nSounds good. Which day works best for you, and what part of town are you staying in?\n\nThanks,\nChad"
+      },
+      "demo-inb-036": {
+        "yes": "Hi {firstName},\n\nYes, Marcus got in touch. Thanks for the intro; we are setting up a call.\n\nThanks,\nChad",
+        "no": "Hi {firstName},\n\nNot yet, but thanks for the heads up. I'll keep an eye out for him.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nThanks for checking. I'll let you know once we've talked.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nThanks for the intro. Anything I should know about Marcus before we talk?\n\nThanks,\nChad"
+      },
+      "demo-inb-010": {
+        "answer": "Hi {firstName},\n\nGood question. I'd rather plan the CSV export for January so this sprint stays on schedule. Happy to scope it with you next week.\n\nThanks,\nChad",
+        "later": "Hi {firstName},\n\nLet me check the sprint plan and I'll tell you by tomorrow whether the CSV export fits.\n\nThanks,\nChad",
+        "more": "Hi {firstName},\n\nBefore I answer: who uses the CSV export, and how often do they need it?\n\nThanks,\nChad"
+      },
+      "demo-inb-011": {
+        "nudge": "Hi {firstName},\n\nJust checking in on invoice 1042. Did it make it through AP? Let me know if you need anything from me to get it paid.\n\nThanks,\nChad"
+      },
+      "demo-inb-013": {
+        "nudge": "Hi {firstName},\n\nJust checking in on the contractor agreement I sent over. Did you get a chance to look at it?\n\nThanks,\nChad"
+      }
+    }
   }
 }
