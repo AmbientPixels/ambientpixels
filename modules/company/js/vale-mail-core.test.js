@@ -426,14 +426,14 @@ test('formatWhen uses the time zone for the day boundary (late evening Pacific i
   assert.strictEqual(C.formatWhen('2026-10-18T05:30:00Z', Date.parse('2026-10-18T06:00:00Z'), PT), '10:30 PM');
 });
 test('agoText: just now, minutes, hours, yesterday, days, weeks', () => {
-  assert.strictEqual(C.agoText(new Date(UNOW - 20000).toISOString(), UNOW), 'just now');
-  assert.strictEqual(C.agoText(new Date(UNOW - 5 * 60000).toISOString(), UNOW), '5 min ago');
-  assert.strictEqual(C.agoText(new Date(UNOW - 3 * 3600000).toISOString(), UNOW), '3 hours ago');
-  assert.strictEqual(C.agoText(new Date(UNOW - 3600000).toISOString(), UNOW), '1 hour ago');
-  assert.strictEqual(C.agoText(new Date(UNOW - 30 * 3600000).toISOString(), UNOW), 'yesterday');
-  assert.strictEqual(C.agoText(new Date(UNOW - 4 * 86400000).toISOString(), UNOW), '4 days ago');
-  assert.strictEqual(C.agoText(new Date(UNOW - 15 * 86400000).toISOString(), UNOW), '2 weeks ago');
-  assert.strictEqual(C.agoText(null, UNOW), '');
+  assert.strictEqual(C.agoText(new Date(UNOW - 20000).toISOString(), UNOW, PT), 'just now');
+  assert.strictEqual(C.agoText(new Date(UNOW - 5 * 60000).toISOString(), UNOW, PT), '5 min ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 3 * 3600000).toISOString(), UNOW, PT), '3 hours ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 3600000).toISOString(), UNOW, PT), '1 hour ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 30 * 3600000).toISOString(), UNOW, PT), 'yesterday');
+  assert.strictEqual(C.agoText(new Date(UNOW - 4 * 86400000).toISOString(), UNOW, PT), '4 days ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 15 * 86400000).toISOString(), UNOW, PT), '2 weeks ago');
+  assert.strictEqual(C.agoText(null, UNOW, PT), '');
 });
 test('formatSize: bytes, KB, MB', () => {
   assert.strictEqual(C.formatSize(512), '512 B');
@@ -526,5 +526,125 @@ test('bytesToDataUrl: raster images only, base64 encoded', () => {
   assert.strictEqual(C.bytesToDataUrl(png, 'text/html'), null);
 });
 
+
+// ── Round 1 fixes ──
+test('links: OS protocol handlers and file: lose their href entirely', () => {
+  const d = C.safeBodyDoc(html('<a href="ms-msdt:/id x">a</a><a href="file://evil/share">b</a><a href="search-ms:query=x">c</a><a href="smb://evil/x">d</a><a href="ms-officecmd:x">e</a>'), false);
+  assert.ok(!/href=/.test(d.replace(/<base[^>]*>/, '')), d);
+  assert.ok(!/ms-msdt|file:|search-ms|smb:|ms-officecmd/i.test(d));
+});
+test('links: javascript: is removed, not rewritten to "#"', () => {
+  const d = C.safeBodyDoc(html('<a href="javascript:x">a</a>'), false);
+  assert.ok(d.includes('<a rel="noopener noreferrer">a</a>'), d);
+  assert.ok(!d.includes('href="#"'));
+});
+test('links: https, mailto, tel and #fragment stay; every <a> gets rel="noopener noreferrer"', () => {
+  const d = C.safeBodyDoc(html('<a href="https://ok.example" rel="opener">x</a><a href="tel:+15551234">t</a><a href="#top">f</a><a href="/relative">r</a>'), false);
+  assert.ok(d.includes('<a href="https://ok.example" rel="noopener noreferrer">x</a>'), d);
+  assert.ok(d.includes('href="tel:+15551234"') && d.includes('href="#top"'));
+  assert.ok(!d.includes('href="/relative"') && !d.includes('rel="opener"'));
+});
+test('svg animation elements are dropped (they could rewrite an href)', () => {
+  const d = C.safeBodyDoc(html('<svg><a><animate attributeName=href values=javascript:1 /><set attributeName="href" to="javascript:2"/><animateTransform/><animateMotion/><discard/><handler/><foreignObject><p>x</p></foreignObject><text>t</text></a></svg>'), false);
+  assert.ok(!/animate|<set|discard|handler|foreignobject/i.test(d), d);
+  assert.ok(!d.includes('javascript'));
+});
+test('unsafe src values are removed, not rewritten to "#"', () => {
+  const d = C.safeBodyDoc(html('<img src="javascript:x" alt="a">'), false);
+  assert.ok(d.includes('<img alt="a">'), d);
+});
+
+const BATTERY = [
+  '<svg><image href="https://evil.example/a.png"/></svg>',
+  '<svg><image xlink:href="https://evil.example/a.png"/></svg>',
+  '<svg><filter id="f"><feImage href="https://evil.example/a.png"/></filter></svg>',
+  '<svg><use href="https://evil.example/s.svg#x"/></svg>',
+  '<div style="background:url(&#39;https://evil.example/a.png&#39;)">x</div>',
+  '<div style="background:url(&#x27;https://evil.example/a.png&#x27;)">x</div>',
+  '<div style="background:u\\72l(https://evil.example/a.png)">x</div>',
+  '<div style="background:url(ht\\74ps://evil.example/a.png)">x</div>',
+  '<style>@import "https://evil.example/x.css";</style><p>x</p>',
+  '<style>@import url(//evil.example/x.css);</style><p>x</p>',
+  '<style>div{background-image:image-set("https://evil.example/a.png" 1x)}</style><div>x</div>',
+  '<style>div{background:\\75rl(https://evil.example/a.png)}</style><div>x</div>',
+  '<div style="background-image:-webkit-image-set(&quot;https://evil.example/a.png&quot; 1x)">x</div>'
+];
+test('hidden images: no remote URL survives the battery (svg, quoted, CSS-escaped, @import, image-set)', () => {
+  BATTERY.forEach((x) => {
+    const d = C.safeBodyDoc({ contentType: 'html', content: x }, false);
+    assert.ok(!d.includes('evil.example'), x + '\n  ->  ' + d);
+  });
+});
+test('hasRemoteImages is true for every battery case (so the Show images bar is offered)', () => {
+  BATTERY.forEach((x) => assert.strictEqual(C.hasRemoteImages(x), true, x));
+});
+test('hidden images: a decoded "\\3c /style\\3e" cannot close the style block', () => {
+  const d = C.safeBodyDoc(html('<style>a{background:url(https://evil.example/a)}\\3c /style\\3e<img src=x></style><p>ok</p>'), false);
+  assert.strictEqual((d.match(/<\/style>/gi) || []).length, 2, d); // ours (BASE_CSS) + the email's own
+  assert.ok(!d.includes('evil.example'));
+});
+test('hidden images: local svg <use href="#id"> and plain CSS stay untouched', () => {
+  const src = '<svg><use href="#icon"/></svg><div style="color:red;background:url(data:image/png;base64,AA//BB)">x</div>';
+  const d = C.safeBodyDoc(html(src), false);
+  assert.ok(d.includes('href="#icon"') && d.includes('color:red'), d);
+  assert.strictEqual(C.hasRemoteImages(src), false);
+});
+test('shown images: remote image URLs are kept when allowImages is true', () => {
+  const d = C.safeBodyDoc(html('<img src="https://ok.example/a.png">'), true);
+  assert.ok(d.includes('src="https://ok.example/a.png"'));
+});
+
+test('agoText uses calendar days, matching formatWhen', () => {
+  // Thu Oct 15 6:02 PM PT -> Sat Oct 17 12:05 AM PT: 30h elapsed, but two calendar days.
+  assert.strictEqual(C.agoText('2026-10-16T01:02:00Z', Date.parse('2026-10-17T07:05:00Z'), PT), '2 days ago');
+  // Fri 11 PM PT -> Sat 12:30 AM PT: 90 minutes, across midnight.
+  assert.strictEqual(C.agoText('2026-10-17T06:00:00Z', Date.parse('2026-10-17T07:30:00Z'), PT), 'yesterday');
+  // Same day, 3 hours.
+  assert.strictEqual(C.agoText('2026-10-17T16:00:00Z', Date.parse('2026-10-17T19:00:00Z'), PT), '3 hours ago');
+  // Thu 6 PM PT vs Sat 8 AM PT.
+  assert.strictEqual(C.agoText('2026-10-16T01:00:00Z', Date.parse('2026-10-17T15:00:00Z'), PT), '2 days ago');
+  // Under an hour across midnight stays in minutes.
+  assert.strictEqual(C.agoText('2026-10-17T06:50:00Z', Date.parse('2026-10-17T07:10:00Z'), PT), '20 min ago');
+  assert.strictEqual(C.formatWhen('2026-10-16T01:02:00Z', Date.parse('2026-10-17T07:05:00Z'), PT), 'Thu');
+});
+test('threadText passes the time zone through', () => {
+  assert.strictEqual(C.threadText({ count: 3, fromMe: 1, latestAt: '2026-10-16T01:02:00Z' }, Date.parse('2026-10-17T07:05:00Z'), PT), 'Thread of 3 · 1 from you · latest 2 days ago');
+});
+
+test('findQuestion falls back to a subject that is a question', () => {
+  assert.strictEqual(C.findQuestion('Hi Chad, just checking Marcus got in touch.', 'Did Marcus reach you?'), 'Did Marcus reach you?');
+  assert.strictEqual(C.findQuestion('Dinner then.', 'RE: Saturday?'), 'Saturday?');
+  assert.strictEqual(C.findQuestion('x', 'Re: FW: re: Saturday?'), 'Saturday?');
+  assert.strictEqual(C.findQuestion('Can you do Tuesday?', 'Did Marcus reach you?'), 'Can you do Tuesday?');
+  assert.strictEqual(C.findQuestion('Update attached.', 'Q3 summary'), null);
+  assert.strictEqual(C.findQuestion('Update attached.', '?'), null);
+});
+
+test('firstName keeps the full name for senders that are not a person', () => {
+  assert.strictEqual(C.firstName({ emailAddress: { name: 'The Product Brief', address: 'editor@productbrief.example' } }), 'The Product Brief');
+  assert.strictEqual(C.firstName({ name: 'Issue 88 Weekly', address: 'x@y.example' }), 'Issue 88 Weekly');
+  assert.strictEqual(C.firstName({ name: 'Indie Founders Weekly', address: 'x@y.example' }), 'Indie Founders Weekly');
+  assert.strictEqual(C.firstName({ name: 'Tally Books', address: 'newsletter@tally.example' }), 'Tally Books');
+  assert.strictEqual(C.firstName({ name: 'Dana Reyes', address: 'dana@x.example' }), 'Dana');
+});
+
+test('isClientMsg also checks Reply-To; threadIsClient checks every message', () => {
+  const D = ['clientco.example'];
+  assert.strictEqual(C.isClientMsg(msg({ from: addr('a@vendor.example'), replyTo: [addr('kim@clientco.example')] }), D), true);
+  const thread = [msg({ id: 'a', from: addr('kim@clientco.example') }), msg({ id: 'b', from: addr('colleague@ambientpixels.ai'), toRecipients: [addr('chad@ambientpixels.ai')] })];
+  assert.strictEqual(C.isClientMsg(thread[1], D), false);
+  assert.strictEqual(C.threadIsClient(thread, D), true);
+  assert.strictEqual(C.threadIsClient([thread[1]], D), false);
+  assert.strictEqual(C.threadIsClient(null, D), false);
+});
+
+test('isSimpleHtml: text structure only', () => {
+  assert.strictEqual(C.isSimpleHtml('<div>Hi Chad,</div><div><br></div><div>Ana</div>'), true);
+  assert.strictEqual(C.isSimpleHtml('<p>Hi <b>there</b></p>'), true);
+  assert.strictEqual(C.isSimpleHtml('<p style="color:red">x</p>'), false);
+  assert.strictEqual(C.isSimpleHtml('<p>See <a href="https://x.example">this</a></p>'), false);
+  assert.strictEqual(C.isSimpleHtml('<table><tr><td>x</td></tr></table>'), false);
+  assert.strictEqual(C.isSimpleHtml('<img src="cid:a">'), false);
+});
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

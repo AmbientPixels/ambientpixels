@@ -64,12 +64,16 @@ function validateDraftRequest(body) {
     if (t && to.indexOf(t) === -1) to.push(t);
   }
 
+  // client: the browser saw a client anywhere in the thread (earlier messages, Reply-To). It can
+  // only escalate to Claude-only; it can never turn client handling off.
+  if (body.client !== undefined && body.client !== null && typeof body.client !== 'boolean') return { ok: false, code: 'bad_client' };
+
   if (mode === 'reply' && !latest.trim()) return { ok: false, code: 'missing_latest' };
   if (mode === 'compose' && !instruction.trim()) return { ok: false, code: 'missing_instruction' };
 
   return { ok: true, req: {
     from: from.trim().toLowerCase(), fromName: fromName.trim(), subject: subject, latest: latest,
-    prior: prior, instruction: instruction.trim(), stance: stance, mode: mode, to: to
+    prior: prior, instruction: instruction.trim(), stance: stance, mode: mode, to: to, client: body.client === true
   } };
 }
 

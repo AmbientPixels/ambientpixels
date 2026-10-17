@@ -60,26 +60,37 @@
   // Tags removed with everything inside them.
   var DROP_WITH_CONTENT = /<(script|title|iframe|object|applet|frameset|noembed|noframes)\b[\s\S]*?<\/\1\s*>/gi;
   // Tags removed on their own (their text content, if any, stays as plain text).
+  // SVG animation elements are dropped too: <animate>/<set> can rewrite an href after sanitising.
   var DROP_TAGS = ['script', 'title', 'iframe', 'object', 'applet', 'frameset', 'frame', 'noembed', 'noframes',
-    'embed', 'base', 'link', 'meta', 'form', 'html', 'head', 'body'];
+    'embed', 'base', 'link', 'meta', 'form', 'html', 'head', 'body',
+    'animate', 'animatemotion', 'animatetransform', 'set', 'discard', 'handler', 'foreignobject'];
   var DROP_TAG_RE = new RegExp('<\\/?(?:[a-z0-9-]+:)?(' + DROP_TAGS.join('|') + ')\\b(?:"[^"]*"|\'[^\']*\'|[^\'">])*>', 'gi');
   var TAG_RE = /<([a-zA-Z][a-zA-Z0-9:-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
   var ATTR_RE = /([^\s"'>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
   var URL_ATTRS = ['href', 'src', 'xlink:href', 'background', 'poster', 'lowsrc', 'dynsrc', 'data', 'cite', 'longdesc', 'action'];
+  var LINK_ATTRS = ['href', 'xlink:href', 'action'];
   var DROP_ATTRS = ['ping', 'srcdoc', 'formaction', 'action', 'http-equiv'];
 
   function unsafeUrl(value, attr) {
-    // Unknown named entities are dropped for the check, so no entity can hide a scheme.
-    var v = decodeEntities(value).replace(/&[a-z]+[0-9]*;?/gi, '').replace(/[\u0000-\u0020\u007f-\u00a0]/g, '').toLowerCase();
+    var v = urlForCheck(value);
+    // Links: allow-list. Anything else (ms-msdt:, search-ms:, file:, smb:, relative paths that
+    // would resolve against this site...) is removed, so no click can reach an OS protocol handler.
+    if (LINK_ATTRS.indexOf(attr) !== -1) return !(/^(https?|mailto|tel):/.test(v) || /^#./.test(v));
     if (/^(javascript|vbscript|livescript|mocha):/.test(v)) return true;
     if (/^data:/.test(v)) return !(attr === 'src' && /^data:image\/(png|gif|jpe?g|webp|bmp);/.test(v));
     return false;
+  }
+
+  function urlForCheck(value) {
+    // Unknown named entities are dropped for the check, so no entity can hide a scheme.
+    return decodeEntities(value).replace(/&[a-z]+[0-9]*;?/gi, '').replace(/[\u0000-\u0020\u007f-\u00a0]/g, '').toLowerCase();
   }
 
   function normCid(s) { return str(s).trim().replace(/^<|>$/g, '').toLowerCase(); }
 
   function cleanTag(name, rest, inline) {
     var selfClose = /\/\s*$/.test(rest);
+    var isLink = /^(?:[a-z0-9-]+:)?(a|area)$/i.test(name);
     var out = [];
     var m;
     ATTR_RE.lastIndex = 0;
@@ -88,16 +99,20 @@
       var hasVal = m[2] !== undefined || m[3] !== undefined || m[4] !== undefined;
       var val = m[2] !== undefined ? m[2] : (m[3] !== undefined ? m[3] : (m[4] !== undefined ? m[4] : ''));
       if (/^on/.test(an) || DROP_ATTRS.indexOf(an) !== -1) continue;
+      if (isLink && an === 'rel') continue;
       if (an === 'style' && /expression\s*\(|javascript:|behavior\s*:|-moz-binding/i.test(decodeEntities(val))) continue;
-      if (URL_ATTRS.indexOf(an) !== -1 && hasVal) {
+      if (URL_ATTRS.indexOf(an) !== -1) {
+        if (!hasVal) continue;
         if (an === 'src' && /^\s*cid:/i.test(val) && inline) {
           var hit = inline[normCid(val.replace(/^\s*cid:/i, ''))];
           if (typeof hit === 'string' && /^data:image\//i.test(hit)) val = hit;
         }
-        if (unsafeUrl(val, an)) val = '#';
+        // Unsafe URLs are removed outright (never rewritten to "#", which would open this page).
+        if (unsafeUrl(val, an)) continue;
       }
       out.push(hasVal ? ' ' + an + '="' + val.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '"' : ' ' + an);
     }
+    if (isLink) out.push(' rel="noopener noreferrer"');
     return '<' + name + out.join('') + (selfClose ? ' />' : '>');
   }
 
@@ -122,12 +137,54 @@
   }
 
   var REMOTE_URL = /^\s*(?:https?:)?\/\//i;
+  // A CSS target that leaves the email: scheme-relative "//host" or any "scheme://host".
+  function remoteTarget(t) { return /^\s*["']?\s*(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(str(t)); }
+
+  // CSS escapes (\72, \000072 , \() decoded the way the browser does; leftover backslashes are
+  // dropped so nothing can be re-escaped into a URL after this.
+  function cssDecode(s) {
+    return str(s).replace(/\\([0-9a-f]{1,6})[ \t\n\r\f]?/gi, function (all, hex) {
+      var n = parseInt(hex, 16);
+      if (!n || n > 0x10ffff || (n >= 0xd800 && n <= 0xdfff)) return String.fromCharCode(0xfffd);
+      return String.fromCodePoint(n);
+    }).replace(/\\([^\n\r\f0-9a-f])/gi, '$1').replace(/\\/g, '');
+  }
+
+  // Rewrites decoded CSS so no remote url(), image-set() or @import survives. Returns null when
+  // nothing remote was found (the caller then keeps the original text untouched).
+  function cssWithoutRemote(decoded) {
+    var hit = false;
+    var out = decoded.replace(/@import\b[^;]*;?/gi, function (all) { if (/\/\//.test(all)) { hit = true; return ''; } return all; })
+      .replace(/url\(([^)]*)\)/gi, function (all, inner) { if (remoteTarget(inner)) { hit = true; return 'none'; } return all; })
+      .replace(/(?:-webkit-)?image-set\(((?:[^()]|\([^()]*\))*)\)/gi, function (all, inner) {
+        if (/["']\s*(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(inner)) { hit = true; return 'none'; }
+        return all;
+      });
+    return hit ? out : null;
+  }
+
   // Runs on sanitizeHtml output, where every attribute value is double-quoted.
   function stripRemoteImages(s) {
     return str(s)
+      // <style> blocks: raw text (no HTML entities), CSS escapes only. '<' is re-escaped so a
+      // decoded "\3c /style\3e" can never close the block.
+      .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style\s*>)/gi, function (all, open, css, close) {
+        var clean = cssWithoutRemote(cssDecode(css));
+        return clean === null ? all : open + clean.replace(/</g, '\\3c ') + close;
+      })
+      // style="" attributes: HTML entities first, then CSS escapes, as the browser does.
+      .replace(/\sstyle="([^"]*)"/gi, function (all, v) {
+        var clean = cssWithoutRemote(cssDecode(decodeEntities(v)));
+        return clean === null ? all : ' style="' + escapeHtml(clean) + '"';
+      })
       .replace(/\s(src|background|poster|lowsrc|dynsrc)="([^"]*)"/gi, function (all, a, v) { return REMOTE_URL.test(decodeEntities(v)) ? '' : all; })
       .replace(/\ssrcset="([^"]*)"/gi, function (all, v) { return /\/\//.test(decodeEntities(v)) ? '' : all; })
-      .replace(/url\(\s*(?:&quot;|["'])?\s*(?:https?:)?\/\/[^)]*\)/gi, 'none');
+      // SVG images: <image>, <feImage> and <use> fetch their href.
+      .replace(/<((?:[a-z0-9-]+:)?(?:image|feimage|use))\b([^>]*)>/gi, function (all, name, rest) {
+        var kept = rest.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return REMOTE_URL.test(decodeEntities(v)) ? '' : a; });
+        return kept === rest ? all : '<' + name + kept + '>';
+      })
+      .replace(/url\(\s*(?:&quot;|&#39;|["'])?\s*(?:https?:)?\/\/[^)]*\)/gi, 'none');
   }
 
   var BASE_CSS ='html,body{margin:0;padding:0}body{padding:16px;font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif;' +
@@ -150,14 +207,12 @@
       '<base target="_blank"><style>' + BASE_CSS + '</style></head><body>' + inner + '</body></html>';
   }
 
+  // Same detector as the stripper: true exactly when hiding images would remove something.
   function hasRemoteImages(html) {
     var s = str(html);
     if (!s) return false;
-    var remote = '(?:https?:)?\\/\\/';
-    return new RegExp('<img\\b(?:"[^"]*"|\'[^\']*\'|[^\'">])*?\\bsrc\\s*=\\s*["\']?\\s*' + remote, 'i').test(s) ||
-      new RegExp('\\bsrcset\\s*=\\s*["\'][^"\']*' + remote, 'i').test(s) ||
-      new RegExp('url\\(\\s*(?:&quot;|["\'])?\\s*' + remote, 'i').test(s) ||
-      new RegExp('\\b(?:background|poster)\\s*=\\s*["\']?\\s*' + remote, 'i').test(s);
+    var clean = sanitizeHtml(s);
+    return stripRemoteImages(clean) !== clean;
   }
 
   // ── Text conversion ────────────────────────────────────────────────────────
@@ -213,7 +268,9 @@
     return s.slice(0, cut);
   }
 
-  function findQuestion(text) {
+  // subject (optional): when the newest body part asks nothing, a subject that is itself a
+  // question ("Did Marcus reach you?", "RE: Saturday?") is the question.
+  function findQuestion(text, subject) {
     var lines = newestPart(text).split('\n');
     for (var i = 0; i < lines.length; i++) {
       var parts = lines[i].split(/(?<=[.!?])\s+/);
@@ -222,6 +279,10 @@
         if (p.length > 1 && p.length <= 200 && /\?$/.test(p) && /[A-Za-z]/.test(p)) return p;
       }
     }
+    var s = str(subject).trim();
+    var prev;
+    do { prev = s; s = s.replace(/^(?:re|fwd?|aw|sv)\s*:\s*/i, '').trim(); } while (s !== prev);
+    if (s.length > 1 && s.length <= 200 && /\?$/.test(s) && /[A-Za-z]/.test(s)) return s;
     return null;
   }
 
@@ -281,8 +342,26 @@
 
   function isClientMsg(msg, domains) {
     if (!msg || !domains || !domains.length) return false;
-    var people = [msg.from].concat(msg.toRecipients || [], msg.ccRecipients || []);
+    var people = [msg.from].concat(msg.toRecipients || [], msg.ccRecipients || [], msg.replyTo || []);
     return people.some(function (p) { return domainMatches(ea(p).address, domains); });
+  }
+
+  // A thread is client mail when ANY message in it involves a client (from, to, cc, reply-to).
+  function threadIsClient(msgs, domains) {
+    return (msgs || []).some(function (m) { return isClientMsg(m, domains); });
+  }
+
+  // HTML that is only text structure (no attributes, links, images, tables or styles) reads
+  // better as plain text on the app's own surface than inside a white iframe.
+  var SIMPLE_TAGS = ['div', 'p', 'br', 'span', 'b', 'strong', 'i', 'em', 'u', 'blockquote', 'ul', 'ol', 'li'];
+  function isSimpleHtml(html) {
+    var s = str(html);
+    if (!s.trim()) return true;
+    var tags = s.match(/<\/?[^>]*>/g) || [];
+    return tags.every(function (t) {
+      var m = /^<\/?\s*([a-z0-9]+)\s*\/?>$/i.exec(t);
+      return !!m && SIMPLE_TAGS.indexOf(m[1].toLowerCase()) !== -1;
+    });
   }
 
   // ── Search ─────────────────────────────────────────────────────────────────
@@ -378,16 +457,19 @@
 
   function formatTime(ms, opts) { var z = zoned(ms, opts && opts.timeZone); return z ? clock(z) : ''; }
 
-  function agoText(iso, nowMs) {
+  // Relative time that agrees with formatWhen: days are calendar days in opts.timeZone (default:
+  // the runtime's zone), so a Thursday message seen on Saturday is "2 days ago", never "yesterday".
+  function agoText(iso, nowMs, opts) {
     var t = Date.parse(str(iso));
     if (!isFinite(t)) return '';
     var s = Math.max(0, (nowMs - t) / 1000);
     if (s < 60) return 'just now';
     var m = Math.floor(s / 60);
     if (m < 60) return m + ' min ago';
-    var h = Math.floor(m / 60);
-    if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
-    var d = Math.floor(h / 24);
+    var tz = opts && opts.timeZone;
+    var z = zoned(t, tz), n = zoned(nowMs, tz);
+    var d = z && n ? dayNum(n) - dayNum(z) : Math.floor(m / 1440);
+    if (d <= 0) { var h = Math.floor(m / 60); return h + (h === 1 ? ' hour ago' : ' hours ago'); }
     if (d === 1) return 'yesterday';
     if (d < 14) return d + ' days ago';
     var w = Math.floor(d / 7);
@@ -403,10 +485,17 @@
     return (Math.round(n / 1024 / 1024 * 10) / 10) + ' MB';
   }
 
+  var ROLE_LOCAL = /^(newsletters?|no-?reply|do-?not-?reply|hello|team|info|support|notifications?|billing|news|updates|marketing|mailer-daemon)([+.-][^@]*)?$/;
+
+  // The name to greet someone by: the first word of a person's name. Senders that are not a
+  // person ("The Product Brief", "Issue 88 Weekly", newsletter@...) keep their full display name.
   function firstName(r) {
     var e = ea(r);
     var name = e.name.replace(/["']/g, '').trim();
-    var w = name.split(/[\s,]+/)[0];
+    var local = e.address.split('@')[0];
+    var words = name.split(/[\s,]+/).filter(Boolean);
+    if (name && !/@/.test(name) && (/^the\s/i.test(name) || /\d/.test(name) || words.length >= 3 || ROLE_LOCAL.test(local))) return name;
+    var w = words[0];
     if (w && !/@/.test(w)) return w;
     var local = e.address.split('@')[0].split(/[._+-]/)[0];
     return local ? local.charAt(0).toUpperCase() + local.slice(1) : 'there';
@@ -448,11 +537,11 @@
     return false;
   }
 
-  function threadText(strip, nowMs) {
+  function threadText(strip, nowMs, opts) {
     if (!strip || !(strip.count > 1)) return '';
     var parts = ['Thread of ' + strip.count];
     parts.push(strip.fromMe ? strip.fromMe + ' from you' : 'none from you');
-    var ago = agoText(strip.latestAt, nowMs);
+    var ago = agoText(strip.latestAt, nowMs, opts);
     if (ago) parts.push('latest ' + ago);
     return parts.join(' · ');
   }
@@ -522,7 +611,7 @@
     safeBodyDoc: safeBodyDoc, hasRemoteImages: hasRemoteImages, htmlToText: htmlToText, textToHtml: textToHtml,
     replyTargets: replyTargets, replyToMismatch: replyToMismatch, findQuestion: findQuestion,
     threadStrip: threadStrip, waitingOnYou: waitingOnYou, bucketOf: bucketOf, counts: counts,
-    isClientMsg: isClientMsg, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor,
+    isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor,
     escapeHtml: escapeHtml
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;

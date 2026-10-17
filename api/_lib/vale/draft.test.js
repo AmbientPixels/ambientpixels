@@ -18,7 +18,7 @@ const base = (over) => Object.assign({ from: 'dana@vendor.example', fromName: 'D
     const v = draft.validateDraftRequest(base());
     assert.strictEqual(v.ok, true);
     assert.deepStrictEqual(v.req, { from: 'dana@vendor.example', fromName: 'Dana Reyes', subject: 'Kickoff', latest: 'Can we meet Tuesday?',
-      prior: [], instruction: '', stance: null, mode: 'reply', to: [] });
+      prior: [], instruction: '', stance: null, mode: 'reply', to: [], client: false });
   });
   await test('a non-object body is rejected', () => {
     [null, undefined, 'x', 7, []].forEach((b) => assert.deepStrictEqual(draft.validateDraftRequest(b), { ok: false, code: 'bad_body' }));
@@ -116,6 +116,17 @@ const base = (over) => Object.assign({ from: 'dana@vendor.example', fromName: 'D
   await test('parseDraft strips Subject: lines', () => assert.strictEqual(draft.parseDraft('Subject: Re: Kickoff\n\nHi Dana,\nYes.'), 'Hi Dana,\nYes.'));
   await test('parseDraft caps at 4000 chars', () => assert.strictEqual(draft.parseDraft('x'.repeat(5000)).length, 4000));
   await test('parseDraft of nothing is empty', () => { assert.strictEqual(draft.parseDraft(null), ''); assert.strictEqual(draft.parseDraft('```\n```'), ''); });
+
+  // ── client flag from the browser (round 1) ──
+  await test('client: true is accepted and kept; absent means false', () => {
+    assert.strictEqual(draft.validateDraftRequest(base({ client: true })).req.client, true);
+    assert.strictEqual(draft.validateDraftRequest(base()).req.client, false);
+    assert.strictEqual(draft.validateDraftRequest(base({ client: false })).req.client, false);
+  });
+  await test('client must be a boolean', () => {
+    assert.strictEqual(draft.validateDraftRequest(base({ client: 'yes' })).code, 'bad_client');
+    assert.strictEqual(draft.validateDraftRequest(base({ client: 1 })).code, 'bad_client');
+  });
 
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);

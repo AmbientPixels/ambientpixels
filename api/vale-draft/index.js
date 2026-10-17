@@ -1,6 +1,6 @@
 // vale-draft — Vale drafts an email reply (or a new email) in Chad's voice for Vale Mail.
 //   POST /api/vale-draft   bearer only   { from, fromName, subject, latest, prior[], instruction,
-//                                          stance, mode, to }  →  { draft }
+//                                          stance, mode, to, client? }  →  { draft }
 // The browser sends the text it already shows; nothing is read from the mailbox here and
 // nothing is stored except an hourly call count. Client threads (rules-only domains) are
 // Claude-only: noFallback, so client mail never reaches another provider. Logs carry error
@@ -69,7 +69,9 @@ async function handle(context, req, deps) {
     // A failed rules read must not route client mail to a fallback provider: fail safe.
     var rulesMeta = await deps.store.getWithMeta('valeMailRules');
     var rules = (!rulesMeta.failed && rulesMeta.value) || deps.seedRules || {};
-    var client = rulesMeta.failed ? true : draftLib.isClientThread(v.req, rules);
+    // The browser may flag a client thread it can see (earlier messages, Reply-To); that only ever
+    // adds Claude-only routing, never removes it.
+    var client = rulesMeta.failed || draftLib.isClientThread(v.req, rules) || v.req.client === true;
 
     var p = draftLib.buildDraftPrompt(v.req, deps.voice, { client: client });
     var out;

@@ -182,6 +182,30 @@ async function post(d, b, method) {
     assert.ok(c.lines.some((l) => l === '[vale-draft] fault'));
   });
 
+  // ── browser-flagged client threads (round 1) ──
+  await test('client: true from the browser → noFallback: true even for an internal sender', async () => {
+    const d = deps();
+    const c = await post(d, body({ from: 'colleague@ambientpixels.ai', to: ['chad@ambientpixels.ai'], client: true }));
+    assert.strictEqual(c.res.status, 200);
+    assert.strictEqual(d.callModel.calls[0].noFallback, true);
+  });
+  await test('client: false cannot downgrade a client thread', async () => {
+    const d = deps();
+    await post(d, body({ from: 'pat@clientco.example', client: false }));
+    assert.strictEqual(d.callModel.calls[0].noFallback, true);
+  });
+  await test('a Reply-To / recipient on the client domain → noFallback: true', async () => {
+    const d = deps();
+    await post(d, body({ from: 'dana@vendor.example', to: ['chad@ambientpixels.ai', 'kim@clientco.example'] }));
+    assert.strictEqual(d.callModel.calls[0].noFallback, true);
+  });
+  await test('client must be a boolean → 400 bad_client', async () => {
+    const d = deps();
+    const c = await post(d, body({ client: 'yes' }));
+    assert.strictEqual(c.res.status, 400); assert.strictEqual(c.res.body.code, 'bad_client');
+    assert.strictEqual(d.callModel.calls.length, 0);
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();
