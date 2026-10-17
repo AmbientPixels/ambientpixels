@@ -46,6 +46,23 @@ function deps(over) {
 const req = (headers) => ({ headers: headers || {} });
 
 (async () => {
+  // Legacy sync gate (restored from the pre-2026-10-17 file).
+  await test('parseCeoAllowlist splits/trims/lowercases', () => {
+    assert.deepStrictEqual(auth.parseCeoAllowlist(' Chad@Example.com , second@x.io '), ['chad@example.com', 'second@x.io']);
+    assert.deepStrictEqual(auth.parseCeoAllowlist(''), []);
+    assert.deepStrictEqual(auth.parseCeoAllowlist(undefined), []);
+  });
+  await test('isCeo true for allowlisted email (case-insensitive)', () => {
+    assert.strictEqual(auth.isCeo({ isAuthenticated: true, email: 'Chad@Example.com', principal: {} }, ['chad@example.com']), true);
+  });
+  await test('isCeo false for anonymous or non-listed', () => {
+    assert.strictEqual(auth.isCeo({ isAuthenticated: false }, ['chad@example.com']), false);
+    assert.strictEqual(auth.isCeo({ isAuthenticated: true, email: 'x@y.com', principal: {} }, ['chad@example.com']), false);
+  });
+  await test('isCeo true for ceo/admin role even without email match', () => {
+    assert.strictEqual(auth.isCeo({ isAuthenticated: true, email: null, principal: { userRoles: ['authenticated', 'ceo'] } }, []), true);
+  });
+
   await test('valid bearer → via bearer', async () => {
     auth._resetJwksCache();
     const r = await auth.requireCeoAsync(req({ authorization: 'Bearer ' + token() }), null, {}, deps());
