@@ -101,6 +101,13 @@ const byId = (items) => Object.fromEntries(items.map((i) => [i.id, i]));
     assert.ok(t.matches(['clientco.example'], 'x@mail.clientco.example'));
     assert.ok(!t.matches(['co.example'], 'x@clientco.example'), 'suffix must be a real subdomain boundary');
   });
+  await test('matches sees through a trailing dot, angle brackets and display names', () => {
+    assert.ok(t.matches(['clientco.example'], 'pat@clientco.example.'));
+    assert.ok(t.matches(['clientco.example'], '<pat@clientco.example>'));
+    assert.ok(t.matches(['clientco.example'], 'Pat Lee <pat@clientco.example>'));
+    assert.ok(t.matches(['clientco.example'], '  pat@clientco.example  '));
+    assert.ok(!t.matches(['clientco.example'], 'pat@vendor.example.'));
+  });
   await test('waiting on others: Chad wrote last, 3+ days ago, no reply since', () => {
     const w = t.waitingOnOthers(fx.inbox, fx.sent, NOW);
     assert.deepStrictEqual(w.map((x) => x.conversationId), ['conv-stale']);

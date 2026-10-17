@@ -23,7 +23,10 @@ function header(m, name) {
 
 // list entries may be a full address or a domain (with or without a leading @).
 function matches(list, address) {
-  var a = String(address || '').toLowerCase();
+  // 'Name <a@b.example>', '<a@b.example>' and a trailing '.' still name the same domain.
+  var raw = String(address || '');
+  var angle = /<([^>]*)>/.exec(raw);
+  var a = (angle ? angle[1] : raw).trim().replace(/^<|>$/g, '').replace(/\.+$/, '').trim().toLowerCase();
   var d = domainOf(a);
   return (list || []).some(function (x) {
     x = String(x || '').toLowerCase().replace(/^@/, '');

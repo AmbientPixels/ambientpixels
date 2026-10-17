@@ -539,10 +539,10 @@ test('links: javascript: is removed, not rewritten to "#"', () => {
   assert.ok(d.includes('<a rel="noopener noreferrer">a</a>'), d);
   assert.ok(!d.includes('href="#"'));
 });
-test('links: https, mailto, tel and #fragment stay; every <a> gets rel="noopener noreferrer"', () => {
+test('links: https, mailto and tel stay, #fragment loses its href; every <a> gets rel="noopener noreferrer"', () => {
   const d = C.safeBodyDoc(html('<a href="https://ok.example" rel="opener">x</a><a href="tel:+15551234">t</a><a href="#top">f</a><a href="/relative">r</a>'), false);
   assert.ok(d.includes('<a href="https://ok.example" rel="noopener noreferrer">x</a>'), d);
-  assert.ok(d.includes('href="tel:+15551234"') && d.includes('href="#top"'));
+  assert.ok(d.includes('href="tel:+15551234"') && !d.includes('href="#top"') && d.includes('>f</a>'));
   assert.ok(!d.includes('href="/relative"') && !d.includes('rel="opener"'));
 });
 test('svg animation elements are dropped (they could rewrite an href)', () => {
@@ -1127,6 +1127,55 @@ test('listKeyFor maps the listbox keys, and never inside text fields', () => {
   assert.strictEqual(C.listKeyFor(ev('End', { shiftKey: true })), null);
   assert.strictEqual(C.shortcutFor(ev('ArrowDown')), null, 'arrows are not global shortcuts');
   assert.strictEqual(C.shortcutFor(ev('ArrowDown', { target: { tagName: 'TEXTAREA' } })), null);
+});
+
+// ── round 7: Show images still blocks fonts, @import, media and non-https image URLs ──
+const bodyOf7 = (d) => d.slice(d.indexOf('<body'), d.lastIndexOf('</body>'));
+test('shown images: @import is removed (style block and style attribute)', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<style>@import url(https://evil.example/a.css); p{color:red}</style><p style="@import \'https://e.example/b.css\'">x</p>'), true));
+  assert.ok(!/@import/i.test(d), d);
+  assert.ok(d.includes('color:red'));
+});
+test('shown images: CSS-escaped @import is removed too', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<style>@\\69mport "https://evil.example/a.css";</style>'), true));
+  assert.ok(!/@import/i.test(d) && !d.includes('evil.example'), d);
+});
+test('shown images: remote url() inside @font-face is removed, data: fonts stay', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<style>@font-face{font-family:X;src:url(https://fonts.example/x.woff2) format("woff2")}@font-face{font-family:Y;src:url(data:font/woff2;base64,AAAA)}</style>'), true));
+  assert.ok(!d.includes('fonts.example'), d);
+  assert.ok(d.includes('data:font/woff2'), d);
+});
+test('shown images: <audio>, <video>, <track>, <source> lose src/srcset/poster', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<audio src="https://m.example/a.mp3"></audio><video src="https://m.example/v.mp4" poster="https://m.example/p.png"><source src="https://m.example/s.webm"><track src="https://m.example/t.vtt"></video>'), true));
+  assert.ok(!d.includes('m.example'), d);
+  assert.ok(/<video/.test(d) && /<audio/.test(d));
+});
+test('shown images: relative, root, backslash and protocol-relative image URLs lose src', () => {
+  ['x.png', '/api/x', '/\\evil.example/p', '//evil.example/p', 'http://evil.example/p', 'https:///evil.example/p'].forEach((u) => {
+    const d = bodyOf7(C.safeBodyDoc(html('<img src="' + u + '">'), true));
+    assert.ok(!/\ssrc=/.test(d), u + ' -> ' + d);
+  });
+});
+test('shown images: https and data: images keep their src', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<img src="https://cdn.example/a.png"><img src="data:image/png;base64,AAAA">'), true));
+  assert.ok(d.includes('src="https://cdn.example/a.png"') && d.includes('src="data:image/png;base64,AAAA"'), d);
+});
+test('shown images: relative CSS url() and srcset entries are removed, https ones stay', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<td style="background:url(/api/x)">a</td><td style="background:url(https://cdn.example/b.png)">b</td><img src="https://cdn.example/c.png" srcset="/rel.png 2x">'), true));
+  assert.ok(!d.includes('/api/x') && !d.includes('/rel.png'), d);
+  assert.ok(d.includes('https://cdn.example/b.png') && d.includes('src="https://cdn.example/c.png"'), d);
+});
+test('#fragment link: the href is dropped, the text stays', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<a href="#x">t</a><a href="&#35;y">u</a>'), false));
+  assert.ok(!/href=/.test(d) && d.includes('>t</a>') && d.includes('>u</a>'), d);
+});
+test('shown images: svg <use> with a remote href loses it (a document load, not an image)', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<svg><use href="https://evil.example/s2#a"></use><image href="https://cdn.example/i.png"></image></svg>'), true));
+  assert.ok(!d.includes('evil.example') && d.includes('https://cdn.example/i.png'), d);
+});
+test('svg <use href="#icon"> keeps its local reference', () => {
+  const d = bodyOf7(C.safeBodyDoc(html('<svg><use href="#icon"></use></svg>'), true));
+  assert.ok(d.includes('href="#icon"'), d);
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

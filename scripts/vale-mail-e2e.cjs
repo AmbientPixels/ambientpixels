@@ -239,11 +239,13 @@ async function main() {
 
     await fillGaps(page); await page.click('#vmail-send');
     await page.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
-    check(/Sending/.test(await page.textContent('#vmail-sendbar')), 'Undo bar counts down');
+    check(/Sending/.test(await page.textContent('#vmail-sendbar')), 'Undo bar counts down');    check(!(await page.$('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft')), 'the row drops its "Draft" mark while the reply is in its send window');
+
     await page.screenshot({ path: path.join(SHOTS, '05-undo-bar.png') });
     await page.click('#vmail-undo-send');
     await page.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 3000 });
-    check(/Thursday at 10am Pacific works/.test(await page.inputValue('#vmail-editor-text')), 'after Undo the reply is still an editable draft');
+    check(/Thursday at 10am Pacific works/.test(await page.inputValue('#vmail-editor-text')), 'after Undo the reply is still an editable draft');    check(!!(await page.$('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft')), 'after Undo the row shows "Draft" again');
+
 
     await fillGaps(page); await page.click('#vmail-send');
     await page.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
@@ -740,6 +742,18 @@ async function main() {
       await open('demo-inb-029');
       check(/Your brief from Vale/.test(await pg.textContent('#vmail-reader .vmail-vale')), 'the real (internal) brief from Vale still reads "Your brief from Vale"');
 
+      // Round 7: the client-mail note sits next to a draft action only, in plain words from config.
+      for (const id of ['demo-inb-008', 'demo-inb-011', 'demo-inb-034']) {
+        await pg.click('.vmail-chip[data-filter="all"]');
+        await open(id);
+        const cn = await pg.evaluate(() => {
+          const v = document.querySelector('#vmail-reader .vmail-vale');
+          const n = v.querySelector('.vmail-notice--client');
+          return { note: n ? n.textContent : null, drafts: !!v.querySelector('[data-stance], [data-act="draft"], [data-form="tell"]') };
+        });
+        check(cn.drafts ? /stays private/.test(cn.note || '') : cn.note === null, id + ': client note shown only with a draft action (' + JSON.stringify(cn) + ')');
+      }
+
       // Waiting rows show what you sent; the panel has one day count.
       await pg.click('.vmail-chip[data-filter="waiting"]');
       await pg.waitForSelector('#vmail-list [data-id="demo-inb-013"]', { timeout: 5000 });
@@ -1178,6 +1192,23 @@ async function main() {
       await pg.waitForTimeout(400);
       await pg.keyboard.press('z');
       await pg.waitForSelector('#vmail-list [data-id="demo-inb-026"]', { timeout: 5000 });
+      // Round 7: an email Chad opens while the undo is in flight keeps the reader.
+      await open('demo-inb-026');
+      await pg.focus('#vmail-list');
+      await pg.keyboard.press('e');
+      await pg.waitForFunction(() => !document.querySelector('#vmail-list [data-id="demo-inb-026"]'), null, { timeout: 5000 });
+      await pg.waitForFunction(() => /Archived/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+      await pg.waitForTimeout(400);
+      const nextId = await pg.$eval('#vmail-list [aria-selected="true"]', (r) => r.getAttribute('data-id'));
+      const nextSubj = await pg.$eval('#vmail-list [aria-selected="true"] .vmail-row__subject strong', (x) => x.textContent);
+      await pg.keyboard.press('z');
+      await pg.click('#vmail-list [data-id="' + nextId + '"]');
+      await pg.waitForFunction(() => /Moved back/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+      await pg.waitForTimeout(500);
+      const u2 = await selSubj();
+      check(u2.id === nextId && u2.reader === nextSubj, 'demo: clicking an email while Undo runs keeps it open and selected (' + JSON.stringify(u2) + ')');
+      await pg.waitForSelector('#vmail-list [data-id="demo-inb-026"]', { timeout: 5000 });
+
 
       // A send that finishes after you moved on leaves focus where you are.
       await open('demo-inb-024');
@@ -1646,6 +1677,45 @@ async function main() {
     const pst = await ph.$eval('#vmail-checked-phone', (x) => { const r = x.getBoundingClientRect(); return { w: r.width, h: r.height, t: x.textContent }; });
     check(pst.w > 0 && pst.h > 0 && /Vale sorted at/.test(pst.t) && await ph.isVisible('#vmail-checked-phone'), 'phone: the "Vale sorted at" stamp shows in the list header (' + JSON.stringify(pst) + ')');
     await ph.screenshot({ path: path.join(SHOTS, '08-phone.png') });
+    // Round 7: the first tap on a fresh page opens the tapped row (a touch's focus arrives in a
+    // later task than pointerdown; it must never auto-select row 1 and scroll the list away).
+    const tapOpens = async (id, label) => {
+      const want = await ph.$eval('#vmail-list [data-id="' + id + '"] .vmail-row__subject strong', (x) => x.textContent);
+      const before = await ph.$eval('#vmail-list', (l) => l.scrollTop);
+      await ph.evaluate(() => {
+        const l = document.querySelector('#vmail-list');
+        window.__vmTops = [];
+        const rec = () => window.__vmTops.push(l.scrollTop);
+        l.addEventListener('pointerdown', rec, { once: true, capture: true });
+        l.addEventListener('click', rec, { once: true, capture: true });
+      });
+      await ph.tap('#vmail-list [data-id="' + id + '"]');
+      await ph.waitForSelector('#vmail-reader', { state: 'visible', timeout: 2000 });
+      await ph.waitForSelector('#vmail-subject', { timeout: 3000 });
+      const got = await ph.$eval('#vmail-subject', (x) => x.textContent);
+      const tops = await ph.evaluate(() => window.__vmTops);
+      check(got === want && tops.length === 2 && tops[0] === tops[1], label + ' (' + JSON.stringify({ want, got, before, tops }) + ')');
+    };
+    for (let i = 0; i < 5; i++) {
+      await ph.goto(base + PAGE);
+      await ph.waitForSelector('#vmail-list [data-id="demo-inb-006"]', { timeout: 8000 });
+      await ph.evaluate(() => document.activeElement && document.activeElement.blur && document.activeElement.blur());
+      await tapOpens('demo-inb-006', 'phone: first tap on a fresh page opens the tapped row, run ' + (i + 1) + '/5');
+    }
+    await ph.goto(base + PAGE);
+    await ph.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+    const lowId = await ph.evaluate(() => {
+      const l = document.querySelector('#vmail-list');
+      const rows = l.querySelectorAll('[role="option"]');
+      const r = rows[Math.min(rows.length - 1, 14)];
+      l.scrollTop = r.offsetTop - 40;
+      return r.getAttribute('data-id');
+    });
+    await ph.waitForTimeout(100);
+    await tapOpens(lowId, 'phone: tapping a lower row after scrolling opens it, and the list does not jump');
+    await ph.goto(base + PAGE);
+    await ph.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+
     await ph.tap('#vmail-list [data-id="demo-inb-006"]');
     await ph.waitForSelector('#vmail-reader', { state: 'visible', timeout: 5000 });
     await ph.waitForSelector('#vmail-reader .vmail-vale', { timeout: 5000 });

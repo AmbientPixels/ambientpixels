@@ -220,6 +220,15 @@ async function post(d, b, method) {
     await post(d, { mode: 'compose', instruction: 'Say hi' });
     assert.strictEqual(d.callModel.calls[0].noFallback, true);
   });
+  // ── round 7: a To that isn't a plain, complete address fails closed ──
+  for (const odd of [['Pat <pat@clientco.example>'], ['pat'], ['pat@clientco.example.'], ['pat@clientco'], ['dana@vendor.example', 'pat']]) {
+    await test('compose with to ' + JSON.stringify(odd) + ' → noFallback: true', async () => {
+      const d = deps();
+      const c = await post(d, { mode: 'compose', to: odd, instruction: 'Tell Pat the deck is ready' });
+      assert.strictEqual(c.res.status, 200);
+      assert.strictEqual(d.callModel.calls[0].noFallback, true);
+    });
+  }
   await test('compose to a non-client → fallback allowed', async () => {
     const d = deps();
     await post(d, { mode: 'compose', to: ['dana@vendor.example'], instruction: 'Say hi' });

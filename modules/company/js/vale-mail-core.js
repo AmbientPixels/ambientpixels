@@ -123,6 +123,9 @@
         if (an === 'src' && /^cid:/.test(urlForCheck(val))) { out.push(' data-vm-cid'); return; }
         // Unsafe URLs are removed outright (never rewritten to "#", which would open this page).
         if (unsafeUrl(val, an)) return;
+        // An in-email "#section" link would open a blank about:srcdoc tab (every link opens a
+        // new one): drop the href and keep the text.
+        if (isLink && an === 'href' && /^#/.test(urlForCheck(val))) return;
       }
       out.push(a.hasVal ? ' ' + an + '="' + val.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '"' : ' ' + an);
     });
@@ -223,10 +226,17 @@
 
   // Images hidden = an allow-list, not a deny-list: browsers read "\" as "/", "http:host" as a
   // remote host, and so on, so only targets that cannot leave the email are kept.
-  function localImageUrl(v) { var u = urlForCheck(v).replace(/\\/g, '/'); return /^(data:image\/|cid:|#)/.test(u); }
-  function localCssTarget(t) {
+  // Images shown: also absolute https:// URLs with a host. Relative ("x", "/api/x"), protocol-
+  // relative ("//h", "/\h") and http: ones are still removed: they would resolve against this
+  // site or travel in the clear.
+  var HTTPS_HOST = /^https:\/\/[^\/?#@]/;
+  function localImageUrl(v, shown) {
+    var u = urlForCheck(v).replace(/\\/g, '/');
+    return /^(data:image\/|cid:|#)/.test(u) || (!!shown && HTTPS_HOST.test(u));
+  }
+  function localCssTarget(t, shown) {
     var u = str(t).trim().replace(/^["']|["']$/g, '').replace(/[\u0000- ]/g, '').replace(/\\/g, '/').toLowerCase();
-    return /^(data:|#)/.test(u);
+    return /^(data:|#)/.test(u) || (!!shown && HTTPS_HOST.test(u));
   }
 
   // CSS escapes (\72, \000072 , \() decoded the way the browser does; leftover backslashes are
@@ -242,14 +252,19 @@
   // Rewrites decoded CSS so only local targets (data:, #fragment) survive in url() and
   // image-set()/image(), and no @import survives at all. Returns null when nothing was changed
   // (the caller then keeps the original text untouched).
-  function cssWithoutRemote(decoded) {
+  // shown (Show images): https image URLs may stay, but @import and remote fonts never do.
+  function cssWithoutRemote(decoded, shown) {
     var hit = false;
     var out = decoded.replace(/@import\b[^;]*;?/gi, function () { hit = true; return ''; })
+      // Fonts are never fetched, whatever the image setting: only data: survives in @font-face.
+      .replace(/@font-face\s*\{[^}]*\}?/gi, function (block) {
+        return block.replace(/\b(?:url|src)\(([^)]*)\)/gi, function (all, inner) { if (!localCssTarget(inner, false)) { hit = true; return 'none'; } return all; });
+      })
       // src() is a URL function too (CSS Values 4): treated exactly like url().
-      .replace(/\b(?:url|src)\(([^)]*)\)/gi, function (all, inner) { if (!localCssTarget(inner)) { hit = true; return 'none'; } return all; })
+      .replace(/\b(?:url|src)\(([^)]*)\)/gi, function (all, inner) { if (!localCssTarget(inner, shown)) { hit = true; return 'none'; } return all; })
       .replace(/(?:-webkit-)?image(?:-set)?\(((?:[^()]|\([^()]*\))*)\)/gi, function (all, inner) {
         // Whatever is left once local url()s and local strings are taken out must not look like a URL.
-        var rest = inner.replace(/url\([^)]*\)/gi, '').replace(/"[^"]*"|'[^']*'/g, function (q) { return localCssTarget(q) ? '' : 'x:'; });
+        var rest = inner.replace(/url\([^)]*\)/gi, '').replace(/"[^"]*"|'[^']*'/g, function (q) { return localCssTarget(q, shown) ? '' : 'x:'; });
         if (/[\/:]/.test(rest)) { hit = true; return 'none'; }
         return all;
       });
@@ -258,13 +273,20 @@
 
   var IMAGE_ATTRS = /\s(src|background|poster|lowsrc|dynsrc)="([^"]*)"/gi;
 
+  // Media (audio, video, track, a video's <source>) is never fetched, whatever the image setting.
+  var MEDIA_TAG = /^<(?:[a-z0-9-]+:)?(?:audio|video|track|source)\b/i;
+  var MEDIA_ATTRS = /\s(src|srcset|poster)="[^"]*"/gi;
+
   // Runs on sanitizeHtml output, where every attribute value is double-quoted.
-  function stripRemoteImages(s) {
+  // shown = false (images hidden): only targets that cannot leave the email survive.
+  // shown = true (Show images): absolute https:// images may load too; fonts, @import, media,
+  // relative and http: URLs are still removed, so nothing rests on the CSP alone.
+  function stripRemote(s, shown) {
     return str(s)
       // <style> blocks: CSS escapes (and, for SVG <style>, entities). '<' is re-escaped so a
       // decoded "\3c /style\3e" can never close the block.
       .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style\s*>)/gi, function (all, open, css, close) {
-        var clean = cssWithoutRemote(cssDecode(decodeEntities(css)));
+        var clean = cssWithoutRemote(cssDecode(decodeEntities(css)), shown);
         return clean === null ? all : open + clean.replace(/</g, '\\3c ') + close;
       })
       // Every attribute pass runs inside one tag, never over text: a literal '"' in a text node
@@ -277,21 +299,25 @@
         var t = tag.replace(/\s([a-z_:][a-z0-9_:.-]*)="([^"]*)"/gi, function (all, a, v) {
           var dec = cssDecode(decodeEntities(v));
           if (!/(?:url|src)\s*\(|image(?:-set)?\s*\(|@import/i.test(dec)) return all;
-          var clean = cssWithoutRemote(dec);
+          var clean = cssWithoutRemote(dec, shown);
           return clean === null ? all : ' ' + a + '="' + escapeHtml(clean) + '"';
         })
-          .replace(IMAGE_ATTRS, function (all, a, v) { return localImageUrl(v) ? all : ''; })
+          .replace(IMAGE_ATTRS, function (all, a, v) { return localImageUrl(v, shown) ? all : ''; })
           .replace(/\ssrcset="([^"]*)"/gi, function (all, v) {
             var parts = decodeEntities(v).split(/,(?=\s*[^\s,]+(?:\s|$))/);
-            return parts.every(function (p) { return localImageUrl(p.trim().split(/\s+/)[0]); }) ? all : '';
+            return parts.every(function (p) { return localImageUrl(p.trim().split(/\s+/)[0], shown); }) ? all : '';
           });
+        if (MEDIA_TAG.test(t)) t = t.replace(MEDIA_ATTRS, '');
         // SVG images: <image>, <feImage> and <use> fetch their href.
+        // <use> loads a whole document, not an image: only an in-email "#id" is ever kept.
         if (/^<(?:[a-z0-9-]+:)?(?:image|feimage|use)\b/i.test(t)) {
-          t = t.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return localImageUrl(v) ? a : ''; });
+          var isUse = /^<(?:[a-z0-9-]+:)?use\b/i.test(t);
+          t = t.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return isUse ? (/^#/.test(urlForCheck(v)) ? a : '') : (localImageUrl(v, shown) ? a : ''); });
         }
         return t;
       });
   }
+  function stripRemoteImages(s) { return stripRemote(s, false); }
 
   var BASE_CSS ='html,body{margin:0;padding:0}body{padding:16px;font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif;' +
     'color:#1d1d1f;background:#fff;color-scheme:light;overflow-wrap:anywhere}img{max-width:100%;height:auto}' +
@@ -344,7 +370,8 @@
     var inner = isHtml ? foldQuotedHtml(sanitizeHtml(b.content, inlineImages)) : '<pre class="vm-text">' + escapeHtml(b.content) + '</pre>';
     // Images hidden: remove remote image URLs outright, so nothing is even requested
     // (tracking pixels never fire) and nothing depends on the CSP alone.
-    if (isHtml && !allowImages) inner = stripRemoteImages(inner);
+    // Images shown still runs the pass: fonts, @import, media and relative URLs never load.
+    if (isHtml) inner = stripRemote(inner, !!allowImages);
     // Unresolved inline images lost their cid: src in the sanitiser; while they load they get a
     // blank local image (the sanitiser keeps only one src, so this is the only one).
     if (isHtml && opts && opts.cidPending) inner = inner.replace(/(<img\b[^>]*?\sdata-vm-cid)(?=[\s>\/])/gi, function (all, head) { return head + ' src="' + BLANK_GIF + '"'; });

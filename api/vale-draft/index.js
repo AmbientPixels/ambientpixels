@@ -22,6 +22,7 @@ var CORS = {
 
 function json(context, status, body) { context.res = { status: status, headers: CORS, body: body }; }
 function logCode(context, code) { if (context.log && context.log.error) context.log.error('[vale-draft] ' + code); }
+function isPlainAddress(a) { return /^[^\s@<>"]+@[^\s@<>"]+\.[a-z0-9-]{2,}$/i.test(String(a || '')); }
 function hourOf(ms) { return new Date(ms).toISOString().slice(0, 13); }
 
 function parseBody(b) {
@@ -73,7 +74,9 @@ async function handle(context, req, deps) {
     // adds Claude-only routing, never removes it.
     // A compose with nobody on To yet can't be checked against the client list, and its
     // instruction may name a client: fail closed (Claude only).
-    var composeNoTo = v.req.mode === 'compose' && !(v.req.to && v.req.to.length);
+    // Any To entry that is not a plain, complete address ('Amy <amy@…>', 'amy', 'amy@co.example.')
+    // can't be checked either, so it fails closed too.
+    var composeNoTo = v.req.mode === 'compose' && !(v.req.to && v.req.to.length && v.req.to.every(isPlainAddress));
     var client = rulesMeta.failed || composeNoTo || draftLib.isClientThread(v.req, rules) || v.req.client === true;
 
     var p = draftLib.buildDraftPrompt(v.req, deps.voice, { client: client });

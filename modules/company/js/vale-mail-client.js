@@ -361,7 +361,12 @@
   // An unsent reply waiting on this email: the live one, or text Chad typed and left.
   function hasDraft(id) {
     // The editor's input handler keeps session.text current.
-    if (S.session && S.session.key === id && S.session.mode === 'reply') return !!String(S.session.text || '').trim();
+    if (S.session && S.session.key === id && S.session.mode === 'reply') {
+      // In its send window (or gone) it is no longer a draft: the row must not say "Draft"
+      // under "Sending to … in 10s".
+      if (/^(countdown|sending|sent)$/.test(S.session.m.state)) return false;
+      return !!String(S.session.text || '').trim();
+    }
     var saved = loadTyped(id);
     return !!(saved && String(saved.text || '').trim());
   }
@@ -891,7 +896,8 @@
     if (waiting) facts.push('<li class="is-urgent"><i class="fas fa-hourglass-half" aria-hidden="true"></i>' + h(waitingText(waiting.since)) + '</li>');
 
     var client = '';
-    if (isClientThread(m)) client = '<p class="vmail-notice"><i class="fas fa-shield-halved" aria-hidden="true"></i><span>' + h(copy('clientDraftNotice', 'Client mail.')) + '</span></p>';
+    // Shown only next to a way to draft (see below): it is reassurance about drafting.
+    if (isClientThread(m)) client = '<p class="vmail-notice vmail-notice--client"><i class="fas fa-shield-halved" aria-hidden="true"></i><span>' + h(copy('clientDraftNote', 'Client mail stays private: drafts use Claude only.')) + '</span></p>';
     else if (S.rulesFailed && !quiet) client = '<p class="vmail-notice"><i class="fas fa-shield-halved" aria-hidden="true"></i><span>' + h(copy('rulesFailedNotice', 'Couldn\'t load your client list, so drafts use Claude only for now.')) + '</span></p>';
 
     var s = S.session && S.session.key === m.id ? S.session : null;
@@ -904,7 +910,7 @@
       var nx = nextAfterSend(m);
       ask = '<div class="vmail-ask"><p class="vmail-question">Sent. It\'s ' + h(first) + '\'s turn now.</p><div class="vmail-stances">' +
         (nx ? nextBtn(nx, dis) : '') +
-        '<button type="button" class="ap-btn" data-act="reply"' + dis + '><i class="fas fa-reply" aria-hidden="true"></i>Write another reply</button></div></div>';
+        '<button type="button" class="ap-btn vmail-btn-agent" data-act="reply"' + dis + '><i class="fas fa-reply" aria-hidden="true"></i>Write another reply</button></div></div>';
     } else if (guard) {
       // A different Reply-To, a lookalike sender or an outside email claiming your domain (often a
       // payment-change or sign-in lure): the only draft is one that verifies.
@@ -921,8 +927,8 @@
       var line = isFromAgent(m) ? 'Your brief from ' + S.agent + '. Nothing to answer here.'
         : (l && QUIET_COPY[l.label]) || (C.bucketOf(m, null) === 'newsletter' ? QUIET_COPY.newsletter : 'An automated message. Nothing to answer here.');
       ask = '<div class="vmail-ask"><p class="vmail-question">' + h(line) + '</p><div class="vmail-stances">' +
-        (m.parentFolderId === 'archive' ? '' : '<button type="button" class="ap-btn" data-act="archive"><i class="fas fa-box-archive" aria-hidden="true"></i>Archive it</button>') +
-        (automated ? '' : '<button type="button" class="ap-btn" data-act="draft"' + dis + '><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>Draft a reply</button>') +
+        (m.parentFolderId === 'archive' ? '' : '<button type="button" class="ap-btn vmail-btn-agent" data-act="archive"><i class="fas fa-box-archive" aria-hidden="true"></i>Archive it</button>') +
+        (automated ? '' : '<button type="button" class="ap-btn vmail-btn-agent" data-act="draft"' + dis + '><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>Draft a reply</button>') +
         '</div></div>';
     } else if (theirTurn || (l && l.label === 'waiting')) {
       var mine = sentInThread(m).sort(function (a, b) { return msgTime(b) - msgTime(a); })[0];
@@ -945,6 +951,8 @@
         group + btns + '</div>' + tellForm(dis) + '</div>';
     }
 
+    // The client-mail note belongs next to a draft action only (stances, Tell Vale, Draft).
+    if (!/data-stance=|data-act="draft|data-form="tell"/.test(ask || '')) client = '';
     slot.innerHTML = '<section class="vmail-vale" aria-label="' + h(S.agent) + '">' +
       '<div class="vmail-vale__head"><span class="vmail-avatar vmail-avatar--agent vmail-avatar--sm" aria-hidden="true">' + h(S.agent.charAt(0)) + '</span>' +
       '<div><span class="vmail-vale__name">' + h(S.agent) + '</span> <span class="vmail-vale__role">' + h((S.cfg.agent && S.cfg.agent.role) || '') + '</span></div>' +
@@ -1425,10 +1433,22 @@
     var msg = (S.open && S.open.msg && S.open.msg.id === s.msgId ? S.open.msg : null) || findMsg(s.msgId);
     return !!(msg && s.stance !== 'verify' && C.replyToMismatch(msg) && useReplyTo(msg));
   }
+  // 'Amy Lee <amy@x.example>' keeps its address (the name never decides where mail goes);
+  // anything else splits on commas, semicolons and spaces.
   function parseAddresses(text) {
-    return String(text || '').split(/[,;\s]+/).map(function (x) { return x.trim(); }).filter(Boolean).map(function (a) { return { name: '', address: a }; });
+    var out = [];
+    String(text || '').split(/[,;]+/).forEach(function (part) {
+      var angle = /^(.*)<([^>]*)>\s*$/.exec(part);
+      if (angle) {
+        var addr = angle[2].trim();
+        if (addr) out.push({ name: angle[1].replace(/["']/g, '').trim(), address: addr });
+        return;
+      }
+      part.split(/\s+/).map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (a) { out.push({ name: '', address: a }); });
+    });
+    return out;
   }
-  var EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
+  var EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z0-9-]{2,}$/i;
 
   function renderEditorSlot() {
     var slot = $('vmail-editor-slot');
@@ -1646,7 +1666,8 @@
       var toList = parseAddresses(s.toText);
       body = { mode: 'compose', from: '', fromName: '', subject: s.subject, latest: '', prior: [], stance: null, instruction: String(instruction || ''), to: toList.map(function (r) { return r.address; }).slice(0, 50),
         // Nobody on To yet: the brief may name a client, so fail closed (Claude only).
-        client: !!S.rulesFailed || !toList.length || C.threadIsClient([{ toRecipients: toList.map(function (r) { return { emailAddress: r }; }) }], rulesDomains) };
+        // A half-typed address can't be checked either: same rule.
+        client: !!S.rulesFailed || !toList.length || !toList.every(function (r) { return EMAIL_RE.test(r.address); }) || C.threadIsClient([{ toRecipients: toList.map(function (r) { return { emailAddress: r }; }) }], rulesDomains) };
     }
     var r = await valeApi('/vale-draft', { method: 'POST', body: JSON.stringify(body) });
     if (r.status === 200 && r.body && typeof r.body.draft === 'string' && r.body.draft.trim()) return r.body.draft;
@@ -1693,6 +1714,7 @@
       for (var vi = 0; vi < vis.length; vi++) if (vis[vi].id === s.msgId) S.sentFrom = { id: s.msgId, index: vi };
     }
     s.m.next('send');
+    refreshDraftMark(s.key);
     s.left = Number(S.cfg.undoSeconds) > 0 ? Number(S.cfg.undoSeconds) : 10;
     s.sendTo = to;
     $('vmail-sendbar-progress').max = s.left;
@@ -1729,6 +1751,7 @@
     s.timer = null;
     s.m.next('undo');
     s.m.next('edit');
+    refreshDraftMark(s.key);
     $('vmail-sendbar').hidden = true;
     setSending(false);
     $('vmail-sendbar-sr').textContent = 'Not sent.';
@@ -1803,6 +1826,7 @@
 
   function sendFailed(s, e) {
     s.m.next('fail');
+    refreshDraftMark(s.key);
     $('vmail-sendbar').hidden = true;
     setSending(false);
     $('vmail-sendbar-sr').textContent = 'Not sent. Something went wrong.';
@@ -1953,6 +1977,8 @@
       return false;
     });
     toast('Archived “' + subj + '”.', async function () {
+      // Anything Chad opens while the moves are in flight (a click, j/k) wins over the reopen.
+      var seqAtUndo = S.openSeq;
       if (!(await moved)) return;
       try {
         await S.g.move(id, from);
@@ -1961,9 +1987,10 @@
         L.items.splice(Math.min(Math.max(idxAll, 0), L.items.length), 0, m);
         // The reader still on the email that replaced it (or closed): reopen the restored one, so
         // the selected row and the open email are the same message. Otherwise keep them matched.
-        var reopen = wasOpen && !isPhone() && (!S.openId || (nextMsg && S.openId === nextMsg.id));
+        var untouched = S.openSeq === seqAtUndo;
+        var reopen = wasOpen && !isPhone() && untouched && (!S.openId || (nextMsg && S.openId === nextMsg.id));
         var inReader = $('vmail-reader').contains(document.activeElement);
-        S.selectedId = reopen || !S.openId || isPhone() ? id : S.openId;
+        S.selectedId = S.openId && !untouched ? S.openId : (reopen || !S.openId || isPhone() ? id : S.openId);
         renderListPane();
         renderFolders();
         if (reopen) openMessage(id, { focusReader: inReader });
@@ -2130,9 +2157,14 @@
     // row no longer shown) is selected. Selecting is not opening, so nothing is marked read.
     // A click or tap picks its own row: only keyboard / programmatic focus selects the first one
     // (selecting on pointer focus would scroll the list under the pointer mid-click).
-    $('vmail-list').addEventListener('pointerdown', function () { S.listPointer = true; setTimeout(function () { S.listPointer = false; }, 0); });
+    // On touch the gesture's mousedown + focus come in a later task than pointerdown, so a 0 ms
+    // flag was already cleared by then: remember WHEN a pointer last went down instead.
+    S.listPointerAt = 0;
+    ['pointerdown', 'mousedown', 'touchstart'].forEach(function (type) {
+      $('vmail-list').addEventListener(type, function () { S.listPointerAt = Date.now(); }, { passive: true });
+    });
     $('vmail-list').addEventListener('focus', function () {
-      if (S.listPointer) return;
+      if (Date.now() - S.listPointerAt < 1000) return;
       var items = visibleItems();
       if (!items.length) return;
       var shown = S.selectedId && items.some(function (x) { return x.id === S.selectedId; });

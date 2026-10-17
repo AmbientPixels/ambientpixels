@@ -27,7 +27,7 @@
     "demoBanner": "Demo mailbox. Nothing here is real; sending is simulated.",
     "notSorted": "Not sorted yet",
     "clientMarker": "client",
-    "clientDraftNotice": "Client mail: Vale drafts this with Claude only. If Claude is unavailable, there is no draft.",
+    "clientDraftNote": "Client mail stays private: Vale drafts it with Claude only, never a backup model. If Claude is down, you will write this one yourself.",
     "replyToWarning": "Replies go to {replyTo}, not {from}. Check this is really them before you answer.",
     "draftFailed": "Vale couldn't draft this one. You can still write your reply here.",
     "sendFailed": "Not sent. Your reply is safe in Drafts. Try again.",
