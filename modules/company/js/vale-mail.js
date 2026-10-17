@@ -19,7 +19,8 @@
     el.className = 'ap-panel';
     el.id = 'vale-mail-card';
     el.style.marginTop = '1.5rem';
-    el.innerHTML = '<div class="ap-panel-header"><span class="ap-panel-title"><i class="fas fa-inbox"></i> Mail — Vale reads, never sends</span></div>' +
+    el.innerHTML = '<div class="ap-panel-header"><span class="ap-panel-title"><i class="fas fa-inbox"></i> Mail — Vale reads, never sends</span>' +
+      '<a class="ap-btn ap-btn--primary" href="/modules/company/mail.html">Open Vale Mail <i class="fas fa-arrow-right" aria-hidden="true"></i></a></div>' +
       '<div id="vale-mail-body" style="padding:var(--c-pad);">Loading…</div>';
     var grid = document.querySelector('.office-grid');
     if (grid && grid.parentNode) grid.parentNode.insertBefore(el, grid.nextSibling);

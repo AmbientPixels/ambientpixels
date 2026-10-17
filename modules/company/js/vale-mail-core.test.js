@@ -398,5 +398,133 @@ test('every fixture body renders safely and every message has the fields the UI 
   });
 });
 
+test('images hidden: remote image URLs are removed so nothing is requested (not just CSP-blocked)', () => {
+  const src = '<img src="https://track.example/open.gif?u=1" alt="logo"><img srcset="//cdn.example/a.png 2x"><td background="http://x.example/bg.png">' +
+    '<div style="background:url(\'https://x.example/b.png\') no-repeat">a</div><style>.h{background-image:url(https://x.example/c.png)}</style><img src="data:image/png;base64,iVBORw==">';
+  const off = C.safeBodyDoc(html(src), false);
+  assert.ok(!/track\.example|cdn\.example|x\.example/.test(off), 'no remote URL survives when images are hidden');
+  assert.ok(off.includes('alt="logo"'), 'alt text kept');
+  assert.ok(off.includes('data:image/png;base64,iVBORw=='), 'inline data images kept');
+  const on = C.safeBodyDoc(html(src), true);
+  assert.ok(on.includes('https://track.example/open.gif?u=1') && on.includes('https://x.example/c.png'), 'Show images keeps them');
+});
+
+// ── UI helpers (Task 5): formatting, clash, errors, drafts ──
+const UNOW = Date.parse('2026-10-17T22:00:00Z'); // Sat 3:00 PM Pacific
+const PT = { timeZone: 'America/Los_Angeles' };
+test('formatWhen: time today, Yesterday, weekday this week, month+day this year, full date older', () => {
+  assert.strictEqual(C.formatWhen('2026-10-17T21:48:00Z', UNOW, PT), '2:48 PM');
+  assert.strictEqual(C.formatWhen('2026-10-16T21:00:00Z', UNOW, PT), 'Yesterday');
+  assert.strictEqual(C.formatWhen('2026-10-13T18:00:00Z', UNOW, PT), 'Tue');
+  assert.strictEqual(C.formatWhen('2026-08-02T18:00:00Z', UNOW, PT), 'Aug 2');
+  assert.strictEqual(C.formatWhen('2025-12-30T18:00:00Z', UNOW, PT), 'Dec 30, 2025');
+  assert.strictEqual(C.formatWhen('', UNOW, PT), '');
+  assert.strictEqual(C.formatWhen('not a date', UNOW, PT), '');
+});
+test('formatWhen uses the time zone for the day boundary (late evening Pacific is still today)', () => {
+  // 2026-10-18T05:30Z is Oct 17, 10:30 PM Pacific
+  assert.strictEqual(C.formatWhen('2026-10-18T05:30:00Z', Date.parse('2026-10-18T06:00:00Z'), PT), '10:30 PM');
+});
+test('agoText: just now, minutes, hours, yesterday, days, weeks', () => {
+  assert.strictEqual(C.agoText(new Date(UNOW - 20000).toISOString(), UNOW), 'just now');
+  assert.strictEqual(C.agoText(new Date(UNOW - 5 * 60000).toISOString(), UNOW), '5 min ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 3 * 3600000).toISOString(), UNOW), '3 hours ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 3600000).toISOString(), UNOW), '1 hour ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 30 * 3600000).toISOString(), UNOW), 'yesterday');
+  assert.strictEqual(C.agoText(new Date(UNOW - 4 * 86400000).toISOString(), UNOW), '4 days ago');
+  assert.strictEqual(C.agoText(new Date(UNOW - 15 * 86400000).toISOString(), UNOW), '2 weeks ago');
+  assert.strictEqual(C.agoText(null, UNOW), '');
+});
+test('formatSize: bytes, KB, MB', () => {
+  assert.strictEqual(C.formatSize(512), '512 B');
+  assert.strictEqual(C.formatSize(14 * 1024), '14 KB');
+  assert.strictEqual(C.formatSize(1.25 * 1024 * 1024), '1.3 MB');
+  assert.strictEqual(C.formatSize(-1), '');
+  assert.strictEqual(C.formatSize('x'), '');
+});
+test('firstName: first word of the name, else the address local part, capitalised', () => {
+  assert.strictEqual(C.firstName(addr('dana@x.example', 'Dana Reyes')), 'Dana');
+  assert.strictEqual(C.firstName({ name: 'Kim  Park', address: 'kim@x.example' }), 'Kim');
+  assert.strictEqual(C.firstName(addr('jordan.lee@x.example', '')), 'Jordan');
+  assert.strictEqual(C.firstName(addr('', '')), 'there');
+  assert.strictEqual(C.firstName(addr('x@y.example', '"Billing, Team"')), 'Billing');
+});
+test('fillDraft replaces known placeholders only and never leaves a raw {firstName}', () => {
+  assert.strictEqual(C.fillDraft('Hi {firstName}, {instruction}. {other}', { firstName: 'Dana', instruction: 'yes to Thursday' }), 'Hi Dana, yes to Thursday. {other}');
+  assert.strictEqual(C.fillDraft('Hi {firstName},', {}), 'Hi there,');
+  assert.strictEqual(C.fillDraft(null, {}), '');
+});
+test('eventMs: Graph calendar time without zone is UTC; zoned times parse as given', () => {
+  assert.strictEqual(C.eventMs('2026-10-17T17:00:00.0000000'), Date.parse('2026-10-17T17:00:00Z'));
+  assert.strictEqual(C.eventMs('2026-10-17T17:00:00Z'), Date.parse('2026-10-17T17:00:00Z'));
+  assert.ok(isNaN(C.eventMs('nope')));
+});
+test('workHoursClash: overlap inside day-job hours on a work day (Pacific)', () => {
+  const wh = { days: [1, 2, 3, 4, 5], start: '09:00', end: '17:00', tz: 'America/Los_Angeles' };
+  // Fri 2026-10-16 10:00-10:30 PT = 17:00-17:30Z
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-16T17:00:00Z'), Date.parse('2026-10-16T17:30:00Z'), wh), true);
+  // Fri 17:30-18:00 PT (after hours) = 00:30-01:00Z next day
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-17T00:30:00Z'), Date.parse('2026-10-17T01:00:00Z'), wh), false);
+  // Sat 10:00 PT — not a work day
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-17T17:00:00Z'), Date.parse('2026-10-17T17:30:00Z'), wh), false);
+  // Fri 08:30-09:30 PT overlaps the start
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-16T15:30:00Z'), Date.parse('2026-10-16T16:30:00Z'), wh), true);
+});
+test('workHoursClash: no hours set, bad times or missing days default safely', () => {
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-16T17:00:00Z'), Date.parse('2026-10-16T17:30:00Z'), null), false);
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-16T17:00:00Z'), Date.parse('2026-10-16T17:30:00Z'), { start: 'x', end: '17:00' }), false);
+  // days missing → Mon–Fri; tz missing → Pacific
+  assert.strictEqual(C.workHoursClash(Date.parse('2026-10-16T17:00:00Z'), Date.parse('2026-10-16T17:30:00Z'), { start: '09:00', end: '17:00' }), true);
+});
+test('threadText: honest thread strip sentence', () => {
+  assert.strictEqual(C.threadText({ count: 6, fromMe: 2, latestAt: new Date(UNOW - 30 * 3600000).toISOString() }, UNOW), 'Thread of 6 · 2 from you · latest yesterday');
+  assert.strictEqual(C.threadText({ count: 1, fromMe: 0, latestAt: null }, UNOW), '');
+  assert.strictEqual(C.threadText({ count: 2, fromMe: 1, latestAt: new Date(UNOW - 5 * 60000).toISOString() }, UNOW), 'Thread of 2 · 1 from you · latest 5 min ago');
+});
+test('errorText: plain words per failure, with whether a retry makes sense', () => {
+  assert.ok(/offline|connection/i.test(C.errorText({ status: 0, code: 'network' }).text));
+  assert.ok(/sign in/i.test(C.errorText({ status: 401 }).text));
+  assert.strictEqual(C.errorText({ status: 401 }).signIn, true);
+  assert.ok(/slow down|busy/i.test(C.errorText({ status: 429 }).text));
+  assert.ok(/isn.t answering|having trouble/i.test(C.errorText({ status: 503 }).text));
+  assert.ok(/find/i.test(C.errorText({ status: 404 }).text));
+  assert.strictEqual(C.errorText({ status: 503 }).retry, true);
+  assert.ok(C.errorText(new Error('boom')).text.length > 5);
+  assert.ok(!/boom/.test(C.errorText(new Error('boom')).text), 'never echoes raw error messages');
+});
+test('labelName: plain names for every triage label, unknown → not sorted', () => {
+  assert.strictEqual(C.labelName('needs_you'), 'Needs you');
+  assert.strictEqual(C.labelName('waiting'), 'Waiting');
+  assert.strictEqual(C.labelName('fyi'), 'FYI');
+  assert.strictEqual(C.labelName('receipt'), 'Receipt');
+  assert.strictEqual(C.labelName('noise'), 'Low priority');
+  assert.strictEqual(C.labelName('newsletter'), 'Newsletter');
+  assert.strictEqual(C.labelName('unsure'), 'Unsure');
+  assert.strictEqual(C.labelName(undefined), null);
+});
+test('isAutomated: no-reply, notification and list mail need no answer', () => {
+  assert.strictEqual(C.isAutomated(msg({ from: addr('no-reply@x.example') })), true);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('notifications@codehub.example') })), true);
+  assert.strictEqual(C.isAutomated(msg({ internetMessageHeaders: [{ name: 'List-Unsubscribe', value: '<mailto:u@x>' }] })), true);
+  assert.strictEqual(C.isAutomated(msg()), false);
+});
+test('triageLabels: valeMailState → id map, plus waiting threads mark their newest inbox message', () => {
+  const st = { at: '2026-10-17T14:00:00Z', triaged: [{ id: 'a', label: 'needs_you', why: 'W', by: 'model' }, { id: 'b', label: null }], waiting: [{ conversationId: 'c9', toName: 'Jordan', days: 4 }] };
+  const inbox = [msg({ id: 'x1', conversationId: 'c9', receivedDateTime: '2026-10-10T10:00:00Z' }), msg({ id: 'x2', conversationId: 'c9', receivedDateTime: '2026-10-11T10:00:00Z' })];
+  const map = C.triageLabels(st, inbox);
+  assert.deepStrictEqual(map.a, { label: 'needs_you', why: 'W', by: 'model' });
+  assert.ok(!('b' in map));
+  assert.strictEqual(map.x2.label, 'waiting');
+  assert.ok(/Jordan/.test(map.x2.why) && /4 days/.test(map.x2.why));
+  assert.ok(!('x1' in map));
+  assert.deepStrictEqual(C.triageLabels(null, inbox), {});
+});
+test('bytesToDataUrl: raster images only, base64 encoded', () => {
+  const png = new Uint8Array([137, 80, 78, 71]).buffer;
+  assert.strictEqual(C.bytesToDataUrl(png, 'image/png'), 'data:image/png;base64,iVBORw==');
+  assert.strictEqual(C.bytesToDataUrl(png, 'image/svg+xml'), null);
+  assert.strictEqual(C.bytesToDataUrl(png, 'text/html'), null);
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

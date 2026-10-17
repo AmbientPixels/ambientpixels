@@ -24,7 +24,14 @@
     (async function () {
       var OFFICE = '/modules/company/office.html';
       var q = new URLSearchParams(location.search);
-      function go(extra) { location.replace(OFFICE + '?vale=1' + (extra || '')); }
+      // Vale Mail (/modules/company/mail.html) signs in with its own app registration and marks the
+      // round trip in sessionStorage; everything else is the Office page's Vale sign-in, unchanged.
+      var mail = false;
+      try { mail = !q.get('connect') && sessionStorage.getItem('vmail.authReturn') === '1'; sessionStorage.removeItem('vmail.authReturn'); } catch (e) { mail = false; }
+      function go(extra) {
+        if (mail) { location.replace('/modules/company/mail.html' + (extra ? '?' + extra.replace(/^&/, '') : '')); return; }
+        location.replace(OFFICE + '?vale=1' + (extra || ''));
+      }
 
       // Connect callback bounce from the API: ?connect=ok|error&reason=...
       if (q.get('connect')) {
@@ -32,7 +39,7 @@
         return;
       }
       try {
-        var cfg = await (await fetch('/data/vale-config.json', { cache: 'no-store' })).json();
+        var cfg = await (await fetch(mail ? '/data/vale-mail-product.json' : '/data/vale-config.json', { cache: 'no-store' })).json();
         var app = new msal.PublicClientApplication({
           auth: {
             clientId: cfg.clientId,

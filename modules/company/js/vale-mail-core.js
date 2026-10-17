@@ -121,7 +121,16 @@
     return s;
   }
 
-  var BASE_CSS = 'html,body{margin:0;padding:0}body{padding:16px;font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif;' +
+  var REMOTE_URL = /^\s*(?:https?:)?\/\//i;
+  // Runs on sanitizeHtml output, where every attribute value is double-quoted.
+  function stripRemoteImages(s) {
+    return str(s)
+      .replace(/\s(src|background|poster|lowsrc|dynsrc)="([^"]*)"/gi, function (all, a, v) { return REMOTE_URL.test(decodeEntities(v)) ? '' : all; })
+      .replace(/\ssrcset="([^"]*)"/gi, function (all, v) { return /\/\//.test(decodeEntities(v)) ? '' : all; })
+      .replace(/url\(\s*(?:&quot;|["'])?\s*(?:https?:)?\/\/[^)]*\)/gi, 'none');
+  }
+
+  var BASE_CSS ='html,body{margin:0;padding:0}body{padding:16px;font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif;' +
     'color:#1d1d1f;background:#fff;color-scheme:light;overflow-wrap:anywhere}img{max-width:100%;height:auto}' +
     'pre.vm-text{white-space:pre-wrap;font:inherit;margin:0}a{color:#5b4fd6}blockquote{margin:0 0 0 8px;padding-left:10px;border-left:2px solid #d4d4dc;color:#555}';
 
@@ -132,6 +141,9 @@
     var b = body || {};
     var isHtml = str(b.contentType).toLowerCase() === 'html';
     var inner = isHtml ? sanitizeHtml(b.content, inlineImages) : '<pre class="vm-text">' + escapeHtml(b.content) + '</pre>';
+    // Images hidden: remove remote image URLs outright, so nothing is even requested
+    // (tracking pixels never fire) and nothing depends on the CSP alone.
+    if (isHtml && !allowImages) inner = stripRemoteImages(inner);
     var csp = "default-src 'none'; style-src 'unsafe-inline'; img-src data: cid:" + (allowImages ? ' https:' : '') + "; font-src data:; form-action 'none'";
     return '<!doctype html><html><head><meta charset="utf-8">' +
       '<meta http-equiv="Content-Security-Policy" content="' + csp + '">' +
@@ -325,7 +337,188 @@
     return Object.prototype.hasOwnProperty.call(KEYS, event.key) ? KEYS[event.key] : null;
   }
 
+  // ── UI helpers (Task 5): dates, sizes, names, drafts, clashes, errors ───────
+
+  var DEFAULT_TZ = 'America/Los_Angeles';
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Calendar-date parts of an instant in a time zone (undefined tz = the runtime's local zone).
+  function zoned(ms, tz) {
+    var o = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', weekday: 'short', hourCycle: 'h23' };
+    if (tz) o.timeZone = tz;
+    var parts = {};
+    try { new Intl.DateTimeFormat('en-US', o).formatToParts(new Date(ms)).forEach(function (p) { parts[p.type] = p.value; }); }
+    catch (e) { return null; }
+    return {
+      y: Number(parts.year), m: Number(parts.month), d: Number(parts.day),
+      h: Number(parts.hour) % 24, min: Number(parts.minute), wd: WEEKDAYS.indexOf(parts.weekday)
+    };
+  }
+  function dayNum(z) { return Date.UTC(z.y, z.m - 1, z.d) / 86400000; }
+
+  function clock(z) {
+    var h12 = z.h % 12 === 0 ? 12 : z.h % 12;
+    return h12 + ':' + (z.min < 10 ? '0' : '') + z.min + ' ' + (z.h < 12 ? 'AM' : 'PM');
+  }
+
+  // List timestamp: "2:48 PM" today, "Yesterday", weekday within the week, "Aug 2", "Dec 30, 2025".
+  function formatWhen(iso, nowMs, opts) {
+    var t = Date.parse(str(iso));
+    if (!isFinite(t)) return '';
+    var tz = opts && opts.timeZone;
+    var z = zoned(t, tz), n = zoned(isFinite(nowMs) ? nowMs : Date.now(), tz);
+    if (!z || !n) return '';
+    var diff = dayNum(n) - dayNum(z);
+    if (diff <= 0) return clock(z);
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return WEEKDAYS[z.wd];
+    return MONTHS[z.m - 1] + ' ' + z.d + (z.y !== n.y ? ', ' + z.y : '');
+  }
+
+  function formatTime(ms, opts) { var z = zoned(ms, opts && opts.timeZone); return z ? clock(z) : ''; }
+
+  function agoText(iso, nowMs) {
+    var t = Date.parse(str(iso));
+    if (!isFinite(t)) return '';
+    var s = Math.max(0, (nowMs - t) / 1000);
+    if (s < 60) return 'just now';
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + ' min ago';
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
+    var d = Math.floor(h / 24);
+    if (d === 1) return 'yesterday';
+    if (d < 14) return d + ' days ago';
+    var w = Math.floor(d / 7);
+    if (d < 60) return w + ' weeks ago';
+    return Math.floor(d / 30) + ' months ago';
+  }
+
+  function formatSize(bytes) {
+    var n = Number(bytes);
+    if (typeof bytes !== 'number' || !isFinite(n) || n < 0) return '';
+    if (n < 1024) return Math.round(n) + ' B';
+    if (n < 1024 * 1024) return Math.round(n / 1024) + ' KB';
+    return (Math.round(n / 1024 / 1024 * 10) / 10) + ' MB';
+  }
+
+  function firstName(r) {
+    var e = ea(r);
+    var name = e.name.replace(/["']/g, '').trim();
+    var w = name.split(/[\s,]+/)[0];
+    if (w && !/@/.test(w)) return w;
+    var local = e.address.split('@')[0].split(/[._+-]/)[0];
+    return local ? local.charAt(0).toUpperCase() + local.slice(1) : 'there';
+  }
+
+  function fillDraft(template, vars) {
+    var v = vars || {};
+    return str(template).replace(/\{(firstName|instruction)\}/g, function (all, k) {
+      if (k === 'firstName') return str(v.firstName).trim() || 'there';
+      return str(v.instruction).trim();
+    });
+  }
+
+  // Graph calendar dateTime: no zone suffix means the zone the request asked for (UTC here).
+  function eventMs(dt) {
+    var s = str(dt);
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) return NaN;
+    return Date.parse(/(Z|[+-]\d{2}:\d{2})$/.test(s) ? s : s.replace(/(\.\d{3})\d*$/, '$1') + 'Z');
+  }
+
+  function hm(s) { var m = /^(\d{1,2}):(\d{2})$/.exec(str(s)); return m && Number(m[1]) < 25 && Number(m[2]) < 60 ? Number(m[1]) * 60 + Number(m[2]) : null; }
+
+  // Does [startMs, endMs) overlap the day-job hours? days: 1=Mon … 7=Sun (default Mon–Fri).
+  function workHoursClash(startMs, endMs, wh) {
+    if (!wh || !isFinite(startMs) || !isFinite(endMs) || endMs <= startMs) return false;
+    var a = hm(wh.start), b = hm(wh.end);
+    if (a == null || b == null || b <= a) return false;
+    var days = Array.isArray(wh.days) && wh.days.length ? wh.days : [1, 2, 3, 4, 5];
+    var tz = wh.tz || DEFAULT_TZ;
+    // Walk the meeting in 15-minute steps (meetings are short; cap at 2 days).
+    var stop = Math.min(endMs, startMs + 2 * 86400000);
+    for (var t = startMs; t < stop; t += 15 * 60000) {
+      var z = zoned(t, tz);
+      if (!z) return false;
+      var iso = z.wd === 0 ? 7 : z.wd;
+      var mins = z.h * 60 + z.min;
+      if (days.indexOf(iso) !== -1 && mins >= a && mins < b) return true;
+    }
+    return false;
+  }
+
+  function threadText(strip, nowMs) {
+    if (!strip || !(strip.count > 1)) return '';
+    var parts = ['Thread of ' + strip.count];
+    parts.push(strip.fromMe ? strip.fromMe + ' from you' : 'none from you');
+    var ago = agoText(strip.latestAt, nowMs);
+    if (ago) parts.push('latest ' + ago);
+    return parts.join(' · ');
+  }
+
+  // Plain words for a failed Graph / API call. Never echoes the raw error message.
+  function errorText(err) {
+    var s = err && typeof err.status === 'number' ? err.status : -1;
+    var code = str(err && err.code);
+    if (s === 0 && code === 'network') return { text: 'You seem to be offline. Check your connection and try again.', retry: true };
+    if (code === 'no_token' || s === 401) return { text: 'Your Microsoft sign-in has expired. Sign in again to keep going.', retry: false, signIn: true };
+    if (s === 403) return { text: 'Microsoft 365 said this account can\'t do that.', retry: false };
+    if (s === 404) return { text: 'Couldn\'t find that email. It may have been moved or deleted in Outlook.', retry: true };
+    if (s === 429) return { text: 'Microsoft asked us to slow down. Give it a minute, then try again.', retry: true };
+    if (s >= 500) return { text: 'Microsoft 365 isn\'t answering right now. Try again in a moment.', retry: true };
+    return { text: 'Something went wrong on our side. Try again.', retry: true };
+  }
+
+  var LABEL_NAMES = { needs_you: 'Needs you', waiting: 'Waiting', fyi: 'FYI', receipt: 'Receipt', noise: 'Low priority', newsletter: 'Newsletter', unsure: 'Unsure' };
+  function labelName(label) { return Object.prototype.hasOwnProperty.call(LABEL_NAMES, label) ? LABEL_NAMES[label] : null; }
+
+  function isAutomated(msg) {
+    return !!header(msg, 'list-unsubscribe') || AUTOMATED.test(ea(msg && msg.from).address);
+  }
+
+  // Real-mode labels from valeMailState ({at, triaged:[{id,label,why,by}], waiting:[{conversationId,toName,days}]}).
+  function triageLabels(state, inbox) {
+    var out = {};
+    if (!state || typeof state !== 'object') return out;
+    (state.triaged || []).forEach(function (t) {
+      if (t && typeof t.id === 'string' && t.label) out[t.id] = { label: t.label, why: str(t.why), by: t.by || null };
+    });
+    (state.waiting || []).forEach(function (w) {
+      if (!w || !w.conversationId) return;
+      var newest = null;
+      (inbox || []).forEach(function (m) {
+        if (m && m.conversationId === w.conversationId && (!newest || str(m.receivedDateTime) > str(newest.receivedDateTime))) newest = m;
+      });
+      if (newest) out[newest.id] = { label: 'waiting', why: 'You wrote to ' + (str(w.toName) || 'them') + ' ' + (Number(w.days) || 0) + ' days ago; no answer yet', by: 'rule' };
+    });
+    return out;
+  }
+
+  var B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  function base64(u8) {
+    var out = '', i;
+    for (i = 0; i + 2 < u8.length; i += 3) {
+      var n = (u8[i] << 16) | (u8[i + 1] << 8) | u8[i + 2];
+      out += B64[n >> 18 & 63] + B64[n >> 12 & 63] + B64[n >> 6 & 63] + B64[n & 63];
+    }
+    var rest = u8.length - i;
+    if (rest === 1) { var a = u8[i] << 16; out += B64[a >> 18 & 63] + B64[a >> 12 & 63] + '=='; }
+    else if (rest === 2) { var b = (u8[i] << 16) | (u8[i + 1] << 8); out += B64[b >> 18 & 63] + B64[b >> 12 & 63] + B64[b >> 6 & 63] + '='; }
+    return out;
+  }
+  // Inline (cid:) images for the reader: raster types only, never SVG or HTML.
+  function bytesToDataUrl(buf, contentType) {
+    var ct = str(contentType).toLowerCase().split(';')[0].trim();
+    if (!/^image\/(png|gif|jpe?g|webp|bmp)$/.test(ct) || !buf) return null;
+    return 'data:' + ct + ';base64,' + base64(new Uint8Array(buf));
+  }
+
   var _exports = {
+    formatWhen: formatWhen, formatTime: formatTime, agoText: agoText, formatSize: formatSize, firstName: firstName,
+    fillDraft: fillDraft, eventMs: eventMs, workHoursClash: workHoursClash, threadText: threadText,
+    errorText: errorText, labelName: labelName, isAutomated: isAutomated, triageLabels: triageLabels,
+    bytesToDataUrl: bytesToDataUrl, domainMatches: domainMatches,
     safeBodyDoc: safeBodyDoc, hasRemoteImages: hasRemoteImages, htmlToText: htmlToText, textToHtml: textToHtml,
     replyTargets: replyTargets, replyToMismatch: replyToMismatch, findQuestion: findQuestion,
     threadStrip: threadStrip, waitingOnYou: waitingOnYou, bucketOf: bucketOf, counts: counts,
