@@ -552,7 +552,7 @@ test('svg animation elements are dropped (they could rewrite an href)', () => {
 });
 test('unsafe src values are removed, not rewritten to "#"', () => {
   const d = C.safeBodyDoc(html('<img src="javascript:x" alt="a">'), false);
-  assert.ok(d.includes('<img alt="a">'), d);
+  assert.ok(d.includes('<img alt="a" referrerpolicy="no-referrer">'), d);
 });
 
 const BATTERY = [
@@ -715,9 +715,62 @@ test('attribute names with quotes or junk are dropped, first duplicate wins', ()
 
 test('an unresolved cid: image is dropped (it can never load and trips the page CSP)', () => {
   const b = bodyOf(C.safeBodyDoc(html('<img src="cid:logo@x" alt="Logo">'), true));
-  assert.strictEqual(b, '<img alt="Logo">');
+  assert.strictEqual(b, '<img alt="Logo" referrerpolicy="no-referrer">');
   const ok = bodyOf(C.safeBodyDoc(html('<img src="cid:logo@x">'), false, { 'logo@x': 'data:image/png;base64,AA' }));
-  assert.strictEqual(ok, '<img src="data:image/png;base64,AA">');
+  assert.strictEqual(ok, '<img src="data:image/png;base64,AA" referrerpolicy="no-referrer">');
+});
+
+// ── Round 4: beacons, referrer, folded HTML quotes ──
+test('attributionsrc is dropped from images and links (images hidden and shown)', () => {
+  const src = '<img src="data:image/png;base64,AA==" attributionsrc="https://evil.example/a"><a href="https://ok.example" attributionsrc="https://evil.example/b">x</a>';
+  [false, true].forEach((allow) => {
+    const d = C.safeBodyDoc(html(src), allow);
+    assert.ok(!/attributionsrc/i.test(d), d);
+    assert.ok(!d.includes('evil.example'), d);
+    assert.ok(d.includes('href="https://ok.example"'));
+  });
+});
+test('any unknown ...src / ...srcset attribute is dropped; src and srcset are still handled', () => {
+  const d = C.safeBodyDoc(html('<img src="https://ok.example/a.png" datasrc="https://evil.example/1" fooSrcSet="https://evil.example/2 1x" srcset="https://ok.example/b.png 2x">'), true);
+  assert.ok(!d.includes('evil.example'), d);
+  assert.ok(d.includes('src="https://ok.example/a.png"'));
+  assert.ok(d.includes('srcset="https://ok.example/b.png 2x"'));
+});
+test('a mail referrerpolicy is replaced by no-referrer on every image', () => {
+  const d = C.safeBodyDoc(html('<img src="https://t.example/p.gif" referrerpolicy="unsafe-url">'), true);
+  assert.ok(!d.includes('unsafe-url'), d);
+  assert.ok(d.includes('referrerpolicy="no-referrer"'));
+});
+test('the document sets referrer no-referrer before <base>; a mail meta referrer cannot override it', () => {
+  const d = C.safeBodyDoc(html('<meta name="referrer" content="unsafe-url"><p>x</p>'), true);
+  const i = d.indexOf('<meta name="referrer" content="no-referrer">');
+  assert.ok(i !== -1 && i < d.indexOf('<base'), d);
+  assert.ok(!d.includes('unsafe-url'));
+  assert.ok(C.safeBodyDoc({ contentType: 'text', content: 'hi' }, false).includes('<meta name="referrer" content="no-referrer">'));
+});
+const FOLD = '<details class="vm-quote"><summary title="Show quoted text" aria-label="Show quoted text">···</summary>';
+test('HTML quote fold: Outlook divRplyFwdMsg', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<div>New reply</div><div id="divRplyFwdMsg"><b>From:</b> A<br><b>Sent:</b> Thu</div><div>old</div>'), false));
+  assert.ok(b.startsWith('<div>New reply</div>' + FOLD + '<div id="divRplyFwdMsg">'), b);
+  assert.ok(b.endsWith('</details>'));
+});
+test('HTML quote fold: Gmail gmail_quote', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<div dir="ltr">Sounds good</div><div class="gmail_quote"><div class="gmail_attr">On Thu, A wrote:</div><blockquote class="gmail_quote">old</blockquote></div>'), false));
+  assert.ok(b.startsWith('<div dir="ltr">Sounds good</div>' + FOLD + '<div class="gmail_quote">'), b);
+});
+test('HTML quote fold: a plain blockquote, and an hr + From:/Sent: header block', () => {
+  const b1 = bodyOf(C.safeBodyDoc(html('<p>Yes</p><blockquote>Can you?</blockquote>'), false));
+  assert.ok(b1.startsWith('<p>Yes</p>' + FOLD + '<blockquote>'), b1);
+  const b2 = bodyOf(C.safeBodyDoc(html('<div>Hi Chad, Thursday?</div><hr><div><b>From:</b> Chad &lt;c@x.example&gt;<br><b>Sent:</b> Thu, 15 Oct 2026 13:00:00 GMT</div><blockquote>old</blockquote>'), false));
+  assert.ok(b2.startsWith('<div>Hi Chad, Thursday?</div>' + FOLD + '<hr>'), b2);
+});
+test('HTML quote fold: nothing folds without a quote, or when nothing new comes before it', () => {
+  assert.ok(!C.safeBodyDoc(html('<p>Hello</p><p>From: the team</p>'), false).includes('<details'));
+  assert.ok(!C.safeBodyDoc(html('<blockquote>only a quote</blockquote>'), false).includes('<details'));
+  assert.strictEqual(C.quoteStartHtml('<div>x</div>'), -1);
+});
+test('HTML quote fold: a marker inside attribute text or escaped text never folds', () => {
+  assert.ok(!C.safeBodyDoc(html('<p title="&lt;blockquote&gt;">Hi</p><p>&lt;blockquote&gt; text</p>'), false).includes('<details'));
 });
 
 // ── questionKind / choiceOptions ──

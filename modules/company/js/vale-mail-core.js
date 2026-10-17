@@ -68,7 +68,13 @@
   var LINK_ATTRS = ['href', 'xlink:href', 'action'];
   // target/formtarget: a link must never pick its own browsing context (_self, _parent, a named
   // frame), or it could navigate the reader frame; links always use the document's <base target="_blank">.
-  var DROP_ATTRS = ['ping', 'srcdoc', 'formaction', 'action', 'http-equiv', 'target', 'formtarget'];
+  // attributionsrc: an Attribution Reporting beacon the browser requests in the background;
+  // referrerpolicy: only the sanitiser picks it (no-referrer on every image).
+  var DROP_ATTRS = ['ping', 'srcdoc', 'formaction', 'action', 'http-equiv', 'target', 'formtarget',
+    'attributionsrc', 'referrerpolicy'];
+  // Any other attribute named like a URL source (…src, …srcset) that the code doesn't handle
+  // is dropped, so a future browser feature can't turn it into a request.
+  var KNOWN_SRC = ['src', 'srcset', 'lowsrc', 'dynsrc'];
 
   function unsafeUrl(value, attr) {
     var v = urlForCheck(value);
@@ -103,6 +109,7 @@
       if (!ATTR_NAME_OK.test(an) || seen[an]) return;
       seen[an] = 1;
       if (/^on/.test(an) || DROP_ATTRS.indexOf(an) !== -1) return;
+      if (/src(set)?$/.test(an) && KNOWN_SRC.indexOf(an) === -1) return;
       if (isLink && an === 'rel') return;
       if (an === 'style' && /expression\s*\(|javascript:|behavior\s*:|-moz-binding/i.test(decodeEntities(val))) return;
       if (URL_ATTRS.indexOf(an) !== -1) {
@@ -119,6 +126,7 @@
       out.push(a.hasVal ? ' ' + an + '="' + val.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '"' : ' ' + an);
     });
     if (isLink) out.push(' rel="noopener noreferrer"');
+    if (/^img$/i.test(name)) out.push(' referrerpolicy="no-referrer"');
     return '<' + name + out.join('') + (selfClose ? ' />' : '>');
   }
 
@@ -279,7 +287,39 @@
 
   var BASE_CSS ='html,body{margin:0;padding:0}body{padding:16px;font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif;' +
     'color:#1d1d1f;background:#fff;color-scheme:light;overflow-wrap:anywhere}img{max-width:100%;height:auto}' +
-    'pre.vm-text{white-space:pre-wrap;font:inherit;margin:0}a{color:#5b4fd6}blockquote{margin:0 0 0 8px;padding-left:10px;border-left:2px solid #d4d4dc;color:#555}';
+    'pre.vm-text{white-space:pre-wrap;font:inherit;margin:0}a{color:#5b4fd6}blockquote{margin:0 0 0 8px;padding-left:10px;border-left:2px solid #d4d4dc;color:#555}' +
+    'details.vm-quote{margin:12px 0 0}details.vm-quote>summary{display:inline-block;list-style:none;cursor:pointer;padding:0 8px;' +
+    'border-radius:6px;background:#ececf1;color:#555;font-weight:700;letter-spacing:1px;line-height:18px}' +
+    'details.vm-quote>summary::-webkit-details-marker{display:none}details.vm-quote>summary:focus-visible{outline:2px solid #5b4fd6;outline-offset:2px}' +
+    'details.vm-quote[open]>summary{margin-bottom:8px}';
+
+  // Where quoted history starts in sanitised HTML (every "<" in it is a tag the sanitiser
+  // rebuilt, with double-quoted attributes): Outlook's divRplyFwdMsg / appendonsend, Gmail's
+  // gmail_quote, a <blockquote>, or an <hr>/<div>/<p> whose text starts "From: … Sent:".
+  // Returns the index of that tag, or -1 when there is none or nothing new comes before it.
+  function quoteStartHtml(s) {
+    s = str(s);
+    var best = -1;
+    function take(i) { if (i !== -1 && (best === -1 || i < best)) best = i; }
+    var m;
+    m = /<div\b[^>]*\sid="(?:divrplyfwdmsg|appendonsend)"/i.exec(s); if (m) take(m.index);
+    m = /<(?:div|blockquote)\b[^>]*\sclass="[^"]*\bgmail_quote(?:_container)?(?=[\s"])/i.exec(s); if (m) take(m.index);
+    m = /<blockquote\b/i.exec(s); if (m) take(m.index);
+    var re = /<(?:hr|div|p)\b[^>]*>/gi;
+    while ((m = re.exec(s)) && (best === -1 || m.index < best)) {
+      var txt = htmlToText(s.slice(m.index, m.index + 800)).replace(/^\s+/, '');
+      if (/^from:\s/i.test(txt) && /\b(?:sent|date):/i.test(txt.slice(0, 400))) { take(m.index); break; }
+    }
+    if (best <= 0 || !htmlToText(s.slice(0, best)).trim()) return -1;
+    return best;
+  }
+  // Folds quoted history into a script-free <details> (closed), so the newest message reads first.
+  function foldQuotedHtml(s) {
+    var at = quoteStartHtml(s);
+    if (at === -1) return s;
+    return s.slice(0, at) + '<details class="vm-quote"><summary title="Show quoted text" aria-label="Show quoted text">···</summary>' +
+      s.slice(at) + '</details>';
+  }
 
   // Full HTML document for <iframe sandbox srcdoc>. Defence in depth: the sandbox (no
   // allow-scripts / allow-same-origin) and the CSP meta already stop scripts and remote
@@ -287,12 +327,15 @@
   function safeBodyDoc(body, allowImages, inlineImages) {
     var b = body || {};
     var isHtml = str(b.contentType).toLowerCase() === 'html';
-    var inner = isHtml ? sanitizeHtml(b.content, inlineImages) : '<pre class="vm-text">' + escapeHtml(b.content) + '</pre>';
+    var inner = isHtml ? foldQuotedHtml(sanitizeHtml(b.content, inlineImages)) : '<pre class="vm-text">' + escapeHtml(b.content) + '</pre>';
     // Images hidden: remove remote image URLs outright, so nothing is even requested
     // (tracking pixels never fire) and nothing depends on the CSP alone.
     if (isHtml && !allowImages) inner = stripRemoteImages(inner);
     var csp = "default-src 'none'; style-src 'unsafe-inline'; img-src data: cid:" + (allowImages ? ' https:' : '') + "; font-src data:; form-action 'none'";
+    // no-referrer: a srcdoc frame inherits this page's referrer, so a shown image would tell the
+    // sender's server the mail was read here. Mail's own <meta> tags are removed, so this holds.
     return '<!doctype html><html><head><meta charset="utf-8">' +
+      '<meta name="referrer" content="no-referrer">' +
       '<meta http-equiv="Content-Security-Policy" content="' + csp + '">' +
       '<base target="_blank"><style>' + BASE_CSS + '</style></head><body>' + inner + '</body></html>';
   }
@@ -969,7 +1012,7 @@
     questionKind: questionKind, choiceOptions: choiceOptions, sendRecovery: sendRecovery,
     valeStateFrom: valeStateFrom, greetingFor: greetingFor,
     isInternal: isInternal, claimsOwnDomain: claimsOwnDomain, knownContacts: knownContacts, senderMismatch: senderMismatch,
-    stripRelativeTime: stripRelativeTime, splitQuoted: splitQuoted, listBegin: listBegin, listSettle: listSettle,
+    stripRelativeTime: stripRelativeTime, splitQuoted: splitQuoted, quoteStartHtml: quoteStartHtml, listBegin: listBegin, listSettle: listSettle,
     draftClientFlag: draftClientFlag, sendProbe: sendProbe
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;
