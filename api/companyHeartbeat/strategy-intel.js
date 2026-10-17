@@ -129,6 +129,26 @@ function _pctToTarget(current, target, baseline) {
   return Math.max(0, Math.min(100, Math.round(((current - b) / (t - b)) * 100)));
 }
 
+// Efficiency signal (2026-10-16): logged LLM spend over the last 7 days divided by
+// qualified uses in the same window. llmSpendByDay = getGeminiCostSummary().byDay
+// ({ 'YYYY-MM-DD': { cost } }), which covers every caller that logs to geminiUsage
+// (the fleet and some product endpoints), so it slightly overstates fleet cost.
+// null when either half is unmeasured — a failed read is never a zero.
+function computeCostPerUse(sources, nowMs) {
+  const byDay = sources && sources.llmSpendByDay;
+  const uses = METRIC_RESOLVERS.qualified_uses_week(null, sources);
+  if (!byDay || typeof byDay !== 'object' || uses === null) return null;
+  const now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  let spend = 0;
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(now - i * 86400000).toISOString().substring(0, 10);
+    const c = byDay[day] && Number(byDay[day].cost);
+    if (Number.isFinite(c)) spend += c;
+  }
+  spend = Math.round(spend * 100) / 100;
+  return { spend7d: spend, uses7d: uses, perUse: uses > 0 ? Math.round((spend / uses) * 100) / 100 : null };
+}
+
 // → digest | null. Null means "no strategy seeded" — callers emit nothing.
 function buildStrategyDigest(companyStrategy, sources, nowMs) {
   const cs = companyStrategy;
@@ -159,7 +179,8 @@ function buildStrategyDigest(companyStrategy, sources, nowMs) {
     planningCadence: String(cs.planningCadence || 'monthly').substring(0, 20),
     riskPosture: String(cs.riskPosture || '').substring(0, 60),
     monthlyBudget: Number(cs.monthlyBudget) || null,
-    northStar: northStar
+    northStar: northStar,
+    costPerUse: computeCostPerUse(sources, now)
   };
 }
 
@@ -181,6 +202,12 @@ function _buildStrategyPromptBlock(digest) {
     lines.push((i + 1) + '. ' + ns.metric + ': ' + cur + ' → ' + ns.target + ' by ' + (ns.by || 'n/a') + pct + ' [' + tags.join(' · ') + ']');
   });
   lines.push('RULE: propose-objective / propose-campaign MUST include "northStarMetric" naming which north star it serves. Proposals serving none get flagged for CEO scrutiny.');
+  const cpu = digest.costPerUse;
+  if (cpu) {
+    lines.push('EFFICIENCY (7d): $' + cpu.spend7d.toFixed(2) + ' LLM spend / ' + cpu.uses7d + ' qualified uses = ' +
+      (cpu.perUse !== null ? '$' + cpu.perUse.toFixed(2) + ' per use. Lower is better: more uses, or less spend on work that brings none.'
+        : 'no uses yet, so this week\'s spend bought zero. Spend cycles only on work that can reach a real person.'));
+  }
   const meta = [];
   if (digest.monthlyBudget) meta.push('BUDGET: $' + digest.monthlyBudget + '/mo');
   if (digest.riskPosture) meta.push('POSTURE: ' + digest.riskPosture);
@@ -256,6 +283,7 @@ function evaluateObjectives(objectives, sources, nowMs) {
 module.exports = {
   resolveNorthStarMetric: resolveNorthStarMetric,
   buildStrategyDigest: buildStrategyDigest,
+  computeCostPerUse: computeCostPerUse,
   _buildStrategyPromptBlock: _buildStrategyPromptBlock,
   evaluateObjectives: evaluateObjectives,
   isQualifiedScan: isQualifiedScan,

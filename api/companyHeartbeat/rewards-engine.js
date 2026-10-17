@@ -988,98 +988,18 @@ async function runRewardsEngine(opts) {
       blogViews: loaded[8]
     }, nowMs);
 
-    if (cfg.enabled && cfg.meritBudget.enabled) {
-      var pool = cfg.budgetMonthly != null ? cfg.budgetMonthly
-        : (loaded[15] && loaded[15].finance && Number(loaded[15].finance.budgetMonthly)) || 110;
-      // Baseline = the CEO's hand-tuned registry caps. They weight the survival floor so
-      // the plan preserves deliberate role allocation instead of flattening it; only the
-      // merit portion moves with revenue.
-      var baselineCaps = {};
-      if (registry && Array.isArray(registry.agents)) {
-        registry.agents.forEach(function (a) {
-          if (a && a.id && Number.isFinite(Number(a.monthlyCap))) baselineCaps[a.id] = Number(a.monthlyCap);
-        });
-      }
-      // Month-to-date spend floors each cap so a mid-month reallocation can never make
-      // already-spent money a violation (see computeBudgetPlan).
-      var spentByAgent = {};
-      var _alloc = loaded[17];
-      if (_alloc && _alloc.perAgent) {
-        Object.keys(_alloc.perAgent).forEach(function (id) {
-          var s = Number(_alloc.perAgent[id] && _alloc.perAgent[id].spent);
-          if (Number.isFinite(s) && s > 0) spentByAgent[id] = s;
-        });
-      }
-      rewards.budgetPlan = computeBudgetPlan(rewards, {
-        poolDollars: pool, floorPct: cfg.meritBudget.floorPct, meritPct: cfg.meritBudget.meritPct,
-        squeezeMult: cfg.squeezeMult, activeIds: activeIds, baselineCaps: baselineCaps,
-        spentByAgent: spentByAgent, nowMs: nowMs
-      });
-    } else {
-      rewards.budgetPlan = { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
-    }
-    if (rewards.privileges) rewards.privileges.enabled = cfg.enabled && cfg.privileges.enabled;
-    // Read by the prompt block so the kill switch reaches the agent-facing ladder text too.
-    rewards.laddersActive = !!cfg.enabled;
+    // Levels are display-only since 2026-10-16: no merit budget, no privilege tiers, no
+    // ladder text in prompts, no auto-drafted retirements. The flags stay false so the
+    // dashboards (fleet/agents/cockpit) render the ledger without tier badges.
+    rewards.budgetPlan = { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
+    if (rewards.privileges) rewards.privileges.enabled = false;
+    rewards.laddersActive = false;
 
     // While disabled, keep the stale season marker: _initRewards (inside applyEvents)
     // stamps the current month unconditionally, which would silently consume a rollover
     // the kill switch skipped. Preserving it lets the missed rollover fire on re-enable,
     // with rolloverSeason's monthsSkipped recording the gap honestly.
     if (!cfg.enabled && prev && prev.season) rewards.season = prev.season;
-
-    // Retirement drafts — the ladder's final rung. IO-layer append, dedup-guarded
-    // (transition-only + pending-queue check), never for protected agents, never
-    // below fleet minimum. CEO decides; approveProposal owns the side effects.
-    //
-    // ORDER MATTERS: the queue is written BEFORE the ledger. If the ledger write then
-    // fails, the next run re-rolls the season and re-fires the transition, and the
-    // pending-dup check below makes the re-append a no-op. The reverse order would
-    // consume the transition and lose the draft forever.
-    if (cfg.enabled && rolled.transitions.length) {
-      // The dedup check and the append must see the same queue, so both run inside the
-      // mutation — `loaded[0]` is a snapshot taken before the whole scoring pass and is
-      // far too stale to write back wholesale. Re-runnable: `drafts` resets per attempt
-      // and the pending-dup guard makes a re-append a no-op.
-      var drafts = 0;
-      await storage.mutateState('approvalQueue', function (fresh) {
-        var pending = _arr(fresh);
-        drafts = 0;
-        rolled.transitions.forEach(function (t) {
-          if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId] || RETIREMENT_EXEMPT_AGENTS[t.agentId]) return;
-          if (activeIds.length - 1 - drafts < FLEET_MIN) return;
-          var dup = pending.some(function (q) {
-            return q && q.type === 'agent_retire_proposal' && q.status === 'pending' &&
-              q.retire && q.retire.targetAgent === t.agentId;
-          });
-          if (dup) return;
-          var A = rewards.perAgent[t.agentId] || {};
-          var orphans = (registry && Array.isArray(registry.agents))
-            ? registry.agents.filter(function (a) {
-                return a && a.status === 'active' && a.reportsTo === t.agentId;
-              }).map(function (a) { return a.id; })
-            : [];
-          pending.push({
-            id: 'retpr_' + nowMs + '_rwd' + drafts,
-            type: 'agent_retire_proposal',
-            status: 'pending',
-            proposedBy: 'rewards-engine',
-            retire: {
-              targetAgent: t.agentId,
-              rationale: ('Season ladder: ' + (A.parMisses || 3) + ' consecutive below-par seasons. Auto-drafted by the rewards ladder per the 2026-07-30 Revenue Seasons spec. CEO decision required.').substring(0, 500),
-              reassignmentPlan: 'Standard retire flow: open tasks reassign to the domain lead on approval. Successor seeding (knowledge inheritance) is Track C.',
-              estimatedWinddownCost: 0,
-              orphans: orphans
-            },
-            estimatedCost: 0,
-            evidence: { source: 'rewards-ladder', season: (prev && prev.season) || null, parMisses: A.parMisses || null },
-            createdAt: _iso(nowMs)
-          });
-          drafts++;
-        });
-        return drafts > 0 ? pending : undefined;
-      });
-    }
 
     await storage.setState('agentRewards', rewards);
 

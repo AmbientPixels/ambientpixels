@@ -900,7 +900,7 @@ function fakeStorage(seed) {
   };
 }
 
-testAsync('runRewardsEngine pays an attributed sale end-to-end and attaches budgetPlan', async () => {
+testAsync('runRewardsEngine pays an attributed sale end-to-end; budget plan stays disabled (display-only levels)', async () => {
   const st = fakeStorage({
     approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], blogPostViews: [],
     socialAccountStats: {}, runtimeMemory: {}, agentRewards: null,
@@ -919,10 +919,11 @@ testAsync('runRewardsEngine pays an attributed sale end-to-end and attaches budg
   assert.strictEqual(res.ok, true);
   const led = st.db.agentRewards;
   assert.ok(led.perAgent.scribe.counters.sales >= 1, 'writer credited');
-  assert.ok(led.budgetPlan.perAgent.nova > led.budgetPlan.perAgent.vale,
-    'registry baseline caps weight the plan (nova $20 vs vale $7), not a flat split');
   assert.ok(led.perAgent.echo.seasonRevenueXp > 0, 'assignee credited');
-  assert.ok(led.budgetPlan && led.budgetPlan.perAgent, 'budgetPlan attached');
+  // 2026-10-16: merit budget removed — registry caps stand, the ledger says so.
+  assert.strictEqual(led.budgetPlan.enabled, false, 'budget plan disabled');
+  assert.deepStrictEqual(led.budgetPlan.perAgent, {}, 'no per-agent caps computed');
+  assert.ok(!led.privileges || led.privileges.enabled === false, 'no privilege tiers');
 });
 
 testAsync('a founder self-purchase pays NO revenue XP', async () => {
@@ -976,7 +977,7 @@ testAsync('with no internal list configured, revenue is treated as real', async 
   assert.ok(st.db.agentRewards.perAgent.scribe.seasonRevenueXp > 0, 'unconfigured => pays normally');
 });
 
-testAsync('runRewardsEngine drafts ONE retirement proposal on transition, never for protected agents', async () => {
+testAsync('runRewardsEngine never drafts retirement proposals (ladder removed 2026-10-16)', async () => {
   const mkPrev = (targetId) => {
     const per = {};
     FLEET_TEST_IDS.forEach(id => { per[id] = mkA(id === targetId ? 0 : 100); });
@@ -992,22 +993,13 @@ testAsync('runRewardsEngine drafts ONE retirement proposal on transition, never 
     agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
   });
   // scout: neither protected (nova/cipher) nor ladder-exempt (vale/quill)
-  let st = fakeStorage(seed('scout'));
-  await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
-  let drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal');
-  assert.strictEqual(drafts.length, 1, 'draft appended');
-  assert.strictEqual(drafts[0].retire.targetAgent, 'scout');
-  assert.strictEqual(drafts[0].proposedBy, 'rewards-engine');
-  // re-run: no duplicate
-  const res2 = await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
-  assert.strictEqual(res2.ok, true);
-  drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal');
-  assert.strictEqual(drafts.length, 1, 'dedup across runs');
-  // protected agent: no draft
-  st = fakeStorage(seed('nova'));
-  const res3 = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
-  assert.strictEqual(res3.ok, true);
-  assert.strictEqual(st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal').length, 0, 'nova is protected');
+  // scout reaches retirement_pending on the ladder — which is now display data only
+  const st = fakeStorage(seed('scout'));
+  const res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(res.rolled, true, 'rollover fired');
+  assert.strictEqual(st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal').length, 0,
+    'no retirement draft reaches the CEO inbox');
 });
 
 testAsync('an existing pending draft suppresses a fresh transition draft (dedup guard)', async () => {
@@ -1058,10 +1050,10 @@ testAsync('kill switch also silences the ladder text agents read (no stale threa
   assert.ok(!/LADDER:/.test(quillBlock), 'no ladder line while disabled');
   assert.ok(!/retirement/i.test(quillBlock), 'no stale retirement threat');
   assert.ok(!/budget is cut/i.test(buildProgressionPromptBlock('vale', led, AUG)), 'no stale squeeze claim');
-  // and it comes back when re-enabled
+  // and it stays off when re-enabled — ladders were removed 2026-10-16
   st.db.systemConfig = { rewards: { enabled: true } };
   await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
-  assert.ok(/LADDER:/.test(buildProgressionPromptBlock('quill', st.db.agentRewards, AUG)), 'ladder returns on re-enable');
+  assert.strictEqual(st.db.agentRewards.laddersActive, false, 'ladder stays off');
 });
 
 testAsync('kill switch across a month boundary: rollover fires on re-enable with gap recorded', async () => {
@@ -1087,7 +1079,7 @@ testAsync('kill switch across a month boundary: rollover fires on re-enable with
   assert.strictEqual(st.db.agentRewards.season, '2026-08');
 });
 
-testAsync('retirement drafts carry real orphans from the registry', async () => {
+testAsync('a would-be retirement with dependants still drafts nothing', async () => {
   const per = {};
   FLEET_TEST_IDS.forEach(id => { per[id] = mkA(id === 'scribe' ? 0 : 100); });
   per.scribe.parMisses = 2;
@@ -1103,9 +1095,7 @@ testAsync('retirement drafts carry real orphans from the registry', async () => 
   });
   const res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
   assert.strictEqual(res.ok, true);
-  const draft = st.db.approvalQueue.find(q => q.type === 'agent_retire_proposal');
-  assert.ok(draft, 'draft created');
-  assert.deepStrictEqual(draft.retire.orphans, ['quill'], 'reportsTo dependants captured');
+  assert.strictEqual(st.db.approvalQueue.find(q => q.type === 'agent_retire_proposal'), undefined, 'no draft');
 });
 
 testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but legacy lanes still pay', async () => {

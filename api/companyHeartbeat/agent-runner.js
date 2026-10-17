@@ -513,7 +513,6 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  const _agentRewards = (await storage.getState('agentRewards')) || null; // rewards ledger for the YOUR PROGRESSION block
   const _activeOffers = await _getActiveOffers(); // live offers registry → ACTIVE OFFERS prompt block (content agents)
   // Which campaigns will actually accept a task this cycle. Computed HERE because both the
   // full campaign list and the unfiltered task array are in scope, and the cadence/cap
@@ -586,7 +585,7 @@ async function runAgentHeartbeat(ctx) {
     context.log('[Heartbeat]', agentId, 'video department block failed (non-fatal):', String(_vdErr).substring(0, 160));
   }
 
-  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount, campaignAvailabilityBlock: _campaignAvailabilityBlock, videoDeskBlock: _videoDeskBlock, releasesBlock: _releasesBlock };
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount, campaignAvailabilityBlock: _campaignAvailabilityBlock, videoDeskBlock: _videoDeskBlock, releasesBlock: _releasesBlock };
   let prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
@@ -1455,11 +1454,8 @@ Write the full deliverable first, then the structured JSON block.`;
   // Work-producing actions bypass dedup entirely — deliverables are always unique
   const _DEDUP_EXEMPT = new Set(['execute-task', 'create-doc', 'create-social-action', 'generate-image', 'create-content-package', 'review-task']);
 
-  // Revenue Seasons privilege tier — vanguard +1 action slot, probation -1 (floor 1).
-  const _privTier = (_agentRewards && _agentRewards.privileges && _agentRewards.privileges.enabled !== false &&
-    _agentRewards.privileges.tiers && _agentRewards.privileges.tiers[agentId]) || 'line';
-  const _slotCap = Math.max(1, GUARDRAILS.maxActionsPerCyclePerAgent +
-    (_privTier === 'vanguard' ? 1 : (_privTier === 'probation' ? -1 : 0)));
+  // Same cap for every agent. Rewards tiers no longer change it (2026-10-16: levels are display-only).
+  const _slotCap = GUARDRAILS.maxActionsPerCyclePerAgent;
 
   for (const action of actions) {
     // Rate limit: previously silent `break` dropped remaining actions without logging.
@@ -5733,12 +5729,6 @@ Write the full deliverable first, then the structured JSON block.`;
           { runId: cycleId, gate: 'proposal_unauthorized', kind: 'campaign' });
         continue;
       }
-      if (_privTier === 'probation') {
-        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — probation tier (Revenue Seasons)');
-        await logEvent('policy-violation', agentId, 'propose-campaign blocked: probation privilege tier', cycleId,
-          { runId: cycleId, gate: 'privilege_probation', kind: 'campaign' });
-        continue;
-      }
       // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new campaign for CEO approval
       var _pc = action.campaign;
       var _pcName = (_pc.name || '').trim().substring(0, 100);
@@ -5950,12 +5940,6 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — not an authorized proposer');
         await logEvent('policy-violation', agentId, 'propose-objective blocked: not an authorized proposer', cycleId,
           { runId: cycleId, gate: 'proposal_unauthorized', kind: 'objective' });
-        continue;
-      }
-      if (_privTier === 'probation') {
-        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — probation tier (Revenue Seasons)');
-        await logEvent('policy-violation', agentId, 'propose-objective blocked: probation privilege tier', cycleId,
-          { runId: cycleId, gate: 'privilege_probation', kind: 'objective' });
         continue;
       }
       // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new objective for CEO approval
