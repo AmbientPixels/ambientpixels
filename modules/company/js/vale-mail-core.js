@@ -66,7 +66,9 @@
     'animate', 'animatemotion', 'animatetransform', 'set', 'discard', 'handler', 'foreignobject'];
   var URL_ATTRS = ['href', 'src', 'xlink:href', 'background', 'poster', 'lowsrc', 'dynsrc', 'data', 'cite', 'longdesc', 'action'];
   var LINK_ATTRS = ['href', 'xlink:href', 'action'];
-  var DROP_ATTRS = ['ping', 'srcdoc', 'formaction', 'action', 'http-equiv'];
+  // target/formtarget: a link must never pick its own browsing context (_self, _parent, a named
+  // frame), or it could navigate the reader frame; links always use the document's <base target="_blank">.
+  var DROP_ATTRS = ['ping', 'srcdoc', 'formaction', 'action', 'http-equiv', 'target', 'formtarget'];
 
   function unsafeUrl(value, attr) {
     var v = urlForCheck(value);
@@ -687,6 +689,7 @@
   function errorText(err) {
     var s = err && typeof err.status === 'number' ? err.status : -1;
     var code = str(err && err.code);
+    if (code === 'timeout') return { text: 'Microsoft 365 took too long to answer. Check your connection and try again.', retry: true };
     if (s === 0 && code === 'network') return { text: 'You seem to be offline. Check your connection and try again.', retry: true };
     if (code === 'no_token' || s === 401) return { text: 'Your Microsoft sign-in has expired. Sign in again to keep going.', retry: false, signIn: true };
     if (s === 403) return { text: 'Microsoft 365 said this account can\'t do that.', retry: false };
@@ -703,20 +706,23 @@
   var MACHINE_LOCAL = /^(alerts?|desk|security|renewals?|receipts?|invoices?|accounts?|events?|surveys?|feedback|talent|careers|jobs|orders?|shipping|calendar|system|automated?|robot|postmaster)([+.-][^@]*)?$/;
 
   // opts.me / opts.agent: the user's and the agent's own addresses (a brief from the agent, or a
-  // copy of your own mail, is never something to reply to).
+  // copy of your own mail, is never something to reply to), but only for provably internal mail:
+  // an outside email that merely puts one of those addresses in From gets the normal treatment.
   function isAutomated(msg, opts) {
     var from = ea(msg && msg.from).address;
     if (header(msg, 'list-unsubscribe') || AUTOMATED.test(from)) return true;
     var local = from.split('@')[0];
     if (from && (ROLE_LOCAL.test(local) || MACHINE_LOCAL.test(local))) return true;
     var o = opts || {};
-    return !!from && [o.me, o.agent].some(function (x) { return meAddress(x) && meAddress(x) === from; });
+    return !!from && isInternal(msg) && [o.me, o.agent].some(function (x) { return meAddress(x) && meAddress(x) === from; });
   }
 
   // After a failed send: 'sent' (it went out after all), 'recreate' (the draft is gone: start a
   // fresh reply) or 'retry' (same draft, try again). A 404 on patch/send means the draft no
-  // longer exists, usually because an earlier, timed-out send actually went through.
-  function sendRecovery(err, sentItems, startedAt, conversationId) {
+  // longer exists, usually because an earlier, timed-out send actually went through. probed: the
+  // draft read back after a timeout / 5xx (see sendProbe); isDraft false means it was sent.
+  function sendRecovery(err, sentItems, startedAt, conversationId, probed) {
+    if (probed && probed.isDraft === false) return 'sent';
     var status = err && typeof err.status === 'number' ? err.status : -1;
     var gone = status === 404 || str(err && err.code) === 'ErrorItemNotFound';
     if (!gone) return 'retry';
@@ -776,7 +782,7 @@
       (inbox || []).forEach(function (m) {
         if (m && m.conversationId === w.conversationId && (!newest || str(m.receivedDateTime) > str(newest.receivedDateTime))) newest = m;
       });
-      if (newest) out[newest.id] = { label: 'waiting', why: 'You wrote to ' + (str(w.toName) || 'them') + ' ' + (Number(w.days) || 0) + ' days ago; no answer yet', by: 'rule' };
+      if (newest) out[newest.id] = { label: 'waiting', why: 'You wrote to ' + (str(w.toName) || 'them') + '; no answer yet', by: 'rule' };
     });
     return out;
   }
@@ -800,6 +806,156 @@
     return 'data:' + ct + ';base64,' + base64(new Uint8Array(buf));
   }
 
+  // ── Who really sent it ─────────────────────────────────────────────────────
+
+  // Provably internal: the sender is the From address and Exchange authenticated it as internal
+  // mail (X-MS-Exchange-Organization-AuthAs: Internal). A From header alone proves nothing.
+  function isInternal(msg) {
+    if (!msg) return false;
+    var from = ea(msg.from).address, sender = ea(msg.sender).address;
+    return !!from && sender === from && header(msg, 'x-ms-exchange-organization-authas').trim().toLowerCase() === 'internal';
+  }
+
+  // From claims one of your own addresses (your domain) but the mail came from outside.
+  function claimsOwnDomain(msg, ownDomain) {
+    if (!msg || !ownDomain) return null;
+    var from = ea(msg.from).address;
+    if (!from || !domainMatches(from, [ownDomain]) || isInternal(msg)) return null;
+    return { from: from };
+  }
+
+  function editDistance(a, b, cap) {
+    if (Math.abs(a.length - b.length) > cap) return cap + 1;
+    var prev = [], cur, i, j;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur = [i];
+      var best = i;
+      for (j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+        if (cur[j] < best) best = cur[j];
+      }
+      if (best > cap) return cap + 1;
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+  function normName(s) { return str(s).toLowerCase().replace(/["']/g, '').replace(/\s+/g, ' ').trim(); }
+
+  // People you have written to (recipients of your sent mail): the correspondents a lookalike
+  // would imitate. Inbox senders are never trusted this way (a lookalike is an inbox sender).
+  function knownContacts(sentMsgs) {
+    var seen = {}, out = [];
+    (sentMsgs || []).forEach(function (m) {
+      ((m && m.toRecipients) || []).concat((m && m.ccRecipients) || []).forEach(function (r) {
+        var e = ea(r);
+        if (!e.address || seen[e.address]) return;
+        seen[e.address] = 1;
+        out.push(e);
+      });
+    });
+    return out;
+  }
+
+  // A sender that looks like someone you know but isn't: the same display name under another
+  // address, or a domain one or two letters off a known correspondent's. Returns
+  // { from, known } (addresses) or null. A sender you have written to before is never flagged.
+  function senderMismatch(msg, known) {
+    if (!msg) return null;
+    var from = ea(msg.from);
+    if (!from.address) return null;
+    var list = (known || []).map(ea).filter(function (k) { return k.address; });
+    if (list.some(function (k) { return k.address === from.address; })) return null;
+    var name = normName(from.name);
+    var dom = domainOf(from.address);
+    for (var i = 0; i < list.length; i++) {
+      var k = list[i];
+      if (name.length >= 3 && name.indexOf('@') === -1 && normName(k.name) === name) return { from: from.address, known: k.address };
+    }
+    for (var j = 0; j < list.length; j++) {
+      var kd = domainOf(list[j].address);
+      if (!kd || !dom || kd === dom || Math.min(kd.length, dom.length) < 6) continue;
+      if (editDistance(dom, kd, 2) <= 2) return { from: from.address, known: list[j].address };
+    }
+    return null;
+  }
+
+  // ── Words that go stale ────────────────────────────────────────────────────
+
+  // A saved reason ("You sent the contract 5 days ago") is written once at sorting time; its
+  // relative time goes stale and contradicts the live facts, so it is removed before display.
+  var REL_NUM = '(?:\\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|a few|several)';
+  var REL_AGO = new RegExp('\\s*(?:about\\s+)?' + REL_NUM + '\\s+(?:min(?:ute)?s?|hours?|hrs?|days?|weeks?|months?)\\s+ago\\b', 'gi');
+  var REL_DAY = /\s*\b(?:since\s+)?(?:yesterday|today|this morning|this afternoon|this evening|last night|tonight)\b/gi;
+  function stripRelativeTime(why) {
+    var s = str(why).replace(REL_AGO, '').replace(REL_DAY, '');
+    return s.replace(/\s+([;,.:!?])/g, '$1').replace(/\s{2,}/g, ' ').replace(/^[\s;,]+|[\s;,]+$/g, '').trim();
+  }
+
+  // ── Plain-text quoted history ──────────────────────────────────────────────
+
+  // { body, quote }: quote starts at the first "On … wrote:" line or the first line that begins
+  // with ">", with the ">" prefixes removed. A ">" inside a sentence stays body.
+  function splitQuoted(text) {
+    var lines = str(text).replace(/\r\n?/g, '\n').split('\n');
+    var at = -1;
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i];
+      if (/^\s*>/.test(l)) { at = i; break; }
+      if (/^\s*On\b.{4,200}\bwrote:\s*$/.test(l)) { at = i; break; }
+      // The "On … <address>" line with "wrote:" wrapped onto the next line.
+      if (/^\s*On\b.{4,200}$/.test(l) && i + 1 < lines.length && /^\s*wrote:\s*$/.test(lines[i + 1])) { at = i; break; }
+    }
+    if (at === -1) return { body: str(text), quote: '' };
+    var body = lines.slice(0, at).join('\n').replace(/\s+$/, '');
+    var quote = lines.slice(at).map(function (l) { return l.replace(/^\s*(?:>\s?)+/, ''); }).join('\n').replace(/^\s+|\s+$/g, '');
+    return { body: body, quote: quote };
+  }
+
+  // ── Loads that may land out of order ───────────────────────────────────────
+
+  // list state: { items, next, loading, loaded, error, seq }. listBegin returns a token (or null:
+  // a "more" while another load is in flight is ignored); listSettle applies a result only when
+  // its token is still the newest, so an older listing never overwrites a newer one.
+  function listBegin(L, more) {
+    if (more && L.loading) return null;
+    L.seq = (L.seq || 0) + 1;
+    L.loading = true;
+    L.error = null;
+    return { seq: L.seq, more: !!more };
+  }
+  function listSettle(L, token, res, err) {
+    if (!token || token.seq !== L.seq) return false;
+    if (err) L.error = err;
+    else {
+      var items = (res && res.items) || [];
+      L.items = token.more ? L.items.concat(items.filter(function (m) { return !L.items.some(function (x) { return x.id === m.id; }); })) : items;
+      L.next = (res && res.next) || null;
+      L.loaded = true;
+    }
+    L.loading = false;
+    return true;
+  }
+
+  // The client flag for a reply draft: client anywhere in the whole conversation (fetched from
+  // Graph, not just the loaded pages). A conversation that couldn't be fetched (null), or rules
+  // that failed to load, fail closed.
+  function draftClientFlag(o) {
+    o = o || {};
+    if (o.rulesFailed || !Array.isArray(o.conversation)) return true;
+    return threadIsClient(o.conversation.concat(o.loaded || []), o.domains || []);
+  }
+
+  // After a failed send POST: what to check. 'message' (a timeout, network error or 5xx: the
+  // send may have landed, so read the draft back; isDraft false means it went), 'sent' (a 404:
+  // the draft is gone, look in Sent) or null (a clear 4xx: it did not send).
+  function sendProbe(err) {
+    var s = err && typeof err.status === 'number' ? err.status : -1;
+    if (s === 404 || str(err && err.code) === 'ErrorItemNotFound') return 'sent';
+    if (s === 0 || s >= 500) return 'message';
+    return null;
+  }
+
   var _exports = {
     formatWhen: formatWhen, formatTime: formatTime, agoText: agoText, formatSize: formatSize, firstName: firstName,
     fillDraft: fillDraft, eventMs: eventMs, workHoursClash: workHoursClash, threadText: threadText,
@@ -811,7 +967,10 @@
     isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor,
     escapeHtml: escapeHtml,
     questionKind: questionKind, choiceOptions: choiceOptions, sendRecovery: sendRecovery,
-    valeStateFrom: valeStateFrom, greetingFor: greetingFor
+    valeStateFrom: valeStateFrom, greetingFor: greetingFor,
+    isInternal: isInternal, claimsOwnDomain: claimsOwnDomain, knownContacts: knownContacts, senderMismatch: senderMismatch,
+    stripRelativeTime: stripRelativeTime, splitQuoted: splitQuoted, listBegin: listBegin, listSettle: listSettle,
+    draftClientFlag: draftClientFlag, sendProbe: sendProbe
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;
   else if (root) root.ValeMailCore = _exports;

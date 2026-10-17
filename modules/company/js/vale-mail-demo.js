@@ -328,7 +328,13 @@
         }).sort(function (x, y) { return ms(x.start.dateTime) - ms(y.start.dateTime); });
       }),
 
-      me: call(function () { return me; })
+      me: call(function () { return me; }),
+
+      // Every message in a conversation (drafts excluded), like Graph's $filter=conversationId.
+      listConversation: call(function (conversationId) {
+        if (typeof conversationId !== 'string' || !conversationId) throw badArg('conversationId');
+        return sorted(function (m) { return m.conversationId === conversationId && !m.isDraft; }).slice(0, 50).map(listView);
+      })
     };
   }
 

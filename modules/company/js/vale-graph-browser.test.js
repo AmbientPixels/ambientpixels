@@ -355,6 +355,96 @@ const dec = (u) => decodeURIComponent(u);
     assert.strictEqual(f.calls.length, 2);
   });
 
+
+  // ── Round 3: timeouts ──
+  await test('a fetch that never resolves rejects with code timeout', async () => {
+    const f = async () => new Promise(() => {});
+    const t0 = Date.now();
+    await assert.rejects(client(f, { timeoutMs: 40 }).me(), (e) => e instanceof GraphError && e.status === 0 && e.code === 'timeout');
+    assert.ok(Date.now() - t0 < 2000);
+  });
+  await test('the timeout aborts the request through its AbortSignal', async () => {
+    let signal = null;
+    const f = async (url, init) => { signal = init.signal; return new Promise(() => {}); };
+    await assert.rejects(client(f, { timeoutMs: 30 }).listMessages({ folder: 'inbox' }), (e) => e.code === 'timeout');
+    assert.ok(signal && signal.aborted, 'aborted');
+  });
+  await test('a send gets the longer send timeout', async () => {
+    let n = 0;
+    const f = async (url) => { n++; return new Promise((r) => setTimeout(() => r(res(202)), 60)); };
+    await client(f, { timeoutMs: 30, sendTimeoutMs: 500 }).sendDraft('d1');
+    assert.strictEqual(n, 1);
+    await assert.rejects(client(f, { timeoutMs: 30, sendTimeoutMs: 40 }).sendDraft('d1'), (e) => e.code === 'timeout');
+  });
+  await test('a fetch that throws is still a network error, not a timeout', async () => {
+    const f = async () => { throw new TypeError('Failed to fetch'); };
+    await assert.rejects(client(f).me(), (e) => e.code === 'network' && e.status === 0);
+  });
+
+  // ── Round 3: parentFolderId normalised to the well-known name ──
+  function opaqueGraph(log) {
+    const ids = { inbox: 'AAMkAD-inbox==', sentitems: 'AAMkAD-sent==', archive: 'AAMkAD-arch==', drafts: 'AAMkAD-drafts==' };
+    return async (url, init) => {
+      const u = dec(url);
+      log.push(((init && init.method) || 'GET') + ' ' + u);
+      const wk = /\/me\/mailFolders\/(inbox|sentitems|archive|drafts)\?\$select=id$/.exec(u);
+      if (wk) return res(200, { id: ids[wk[1]] });
+      if (/\/mailFolders\/inbox\/messages/.test(u)) return res(200, { value: [{ id: 'm1', parentFolderId: ids.inbox }, { id: 'm2', parentFolderId: 'AAMkAD-custom==' }] });
+      if (/\/me\/messages\/m1\/move$/.test(u)) return res(201, { id: 'm1', parentFolderId: ids.archive });
+      if (/\/me\/messages\/m1\?/.test(u)) return res(200, { id: 'm1', parentFolderId: ids.sentitems, body: { contentType: 'text', content: 'x' } });
+      if (/\$search=/.test(u)) return res(200, { value: [{ id: 'm3', parentFolderId: ids.archive }] });
+      return res(404, { error: { code: 'ErrorItemNotFound' } });
+    };
+  }
+  await test('parentFolderId normalised to well-known name (list, get, search, move); lookup once per client', async () => {
+    const log = [];
+    const c = client(opaqueGraph(log));
+    const l = await c.listMessages({ folder: 'inbox' });
+    assert.deepStrictEqual(l.items.map((m) => m.parentFolderId), ['inbox', 'AAMkAD-custom==']);
+    assert.strictEqual((await c.getMessage('m1')).parentFolderId, 'sentitems');
+    assert.strictEqual((await c.search('kim'))[0].parentFolderId, 'archive');
+    assert.strictEqual((await c.move('m1', 'archive')).parentFolderId, 'archive');
+    const lookups = log.filter((x) => /\/me\/mailFolders\/(inbox|sentitems|archive|drafts)\?\$select=id$/.test(x));
+    assert.strictEqual(lookups.length, 4, lookups.join('\n'));
+  });
+  await test('well-known names already in place need no folder lookup', async () => {
+    const f = fakeFetch([res(200, { value: [{ id: 'm1', parentFolderId: 'inbox' }] })]);
+    const l = await client(f).listMessages({ folder: 'inbox' });
+    assert.strictEqual(l.items[0].parentFolderId, 'inbox');
+    assert.strictEqual(f.calls.length, 1);
+  });
+  await test('a folder lookup that fails leaves the id unchanged and is tried again later', async () => {
+    let fail = true;
+    const log = [];
+    const inner = opaqueGraph(log);
+    const f = async (url, init) => (fail && /\$select=id$/.test(dec(url)) ? res(503, {}) : inner(url, init));
+    const c = client(f);
+    const a = await c.listMessages({ folder: 'inbox' });
+    assert.strictEqual(a.items[0].parentFolderId, 'AAMkAD-inbox==');
+    fail = false;
+    const b = await c.listMessages({ folder: 'inbox' });
+    assert.strictEqual(b.items[0].parentFolderId, 'inbox');
+  });
+
+  // ── Round 3: listConversation ──
+  await test('listConversation filters by conversationId, selects people only, pages to the cap', async () => {
+    const f = fakeFetch([res(200, { value: [{ id: 'a' }, { id: 'b' }] })]);
+    const out = await client(f).listConversation("AAQk'x=");
+    assert.deepStrictEqual(out.map((m) => m.id), ['a', 'b']);
+    const u = dec(f.calls[0].url);
+    assert.ok(u.indexOf(BASE + '/me/messages?') === 0, u);
+    assert.ok(u.includes("$filter=conversationId eq 'AAQk''x='"), u);
+    assert.ok(u.includes('$select=id,conversationId,from,sender,toRecipients,ccRecipients,replyTo'), u);
+    assert.ok(u.includes('$top=50'), u);
+    assert.ok(!/\$orderby/.test(u) && !/body/.test(u), u);
+    assert.strictEqual(f.calls[0].method, 'GET');
+  });
+  await test('listConversation rejects a missing id before any request', async () => {
+    const f = fakeFetch([res(200, {})]);
+    await assert.rejects(client(f).listConversation(''), (e) => e.code === 'bad_arg');
+    assert.strictEqual(f.calls.length, 0);
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();

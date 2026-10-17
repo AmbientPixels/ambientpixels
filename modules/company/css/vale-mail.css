@@ -35,6 +35,8 @@
   --vm-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
   --vm-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --vm-top-h: 44px;
+  --vm-empty-top: min(14vh, 120px);
+  --vm-listhead-h: 82px;
 }
 
 body[data-theme="light"] .vmail {
@@ -117,22 +119,32 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   .vmail-row[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
 }
 
-/* Skip link: hidden until focused. */
-.vmail-skip {
-  position: absolute;
+/* Skip link: hidden until focused. The client moves it to the top of <body> (the page's first
+   Tab stop, ahead of the site rail), so it sits outside .vmail: fixed colours, not --vm-* tokens.
+   body[data-theme] a.vmail-skip outranks base.css's body[data-theme="light"] a (and its ::after). */
+.vmail-skip,
+body[data-theme] a.vmail-skip,
+body[data-theme] a.vmail-skip:hover {
+  position: fixed;
   top: 8px;
   left: 8px;
   z-index: 1200;
   padding: 8px 12px;
-  border-radius: var(--c-r-sm);
-  background: var(--vm-agent);
-  color: var(--vm-agent-ink);
-  font-weight: 600;
+  border-radius: 8px;
+  background: #9b8cff;
+  color: #14112b;
+  font: 600 14px/1.2 var(--c-font, system-ui, sans-serif);
   text-decoration: none;
-  transform: translateY(-200%);
+  transform: translateY(-300%);
 }
-.vmail-skip:focus,
-.vmail-skip:focus-visible { transform: none; }
+body[data-theme] a.vmail-skip::after { content: none; }
+body[data-theme] a.vmail-skip:focus,
+body[data-theme] a.vmail-skip:focus-visible {
+  transform: none;
+  outline: 2px solid #14112b;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #9b8cff;
+}
 
 .vmail-visually-hidden {
   position: absolute;
@@ -239,6 +251,11 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   right: 8px;
 }
 .vmail-search__input:focus + .vmail-search__kbd { opacity: 0; }
+/* No keyboard hints on phones or touch screens (".vmail kbd" would otherwise show it). */
+@media (max-width: 719px), (hover: none) {
+  .vmail .vmail-search__kbd { display: none; }
+  .vmail .vmail-search__input { padding-right: 10px; }
+}
 
 .vmail-top__actions {
   display: flex;
@@ -296,6 +313,10 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   min-height: 0;
   display: grid;
   grid-template-columns: 212px minmax(340px, 400px) minmax(0, 1fr);
+}
+/* Room for all five filter chips on one line. */
+@media (min-width: 1280px) {
+  .vmail-shell { grid-template-columns: 212px minmax(360px, 480px) minmax(0, 1fr); }
 }
 
 .vmail-nav {
@@ -451,17 +472,36 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   font-variant-numeric: tabular-nums;
 }
 
-/* Wide panes: chips wrap to a second row rather than being clipped. Phones: one scrolling row
-   whose edges fade only when it overflows (see the max-width: 719px block). */
+/* One row of chips at every width. A pane too narrow for all five scrolls the row, and only the
+   side with hidden chips fades (.is-more-left / .is-more-right, set by the client). */
 .vmail-listhead__filters { display: grid; }
 .vmail-listhead__filters > * { grid-area: 1 / 1; min-width: 0; }
 .vmail-chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  row-gap: 6px;
+  flex-wrap: nowrap;
+  gap: 4px;
   margin-top: 10px;
   padding: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-padding-inline: 32px;
+}
+.vmail-chips.is-more-right {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+}
+.vmail-chips.is-more-left {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px);
+  mask-image: linear-gradient(90deg, transparent, #000 32px);
+}
+.vmail-chips.is-more-left.is-more-right {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+.vmail-listhead__note {
+  margin: 6px 2px 0;
+  font-size: var(--c-text-xs);
+  color: var(--vm-text-3);
 }
 .vmail-chips[hidden] { display: none; }
 /* Kept in layout (holding the header's height) but out of sight while a search shows. */
@@ -471,8 +511,8 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 9px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: var(--c-r-pill);
   border: 1px solid var(--vm-sep);
   background: transparent;
@@ -503,12 +543,13 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   justify-content: space-between;
   gap: 8px;
   align-self: start;
-  min-height: 28px;
   margin-top: 10px;
   padding: 2px 0;
   font-size: var(--c-text-xs);
   color: var(--vm-text-2);
 }
+/* No taller than the one-line chip row it covers. */
+.vmail .vmail-searchhead .vmail-btn-sm { padding-block: 2px; line-height: 1.2; }
 
 .vmail-nextup {
   display: none;
@@ -703,10 +744,13 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 56px 24px;
+  padding: var(--vm-empty-top) 24px 56px;
   text-align: center;
   color: var(--vm-text-3);
 }
+/* The reader's empty state lines up with the list's: the reader pane starts at the top of the
+   column, the list below its header (--vm-listhead-h tall at ≥1100px, chips on one line). */
+.vmail-empty--reader { padding-top: calc(var(--vm-empty-top) + var(--vm-listhead-h)); }
 .vmail-empty i { font-size: 22px; color: var(--vm-text-3); opacity: 0.6; }
 .vmail-empty__title { color: var(--vm-text-2); font-weight: 500; }
 .vmail-error {
@@ -892,6 +936,18 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 .vmail-stance {
   min-width: 64px;
   justify-content: center;
+}
+/* "Next: Name · Subject": never wider than the panel; the label truncates. */
+.vmail .vmail-next {
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+}
+.vmail-next__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .vmail-iconbtn,
 .vmail-chip { justify-content: center; }
@@ -1079,6 +1135,27 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   overflow-wrap: anywhere;
 }
 .vmail-plainbody--html { white-space: normal; }
+/* Plain-text quoted history: folded behind "···", then indented and dimmed like a blockquote. */
+.vmail-quotetoggle {
+  display: block;
+  margin-top: 12px;
+  padding: 0 8px;
+  height: 18px;
+  border: 1px solid var(--vm-sep);
+  border-radius: var(--c-r-pill);
+  background: var(--vm-raised);
+  color: var(--vm-text-2);
+  font: 700 12px/14px var(--c-font);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.vmail-quotetoggle:hover { background: var(--vm-hover); color: var(--vm-text); }
+.vmail-plainbody__quote {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--vm-sep);
+  color: var(--vm-text-2);
+}
 .vmail-plainbody--html p,
 .vmail-plainbody--html ul,
 .vmail-plainbody--html ol { margin: 0 0 10px; }
@@ -1106,8 +1183,6 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   text-align: center;
 }
 .vmail-hello .vmail-avatar { margin: 0 auto 16px; }
-.vmail-hello--quiet { margin-top: 24vh; }
-.vmail-hello--quiet .vmail-hello__text { color: var(--vm-text-3); }
 .vmail-hello__title {
   margin: 0 0 6px;
   font-size: var(--c-text-xl);
@@ -1301,12 +1376,7 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   .vmail-hello__keys { display: none; }
   .vmail-sendbar,
   .vmail-toast { bottom: 16px; }
-  .vmail-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; scroll-padding-inline: 16px; }
-  .vmail-chips.is-overflowing {
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 20px), transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 20px), transparent);
-    padding: 2px 18px;
-  }
+  .vmail .vmail-next { flex: 1 1 100%; }
   .vmail-editor__fields { grid-template-columns: minmax(0, 1fr); }
   .vmail-editor__fields .vmail-tell { flex-direction: column; }
   .vmail-editor__fields .vmail-tell .ap-btn { align-self: flex-start; }

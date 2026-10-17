@@ -515,7 +515,8 @@ test('triageLabels: valeMailState → id map, plus waiting threads mark their ne
   assert.deepStrictEqual(map.a, { label: 'needs_you', why: 'W', by: 'model' });
   assert.ok(!('b' in map));
   assert.strictEqual(map.x2.label, 'waiting');
-  assert.ok(/Jordan/.test(map.x2.why) && /4 days/.test(map.x2.why));
+  // No relative time in a saved reason: it would go stale against the live facts.
+  assert.ok(/Jordan/.test(map.x2.why) && !/days/.test(map.x2.why), map.x2.why);
   assert.ok(!('x1' in map));
   assert.deepStrictEqual(C.triageLabels(null, inbox), {});
 });
@@ -743,8 +744,9 @@ test('choiceOptions: words match the right-hand option length', () => {
 test('isAutomated: role and machine mailboxes, own and agent addresses', () => {
   assert.strictEqual(C.isAutomated(msg({ from: addr('billing@cloudhost.example') })), true);
   assert.strictEqual(C.isAutomated(msg({ from: addr('renewals@domaindesk.example') })), true);
-  assert.strictEqual(C.isAutomated(msg({ from: addr('vale@ambientpixels.ai') }), { agent: 'vale@ambientpixels.ai' }), true);
-  assert.strictEqual(C.isAutomated(msg({ from: addr('chad@ambientpixels.ai') }), { me: { mail: 'Chad@AmbientPixels.ai' } }), true);
+  const internal = (a) => msg({ from: addr(a), sender: addr(a), internetMessageHeaders: [{ name: 'X-MS-Exchange-Organization-AuthAs', value: 'Internal' }] });
+  assert.strictEqual(C.isAutomated(internal('vale@ambientpixels.ai'), { agent: 'vale@ambientpixels.ai' }), true);
+  assert.strictEqual(C.isAutomated(internal('chad@ambientpixels.ai'), { me: { mail: 'Chad@AmbientPixels.ai' } }), true);
   assert.strictEqual(C.isAutomated(msg({ from: addr('dana@vendor.example') }), { me: 'chad@ambientpixels.ai' }), false);
 });
 
@@ -812,6 +814,173 @@ test('isSimpleHtml: Outlook replies with <hr> and blockquote are simple; attribu
   assert.strictEqual(C.isSimpleHtml('<h3>Notes</h3><pre>x</pre><font>y</font>'), true);
   assert.strictEqual(C.isSimpleHtml('<hr style="x">'), false);
   assert.strictEqual(C.isSimpleHtml('<font color="red">x</font>'), false);
+});
+
+// ── Round 3 ──
+test('safeBodyDoc: author target attributes are dropped, so links always open a new tab', () => {
+  ['_self', 'foo', '_parent', '_top'].forEach((t) => {
+    const d = C.safeBodyDoc(html('<a href="https://x.example" target="' + t + '">x</a>'), false);
+    assert.ok(!/target="(?!_blank")/.test(d.replace('<base target="_blank">', '')), t + ': ' + d);
+    assert.ok(d.includes('<base target="_blank">'));
+    assert.ok(/<a href="https:\/\/x\.example" rel="noopener noreferrer">/.test(d), t);
+  });
+  const f = C.safeBodyDoc(html('<form><button formtarget="_self">go</button></form>'), false);
+  assert.ok(!/formtarget/i.test(f), f);
+  const upper = C.safeBodyDoc(html('<a href="https://x.example" TARGET=_self>x</a>'), false);
+  assert.ok(!/_self/.test(upper), upper);
+});
+
+const internalHdr = [{ name: 'X-MS-Exchange-Organization-AuthAs', value: 'Internal' }];
+test('isInternal: needs sender = from and the AuthAs: Internal header', () => {
+  assert.strictEqual(C.isInternal(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('vale@ambientpixels.ai'), internetMessageHeaders: internalHdr })), true);
+  assert.strictEqual(C.isInternal(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('vale@ambientpixels.ai') })), false);
+  assert.strictEqual(C.isInternal(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('bulk@relay.example'), internetMessageHeaders: internalHdr })), false);
+  assert.strictEqual(C.isInternal(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('vale@ambientpixels.ai'), internetMessageHeaders: [{ name: 'X-MS-Exchange-Organization-AuthAs', value: 'Anonymous' }] })), false);
+  assert.strictEqual(C.isInternal(null), false);
+});
+test('isAutomated: a From that claims the agent or you, from outside, is not quiet', () => {
+  const o = { agent: 'vale@ambientpixels.ai', me: 'chad@ambientpixels.ai' };
+  assert.strictEqual(C.isAutomated(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('vale@ambientpixels.ai') }), o), false);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('chad@ambientpixels.ai') }), o), false);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('vale@ambientpixels.ai'), internetMessageHeaders: internalHdr }), o), true);
+});
+test('claimsOwnDomain: own-domain From from outside → hit; internal or other domain → null', () => {
+  assert.deepStrictEqual(C.claimsOwnDomain(msg({ from: addr('Vale@AmbientPixels.ai') }), 'ambientpixels.ai'), { from: 'vale@ambientpixels.ai' });
+  assert.strictEqual(C.claimsOwnDomain(msg({ from: addr('vale@ambientpixels.ai'), sender: addr('vale@ambientpixels.ai'), internetMessageHeaders: internalHdr }), 'ambientpixels.ai'), null);
+  assert.strictEqual(C.claimsOwnDomain(msg(), 'ambientpixels.ai'), null);
+  assert.strictEqual(C.claimsOwnDomain(msg({ from: addr('vale@ambientpixels.ai') }), ''), null);
+});
+
+const known = [{ name: 'Dana Reyes', address: 'dana@northwind-studio.example' }, { name: 'Kim Okafor', address: 'kim@clientco.example' }];
+test('senderMismatch: the same name under a different address → hit', () => {
+  const r = C.senderMismatch(msg({ from: addr('dana.reyes@freemail.example', '  dana   REYES ') }), known);
+  assert.deepStrictEqual(r, { from: 'dana.reyes@freemail.example', known: 'dana@northwind-studio.example' });
+});
+test('senderMismatch: a domain one letter off a known one → hit', () => {
+  const r = C.senderMismatch(msg({ from: addr('accounts@northwind-studlo.example', 'Accounts Team') }), known);
+  assert.deepStrictEqual(r, { from: 'accounts@northwind-studlo.example', known: 'dana@northwind-studio.example' });
+  assert.ok(C.senderMismatch(msg({ from: addr('pay@client-co.example', 'Pay') }), known), 'edit distance 1 (inserted -)');
+});
+test('senderMismatch: the identical address → null', () => {
+  assert.strictEqual(C.senderMismatch(msg({ from: addr('DANA@northwind-studio.example', 'Dana Reyes') }), known), null);
+});
+test('senderMismatch: unrelated name and domain → null; no contacts → null', () => {
+  assert.strictEqual(C.senderMismatch(msg({ from: addr('sam@greenleaf-coffee.example', 'Sam Ortiz') }), known), null);
+  assert.strictEqual(C.senderMismatch(msg({ from: addr('kim@clientco.example', 'Kim Okafor') }), []), null);
+  assert.strictEqual(C.senderMismatch(null, known), null);
+});
+test('knownContacts: recipients of sent mail, deduped and lower-cased', () => {
+  const k = C.knownContacts([{ toRecipients: [addr('Dana@Northwind-Studio.example', 'Dana Reyes')], ccRecipients: [addr('kim@clientco.example', 'Kim')] }, { toRecipients: [addr('dana@northwind-studio.example')] }]);
+  assert.deepStrictEqual(k.map((x) => x.address), ['dana@northwind-studio.example', 'kim@clientco.example']);
+});
+test('demo fixture: only the lookalike trips senderMismatch', () => {
+  const demo = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'data', 'vale-mail-demo.json'), 'utf8'));
+  const k = C.knownContacts(demo.folders.sentitems);
+  const hits = demo.folders.inbox.filter((m) => C.senderMismatch(m, k)).map((m) => m.id);
+  assert.deepStrictEqual(hits, ['demo-inb-047']);
+});
+
+test('stripRelativeTime: removes "N days ago" clauses', () => {
+  assert.strictEqual(C.stripRelativeTime('You sent the contract 5 days ago; Theo hasn\'t replied'), 'You sent the contract; Theo hasn\'t replied');
+  assert.strictEqual(C.stripRelativeTime('You wrote to Jordan 4 days ago; no answer yet'), 'You wrote to Jordan; no answer yet');
+  assert.strictEqual(C.stripRelativeTime('Pinged about 2 hours ago.'), 'Pinged.');
+});
+test('stripRelativeTime: removes yesterday / today', () => {
+  assert.strictEqual(C.stripRelativeTime('Kim asked yesterday about the redlines'), 'Kim asked about the redlines');
+  assert.strictEqual(C.stripRelativeTime('Due today'), 'Due');
+});
+test('stripRelativeTime: leaves absolute dates and plain reasons alone', () => {
+  assert.strictEqual(C.stripRelativeTime('Press request with a Friday deadline'), 'Press request with a Friday deadline');
+  assert.strictEqual(C.stripRelativeTime('Milestone 2 lands before Nov 14'), 'Milestone 2 lands before Nov 14');
+  assert.strictEqual(C.stripRelativeTime(''), '');
+});
+
+test('splitQuoted: an "On … wrote:" line starts the quote; > prefixes removed', () => {
+  const t = 'Thanks! Here it is.\n\nOn Mon, Oct 12, 2026 at 9:14 AM Chad Martin <chad@ambientpixels.ai> wrote:\n> Happy to help.\n> Can you share it?';
+  const r = C.splitQuoted(t);
+  assert.strictEqual(r.body, 'Thanks! Here it is.');
+  assert.ok(/^On Mon, Oct 12/.test(r.quote));
+  assert.ok(!/^>/m.test(r.quote) && /Happy to help\.\nCan you share it\?$/.test(r.quote), r.quote);
+});
+test('splitQuoted: a run of > lines without a header is the quote', () => {
+  const r = C.splitQuoted('Sounds good.\n>> older\n> old');
+  assert.strictEqual(r.body, 'Sounds good.');
+  assert.strictEqual(r.quote, 'older\nold');
+});
+test('splitQuoted: a > inside a sentence stays body; no quote → empty quote', () => {
+  const r = C.splitQuoted('Revenue > costs this month.\nSee you Friday.');
+  assert.strictEqual(r.quote, '');
+  assert.strictEqual(r.body, 'Revenue > costs this month.\nSee you Friday.');
+  assert.deepStrictEqual(C.splitQuoted(''), { body: '', quote: '' });
+});
+test('splitQuoted: "wrote:" wrapped onto its own line', () => {
+  const r = C.splitQuoted('Yes.\n\nOn Mon, Oct 12, 2026, Chad Martin <c@x.example>\nwrote:\n> hi');
+  assert.strictEqual(r.body, 'Yes.');
+  assert.ok(/wrote:\nhi$/.test(r.quote), r.quote);
+});
+
+test('listBegin/listSettle: an older response landing last never overwrites the newer one', () => {
+  const L = { items: [], next: null, loading: false, loaded: false, error: null };
+  const t1 = C.listBegin(L, false);
+  const t2 = C.listBegin(L, false);
+  assert.strictEqual(C.listSettle(L, t2, { items: [{ id: 'new' }], next: null }), true);
+  assert.strictEqual(C.listSettle(L, t1, { items: [{ id: 'old' }], next: 'n' }), false);
+  assert.deepStrictEqual(L.items.map((m) => m.id), ['new']);
+  assert.strictEqual(L.loading, false);
+  assert.strictEqual(L.next, null);
+});
+test('listBegin/listSettle: the first-started finishing first leaves loading on for the second', () => {
+  const L = { items: [], next: null, loading: false, loaded: false, error: null };
+  const t1 = C.listBegin(L, false);
+  const t2 = C.listBegin(L, false);
+  assert.strictEqual(C.listSettle(L, t1, { items: [{ id: 'old' }] }), false);
+  assert.strictEqual(L.loading, true);
+  C.listSettle(L, t2, null, { status: 503 });
+  assert.strictEqual(L.loading, false);
+  assert.strictEqual(L.error.status, 503);
+});
+test('listBegin: "more" is ignored while a load is in flight; a reload invalidates a pending more', () => {
+  const L = { items: [{ id: 'a' }], next: 'n1', loading: false, loaded: true, error: null };
+  const m1 = C.listBegin(L, true);
+  assert.ok(m1);
+  assert.strictEqual(C.listBegin(L, true), null);
+  const r = C.listBegin(L, false);
+  assert.strictEqual(C.listSettle(L, m1, { items: [{ id: 'b' }] }), false);
+  C.listSettle(L, r, { items: [{ id: 'z' }], next: null });
+  assert.deepStrictEqual(L.items.map((m) => m.id), ['z']);
+  const m2 = C.listBegin(L, true);
+  C.listSettle(L, m2, { items: [{ id: 'z' }, { id: 'y' }] });
+  assert.deepStrictEqual(L.items.map((m) => m.id), ['z', 'y']);
+});
+
+test('draftClientFlag: client anywhere in the fetched conversation → true', () => {
+  const conv = [msg({ from: addr('contractor@agency.example') }), msg({ id: 'm0', from: addr('kim@clientco.example') })];
+  assert.strictEqual(C.draftClientFlag({ conversation: conv, loaded: [], domains: ['clientco.example'] }), true);
+  assert.strictEqual(C.draftClientFlag({ conversation: [conv[0]], loaded: [], domains: ['clientco.example'] }), false);
+});
+test('draftClientFlag: a failed conversation fetch or failed rules → true (fail closed)', () => {
+  assert.strictEqual(C.draftClientFlag({ conversation: null, loaded: [], domains: ['clientco.example'] }), true);
+  assert.strictEqual(C.draftClientFlag({ conversation: [], loaded: [], domains: [], rulesFailed: true }), true);
+});
+
+test('errorText: a timeout reads in plain words and offers a retry', () => {
+  const e = C.errorText({ status: 0, code: 'timeout' });
+  assert.ok(/took too long/.test(e.text) && e.retry === true);
+});
+test('sendProbe: timeout / network / 5xx → read the draft back; 404 → Sent; other 4xx → nothing', () => {
+  assert.strictEqual(C.sendProbe({ status: 0, code: 'timeout' }), 'message');
+  assert.strictEqual(C.sendProbe({ status: 0, code: 'network' }), 'message');
+  assert.strictEqual(C.sendProbe({ status: 503 }), 'message');
+  assert.strictEqual(C.sendProbe({ status: 404 }), 'sent');
+  assert.strictEqual(C.sendProbe({ status: 400 }), null);
+});
+test('sendRecovery: a timeout whose draft reads back as sent → sent', () => {
+  assert.strictEqual(C.sendRecovery({ status: 0, code: 'timeout' }, null, Date.now(), 'c1', { id: 'd1', isDraft: false }), 'sent');
+});
+test('sendRecovery: a 503 with isDraft false → sent; with isDraft true → retry', () => {
+  assert.strictEqual(C.sendRecovery({ status: 503 }, null, Date.now(), 'c1', { id: 'd1', isDraft: false }), 'sent');
+  assert.strictEqual(C.sendRecovery({ status: 503 }, null, Date.now(), 'c1', { id: 'd1', isDraft: true }), 'retry');
+  assert.strictEqual(C.sendRecovery({ status: 503 }, null, Date.now(), 'c1', null), 'retry');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

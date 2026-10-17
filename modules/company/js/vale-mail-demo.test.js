@@ -125,7 +125,7 @@ const allMsgs = (f) => [].concat(...Object.values(f.folders));
   });
   await test('top is capped at 50; sent and archive folders list their own mail', async () => {
     const g = demo();
-    assert.strictEqual((await g.listMessages({ folder: 'inbox', top: 999 })).items.length, 30);
+    assert.strictEqual((await g.listMessages({ folder: 'inbox', top: 999 })).items.length, fixture().folders.inbox.length);
     assert.strictEqual((await g.listMessages({ folder: 'sentitems' })).items.length, fixture().folders.sentitems.length);
     assert.strictEqual((await g.listMessages({ folder: 'archive' })).items.length, fixture().folders.archive.length);
   });
@@ -376,6 +376,58 @@ const allMsgs = (f) => [].concat(...Object.values(f.folders));
       const t = demoDraft(fx.drafts, { id: 'demo-inb-015', stance, mismatch: true, firstName: 'Dana', instruction: stance ? '' : 'sounds good' });
       assert.ok(/call/.test(t) && !/Sounds good/i.test(t), t);
     });
+  });
+
+
+  // ── Round 3: demo drafts never invent facts, times or promises ──
+  // Every number and time word in a written draft must come from the email it answers (or its
+  // thread); anything else goes in a [bracketed placeholder], as the real prompt asks.
+  const TIME_WORDS = /\b(today|tonight|tomorrow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|mornings?|afternoons?|evenings?|weekends?|nightly|daily|weekly|minutes?|hours?|days?|weeks?|months?|jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|jun(e)?|jul(y)?|aug(ust)?|sep(tember)?|oct(ober)?|nov(ember)?|dec(ember)?|noon|midnight|am|pm|end of day|eod|asap)\b/gi;
+  function claims(text) {
+    const t = String(text || '').replace(/\[[^\]]*\]/g, ' ').replace(/\{[a-zA-Z]+\}/g, ' ');
+    return (t.match(/\d+/g) || []).concat((t.match(TIME_WORDS) || []).map((w) => w.toLowerCase()));
+  }
+  function sourceText(fx, id) {
+    const all = Object.values(fx.folders).flat();
+    const m = all.find((x) => x.id === id);
+    if (!m) return '';
+    const thread = all.filter((x) => x.conversationId === m.conversationId);
+    const strip = (h) => String(h || '').replace(/<[^>]*>/g, ' ');
+    return thread.map((x) => x.subject + ' ' + strip(x.body && x.body.content)).join(' ').toLowerCase();
+  }
+  function inSource(src, claim) {
+    if (/^\d+$/.test(claim)) return new RegExp('(^|\\D)' + claim + '(\\D|$)').test(src);
+    return new RegExp('\\b' + claim.replace(/\s+/g, '\\s+') + '\\b', 'i').test(src);
+  }
+  await test('demo drafts: no number or time word that the email does not state (unless [bracketed])', () => {
+    const fx = fixture();
+    const bad = [];
+    Object.keys(fx.drafts).forEach((k) => {
+      if (typeof fx.drafts[k] !== 'string') return;
+      claims(fx.drafts[k]).forEach((c) => bad.push('generic ' + k + ': ' + c));
+    });
+    Object.keys(fx.drafts.byId || {}).forEach((id) => {
+      const src = sourceText(fx, id);
+      assert.ok(src, 'draft for a message that exists: ' + id);
+      Object.keys(fx.drafts.byId[id]).forEach((st) => {
+        claims(fx.drafts.byId[id][st]).forEach((c) => { if (!inSource(src, c)) bad.push(id + ' ' + st + ': ' + c); });
+      });
+    });
+    assert.deepStrictEqual(bad, []);
+  });
+  await test('demo drafts: Ravi\'s yes promises nothing the email does not say', () => {
+    const t = demoDraft(fixture().drafts, { id: 'demo-inb-024', stance: 'yes', firstName: 'Ravi' });
+    const outside = t.replace(/\[[^\]]*\]/g, '');
+    assert.ok(/sandbox key/.test(t), t);
+    assert.ok(!/rate-limited|nightly|\btoday\b/i.test(outside), t);
+  });
+  await test('demo: listConversation returns the whole thread across folders, no drafts', async () => {
+    const g = demo();
+    const conv = await g.listConversation('conv-northwind-kickoff');
+    const want = Object.values(fixture().folders).flat().filter((m) => m.conversationId === 'conv-northwind-kickoff').length;
+    assert.strictEqual(conv.length, want);
+    assert.ok(conv.every((m) => m.conversationId === 'conv-northwind-kickoff' && !('body' in m)));
+    await assert.rejects(g.listConversation(''), (e) => e.status === 400);
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

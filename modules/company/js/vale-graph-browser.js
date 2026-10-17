@@ -8,6 +8,10 @@
 //   may already have happened, so it is never repeated on a 5xx) up to 3 times, honouring
 //   Retry-After capped at 10 s. A 401 asks getToken({forceRefresh:true}) once.
 // - Only https://graph.microsoft.com/v1.0/ URLs are ever fetched (next links are checked).
+// - Every fetch has a timeout (30 s; 60 s for a send). A hung request rejects with
+//   GraphError(0, 'timeout') instead of leaving the page waiting forever.
+// - parentFolderId comes back from Graph as an opaque id; it is normalised to the well-known
+//   name ('inbox', 'sentitems', 'archive', 'drafts') so the UI can compare it, like the demo.
 // Plan: docs/superpowers/plans/2026-10-17-vale-mail-overnight.md (Task 4).
 
 (function (root) {
@@ -21,6 +25,10 @@
   var SEARCH_CAP = 50;
   var ATTACH_CAP = 100;
   var CALENDAR_CAP = 100;
+  var CONVERSATION_CAP = 50;
+  var TIMEOUT_MS = 30000;
+  var SEND_TIMEOUT_MS = 60000;
+  var WELL_KNOWN = ['inbox', 'sentitems', 'archive', 'drafts'];
 
   var LIST_SELECT = 'id,conversationId,subject,bodyPreview,from,sender,toRecipients,ccRecipients,replyTo,' +
     'receivedDateTime,sentDateTime,isRead,isDraft,importance,flag,hasAttachments,inferenceClassification,' +
@@ -29,7 +37,8 @@
   var EVENT_SELECT = 'id,subject,start,end,isAllDay,showAs,location,isOnlineMeeting,onlineMeeting,organizer,' +
     'attendees,responseStatus,isCancelled,isOrganizer';
   var METHODS = ['listMessages', 'getMessage', 'listAttachments', 'getAttachmentBytes', 'search', 'patchMessage',
-    'move', 'createReply', 'patchDraft', 'sendDraft', 'createDraft', 'calendarView', 'me'];
+    'move', 'createReply', 'patchDraft', 'sendDraft', 'createDraft', 'calendarView', 'me', 'listConversation'];
+  var CONVERSATION_SELECT = 'id,conversationId,from,sender,toRecipients,ccRecipients,replyTo';
   var FLAG_STATUSES = ['flagged', 'notFlagged', 'complete'];
   var EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
   var ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
@@ -84,7 +93,7 @@
     return Math.min(1000 * Math.pow(2, attempt), MAX_WAIT_MS);
   }
 
-  // deps: { fetch, getToken(opts?) -> Promise<string>, sleep?, timeZone? }
+  // deps: { fetch, getToken(opts?) -> Promise<string>, sleep?, timeZone?, timeoutMs?, sendTimeoutMs? }
   function createGraphClient(deps) {
     deps = deps || {};
     if (typeof deps.fetch !== 'function') throw new Error('createGraphClient: fetch is required');
@@ -92,6 +101,25 @@
     var doFetch = deps.fetch;
     var sleep = deps.sleep || function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
     var timeZone = typeof deps.timeZone === 'string' && deps.timeZone ? deps.timeZone : 'Pacific Standard Time';
+    var timeoutMs = Number(deps.timeoutMs) > 0 ? Number(deps.timeoutMs) : TIMEOUT_MS;
+    var sendTimeoutMs = Number(deps.sendTimeoutMs) > 0 ? Number(deps.sendTimeoutMs) : SEND_TIMEOUT_MS;
+
+    // One fetch with a deadline: the AbortController cancels it, and the race rejects even if the
+    // fetch ignores the signal.
+    function timedFetch(url, init, ms) {
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      if (ctrl) init.signal = ctrl.signal;
+      var timer;
+      var deadline = new Promise(function (resolve, reject) {
+        timer = setTimeout(function () { if (ctrl) { try { ctrl.abort(); } catch (e) { /* ignore */ } } reject(new GraphError(0, 'timeout', 'request timed out')); }, ms);
+      });
+      var req = Promise.resolve().then(function () { return doFetch(url, init); });
+      return Promise.race([req, deadline]).then(function (r) { clearTimeout(timer); return r; }, function (e) {
+        clearTimeout(timer);
+        if (e && e.name === 'GraphError') throw e;
+        throw new GraphError(0, 'network', 'network error');
+      });
+    }
 
     // opts: { method, body, prefer, raw }
     async function request(pathOrUrl, opts) {
@@ -100,6 +128,7 @@
       var url = /^https?:\/\//i.test(pathOrUrl) ? pathOrUrl : BASE + pathOrUrl;
       if (!isGraphUrl(url)) throw new GraphError(0, 'bad_url', 'refusing non-Graph URL');
       var retry5xx = method === 'GET' || method === 'PATCH';
+      var ms = opts.timeoutMs || timeoutMs;
       var refreshed = false;
       var token = await deps.getToken();
       for (var attempt = 0; ; attempt++) {
@@ -107,9 +136,7 @@
         var headers = { Authorization: 'Bearer ' + token, Prefer: opts.prefer ? IMMUTABLE + ', ' + opts.prefer : IMMUTABLE };
         var init = { method: method, headers: headers };
         if (opts.body !== undefined) { headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.body); }
-        var r;
-        try { r = await doFetch(url, init); }
-        catch (e) { throw new GraphError(0, 'network', 'network error'); }
+        var r = await timedFetch(url, init, ms);
         if (r.status === 401 && !refreshed) {
           refreshed = true;
           token = await deps.getToken({ forceRefresh: true });
@@ -144,6 +171,32 @@
       return out.slice(0, cap);
     }
 
+    // Well-known folder ids, looked up once per client (in parallel) and cached.
+    var folderIds = null;
+    function wellKnownIds() {
+      if (!folderIds) {
+        folderIds = Promise.all(WELL_KNOWN.map(function (name) {
+          return request('/me/mailFolders/' + name + '?' + q({ '$select': 'id' })).then(function (f) { return f && f.id; }, function () { return null; });
+        })).then(function (ids) {
+          var map = {};
+          ids.forEach(function (id, i) { if (typeof id === 'string' && id) map[id] = WELL_KNOWN[i]; });
+          // Nothing resolved (offline, say): look again next time rather than caching a blank.
+          if (!Object.keys(map).length) folderIds = null;
+          return map;
+        });
+      }
+      return folderIds;
+    }
+    async function normalise(msgs) {
+      var list = Array.isArray(msgs) ? msgs : [msgs];
+      if (!list.some(function (m) { return m && typeof m.parentFolderId === 'string' && WELL_KNOWN.indexOf(m.parentFolderId) === -1; })) return msgs;
+      var map = await wellKnownIds();
+      list.forEach(function (m) {
+        if (m && typeof m.parentFolderId === 'string' && Object.prototype.hasOwnProperty.call(map, m.parentFolderId)) m.parentFolderId = map[m.parentFolderId];
+      });
+      return msgs;
+    }
+
     return {
       isDemo: false,
 
@@ -159,14 +212,26 @@
             q({ '$select': LIST_SELECT, '$orderby': 'receivedDateTime desc', '$top': top });
         }
         var page = await request(url);
+        var items = Array.isArray(page.value) ? page.value : [];
+        await normalise(items);
         return {
-          items: Array.isArray(page.value) ? page.value : [],
+          items: items,
           next: isGraphUrl(page['@odata.nextLink']) ? page['@odata.nextLink'] : null
         };
       },
 
       getMessage: async function (id) {
-        return request('/me/messages/' + seg(id) + '?' + q({ '$select': FULL_SELECT }), { prefer: 'outlook.body-content-type="html"' });
+        var m = await request('/me/messages/' + seg(id) + '?' + q({ '$select': FULL_SELECT }), { prefer: 'outlook.body-content-type="html"' });
+        return normalise(m);
+      },
+
+      // Every message in a conversation (who was in it), for the client-thread check. Graph
+      // rejects $orderby with this $filter, so none is asked for.
+      listConversation: async function (conversationId) {
+        if (typeof conversationId !== 'string' || !conversationId) throw argError('conversationId');
+        return paged('/me/messages?' + q({
+          '$filter': "conversationId eq '" + conversationId.replace(/'/g, "''") + "'", '$select': CONVERSATION_SELECT, '$top': CONVERSATION_CAP
+        }), CONVERSATION_CAP);
       },
 
       listAttachments: async function (id) {
@@ -186,7 +251,7 @@
       search: function (query) {
         var s = typeof query === 'string' ? query.replace(/"/g, ' ').replace(/\s+/g, ' ').trim() : '';
         if (!s) return Promise.reject(argError('query'));
-        return paged('/me/messages?' + q({ '$search': '"' + s + '"', '$select': LIST_SELECT, '$top': 25 }), SEARCH_CAP);
+        return paged('/me/messages?' + q({ '$search': '"' + s + '"', '$select': LIST_SELECT, '$top': 25 }), SEARCH_CAP).then(normalise);
       },
 
       patchMessage: function (id, patch) {
@@ -203,7 +268,7 @@
       move: function (id, destination) {
         try {
           if (typeof destination !== 'string' || !destination) throw argError('destination');
-          return request('/me/messages/' + seg(id) + '/move', { method: 'POST', body: { destinationId: destination } });
+          return request('/me/messages/' + seg(id) + '/move', { method: 'POST', body: { destinationId: destination } }).then(normalise);
         } catch (e) { return Promise.reject(e); }
       },
 
@@ -227,7 +292,7 @@
       },
 
       sendDraft: async function (draftId) {
-        await request('/me/messages/' + seg(draftId, 'draft id') + '/send', { method: 'POST' });
+        await request('/me/messages/' + seg(draftId, 'draft id') + '/send', { method: 'POST', timeoutMs: sendTimeoutMs });
         return undefined;
       },
 

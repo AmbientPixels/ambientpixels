@@ -6,7 +6,8 @@
 // collide), stubs /api/* and /.auth/me so nothing reaches a live service, opens
 // /modules/company/mail.html?demo=1 and walks the whole product: counts, Reply-To guard,
 // remote-image blocking, stance → draft → send → undo → send → Sent, j/k/e shortcuts with
-// Undo, search, empty state, shortcut sheet, and the phone layout. Prints "E2E OK".
+// Undo, search, empty state, shortcut sheet, and the phone layout. A real-mode pass stubs MSAL
+// and Microsoft Graph (opaque folder ids) and captures the vale-draft requests. Prints "E2E OK".
 'use strict';
 
 const http = require('http');
@@ -110,6 +111,18 @@ async function main() {
       problems.push('console: ' + t + (loc ? ' @ ' + loc : ''));
     });
   }
+  // Real mode: a 400/401/404 from the Graph stub (and the rules 500) is expected, and Chromium logs each failed
+  // response as a console error, so only those lines are let through.
+  function watchReal(page) {
+    page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
+    page.on('console', (m) => {
+      const t = m.text();
+      if (/Content Security Policy/i.test(t)) { problems.push('csp: ' + t); return; }
+      if (m.type() !== 'error' || /Failed to load resource: the server responded with a status of (400|401|404|500)/.test(t)) return;
+      if (/fonts.googleapis|fonts.gstatic|cdnjs.cloudflare/.test(t + ' ' + ((m.location() && m.location().url) || ''))) return;
+      problems.push('console: ' + t);
+    });
+  }
   try {
     // ── Desktop 1440 ──
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -132,10 +145,12 @@ async function main() {
     check(await chipCount('needs_you') === String(want.needs_you), 'Needs you chip count = ' + want.needs_you);
     check(await chipCount('newsletter') === String(want.newsletter), 'Newsletters chip count = ' + want.newsletter);
     check(await chipCount('all') === String(want.all), 'Everything chip count = ' + want.all);
-    check(/of the latest 30/.test(await page.textContent('.vmail-listhead__count')), 'honest "of the latest N" line');
+    check(new RegExp('of the latest ' + inbox.length).test(await page.textContent('.vmail-listhead__count')), 'honest "of the latest N" line');
     const rowsNeeds = await page.$$eval('#vmail-list [role="option"]', (r) => r.length);
     check(rowsNeeds === want.needs_you, 'Needs you shows ' + want.needs_you + ' rows by default');
-    check(await page.isVisible('.vmail-checked'), '"Checked at" stamp visible');
+    const stamp = await page.textContent('.vmail-checked');
+    check(await page.isVisible('.vmail-checked') && /^Vale sorted (at \d|yesterday at \d|\w+ at \d)/.test(stamp) && !/Checked/.test(stamp), 'sorting stamp says when Vale sorted, not "Checked" (' + stamp + ')');
+    check(/Mail is live; Vale last sorted it/.test(await page.getAttribute('.vmail-checked', 'title')), 'the stamp explains that mail is live');
     check(await page.isVisible('.vmail-today'), 'Today rail visible at 1440');
     await page.screenshot({ path: path.join(SHOTS, '01-inbox.png') });
 
@@ -243,8 +258,8 @@ async function main() {
     check(true, 'search finds a fixture subject');
     await page.fill('#vmail-search', 'zzzz nothing matches');
     await page.keyboard.press('Enter');
-    await page.waitForSelector('.vmail-empty', { timeout: 5000 });
-    check(/No mail matches/.test(await page.textContent('.vmail-empty')), 'empty state says why');
+    await page.waitForSelector('#vmail-list .vmail-empty', { timeout: 5000 });
+    check(/No mail matches/.test(await page.textContent('#vmail-list .vmail-empty')), 'empty state says why');
     await page.screenshot({ path: path.join(SHOTS, '06-empty.png') });
     await page.click('#vmail-search-clear');
     await page.waitForSelector('#vmail-list [role="option"]', { timeout: 5000 });
@@ -314,12 +329,9 @@ async function main() {
       watch(pg);
       await pg.goto(base + PAGE);
       await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
-      let onSkip = false;
-      for (let i = 0; i < 60 && !onSkip; i++) {
-        await pg.keyboard.press('Tab');
-        onSkip = await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-skip');
-      }
-      check(onSkip, 'keyboard: Tab reaches the "Skip to messages" link');
+      await pg.keyboard.press('Tab');
+      const onSkip = await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-skip');
+      check(onSkip, 'keyboard: the first Tab press focuses "Skip to messages"');
       await pg.keyboard.press('Enter');
       check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-list'), 'keyboard: the skip link moves focus to the message list');
       await pg.keyboard.press('j');
@@ -450,6 +462,9 @@ async function main() {
         return cs.length === 5 && cs.every((x) => { const r = x.getBoundingClientRect(); return r.width > 0 && r.left >= box.left && r.right <= box.right; });
       });
       check(chipsIn, '1440: all five filter chips are fully visible in the list header');
+      const oneLine = await pg.$$eval('.vmail-chip', (cs) => new Set(cs.map((x) => Math.round(x.getBoundingClientRect().top))).size === 1);
+      const faded = await pg.$eval('#vmail-chips', (el) => el.classList.contains('is-more-left') || el.classList.contains('is-more-right'));
+      check(oneLine && !faded, '1440: the five chips sit on one line with no edge fade');
       const open = opener(pg);
       await pg.click('.vmail-chip[data-filter="all"]');
 
@@ -531,7 +546,7 @@ async function main() {
       const top0 = await pg.$eval('#vmail-list', (l) => l.getBoundingClientRect().top);
       await pg.fill('#vmail-search', 'zzzz');
       await pg.press('#vmail-search', 'Enter');
-      await pg.waitForSelector('.vmail-empty', { timeout: 5000 });
+      await pg.waitForSelector('#vmail-list .vmail-empty', { timeout: 5000 });
       const top1 = await pg.$eval('#vmail-list', (l) => l.getBoundingClientRect().top);
       check(!(await pg.$('#vmail-reader .vmail-vale')) && /Nothing selected/.test(await pg.textContent('#vmail-reader')), 'no-result search: the reader goes quiet');
       check(Math.abs(top1 - top0) <= 2, 'no-result search: the list header keeps its height (' + top0 + ' → ' + top1 + ')');
@@ -568,6 +583,10 @@ async function main() {
       await pg.waitForFunction(() => { const r = document.querySelector('#vmail-list [aria-selected="true"]'); return r && r.getAttribute('data-id') !== 'demo-inb-024' && document.querySelector('#vmail-reader .vmail-vale'); }, null, { timeout: 5000 });
       const nid = await pg.$eval('#vmail-list [aria-selected="true"]', (r) => r.getAttribute('data-id'));
       check(fixture.labels[nid] && fixture.labels[nid].label === 'needs_you', 'Next opens another Needs you email (' + nid + ')');
+      await pg.click('.vmail-chip[data-filter="waiting"]');
+      await open('demo-inb-024');
+      const reopened = await pg.textContent('#vmail-reader .vmail-vale');
+      check(/hasn't answered since you wrote/.test(reopened) && !(await pg.$('.vmail-vale [data-act="next"]')) && !/Sent\. It's/.test(reopened), 'reopened later, an answered thread reads as waiting (no post-send panel)');
       await c.close();
     }
 
@@ -584,17 +603,21 @@ async function main() {
       await open('demo-inb-031');
       await pg.click('.vmail-vale [data-stance="yes"]');
       await draftLands(pg, /coffee/);
-      await pg.evaluate(() => {
-        const g = window.__vmGraph, real = g.sendDraft;
-        g.sendDraft = function (id) { g.sendDraft = real; return real.call(g, id).then(() => Promise.reject({ status: 0, code: 'network' })); };
-      });
+      await pg.evaluate(() => { window.__vmFail.sendDraft = 1; });
       await pg.click('#vmail-send');
       await pg.waitForSelector('.vmail-editor__error[role="alert"]', { timeout: 20000 });
+      check(/Not sent/.test(await pg.textContent('.vmail-editor__error')), 'a send that really failed says "Not sent"');
       check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-send'), 'send failure: focus is on Try again');
+      // Try again: this time Graph takes the send, but the answer times out.
+      await pg.evaluate(() => {
+        const g = window.__vmGraph, real = g.sendDraft;
+        g.sendDraft = function (id) { g.sendDraft = real; return real.call(g, id).then(() => Promise.reject({ name: 'GraphError', status: 0, code: 'timeout' })); };
+      });
       await pg.click('#vmail-send');
       await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      check(!/Not sent/.test(await pg.textContent('#vmail-reader')), 'a send that landed but timed out: nothing says "Not sent"');
       const copies = await pg.evaluate(async () => (await window.__vmGraph.listMessages({ folder: 'sentitems' })).items.filter((m) => m.conversationId === 'conv-demo-inb-031').length);
-      check(copies === 1, 'a send that went through but reported failure: Try again finds it in Sent, exactly one copy (' + copies + ')');
+      check(copies === 1, 'a send that landed but timed out: the Sent toast, exactly one copy in Sent (' + copies + ')');
 
       await open('demo-inb-036');
       await pg.click('.vmail-vale [data-stance="yes"]');
@@ -640,6 +663,102 @@ async function main() {
       await c.close();
     }
 
+    // ── Round 3: who-sent-it guards, waiting rows, quoted history, labels, empty states ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+      // Lookalike detection compares against people you've written to: wait for Sent to load.
+      await pg.waitForFunction(() => (window.__vmCalls.listMessages || 0) >= 2, null, { timeout: 5000 });
+      await pg.waitForTimeout(500);
+      const open = opener(pg);
+      await pg.click('.vmail-chip[data-filter="all"]');
+
+      // A lookalike domain asking for a bank change: warning, and only a safe reply.
+      await open('demo-inb-047');
+      await pg.waitForSelector('#vmail-sender-warn', { timeout: 5000 });
+      check(/This looks like dana@northwind-studio\.example, but it's from dana@northwind-studlo\.example/.test(await pg.textContent('#vmail-sender-warn')), 'lookalike sender: "This looks like … but it\'s from …" warning');
+      check(!(await pg.$('.vmail-vale [data-stance="yes"]')) && !(await pg.$('.vmail-vale [data-stance="no"]')) && !!(await pg.$('.vmail-vale [data-act="draft-safe"]')), 'lookalike sender: no Yes/No, only "Draft a safe reply"');
+      await pg.click('.vmail-vale [data-act="draft-safe"]');
+      await draftLands(pg, /call/);
+      check(true, 'lookalike sender: the demo draft says you\'ll call to check');
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // An outside email that puts the agent's address in From.
+      await open('demo-inb-048');
+      const spoof = await pg.textContent('#vmail-reader .vmail-vale');
+      check(/came from outside your organization/.test(spoof) && !/Your brief from Vale/.test(spoof) && !(await pg.$('.vmail-vale [data-stance]')),
+        'a spoof of the agent\'s address: outside-organization warning, never "Your brief from Vale"');
+      await open('demo-inb-029');
+      check(/Your brief from Vale/.test(await pg.textContent('#vmail-reader .vmail-vale')), 'the real (internal) brief from Vale still reads "Your brief from Vale"');
+
+      // Waiting rows show what you sent; the panel has one day count.
+      await pg.click('.vmail-chip[data-filter="waiting"]');
+      await pg.waitForSelector('#vmail-list [data-id="demo-inb-013"]', { timeout: 5000 });
+      for (const [id, conv, who] of [['demo-inb-013', 'conv-pinecrest-contract', 'Theo'], ['demo-inb-011', 'conv-clientco-invoice', 'Jordan']]) {
+        const prev = (await pg.textContent('#vmail-list [data-id="' + id + '"] .vmail-row__preview')).trim();
+        const rowWhen = await pg.getAttribute('#vmail-list [data-id="' + id + '"] .vmail-row__when', 'datetime');
+        const sentAt = await pg.evaluate(async (cv) => {
+          const s = (await window.__vmGraph.listMessages({ folder: 'sentitems' })).items.filter((m) => m.conversationId === cv);
+          return s.map((m) => m.sentDateTime).sort().pop();
+        }, conv);
+        check(/^You: /.test(prev) && rowWhen === sentAt, who + ' (Waiting): the row shows "You: …" and your send date');
+        await open(id);
+        const panel = await pg.textContent('#vmail-reader .vmail-vale');
+        const counts = new Set((panel.match(/\d+ days ago/g) || []));
+        check(counts.size <= 1 && /You last wrote to/.test(panel), who + ': one day count in the panel (' + Array.from(counts).join(', ') + ')');
+        check(!/\d+ days ago/.test(await pg.textContent('#vmail-reader .vmail-vale__why')), who + ': Vale\'s saved reason carries no relative time');
+      }
+
+      // Newsletters: the chip names the mix, a caption explains it, both tags look alike.
+      await pg.click('.vmail-chip[data-filter="newsletter"]');
+      check(/Newsletters and low-priority mail/.test(await pg.getAttribute('.vmail-chip[data-filter="newsletter"]', 'title')), 'Newsletters chip: the long name is in its title');
+      check(await pg.isVisible('#vmail-listnote') && /low-priority mail Vale set aside/.test(await pg.textContent('#vmail-listnote')), 'Newsletters filter: a caption explains the mix');
+      const tagLooks = await pg.$$eval('#vmail-list .vmail-tag', (ts) => ({ n: ts.length, kinds: new Set(ts.map((t) => t.textContent)).size, looks: new Set(ts.map((t) => { const s = getComputedStyle(t); return s.backgroundColor + '|' + s.color; })).size }));
+      check(tagLooks.kinds >= 2 && tagLooks.looks === 1, 'Newsletter and Low priority tags share one style (' + JSON.stringify(tagLooks) + ')');
+      await pg.click('.vmail-chip[data-filter="all"]');
+      check(!(await pg.isVisible('#vmail-listnote')), 'the caption goes away with the Newsletters filter');
+
+      // Plain-text quoted history folds behind "···".
+      await open('demo-inb-024');
+      const plain = await pg.$eval('#vmail-reader .vmail-plainbody', (el) => el.innerText);
+      check(!/^\s*>/m.test(plain) && !/wrote:/.test(plain) && await pg.getAttribute('.vmail-quotetoggle', 'aria-expanded') === 'false', 'plain-text history is folded behind a toggle');
+      await pg.click('.vmail-quotetoggle');
+      const quote = await pg.textContent('#vmail-quote');
+      check(await pg.isVisible('#vmail-quote') && /Happy to help/.test(quote) && !/^\s*>/m.test(quote) && await pg.getAttribute('.vmail-quotetoggle', 'aria-expanded') === 'true', 'the toggle shows the earlier message, without ">" marks');
+      await pg.screenshot({ path: path.join(SHOTS, '12-quote.png') });
+
+      // Compose: the brief field says what it does.
+      await pg.click('#vmail-compose');
+      check((await pg.textContent('label[for="vmail-compose-brief"]')).trim() === 'Ask Vale to draft it', 'compose: the brief field is labelled "Ask Vale to draft it"');
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // Empty states line up.
+      await pg.fill('#vmail-search', 'zzzz');
+      await pg.press('#vmail-search', 'Enter');
+      await pg.waitForSelector('#vmail-list .vmail-empty', { timeout: 5000 });
+      await pg.waitForSelector('#vmail-reader .vmail-empty i', { timeout: 5000 });
+      const tops = await pg.evaluate(() => [document.querySelector('#vmail-list .vmail-empty i').getBoundingClientRect().top, document.querySelector('#vmail-reader .vmail-empty i').getBoundingClientRect().top]);
+      check(Math.abs(tops[0] - tops[1]) <= 6, 'zero-result search: the list and reader empty states line up (' + tops.map(Math.round).join(' vs ') + ')');
+      await pg.screenshot({ path: path.join(SHOTS, '13-empty-aligned.png') });
+      await pg.click('#vmail-search-clear');
+
+      // Light theme: the focused skip link is readable.
+      await pg.evaluate(() => document.body.setAttribute('data-theme', 'light'));
+      await pg.focus('#vmail-skip');
+      const sk = await pg.$eval('#vmail-skip', (el) => { const s = getComputedStyle(el); return [s.color, s.backgroundColor, el.getBoundingClientRect().top]; });
+      const rgb = (x) => (x.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+      const lum = (c) => { const v = rgb(c).map((n) => { n /= 255; return n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+      const l1 = lum(sk[0]), l2 = lum(sk[1]);
+      const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+      check(ratio >= 4.5 && sk[2] >= 0, 'light theme: the focused skip link has ' + ratio.toFixed(1) + ':1 contrast and is on screen');
+      await pg.screenshot({ path: path.join(SHOTS, '14-skip-light.png') });
+      await c.close();
+    }
+
     // ── 1024: two columns, folder menu, one-line chips ──
     {
       const c = await browser.newContext({ viewport: { width: 1024, height: 768 } });
@@ -652,8 +771,14 @@ async function main() {
       check(await pg.isVisible('#vmail-folder-select'), '1024: folder menu visible');
       const sw = await pg.evaluate(() => document.documentElement.scrollWidth);
       check(sw <= 1024, '1024: no horizontal scroll (' + sw + ')');
-      const clipped = await pg.$$eval('.vmail-chip', (cs) => { const box = document.querySelector('#vmail-chips').getBoundingClientRect(); return cs.filter((c) => { const r = c.getBoundingClientRect(); return r.left < box.left - 0.5 || r.right > box.right + 0.5; }).length; });
-      check(clipped === 0, '1024: no filter chip is cut off');
+      const chips1024 = await pg.$eval('#vmail-chips', (el) => {
+        const box = el.getBoundingClientRect();
+        const cs = Array.from(el.querySelectorAll('.vmail-chip'));
+        const sel = el.querySelector('[aria-pressed="true"]').getBoundingClientRect();
+        const over = el.scrollWidth > el.clientWidth + 1;
+        return { lines: new Set(cs.map((x) => Math.round(x.getBoundingClientRect().top))).size, over, right: el.classList.contains('is-more-right'), left: el.classList.contains('is-more-left'), selIn: sel.left >= box.left - 0.5 && sel.right <= box.right + 0.5 };
+      });
+      check(chips1024.lines === 1 && chips1024.selIn && (!chips1024.over || (chips1024.right && !chips1024.left)), '1024: chips on one line, the selected one in view, a fade only on the side with more (' + JSON.stringify(chips1024) + ')');
       await pg.waitForFunction(() => /, Chad\.$/.test((document.querySelector('.vmail-hello__title') || {}).textContent || ''), null, { timeout: 3000 });
       check(true, '1024: the greeting names Chad on first load');
       await pg.waitForTimeout(400);
@@ -720,6 +845,30 @@ async function main() {
       await c.close();
     }
 
+    // ── Links with their own target never navigate the reader frame (they open a new tab) ──
+    {
+      const c = await browser.newContext();
+      const pg = await c.newPage();
+      await c.route(/evil\.example/, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<p>fake sign-in</p>' }));
+      await pg.goto(base + '/data/vale-mail-product.json');
+      for (const [name, t] of [['_self', '_self'], ['named', 'foo'], ['_parent', '_parent'], ['_top', '_top']]) {
+        const doc = core.safeBodyDoc({ contentType: 'html', content: '<a id="l" href="https://evil.example/t' + name + '" target="' + t + '">x</a>' }, false);
+        await pg.setContent('<iframe id="f" sandbox="allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer"></iframe>');
+        await pg.$eval('#f', (f, d) => { f.srcdoc = d; }, doc);
+        await pg.waitForTimeout(200);
+        const fr = pg.frames().find((f) => f !== pg.mainFrame());
+        const popup = c.waitForEvent('page', { timeout: 3000 }).catch(() => null);
+        await fr.click('#l');
+        const tab = await popup;
+        await pg.waitForTimeout(300);
+        const still = pg.frames().find((f) => f !== pg.mainFrame());
+        const stayed = !!still && still.url().indexOf('evil.example') === -1 && !!(await still.$('#l'));
+        check(!!tab && stayed && pg.url().indexOf(base) === 0, 'a target="' + t + '" link opens a new tab; the reader frame and page never navigate');
+        if (tab) await tab.close();
+      }
+      await c.close();
+    }
+
     // ── vale-auth.html routes by the MSAL state, not a sticky flag ──
     {
       const c = await browser.newContext();
@@ -745,6 +894,171 @@ async function main() {
       await c.close();
     }
 
+    // ── Real mode (MSAL + Microsoft Graph), fully stubbed: nothing leaves this machine ──
+    // MSAL is a stub, the product config gets a client id, Graph answers from a small fixture
+    // with OPAQUE folder ids (as the real Graph does), and vale-state / vale-draft are captured.
+    // The page carries the production CSP plus the one morning change (Graph in connect-src).
+    {
+      const MSAL_STUB = 'window.msal = { PublicClientApplication: function (cfg) { this.cfg = cfg; } };' +
+        'window.msal.PublicClientApplication.prototype = {' +
+        ' initialize: function () { return Promise.resolve(); },' +
+        ' handleRedirectPromise: function () { return Promise.resolve(null); },' +
+        ' getAllAccounts: function () { return [{ name: "Chad Martin", username: "chad@ambientpixels.ai" }]; },' +
+        ' acquireTokenSilent: function () { return Promise.resolve({ accessToken: "t" }); },' +
+        ' loginRedirect: function () { window.__vmSignin = (window.__vmSignin || 0) + 1; } };';
+      const MORNING_CSP = PROD_CSP.replace('connect-src ', 'connect-src https://graph.microsoft.com ');
+      const FID = { inbox: 'AAMkAD-in==', sentitems: 'AAMkAD-sent==', archive: 'AAMkAD-arch==', drafts: 'AAMkAD-drafts==' };
+      const ME = { emailAddress: { name: 'Chad Martin', address: 'chad@ambientpixels.ai' } };
+      const person = (name, address) => ({ emailAddress: { name, address } });
+      const realMsg = (id, conv, from, subject, text, hour) => ({
+        id, conversationId: conv, subject, bodyPreview: text.slice(0, 80), body: { contentType: 'text', content: text },
+        from, sender: from, toRecipients: [ME], ccRecipients: [], replyTo: [], isRead: false, isDraft: false,
+        importance: 'normal', flag: { flagStatus: 'notFlagged' }, hasAttachments: false, inferenceClassification: 'focused',
+        internetMessageHeaders: [], parentFolderId: FID.inbox, webLink: '',
+        receivedDateTime: new Date(Date.now() - hour * 3600000).toISOString(), sentDateTime: new Date(Date.now() - hour * 3600000 - 30000).toISOString()
+      });
+
+      async function realPage(mode) {
+        const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+        const msgs = {
+          r1: realMsg('r1', 'conv-r1', person('Pat Lee', 'pat@contractor.example'), 'Launch notes', 'Hi Chad,\n\nNotes from the launch call are below.\n\nPat', 1),
+          r2: realMsg('r2', 'conv-r2', person('Sam Ortiz', 'sam@greenleaf-coffee.example'), 'Audit follow-up', 'Hi Chad,\n\nThanks for the audit.\n\nSam', 2),
+          r3: realMsg('r3', 'conv-r3', person('Noah Kim', 'noah@harbor-labs.example'), 'Coffee soon', 'Hi Chad,\n\nCoffee soon?\n\nNoah', 3)
+        };
+        // conv-r1 has an earlier client message that is NOT in any loaded page.
+        const conversations = {
+          'conv-r1': [msgs.r1, realMsg('r0', 'conv-r1', person('Kim Okafor', 'kim@clientco.example'), 'Launch notes', 'earlier', 300)],
+          'conv-r3': [msgs.r3]
+        };
+        const out = { drafts: [], foreign: [], graph: [], moves: [] };
+        c.on('request', (r) => {
+          const u = new URL(r.url());
+          if (u.hostname === '127.0.0.1' || u.hostname === 'graph.microsoft.com') return;
+          if (/^(fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com)$/.test(u.hostname)) return; // static CSS/fonts only
+          out.foreign.push(u.hostname);
+        });
+        await c.route('**/modules/company/mail.html*', async (route) => {
+          const resp = await route.fetch();
+          const headers = Object.assign({}, resp.headers(), { 'content-security-policy': MORNING_CSP });
+          await route.fulfill({ response: resp, headers });
+        });
+        await c.route('**/js/vendor/msal-browser.min.js', (route) => route.fulfill({ status: 200, contentType: 'text/javascript', body: MSAL_STUB }));
+        await c.route('**/data/vale-mail-product.json', async (route) => {
+          const resp = await route.fetch();
+          const cfg = await resp.json();
+          cfg.clientId = '00000000-0000-4000-8000-000000000001';
+          await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(cfg) });
+        });
+        await c.route('**/api/vale-state**', async (route) => {
+          const req = route.request();
+          if (req.method() === 'POST') {
+            if (mode === 'rulesFail') return route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+            return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ rules: { rulesOnlyDomains: ['clientco.example'] } }) });
+          }
+          if (/key=valeMailState/.test(req.url())) {
+            return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ value: { at: new Date(Date.now() - 600000).toISOString(),
+              triaged: ['r1', 'r2', 'r3'].map((id) => ({ id, label: 'needs_you', why: 'Wants an answer', by: 'model' })) } }) });
+          }
+          return route.fulfill({ status: 200, contentType: 'application/json', body: '{"value":null}' });
+        });
+        await c.route('**/api/vale-draft', async (route) => {
+          out.drafts.push(JSON.parse(route.request().postData() || '{}'));
+          await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ draft: 'Hi there,\n\nThanks for this.\n\nChad' }) });
+        });
+        await c.route('https://graph.microsoft.com/**', async (route) => {
+          const req = route.request();
+          const origin = base;
+          const cors = { 'access-control-allow-origin': origin, 'access-control-allow-headers': 'Authorization, Content-Type, Prefer', 'access-control-allow-methods': 'GET, POST, PATCH, OPTIONS' };
+          const send = (status, body) => route.fulfill({ status, headers: Object.assign({ 'content-type': 'application/json' }, cors), body: body === undefined ? '' : JSON.stringify(body) });
+          if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors, body: '' });
+          const u = decodeURIComponent(req.url().replace('https://graph.microsoft.com/v1.0', ''));
+          out.graph.push(req.method() + ' ' + u.split('?')[0]);
+          let m;
+          if (mode === 'expired' && /\/mailFolders\/inbox\/messages/.test(u)) return send(401, { error: { code: 'InvalidAuthenticationToken', message: 'expired' } });
+          if (/^\/me\?/.test(u)) return send(200, { displayName: 'Chad Martin', mail: 'chad@ambientpixels.ai' });
+          if ((m = /^\/me\/mailFolders\/(inbox|sentitems|archive|drafts)\?\$select=id$/.exec(u))) return send(200, { id: FID[m[1]] });
+          if (/^\/me\/mailFolders\/inbox\/messages/.test(u)) return send(200, { value: Object.values(msgs).filter((x) => x.parentFolderId === FID.inbox).map((x) => Object.assign({}, x, { body: undefined })) });
+          if (/^\/me\/mailFolders\/(sentitems|archive)\/messages/.test(u)) return send(200, { value: [] });
+          if (/^\/me\/calendarView/.test(u)) return send(200, { value: [] });
+          if ((m = /^\/me\/messages\?\$filter=conversationId eq '([^']+)'/.exec(u))) {
+            if (!conversations[m[1]]) return send(400, { error: { code: 'ErrorInvalidRequest', message: 'no' } });
+            return send(200, { value: conversations[m[1]] });
+          }
+          if ((m = /^\/me\/messages\/([^/?]+)\/move$/.exec(u)) && req.method() === 'POST') {
+            const dest = JSON.parse(req.postData() || '{}').destinationId;
+            out.moves.push(m[1] + '>' + dest);
+            msgs[m[1]].parentFolderId = FID[dest] || dest;
+            return send(201, msgs[m[1]]);
+          }
+          if ((m = /^\/me\/messages\/([^/?]+)$/.exec(u)) && req.method() === 'PATCH') return send(200, msgs[m[1]] || {});
+          if ((m = /^\/me\/messages\/([^/?]+)\?/.exec(u)) && msgs[m[1]]) return send(200, msgs[m[1]]);
+          return send(404, { error: { code: 'ErrorItemNotFound', message: 'not found' } });
+        });
+        const pg = await c.newPage();
+        watchReal(pg);
+        await pg.goto(base + '/modules/company/mail.html');
+        return { c, pg, out, msgs };
+      }
+      const draftVia = async (pg, out, id, n) => {
+        await pg.click('#vmail-list [data-id="' + id + '"]');
+        await pg.waitForSelector('#vmail-tell-input', { timeout: 5000 });
+        await pg.waitForFunction((i) => (document.querySelector('#vmail-subject') || {}).textContent && document.querySelector('#vmail-list [aria-selected="true"]').getAttribute('data-id') === i, id, { timeout: 5000 });
+        await pg.fill('#vmail-tell-input', 'say thanks');
+        await pg.press('#vmail-tell-input', 'Enter');
+        await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && !t.disabled && /Thanks for this/.test(t.value); }, null, { timeout: 5000 });
+        if (out.drafts.length !== n) throw new Error('E2E check failed: expected ' + n + ' vale-draft calls, saw ' + out.drafts.length);
+        return out.drafts[n - 1];
+      };
+
+      // Rules load; the whole conversation decides "client".
+      {
+        const { c, pg, out, msgs } = await realPage('ok');
+        await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+        check(!(await pg.$('.vmail-banner:not([hidden])')), 'real mode: no demo banner');
+        check((await pg.$$('#vmail-list [role="option"]')).length === 3, 'real mode: inbox rows render from Graph');
+        const d1 = await draftVia(pg, out, 'r1', 1);
+        check(d1.client === true && d1.mode === 'reply', 'real mode: an earlier client message only Graph has (not loaded) makes the draft client:true');
+        const d2 = await draftVia(pg, out, 'r2', 2);
+        check(d2.client === true, 'real mode: a conversation that fails to load fails closed (client:true)');
+        const d3 = await draftVia(pg, out, 'r3', 3);
+        check(d3.client === false, 'real mode: a conversation with no client stays client:false');
+        check(out.graph.some((g) => /^GET \/me\/messages$/.test(g)), 'real mode: the conversation is fetched from Graph');
+        // Archive with opaque folder ids: e removes the row, z puts it back.
+        await pg.focus('#vmail-list');
+        await pg.keyboard.press('e');
+        await pg.waitForFunction(() => !document.querySelector('#vmail-list [data-id="r3"]'), null, { timeout: 5000 });
+        await pg.waitForFunction(() => /Archived/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+        check(out.moves[0] === 'r3>archive', 'real mode: e archives (opaque folder ids) and removes the row from Inbox');
+        await pg.waitForTimeout(300);
+        await pg.keyboard.press('z');
+        await pg.waitForSelector('#vmail-list [data-id="r3"]', { timeout: 5000 });
+        await pg.waitForFunction(() => /Moved back to Inbox/.test(document.querySelector('#vmail-toast').textContent), null, { timeout: 5000 });
+        check(out.moves[1] === 'r3>inbox' && msgs.r3.parentFolderId === FID.inbox, 'real mode: z moves it back to Inbox');
+        check(out.foreign.length === 0, 'real mode: no request leaves for any non-stubbed host' + (out.foreign.length ? ': ' + out.foreign.join(', ') : ''));
+        await pg.screenshot({ path: path.join(SHOTS, '17-real-mode.png') });
+        await c.close();
+      }
+      // Rules fail: every draft is client:true.
+      {
+        const { c, pg, out } = await realPage('rulesFail');
+        await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+        const d = await draftVia(pg, out, 'r3', 1);
+        check(d.client === true, 'real mode: rules that failed to load make the draft client:true');
+        check(out.foreign.length === 0, 'real mode (rules failed): no request leaves for any non-stubbed host');
+        await c.close();
+      }
+      // An expired sign-in: plain words and "Sign in again".
+      {
+        const { c, pg, out } = await realPage('expired');
+        await pg.waitForSelector('#vmail-list .vmail-error', { timeout: 8000 });
+        check(/sign-in has expired/.test(await pg.textContent('#vmail-list .vmail-error')) && await pg.isVisible('#vmail-list [data-act="signin"]'), 'real mode: a Graph 401 shows "Sign in again"');
+        await pg.click('#vmail-list [data-act="signin"]');
+        check(await pg.evaluate(() => window.__vmSignin === 1), 'real mode: Sign in again starts the Microsoft sign-in');
+        check(out.foreign.length === 0, 'real mode (401): no request leaves for any non-stubbed host');
+        await c.close();
+      }
+    }
+
     // ── Phone 390×844 ──
     const pctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     await pctx.addInitScript(SHIM);
@@ -765,6 +1079,44 @@ async function main() {
     await ph.tap('#vmail-back');
     await ph.waitForSelector('#vmail-list', { state: 'visible', timeout: 3000 });
     check(true, 'phone: back returns to the list');
+
+    // Phone, round 3: no keyboard hint, an honest chip fade, a Next button that fits.
+    check(!(await ph.isVisible('.vmail-search__kbd')), 'phone: no "/" keyboard hint in the search field');
+    const edge = () => ph.$eval('#vmail-chips', (el) => ({ l: el.classList.contains('is-more-left'), r: el.classList.contains('is-more-right') }));
+    const e0 = await edge();
+    check(e0.r && !e0.l, 'phone: chips at rest fade only on the right (' + JSON.stringify(e0) + ')');
+    await ph.$eval('#vmail-chips', (el) => { el.scrollLeft = el.scrollWidth; el.dispatchEvent(new Event('scroll')); });
+    await ph.waitForTimeout(150);
+    const e1 = await edge();
+    const lastIn = await ph.$eval('#vmail-chips', (el) => { const b = el.getBoundingClientRect(); const r = el.lastElementChild.getBoundingClientRect(); return r.right <= b.right + 0.5; });
+    check(e1.l && !e1.r && lastIn, 'phone: scrolled fully right, only the left fades and "Set aside" is fully visible');
+    await ph.$eval('#vmail-chips', (el) => { el.scrollLeft = 0; el.dispatchEvent(new Event('scroll')); });
+
+    await ph.tap('#vmail-list [data-id="demo-inb-026"]');
+    await ph.waitForSelector('#vmail-reader .vmail-vale [data-stance="yes"]', { timeout: 5000 });
+    await ph.tap('.vmail-vale [data-stance="yes"]');
+    await ph.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && !t.disabled && /Saturday/.test(t.value); }, null, { timeout: 5000 });
+    await ph.tap('#vmail-send');
+    await ph.waitForSelector('.vmail-vale [data-act="next"]', { timeout: 20000 });
+    const fit = await ph.evaluate(() => {
+      const n = document.querySelector('.vmail-vale [data-act="next"]').getBoundingClientRect();
+      const v = document.querySelector('.vmail-vale').getBoundingClientRect();
+      return { nr: Math.round(n.right), vr: Math.round(v.right), sw: document.documentElement.scrollWidth };
+    });
+    check(fit.nr <= fit.vr && fit.sw === 390, 'phone: after a send, "Next" fits inside Vale\'s panel (' + JSON.stringify(fit) + ')');
+    await ph.screenshot({ path: path.join(SHOTS, '15-phone-sent.png') });
+    await ph.waitForFunction(() => !document.querySelector('#vmail-toast').hidden, null, { timeout: 5000 });
+    await ph.tap('#vmail-back');
+    await ph.tap('#vmail-compose');
+    await ph.waitForSelector('.vmail-editor [data-act="discard"]', { timeout: 5000 });
+    const covered = await ph.evaluate(() => {
+      const t = document.querySelector('#vmail-toast');
+      if (t.hidden) return false;
+      const a = t.getBoundingClientRect(), b = document.querySelector('.vmail-editor [data-act="discard"]').getBoundingClientRect();
+      return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    });
+    check(!covered, 'phone: the send toast never covers Compose\'s Discard button');
+    await ph.screenshot({ path: path.join(SHOTS, '16-phone-compose.png') });
     await pctx.close();
 
     check(problems.length === 0, 'no console or page errors' + (problems.length ? ':\n    ' + problems.join('\n    ') : ''));

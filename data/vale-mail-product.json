@@ -31,7 +31,11 @@
     "replyToWarning": "Replies go to {replyTo}, not {from}. Check this is really them before you answer.",
     "draftFailed": "Vale couldn't draft this one. You can still write your reply here.",
     "sendFailed": "Not sent. Your reply is safe in Drafts. Try again.",
-    "checkedAt": "Checked at {time}",
+    "checkedAt": "{agent} sorted at {time}",
+    "checkedOn": "{agent} sorted {when}",
+    "checkedTitle": "Mail is live; {agent} last sorted it at {time}. Newer mail says Not sorted yet.",
+    "composeBriefLabel": "Ask {agent} to draft it",
+    "newsletterNote": "Newsletters and low-priority mail {agent} set aside from your inbox",
     "filters": {
       "needs_you": "Needs you",
       "waiting": "Waiting",
@@ -59,7 +63,7 @@
       "needs_you": "Needs you",
       "waiting": "Waiting on others",
       "all": "Everything",
-      "newsletter": "Newsletters",
+      "newsletter": "Newsletters and low-priority mail",
       "set_aside": "Set aside"
     },
     "rulesFailedNotice": "Couldn't load your client list, so Vale drafts with Claude only for now. If Claude is unavailable, there is no draft."
