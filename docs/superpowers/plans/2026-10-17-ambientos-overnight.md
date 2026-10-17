@@ -14,13 +14,14 @@
 
 ## 0. Chad's decisions
 
-Filled in from Chad's answers before launch. See the commit that edits this section.
+Chad's answers, 2026-10-17 ~06:45 UTC, before he went to sleep.
 
 | Question | Answer |
 |---|---|
-| Where it lands | *(pending)* |
-| Stop rule | *(pending)* |
-| Optional scope | *(pending)* |
+| Where it lands | **Live.** Push each green commit to `master` (`git push origin fleet-simplify:master`). |
+| Stop rule | **All four reviewers ≥ 9, or 6 rounds**, whichever comes first. |
+| Optional scope | **Both included:** Task 5 (AmbientScore scans) and Task 6 (HQ scoreboard page). |
+| Added scope | **Task 7: explore every monetization route, not just our products**: YouTube videos, Instagram, the video department, services. Research and a ranked recommendation, no production changes. |
 
 ## 1. Guardrails for every agent (non-negotiable)
 
@@ -34,6 +35,7 @@ Filled in from Chad's answers before launch. See the commit that edits this sect
 8. Never commit with a failing test. Before every commit run the suite in §7; the only allowed failure is the pre-existing `hq-summary/index.test.js`.
 9. Commit message ends with two lines: `Release: none` and `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Push per §0 after each green commit; on rejection `git fetch origin && git rebase origin/master` (if the only conflict is `api/_data/skills.json`: `git checkout --ours api/_data/skills.json && git add api/_data/skills.json && GIT_EDITOR=true git rebase --continue`), then push. Never force.
 10. Heartbeat window: do not push during minutes :00 to :07 of hours 00/06/12/18 UTC.
+11. **Confidentiality:** never write the names of clients, prospects or their staff (or their companies) into any repo file, commit message or page. Refer to them generically ("our first agent client", "a nonprofit retail lead"). Never quote revenue that isn't external: lifetime external revenue is **$0** (the July "$398" were refunded founder test purchases).
 
 ## 2. Vision: what "done" means
 
@@ -129,13 +131,25 @@ Out of scope: agent prompts beyond the blocks named here, Nova closing pass / in
 - [ ] Pure helper tests first (formatting, unmeasured handling, sorting). Then the page. Then `scripts/ambientos-overnight-check.cjs` (port 0, proxies GETs to live with the secret, screenshots `scoreboard.html` at 1440x900 and 390x844 and `seasons.html`, prints `CHECK OK`).
 - [ ] Suite green, check script green; commit; push.
 
+### Task 7: Every route to money (research, no production changes)
+
+**Files:** create `docs/superpowers/specs/2026-10-17-monetization-routes.md` only.
+
+Chad's ask: "find other routes of monetization: our YouTube videos, Instagram, the video department; explore all ideas, not just our products."
+
+- [ ] Gather evidence (read-only): the product pick (`docs/superpowers/specs/2026-10-17-aaa-product-pick.md`), the 08-05 monetization analysis (`docs/superpowers/specs/2026-08-05-ambientos-monetization-analysis.md`), the services/video pages in the repo (grep `services`, `video`, `studio`), `api/_data/product-facts.json`, social account stats (GET `company-state?key=socialAccountStats`), YouTube/Instagram code paths (`api/_lib/youtube/**`, `api/actionsExecute/executors/social/instagram*`), blog traffic, and any pricing already live in Stripe-backed code.
+- [ ] Cover at least: video production as a service (the video department), YouTube (ad revenue thresholds vs our audience, sponsorships, lead-gen to services), Instagram/short-form (reach, lead-gen), paid audits/teardowns, agent-building services for small businesses, templates/courses, affiliate, the "honest autopsy" content funnel (on hold by Chad; list it, don't push it), and product subscriptions.
+- [ ] For each route: who pays, price point, evidence we have (with n/window/source, or "none"), time to first dollar, what the fleet can do vs what needs Chad, cost, and a kill rule. Score on one rubric (time to first dollar, evidence, fit with what already exists, cost) and rank.
+- [ ] Lead with a 5-line recommendation: the top 3 routes, the first concrete step for each, and which agent owns it. Keep under ~3 pages; plain language; Chad reads fast and gets overwhelmed by long docs.
+- [ ] Commit `Spec: every route to money, ranked`; push.
+
 ## 5. Evaluation loop
 
 Each round: one capture agent (runs §7, runs the check script if present, screenshots) then **four read-only reviewers in parallel**, each scoring 1-10 with up to 8 must-fix items (file, problem, concrete fix, acceptance check):
 
 | Reviewer | What 9+ means |
 |---|---|
-| **Money & efficiency (product)** | A sharp operator reading the agents' COMPANY STRATEGY block, the bet evidence block and (if built) the scoreboard knows within 30 s which product earns attention, what a qualified use costs, and which bets to kill. Nothing invites busywork; nothing contradicts the qualified-uses north star; purchase paths never dead-end. |
+| **Money & efficiency (product)** | A sharp operator reading the agents' COMPANY STRATEGY block, the bet evidence block and the scoreboard knows within 30 s which product earns attention, what a qualified use costs, and which bets to kill. Nothing invites busywork; nothing contradicts the qualified-uses north star; purchase paths never dead-end. The monetization-routes doc is evidence-based, ranked, honest about $0, names no clients, and gives Chad a first step he can take tomorrow. |
 | **Metrics honesty** | Every number has what/n/window/verdict; unmeasured is never shown as 0; no double counting (scans vs PA events); spend attribution cannot be gamed by agents; prompt blocks stay under their char caps. Checks against live GET data where possible. |
 | **Engineering** | Meaningful tests for every change, suite green, backwards-compatible signatures, no protected file touched (`git log --name-only` since the plan commit), site idioms, no new deps, no dead code left behind. |
 | **Safety & guardrails** | No production writes, no secrets printed or committed, no Vale files touched, staging discipline held (each commit only names plan files), heartbeat window respected, nothing in prompts that could make agents spend more. |
