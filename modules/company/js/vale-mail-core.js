@@ -64,9 +64,6 @@
   var DROP_TAGS = ['script', 'title', 'iframe', 'object', 'applet', 'frameset', 'frame', 'noembed', 'noframes',
     'embed', 'base', 'link', 'meta', 'form', 'html', 'head', 'body',
     'animate', 'animatemotion', 'animatetransform', 'set', 'discard', 'handler', 'foreignobject'];
-  var DROP_TAG_RE = new RegExp('<\\/?(?:[a-z0-9-]+:)?(' + DROP_TAGS.join('|') + ')\\b(?:"[^"]*"|\'[^\']*\'|[^\'">])*>', 'gi');
-  var TAG_RE = /<([a-zA-Z][a-zA-Z0-9:-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/g;
-  var ATTR_RE = /([^\s"'>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
   var URL_ATTRS = ['href', 'src', 'xlink:href', 'background', 'poster', 'lowsrc', 'dynsrc', 'data', 'cite', 'longdesc', 'action'];
   var LINK_ATTRS = ['href', 'xlink:href', 'action'];
   var DROP_ATTRS = ['ping', 'srcdoc', 'formaction', 'action', 'http-equiv'];
@@ -88,34 +85,82 @@
 
   function normCid(s) { return str(s).trim().replace(/^<|>$/g, '').toLowerCase(); }
 
-  function cleanTag(name, rest, inline) {
-    var selfClose = /\/\s*$/.test(rest);
+  var ATTR_NAME_OK = /^[a-z_:][a-z0-9_:.-]*$/i;
+  var TAG_NAME_OK = /^[a-z][a-z0-9:-]*$/i;
+  var WS = /[\t\n\f\r ]/;
+
+  // attrs: [{ name, value, hasVal }] exactly as the browser's tokenizer reads them.
+  function cleanTag(name, attrs, selfClose, inline) {
     var isLink = /^(?:[a-z0-9-]+:)?(a|area)$/i.test(name);
     var out = [];
-    var m;
-    ATTR_RE.lastIndex = 0;
-    while ((m = ATTR_RE.exec(rest))) {
-      var an = m[1].toLowerCase();
-      var hasVal = m[2] !== undefined || m[3] !== undefined || m[4] !== undefined;
-      var val = m[2] !== undefined ? m[2] : (m[3] !== undefined ? m[3] : (m[4] !== undefined ? m[4] : ''));
-      if (/^on/.test(an) || DROP_ATTRS.indexOf(an) !== -1) continue;
-      if (isLink && an === 'rel') continue;
-      if (an === 'style' && /expression\s*\(|javascript:|behavior\s*:|-moz-binding/i.test(decodeEntities(val))) continue;
+    var seen = {};
+    attrs.forEach(function (a) {
+      var an = a.name.toLowerCase();
+      var val = a.value;
+      // Only plain attribute names survive; the browser keeps the first of duplicates, so do we.
+      if (!ATTR_NAME_OK.test(an) || seen[an]) return;
+      seen[an] = 1;
+      if (/^on/.test(an) || DROP_ATTRS.indexOf(an) !== -1) return;
+      if (isLink && an === 'rel') return;
+      if (an === 'style' && /expression\s*\(|javascript:|behavior\s*:|-moz-binding/i.test(decodeEntities(val))) return;
       if (URL_ATTRS.indexOf(an) !== -1) {
-        if (!hasVal) continue;
+        if (!a.hasVal) return;
         if (an === 'src' && /^\s*cid:/i.test(val) && inline) {
           var hit = inline[normCid(val.replace(/^\s*cid:/i, ''))];
           if (typeof hit === 'string' && /^data:image\//i.test(hit)) val = hit;
         }
         // Unsafe URLs are removed outright (never rewritten to "#", which would open this page).
-        if (unsafeUrl(val, an)) continue;
+        if (unsafeUrl(val, an)) return;
       }
-      out.push(hasVal ? ' ' + an + '="' + val.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '"' : ' ' + an);
-    }
+      out.push(a.hasVal ? ' ' + an + '="' + val.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '"' : ' ' + an);
+    });
     if (isLink) out.push(' rel="noopener noreferrer"');
     return '<' + name + out.join('') + (selfClose ? ' />' : '>');
   }
 
+  // Reads one tag the way the HTML tokenizer does (WHATWG 13.2.5): a quote only opens a value
+  // right after "=", so a '"' in attribute-name position is part of the name. Returns
+  // { end, name, attrs, selfClose, isEnd }, or null when the input ends inside the tag (the
+  // browser drops such a tag, and so do we).
+  function readTag(s, i) {
+    var isEnd = s[i + 1] === '/';
+    var j = i + (isEnd ? 2 : 1);
+    var n = s.length;
+    var name = '';
+    while (j < n && !WS.test(s[j]) && s[j] !== '/' && s[j] !== '>') name += s[j++];
+    var attrs = [], selfClose = false;
+    for (;;) {
+      while (j < n && (WS.test(s[j]) || s[j] === '/')) {
+        selfClose = s[j] === '/' && s[j + 1] === '>';
+        j++;
+      }
+      if (j >= n) return null;
+      if (s[j] === '>') return { end: j + 1, name: name, attrs: attrs, selfClose: selfClose, isEnd: isEnd };
+      selfClose = false;
+      var an = s[j++]; // the first character may be "=" (it is then part of the name)
+      while (j < n && !WS.test(s[j]) && s[j] !== '/' && s[j] !== '>' && s[j] !== '=') an += s[j++];
+      while (j < n && WS.test(s[j])) j++;
+      var val = '', hasVal = false;
+      if (s[j] === '=') {
+        hasVal = true;
+        j++;
+        while (j < n && WS.test(s[j])) j++;
+        if (j >= n) return null;
+        if (s[j] === '"' || s[j] === "'") {
+          var k = s.indexOf(s[j], j + 1);
+          if (k === -1) return null;
+          val = s.slice(j + 1, k);
+          j = k + 1;
+        } else {
+          while (j < n && !WS.test(s[j]) && s[j] !== '>') val += s[j++];
+        }
+      }
+      attrs.push({ name: an, value: val, hasVal: hasVal });
+    }
+  }
+
+  // Every "<" in the output is one this function rebuilt; every other "<" and ">" is escaped,
+  // so the browser can never see a tag the sanitiser didn't (no parser differential).
   function sanitizeHtml(src, inline) {
     var map = null;
     if (inline && typeof inline === 'object') {
@@ -125,20 +170,51 @@
     var s = str(src);
     s = s.replace(/<!--[\s\S]*?(?:-->|$)/g, '');
     s = s.replace(/<!\[CDATA\[[\s\S]*?(?:\]\]>|$)/g, '');
-    s = s.replace(/<![a-z][^>]*>/gi, '');
     s = s.replace(DROP_WITH_CONTENT, '');
-    s = s.replace(DROP_TAG_RE, '');
-    s = s.replace(TAG_RE, function (all, name, rest) {
-      var local = name.toLowerCase().split(':').pop();
-      if (DROP_TAGS.indexOf(local) !== -1) return '';
-      return cleanTag(name, rest, map);
-    });
-    return s;
+    var out = [];
+    var i = 0, n = s.length;
+    while (i < n) {
+      var lt = s.indexOf('<', i);
+      var text = lt === -1 ? s.slice(i) : s.slice(i, lt);
+      if (text) out.push(text.replace(/>/g, '&gt;'));
+      if (lt === -1) break;
+      i = lt;
+      var c1 = s[i + 1] || '', c2 = s[i + 2] || '';
+      var isStart = /[a-z]/i.test(c1), isEnd = c1 === '/' && /[a-z]/i.test(c2);
+      if (!isStart && !isEnd) {
+        // "<!x", "<?x", "</>" and "</ x" are bogus comments up to the next ">"; any other "<" is text.
+        if (c1 === '!' || c1 === '?' || c1 === '/') {
+          var gt = s.indexOf('>', i);
+          i = gt === -1 ? n : gt + 1;
+        } else { out.push('&lt;'); i++; }
+        continue;
+      }
+      var t = readTag(s, i);
+      if (!t) break; // the input ends inside a tag: the browser drops it, and so do we
+      i = t.end;
+      var local = t.name.toLowerCase().split(':').pop();
+      if (!TAG_NAME_OK.test(t.name) || DROP_TAGS.indexOf(local) !== -1) continue;
+      if (t.isEnd) { out.push('</' + t.name + '>'); continue; }
+      out.push(cleanTag(t.name, t.attrs, t.selfClose, map));
+      if (local === 'style') {
+        // Raw CSS up to </style>. "<" is re-escaped, so nothing in it can ever start a tag.
+        var m = /<\/style[\t\n\f\r \/>]/i.exec(s.slice(i));
+        var css = m ? s.slice(i, i + m.index) : s.slice(i);
+        out.push(css.replace(/</g, '\\3c '));
+        i = m ? i + m.index : n;
+        if (!m) out.push('</style>');
+      }
+    }
+    return out.join('');
   }
 
-  var REMOTE_URL = /^\s*(?:https?:)?\/\//i;
-  // A CSS target that leaves the email: scheme-relative "//host" or any "scheme://host".
-  function remoteTarget(t) { return /^\s*["']?\s*(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(str(t)); }
+  // Images hidden = an allow-list, not a deny-list: browsers read "\" as "/", "http:host" as a
+  // remote host, and so on, so only targets that cannot leave the email are kept.
+  function localImageUrl(v) { var u = urlForCheck(v).replace(/\\/g, '/'); return /^(data:image\/|cid:|#)/.test(u); }
+  function localCssTarget(t) {
+    var u = str(t).trim().replace(/^["']|["']$/g, '').replace(/[\u0000- ]/g, '').replace(/\\/g, '/').toLowerCase();
+    return /^(data:|#)/.test(u);
+  }
 
   // CSS escapes (\72, \000072 , \() decoded the way the browser does; leftover backslashes are
   // dropped so nothing can be re-escaped into a URL after this.
@@ -150,41 +226,51 @@
     }).replace(/\\([^\n\r\f0-9a-f])/gi, '$1').replace(/\\/g, '');
   }
 
-  // Rewrites decoded CSS so no remote url(), image-set() or @import survives. Returns null when
-  // nothing remote was found (the caller then keeps the original text untouched).
+  // Rewrites decoded CSS so only local targets (data:, #fragment) survive in url() and
+  // image-set()/image(), and no @import survives at all. Returns null when nothing was changed
+  // (the caller then keeps the original text untouched).
   function cssWithoutRemote(decoded) {
     var hit = false;
-    var out = decoded.replace(/@import\b[^;]*;?/gi, function (all) { if (/\/\//.test(all)) { hit = true; return ''; } return all; })
-      .replace(/url\(([^)]*)\)/gi, function (all, inner) { if (remoteTarget(inner)) { hit = true; return 'none'; } return all; })
-      .replace(/(?:-webkit-)?image-set\(((?:[^()]|\([^()]*\))*)\)/gi, function (all, inner) {
-        if (/["']\s*(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(inner)) { hit = true; return 'none'; }
+    var out = decoded.replace(/@import\b[^;]*;?/gi, function () { hit = true; return ''; })
+      .replace(/url\(([^)]*)\)/gi, function (all, inner) { if (!localCssTarget(inner)) { hit = true; return 'none'; } return all; })
+      .replace(/(?:-webkit-)?image(?:-set)?\(((?:[^()]|\([^()]*\))*)\)/gi, function (all, inner) {
+        // Whatever is left once local url()s and local strings are taken out must not look like a URL.
+        var rest = inner.replace(/url\([^)]*\)/gi, '').replace(/"[^"]*"|'[^']*'/g, function (q) { return localCssTarget(q) ? '' : 'x:'; });
+        if (/[\/:]/.test(rest)) { hit = true; return 'none'; }
         return all;
       });
     return hit ? out : null;
   }
 
+  var IMAGE_ATTRS = /\s(src|background|poster|lowsrc|dynsrc)="([^"]*)"/gi;
+
   // Runs on sanitizeHtml output, where every attribute value is double-quoted.
   function stripRemoteImages(s) {
     return str(s)
-      // <style> blocks: raw text (no HTML entities), CSS escapes only. '<' is re-escaped so a
+      // <style> blocks: CSS escapes (and, for SVG <style>, entities). '<' is re-escaped so a
       // decoded "\3c /style\3e" can never close the block.
       .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style\s*>)/gi, function (all, open, css, close) {
-        var clean = cssWithoutRemote(cssDecode(css));
+        var clean = cssWithoutRemote(cssDecode(decodeEntities(css)));
         return clean === null ? all : open + clean.replace(/</g, '\\3c ') + close;
       })
-      // style="" attributes: HTML entities first, then CSS escapes, as the browser does.
-      .replace(/\sstyle="([^"]*)"/gi, function (all, v) {
-        var clean = cssWithoutRemote(cssDecode(decodeEntities(v)));
-        return clean === null ? all : ' style="' + escapeHtml(clean) + '"';
+      // Any attribute that holds CSS (style="", and SVG fill/filter/mask="url(...)"): HTML
+      // entities first, then CSS escapes, as the browser does.
+      .replace(/\s([a-z_:][a-z0-9_:.-]*)="([^"]*)"/gi, function (all, a, v) {
+        var dec = cssDecode(decodeEntities(v));
+        if (!/url\s*\(|image(?:-set)?\s*\(|@import/i.test(dec)) return all;
+        var clean = cssWithoutRemote(dec);
+        return clean === null ? all : ' ' + a + '="' + escapeHtml(clean) + '"';
       })
-      .replace(/\s(src|background|poster|lowsrc|dynsrc)="([^"]*)"/gi, function (all, a, v) { return REMOTE_URL.test(decodeEntities(v)) ? '' : all; })
-      .replace(/\ssrcset="([^"]*)"/gi, function (all, v) { return /\/\//.test(decodeEntities(v)) ? '' : all; })
+      .replace(IMAGE_ATTRS, function (all, a, v) { return localImageUrl(v) ? all : ''; })
+      .replace(/\ssrcset="([^"]*)"/gi, function (all, v) {
+        var parts = decodeEntities(v).split(/,(?=\s*[^\s,]+(?:\s|$))/);
+        return parts.every(function (p) { return localImageUrl(p.trim().split(/\s+/)[0]); }) ? all : '';
+      })
       // SVG images: <image>, <feImage> and <use> fetch their href.
       .replace(/<((?:[a-z0-9-]+:)?(?:image|feimage|use))\b([^>]*)>/gi, function (all, name, rest) {
-        var kept = rest.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return REMOTE_URL.test(decodeEntities(v)) ? '' : a; });
+        var kept = rest.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return localImageUrl(v) ? a : ''; });
         return kept === rest ? all : '<' + name + kept + '>';
-      })
-      .replace(/url\(\s*(?:&quot;|&#39;|["'])?\s*(?:https?:)?\/\/[^)]*\)/gi, 'none');
+      });
   }
 
   var BASE_CSS ='html,body{margin:0;padding:0}body{padding:16px;font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif;' +
@@ -286,6 +372,53 @@
     return null;
   }
 
+  // What kind of answer the question wants, so one tap never drafts nonsense:
+  //   'choice' — "A or B?" (one button per option), 'open' — what/how/when/... (no Yes/No),
+  //   'yesno' — starts with an auxiliary verb ("Could we…?") or is a short fragment ("Saturday?").
+  var AUX = /^(do|does|did|can|could|would|will|are|is|was|were|should|have|has|had|may|might|want|shall|am|must|need)\b/i;
+  var WH = /^(what|how|when|where|why|which|who|whom|whose)\b/i;
+  var OPENERS = /^(?:(?:and|also|so|but|ok|okay|hey|hi|quick question|one more thing)\b[,:\s-]*)+/i;
+
+  function cleanQuestion(q) {
+    var s = str(q).trim();
+    // "One real ask: can you confirm…?" — the question is what follows the lead-in.
+    var colon = s.lastIndexOf(':');
+    if (colon !== -1) {
+      var tail = s.slice(colon + 1).trim();
+      if (AUX.test(tail.replace(OPENERS, '')) || WH.test(tail.replace(OPENERS, ''))) s = tail;
+    }
+    return s.replace(OPENERS, '').replace(/\s+or\s+(?:not|no)\b[^?]*/i, '').trim();
+  }
+
+  function choiceOptions(q) {
+    var s = cleanQuestion(q);
+    var m = /^(.+?)\s+or\s+(.+?)\s*\?$/i.exec(s);
+    if (!m) return null;
+    var left = m[1], right = m[2].replace(/^(?:(?:the\s+)?(?:other|either)|not|no|what|something)\b.*$/i, '');
+    if (!right) return null;
+    var a;
+    var cut = left.split(/[,:;]/);
+    if (cut.length > 1) a = cut[cut.length - 1].trim();
+    else {
+      var words = left.trim().split(/\s+/);
+      var n = right.trim().split(/\s+/).length;
+      a = words.slice(Math.max(0, words.length - n)).join(' ');
+    }
+    a = a.replace(/^(?:either|between)\s+/i, '').trim();
+    var b = right.trim();
+    if (!a || !b || a.length > 40 || b.length > 40 || AUX.test(a) || WH.test(a)) return null;
+    return [a, b];
+  }
+
+  function questionKind(q) {
+    var s = cleanQuestion(q);
+    if (!s) return 'open';
+    if (choiceOptions(s)) return 'choice';
+    // An either/or too long to put on buttons is not a yes/no question either.
+    if (WH.test(s) || /\s+or\s+/i.test(s)) return 'open';
+    return 'yesno';
+  }
+
   // ── Thread facts ───────────────────────────────────────────────────────────
 
   function meAddress(me) { return str(me && typeof me === 'object' ? (me.mail || me.address) : me).trim().toLowerCase(); }
@@ -353,7 +486,9 @@
 
   // HTML that is only text structure (no attributes, links, images, tables or styles) reads
   // better as plain text on the app's own surface than inside a white iframe.
-  var SIMPLE_TAGS = ['div', 'p', 'br', 'span', 'b', 'strong', 'i', 'em', 'u', 'blockquote', 'ul', 'ol', 'li'];
+  // Outlook replies carry <hr> between messages, so it (and headings, pre, small...) is "simple".
+  var SIMPLE_TAGS = ['div', 'p', 'br', 'span', 'b', 'strong', 'i', 'em', 'u', 'blockquote', 'ul', 'ol', 'li',
+    'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'code', 'small', 'sub', 'sup', 'font'];
   function isSimpleHtml(html) {
     var s = str(html);
     if (!s.trim()) return true;
@@ -405,7 +540,7 @@
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
 
-  var KEYS = { j: 'next', k: 'prev', Enter: 'open', e: 'archive', r: 'reply', d: 'draft', f: 'flag', u: 'unread', '/': 'search', '?': 'help', Escape: 'close', Esc: 'close' };
+  var KEYS = { j: 'next', k: 'prev', Enter: 'open', e: 'archive', r: 'reply', d: 'draft', f: 'flag', u: 'unread', z: 'undo', '/': 'search', '?': 'help', Escape: 'close', Esc: 'close' };
 
   function shortcutFor(event) {
     if (!event || typeof event.key !== 'string') return null;
@@ -562,8 +697,68 @@
   var LABEL_NAMES = { needs_you: 'Needs you', waiting: 'Waiting', fyi: 'FYI', receipt: 'Receipt', noise: 'Low priority', newsletter: 'Newsletter', unsure: 'Unsure' };
   function labelName(label) { return Object.prototype.hasOwnProperty.call(LABEL_NAMES, label) ? LABEL_NAMES[label] : null; }
 
-  function isAutomated(msg) {
-    return !!header(msg, 'list-unsubscribe') || AUTOMATED.test(ea(msg && msg.from).address);
+  // Role mailboxes nobody personally answers from (billing@, alerts@, desk@...).
+  var MACHINE_LOCAL = /^(alerts?|desk|security|renewals?|receipts?|invoices?|accounts?|events?|surveys?|feedback|talent|careers|jobs|orders?|shipping|calendar|system|automated?|robot|postmaster)([+.-][^@]*)?$/;
+
+  // opts.me / opts.agent: the user's and the agent's own addresses (a brief from the agent, or a
+  // copy of your own mail, is never something to reply to).
+  function isAutomated(msg, opts) {
+    var from = ea(msg && msg.from).address;
+    if (header(msg, 'list-unsubscribe') || AUTOMATED.test(from)) return true;
+    var local = from.split('@')[0];
+    if (from && (ROLE_LOCAL.test(local) || MACHINE_LOCAL.test(local))) return true;
+    var o = opts || {};
+    return !!from && [o.me, o.agent].some(function (x) { return meAddress(x) && meAddress(x) === from; });
+  }
+
+  // After a failed send: 'sent' (it went out after all), 'recreate' (the draft is gone: start a
+  // fresh reply) or 'retry' (same draft, try again). A 404 on patch/send means the draft no
+  // longer exists, usually because an earlier, timed-out send actually went through.
+  function sendRecovery(err, sentItems, startedAt, conversationId) {
+    var status = err && typeof err.status === 'number' ? err.status : -1;
+    var gone = status === 404 || str(err && err.code) === 'ErrorItemNotFound';
+    if (!gone) return 'retry';
+    var since = Number(startedAt);
+    var hit = (sentItems || []).some(function (m) {
+      var t = Date.parse((m && m.sentDateTime) || '');
+      return !!conversationId && m.conversationId === conversationId && isFinite(t) && (!isFinite(since) || t >= since - 60000);
+    });
+    return hit ? 'sent' : 'recreate';
+  }
+
+  function plainObject(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+
+  // Real mode: the three vale-state reads (triage state, rules, CEO profile) → page state.
+  // A failed or malformed rules read sets rulesFailed, so client-thread checks fail closed.
+  function valeStateFrom(responses) {
+    var r = Array.isArray(responses) ? responses : [];
+    function ok(x) { return !!x && x.status === 200 && plainObject(x.body); }
+    var out = { sortState: 'failed', state: null, triagedAt: null, rules: {}, rulesFailed: true, workHours: null };
+    if (ok(r[0])) {
+      var v = r[0].body.value;
+      if (v === null || v === undefined) out.sortState = 'ok';
+      else if (plainObject(v)) {
+        out.sortState = 'ok';
+        out.state = v;
+        out.triagedAt = typeof v.at === 'string' && isFinite(Date.parse(v.at)) ? v.at : null;
+      }
+    }
+    if (ok(r[1]) && plainObject(r[1].body.rules)) { out.rules = r[1].body.rules; out.rulesFailed = false; }
+    if (ok(r[2]) && plainObject(r[2].body.value) && plainObject(r[2].body.value.workHours)) {
+      var wh = r[2].body.value.workHours;
+      if (typeof wh.start === 'string' && typeof wh.end === 'string') out.workHours = wh;
+    }
+    return out;
+  }
+
+  // 0–4 is still last night, not morning.
+  function greetingFor(hour) {
+    var h = Number(hour);
+    if (!isFinite(h)) return 'Hello';
+    if (h < 5) return 'Working late';
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
   }
 
   // Real-mode labels from valeMailState ({at, triaged:[{id,label,why,by}], waiting:[{conversationId,toName,days}]}).
@@ -612,7 +807,9 @@
     replyTargets: replyTargets, replyToMismatch: replyToMismatch, findQuestion: findQuestion,
     threadStrip: threadStrip, waitingOnYou: waitingOnYou, bucketOf: bucketOf, counts: counts,
     isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor,
-    escapeHtml: escapeHtml
+    escapeHtml: escapeHtml,
+    questionKind: questionKind, choiceOptions: choiceOptions, sendRecovery: sendRecovery,
+    valeStateFrom: valeStateFrom, greetingFor: greetingFor
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;
   else if (root) root.ValeMailCore = _exports;

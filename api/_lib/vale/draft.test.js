@@ -18,7 +18,7 @@ const base = (over) => Object.assign({ from: 'dana@vendor.example', fromName: 'D
     const v = draft.validateDraftRequest(base());
     assert.strictEqual(v.ok, true);
     assert.deepStrictEqual(v.req, { from: 'dana@vendor.example', fromName: 'Dana Reyes', subject: 'Kickoff', latest: 'Can we meet Tuesday?',
-      prior: [], instruction: '', stance: null, mode: 'reply', to: [], client: false });
+      prior: [], instruction: '', stance: null, mode: 'reply', to: [], client: false, mismatch: false });
   });
   await test('a non-object body is rejected', () => {
     [null, undefined, 'x', 7, []].forEach((b) => assert.deepStrictEqual(draft.validateDraftRequest(b), { ok: false, code: 'bad_body' }));
@@ -40,7 +40,7 @@ const base = (over) => Object.assign({ from: 'dana@vendor.example', fromName: 'D
     assert.strictEqual(v.req.instruction.length, 500);
   });
   await test('every allowed stance passes', () => {
-    ['yes', 'no', 'later', 'more', 'ack', null].forEach((s) => assert.strictEqual(draft.validateDraftRequest(base({ stance: s })).req.stance, s));
+    ['yes', 'no', 'later', 'more', 'ack', 'nudge', 'verify', null].forEach((s) => assert.strictEqual(draft.validateDraftRequest(base({ stance: s })).req.stance, s));
   });
   await test('an unknown stance is rejected', () => {
     ['maybe', 'YES ', 1, {}].forEach((s) => assert.strictEqual(draft.validateDraftRequest(base({ stance: s })).code, 'bad_stance', String(s)));
@@ -126,6 +126,32 @@ const base = (over) => Object.assign({ from: 'dana@vendor.example', fromName: 'D
   await test('client must be a boolean', () => {
     assert.strictEqual(draft.validateDraftRequest(base({ client: 'yes' })).code, 'bad_client');
     assert.strictEqual(draft.validateDraftRequest(base({ client: 1 })).code, 'bad_client');
+  });
+
+  // ── Reply-To mismatch (round 2) ──
+  await test('mismatch: true is accepted and kept; must be a boolean', () => {
+    assert.strictEqual(draft.validateDraftRequest(base({ mismatch: true })).req.mismatch, true);
+    assert.strictEqual(draft.validateDraftRequest(base()).req.mismatch, false);
+    assert.strictEqual(draft.validateDraftRequest(base({ mismatch: 'yes' })).code, 'bad_mismatch');
+  });
+  await test('buildDraftPrompt({mismatch:true}) never agrees to payment changes and proposes verification', () => {
+    const p = draft.buildDraftPrompt(draft.validateDraftRequest(base({ mismatch: true, stance: 'yes' })).req, voice);
+    assert.ok(/Never agree to change payment details, bank details/.test(p.system), p.system);
+    assert.ok(/known channel/.test(p.system));
+    const after = p.prompt.slice(p.prompt.indexOf('</email>'));
+    assert.ok(/confirm by a channel he already trusts/.test(after), after);
+    assert.ok(!/Say yes/.test(after), 'a yes stance is overridden by verify');
+  });
+  await test('without a mismatch the verification rule is absent, but the money rule is always there', () => {
+    const p = draft.buildDraftPrompt(draft.validateDraftRequest(base()).req, voice);
+    assert.ok(!/Reply-To address differs/.test(p.system));
+    assert.ok(/Never agree by email to change payment or bank details/.test(p.system));
+  });
+  await test('nudge and verify stances carry their own intent', () => {
+    const n = draft.buildDraftPrompt(draft.validateDraftRequest(base({ stance: 'nudge' })).req, voice);
+    assert.ok(/check-in/.test(n.prompt));
+    const v = draft.buildDraftPrompt(draft.validateDraftRequest(base({ stance: 'verify' })).req, voice);
+    assert.ok(/already trusts/.test(v.prompt));
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

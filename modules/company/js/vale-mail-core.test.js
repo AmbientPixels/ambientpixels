@@ -646,5 +646,166 @@ test('isSimpleHtml: text structure only', () => {
   assert.strictEqual(C.isSimpleHtml('<table><tr><td>x</td></tr></table>'), false);
   assert.strictEqual(C.isSimpleHtml('<img src="cid:a">'), false);
 });
+// ── Round 2: parser-differential and URL-normalisation battery ──
+const BS = '\\';
+const bodyOf = (d) => d.slice(d.indexOf('<body>') + 6, d.lastIndexOf('</body>'));
+const differential = (q) => ({
+  ['unbalancedQuote' + q]: '<p>Hi</p><img src=http://evil.example/a onerror=x ' + q + 'x>',
+  ['unbalancedQuote2' + q]: '<img src=x onerror=alert(1) ' + q + 'x><p>after</p>',
+  ['aBypass' + q]: '<a href=javascript:alert(1) ' + q + 'x>c</a>',
+  ['metaBypass' + q]: '<meta http-equiv=refresh content=0;url=https://evil.example/ ' + q + 'x>',
+  ['styleBypass' + q]: '<div style=background:url(https://evil.example/s) ' + q + 'x>hi</div>'
+});
+const BATTERY2 = Object.assign({}, differential('"'), differential("'"), {
+  slashBack: '<img src="/' + BS + 'evil.example/x">',
+  backslash2: '<img src="' + BS + BS + 'evil.example/x">',
+  httpsBack: '<img src="https:' + BS + BS + 'evil.example/x">',
+  httpNoSlash: '<img src="http:evil.example/x">',
+  cssHttp: '<div style="background:url(http:evil.example/x)">a</div>',
+  cssBack: '<div style="background:url(' + BS + BS + 'evil.example/cb)">a</div>',
+  cssBackEnt: '<div style="background:url(&#92;&#92;evil.example/cbe)">a</div>',
+  styleNoSlash: '<style>div{background:url(https:evil.example/x)}</style>',
+  importNoSlash: '<style>@import "http:evil.example/x.css";</style><p>x</p>',
+  svgFill: '<svg><rect fill="url(http:evil.example/x#a)" width="1" height="1"/></svg>',
+  svgUseBack: '<svg><use href="/' + BS + 'evil.example/s.svg#x"/></svg>',
+  posterRel: '<video poster="evil.example/p.png"></video>',
+  srcsetMixed: '<img srcset="data:image/png;base64,AA 1x, http:evil.example/x 2x">',
+  imageFn: '<div style="background:image(https://evil.example/x)">a</div>',
+  tabInSrc: '<img src="ht&#9;tps://evil.example/tab">'
+});
+Object.keys(BATTERY2).forEach((k) => {
+  test('battery ' + k + ': no remote target, handler, javascript: or http-equiv survives (images hidden)', () => {
+    const b = bodyOf(C.safeBodyDoc(html(BATTERY2[k]), false));
+    assert.ok(!/evil\.example/i.test(b), b);
+    assert.ok(!/onerror/i.test(b), b);
+    assert.ok(!/javascript:/i.test(b), b);
+    assert.ok(!/http-equiv/i.test(b), b);
+  });
+});
+['unbalancedQuote"', "unbalancedQuote'", 'slashBack', 'backslash2', 'httpsBack', 'httpNoSlash', 'cssHttp', 'svgFill'].forEach((k) => {
+  test('hasRemoteImages is true for ' + k, () => assert.strictEqual(C.hasRemoteImages(BATTERY2[k]), true));
+});
+test('every "<" in sanitised output starts a tag the sanitiser rebuilt', () => {
+  const b = bodyOf(C.safeBodyDoc(html('a < b <3 <img src=x "y> <p>ok</p> 1 > 0 <<script>x</script>'), false));
+  assert.ok(!/<(?!\/?(?:p|img)\b)/.test(b), b);
+  assert.ok(b.includes('a &lt; b &lt;3'), b);
+  assert.ok(b.includes('1 &gt; 0'), b);
+});
+test('a tag cut off by the end of the input is dropped (as the browser does)', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<p>hi</p><img src="https://evil.example/x'), true));
+  assert.strictEqual(b, '<p>hi</p>');
+});
+test('local images stay when hidden: data:, cid: and #fragment', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<img src="data:image/png;base64,AA"><svg><use href="#a"/></svg><div style="background:url(data:image/png;base64,AA)">x</div>'), false));
+  assert.ok(b.includes('src="data:image/png;base64,AA"'), b);
+  assert.ok(b.includes('href="#a"'), b);
+  assert.ok(b.includes('url(data:image/png;base64,AA)'), b);
+  assert.strictEqual(C.hasRemoteImages('<img src="data:image/png;base64,AA">'), false);
+});
+test('style blocks keep their CSS (child selectors) and cannot open a tag', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<style>a > b { color: red } x<y{}</style><p>t</p>'), false));
+  assert.ok(b.includes('a > b { color: red }'), b);
+  assert.ok(b.includes('x\\3c y{}'), b);
+});
+test('attribute names with quotes or junk are dropped, first duplicate wins', () => {
+  const b = bodyOf(C.safeBodyDoc(html('<p "x=1 title="a" title="b">t</p>'), true));
+  assert.strictEqual(b, '<p title="a">t</p>');
+});
+
+// ── questionKind / choiceOptions ──
+test('questionKind: choice, open, yesno', () => {
+  assert.strictEqual(C.questionKind('Which direction do you prefer, A or B?'), 'choice');
+  assert.deepStrictEqual(C.choiceOptions('Which direction do you prefer, A or B?'), ['A', 'B']);
+  assert.strictEqual(C.questionKind('What does the report include, and how long does it take to get it?'), 'open');
+  assert.strictEqual(C.questionKind('Could we move the kickoff to Thursday at 10am Pacific?'), 'yesno');
+  assert.strictEqual(C.questionKind('Saturday?'), 'yesno');
+  assert.strictEqual(C.questionKind('Do you want to come or not?'), 'yesno');
+  assert.strictEqual(C.questionKind('How did we do?'), 'open');
+});
+test('questionKind: lead-ins before a colon are ignored; long either/or is open', () => {
+  assert.strictEqual(C.questionKind('Mostly wording, but one real ask: can you confirm the second milestone lands before Nov 14?'), 'yesno');
+  assert.strictEqual(C.questionKind('Adding one more: is the CSV export something you can include in this sprint, or should we plan it for January?'), 'open');
+});
+test('choiceOptions: words match the right-hand option length', () => {
+  assert.deepStrictEqual(C.choiceOptions('Should we meet Tuesday or Wednesday?'), ['Tuesday', 'Wednesday']);
+  assert.deepStrictEqual(C.choiceOptions('Do you want the blue one or the red one?'), ['the blue one', 'the red one']);
+  assert.strictEqual(C.choiceOptions('Could we do this?'), null);
+});
+
+// ── isAutomated (round 2) ──
+test('isAutomated: role and machine mailboxes, own and agent addresses', () => {
+  assert.strictEqual(C.isAutomated(msg({ from: addr('billing@cloudhost.example') })), true);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('renewals@domaindesk.example') })), true);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('vale@ambientpixels.ai') }), { agent: 'vale@ambientpixels.ai' }), true);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('chad@ambientpixels.ai') }), { me: { mail: 'Chad@AmbientPixels.ai' } }), true);
+  assert.strictEqual(C.isAutomated(msg({ from: addr('dana@vendor.example') }), { me: 'chad@ambientpixels.ai' }), false);
+});
+
+// ── sendRecovery ──
+test('sendRecovery: 404 with a matching sent item → sent; 404 without → recreate; else retry', () => {
+  const started = Date.parse('2026-10-17T10:00:00Z');
+  const sent = [{ conversationId: 'c1', sentDateTime: '2026-10-17T10:00:12Z' }, { conversationId: 'c2', sentDateTime: '2026-10-17T10:00:30Z' }];
+  assert.strictEqual(C.sendRecovery({ status: 404, code: 'ErrorItemNotFound' }, sent, started, 'c1'), 'sent');
+  assert.strictEqual(C.sendRecovery({ status: 404 }, sent, started, 'c9'), 'recreate');
+  assert.strictEqual(C.sendRecovery({ status: 404 }, [{ conversationId: 'c1', sentDateTime: '2026-10-16T09:00:00Z' }], started, 'c1'), 'recreate');
+  assert.strictEqual(C.sendRecovery({ status: 404 }, null, started, 'c1'), 'recreate');
+  assert.strictEqual(C.sendRecovery({ status: 0, code: 'network' }, sent, started, 'c1'), 'retry');
+  assert.strictEqual(C.sendRecovery({ status: 503 }, sent, started, 'c1'), 'retry');
+});
+
+// ── valeStateFrom ──
+test('valeStateFrom: all good', () => {
+  const v = C.valeStateFrom([
+    { status: 200, body: { value: { at: '2026-10-17T13:41:00Z', triaged: [] } } },
+    { status: 200, body: { rules: { rulesOnlyDomains: ['clientco.example'] } } },
+    { status: 200, body: { value: { workHours: { start: '09:00', end: '17:00' } } } }
+  ]);
+  assert.strictEqual(v.sortState, 'ok');
+  assert.strictEqual(v.triagedAt, '2026-10-17T13:41:00Z');
+  assert.strictEqual(v.rulesFailed, false);
+  assert.deepStrictEqual(v.rules.rulesOnlyDomains, ['clientco.example']);
+  assert.strictEqual(v.workHours.start, '09:00');
+});
+test('valeStateFrom: 401 / 500 / missing fail closed', () => {
+  const v = C.valeStateFrom([{ status: 401, body: {} }, { status: 500, body: {} }]);
+  assert.strictEqual(v.sortState, 'failed');
+  assert.strictEqual(v.rulesFailed, true);
+  assert.deepStrictEqual(v.rules, {});
+  assert.strictEqual(v.workHours, null);
+  assert.strictEqual(C.valeStateFrom(null).rulesFailed, true);
+});
+test('valeStateFrom: malformed bodies (value null, value a string, rules not an object)', () => {
+  const v1 = C.valeStateFrom([{ status: 200, body: { value: null } }, { status: 200, body: { rules: 'x' } }, { status: 200, body: { value: 'x' } }]);
+  assert.strictEqual(v1.sortState, 'ok');
+  assert.strictEqual(v1.triagedAt, null);
+  assert.strictEqual(v1.rulesFailed, true);
+  assert.strictEqual(v1.workHours, null);
+  const v2 = C.valeStateFrom([{ status: 200, body: { value: 'oops' } }, { status: 200, body: { rules: [] } }, { status: 200, body: 'x' }]);
+  assert.strictEqual(v2.sortState, 'failed');
+  assert.strictEqual(v2.rulesFailed, true);
+  const v3 = C.valeStateFrom([{ status: 200, body: { value: { at: 'not a date' } } }, { status: 200, body: null }, {}]);
+  assert.strictEqual(v3.sortState, 'ok');
+  assert.strictEqual(v3.triagedAt, null);
+});
+
+// ── greetingFor / shortcuts / isSimpleHtml (round 2) ──
+test('greetingFor: working late after midnight', () => {
+  assert.strictEqual(C.greetingFor(0), 'Working late');
+  assert.strictEqual(C.greetingFor(4), 'Working late');
+  assert.strictEqual(C.greetingFor(5), 'Good morning');
+  assert.strictEqual(C.greetingFor(12), 'Good afternoon');
+  assert.strictEqual(C.greetingFor(18), 'Good evening');
+});
+test('shortcutFor: z is undo', () => {
+  assert.strictEqual(C.shortcutFor({ key: 'z' }), 'undo');
+  assert.strictEqual(C.shortcutFor({ key: 'z', ctrlKey: true }), null);
+});
+test('isSimpleHtml: Outlook replies with <hr> and blockquote are simple; attributes still are not', () => {
+  assert.strictEqual(C.isSimpleHtml('<div>a</div><hr><div><b>From:</b> x</div><blockquote><div>y</div></blockquote>'), true);
+  assert.strictEqual(C.isSimpleHtml('<h3>Notes</h3><pre>x</pre><font>y</font>'), true);
+  assert.strictEqual(C.isSimpleHtml('<hr style="x">'), false);
+  assert.strictEqual(C.isSimpleHtml('<font color="red">x</font>'), false);
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

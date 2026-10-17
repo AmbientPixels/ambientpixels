@@ -476,9 +476,24 @@ async function main() {
         '<div style="width:10px;height:10px;background:url(ht\\74ps://evil.example/f.png)">x</div>',
         '<style>@import "https://evil.example/g.css";</style><p>x</p>',
         '<style>div.q{width:10px;height:10px;background-image:image-set("https://evil.example/h.png" 1x)}</style><div class="q">x</div>',
-        '<img src="https://evil.example/i.png"><img srcset="https://evil.example/j.png 2x">'
+        '<img src="https://evil.example/i.png"><img srcset="https://evil.example/j.png 2x">',
+        // Round 2: parser differentials (a quote in attribute-name position) and URL normalisation.
+        '<img src=http://evil.example/q.gif onerror=parent.postMessage(1,"*") "x>',
+        "<img src=http://evil.example/q2.gif onerror=parent.postMessage(1,'*') 'x>",
+        '<meta http-equiv=refresh content=0;url=http://evil.example/meta "x>',
+        '<div style=background:url(http://evil.example/sty) "x>hi</div>',
+        '<img src="/\\evil.example/sb">',
+        '<img src="\\\\evil.example/bs2">',
+        '<img src="https:\\\\evil.example/hb">',
+        '<img src="http:evil.example/hns">',
+        '<div style="width:10px;height:10px;background:url(http:evil.example/ch)">a</div>',
+        '<div style="width:10px;height:10px;background:url(&#92;&#92;evil.example/cbe)">a</div>',
+        '<img src="ht&#9;tps://evil.example/tab">'
       ];
       const noCsp = (d) => d.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+      // An http page (not about:blank), so relative and backslash URLs resolve the way they would
+      // on the live site.
+      await pg.goto(base + '/data/vale-mail-product.json');
       await pg.setContent('<img src="https://evil.example/control.png">');
       await pg.waitForTimeout(300);
       check(hits.length >= 1, 'battery probe sees a raw remote image (control)');
