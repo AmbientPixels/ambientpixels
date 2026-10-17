@@ -100,6 +100,9 @@ async function handle(context, req, deps) {
 
     var gate = await deps.auth(req, context, { bearerOnly: true });
     if (!gate.ok) return json(context, 401, { error: 'Sign in with Microsoft first.', reason: gate.reason });
+    // Connecting/disconnecting the mailbox is the Vale app's job only — a token minted for
+    // another allowed client (Vale Mail) is refused here even though it is otherwise valid.
+    if (!gate.claims || gate.claims.azp !== cfg.clientId) return json(context, 403, { error: 'Use the Vale Office page to connect mail.', reason: 'wrong_client' });
 
     if (op === 'status' && req.method === 'GET') {
       var tok = await deps.store.getWithMeta(tokenStore.TOKEN_KEY);

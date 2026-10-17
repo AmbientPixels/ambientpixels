@@ -36,11 +36,24 @@ function requireCeo(req, context) {
   return { ok: isCeo(userInfo, allow), userInfo: userInfo };
 }
 
+// VALE_ALLOWED_CLIENTS: comma list of SPA client IDs (azp) that may call Vale's API. Always
+// includes VALE_CLIENT_ID; empty when there is no client ID (never a wildcard).
+function parseAllowedClients(clientId, envVal) {
+  if (!clientId) return [];
+  var out = [clientId];
+  String(envVal || '').split(',').forEach(function (s) {
+    s = s.trim();
+    if (s && out.indexOf(s) === -1) out.push(s);
+  });
+  return out;
+}
+
 function valeConfig(env) {
   env = env || process.env;
   return {
     tenantId: env.VALE_TENANT_ID || '',
     clientId: env.VALE_CLIENT_ID || '',
+    allowedClients: parseAllowedClients(env.VALE_CLIENT_ID || '', env.VALE_ALLOWED_CLIENTS),
     ceoOid: env.VALE_CEO_OID || '',
     strict: env.VALE_STRICT_AUTH === '1',
     mailEnabled: env.VALE_MAIL_ENABLED === '1'
@@ -75,7 +88,7 @@ async function verifyBearer(token, d) {
     _jwks.keys = await _fetchJwks(cfg.tenantId, d.fetch);
     _jwks.fetchedAt = now;
   }
-  var opts = { jwks: _jwks.keys, tenantId: cfg.tenantId, clientId: cfg.clientId, ceoOid: cfg.ceoOid, nowSec: Math.floor(now / 1000) };
+  var opts = { jwks: _jwks.keys, tenantId: cfg.tenantId, clientId: cfg.clientId, allowedClients: cfg.allowedClients, ceoOid: cfg.ceoOid, nowSec: Math.floor(now / 1000) };
   var res = jwt.verifyAccessToken(token, opts);
   if (!res.ok && res.reason === 'unknown_kid' && now - _jwks.lastRefetchAt > JWKS_REFETCH_MS) {
     _jwks.lastRefetchAt = now;

@@ -42,7 +42,9 @@ function fakeMicrosoft(responder) {
   return f;
 }
 const ctx = () => ({ log: Object.assign(() => {}, { error: () => {} }), res: null });
-const okAuth = async () => ({ ok: true, via: 'bearer' });
+const okAuth = async () => ({ ok: true, via: 'bearer', claims: { azp: CFG.clientId } });
+const mailAuth = async () => ({ ok: true, via: 'bearer', claims: { azp: 'vale-mail-client' } });
+const noClaimsAuth = async () => ({ ok: true, via: 'bearer' });
 const noAuth = async () => ({ ok: false, reason: 'bearer_required' });
 
 function deps(over) {
@@ -170,6 +172,21 @@ function deps(over) {
       const c = ctx(); await connect.handle(c, { method: 'POST', params: { op: 'test-brief' } }, deps({ runTest: async () => result }));
       assert.strictEqual(c.res.status, status, JSON.stringify(result));
     }
+  });
+
+  await test('a valid token from Vale Mail (not the Vale app) is refused with wrong_client on every op', async () => {
+    for (const [method, op] of [['GET', 'status'], ['GET', 'start'], ['POST', 'disconnect'], ['POST', 'forget'], ['POST', 'test-brief']]) {
+      const store = memStore({ valeMailToken: { box: { v: 1 } } });
+      let ran = false;
+      const c = ctx(); await connect.handle(c, { method, params: { op } }, deps({ auth: mailAuth, store, runTest: async () => { ran = true; return {}; } }));
+      assert.strictEqual(c.res.status, 403, op); assert.strictEqual(c.res.body.reason, 'wrong_client', op);
+      assert.ok(store.data.valeMailToken && !store.data.valeConnectPending, op + ' touched storage');
+      assert.strictEqual(ran, false, op);
+    }
+  });
+  await test('a gate result without claims is refused (fail closed)', async () => {
+    const c = ctx(); await connect.handle(c, { method: 'GET', params: { op: 'status' } }, deps({ auth: noClaimsAuth }));
+    assert.strictEqual(c.res.status, 403); assert.strictEqual(c.res.body.reason, 'wrong_client');
   });
 
   // Token store

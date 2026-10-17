@@ -26,7 +26,9 @@ function decodeJwt(token) {
 
 function fail(reason) { return { ok: false, reason: reason }; }
 
-// opts: { jwks: {keys:[...]}, tenantId, clientId, ceoOid, nowSec?, skewSec?, scope? }
+// opts: { jwks: {keys:[...]}, tenantId, clientId, ceoOid, allowedClients?, nowSec?, skewSec?, scope? }
+// allowedClients: the SPAs (azp) allowed to call Vale's API — e.g. Vale + Vale Mail. The audience
+// is always clientId (Vale's API); an empty/absent list means [clientId] only.
 // Returns { ok: true, claims } or { ok: false, reason }. Never consults `roles`.
 function verifyAccessToken(token, opts) {
   opts = opts || {};
@@ -53,7 +55,8 @@ function verifyAccessToken(token, opts) {
   if (c.iss !== 'https://login.microsoftonline.com/' + opts.tenantId + '/v2.0') return fail('bad_iss');
   if (!opts.tenantId || c.tid !== opts.tenantId) return fail('bad_tid');
   if (!opts.clientId || c.aud !== opts.clientId) return fail('bad_aud');
-  if (c.azp !== opts.clientId) return fail('bad_azp');
+  var allowed = (Array.isArray(opts.allowedClients) && opts.allowedClients.length) ? opts.allowedClients : [opts.clientId];
+  if (typeof c.azp !== 'string' || !c.azp || allowed.indexOf(c.azp) === -1) return fail('bad_azp');
   if (typeof c.exp !== 'number' || now > c.exp + skew) return fail('expired');
   if (typeof c.nbf === 'number' && now + skew < c.nbf) return fail('not_yet_valid');
   var scopes = String(c.scp || '').split(' ');

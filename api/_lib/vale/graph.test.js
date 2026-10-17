@@ -66,8 +66,26 @@ const noSleep = async () => {};
   await test('calendar view asks for Pacific time and the response status', async () => {
     const f = fakeFetch([res(200, { value: [] })]);
     await createGraph({ fetch: f, token: 'T', sleep: noSleep }).calendarView('2026-10-17T07:00:00Z', '2026-10-19T07:00:00Z');
-    assert.strictEqual(f.calls[0].headers.Prefer, 'outlook.timezone="Pacific Standard Time"');
+    assert.strictEqual(f.calls[0].headers.Prefer, 'IdType="ImmutableId", outlook.timezone="Pacific Standard Time"');
     assert.ok(decodeURIComponent(f.calls[0].url).indexOf('responseStatus') !== -1);
+  });
+
+  await test('every request carries Prefer IdType="ImmutableId" (inbox, sent, search, calendar, paging, retries)', async () => {
+    const page = (next) => res(200, { value: [{ id: 'a' }], '@odata.nextLink': next });
+    const f = fakeFetch([res(429, {}, { 'retry-after': '1' }), page('https://graph.microsoft.com/v1.0/next1'), page(null)]);
+    const g = createGraph({ fetch: f, token: 'T', sleep: noSleep });
+    await g.listInbox('x', 200);
+    await g.listSent('x');
+    await g.searchMessages('invoice');
+    await g.calendarView('a', 'b');
+    assert.ok(f.calls.length >= 6);
+    for (const c of f.calls) assert.ok(/IdType="ImmutableId"/.test(c.headers.Prefer || ''), c.url + ' lacks ImmutableId');
+  });
+  await test('calendar keeps both preferences in ONE comma-separated Prefer header', async () => {
+    const f = fakeFetch([res(200, { value: [] })]);
+    await createGraph({ fetch: f, token: 'T', sleep: noSleep }).calendarView('a', 'b');
+    const parts = f.calls[0].headers.Prefer.split(',').map(s => s.trim());
+    assert.deepStrictEqual(parts.sort(), ['IdType="ImmutableId"', 'outlook.timezone="Pacific Standard Time"']);
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

@@ -65,6 +65,26 @@ function makeToken(over, header) {
   await test('garbage is malformed', () => assert.strictEqual(verifyAccessToken('not.a.jwt', OPTS).reason, 'malformed'));
   await test('missing ceoOid config never passes', () => assert.strictEqual(verifyAccessToken(makeToken(), Object.assign({}, OPTS, { ceoOid: '' })).reason, 'not_ceo'));
 
+  // Vale Mail (2026-10-17): a second SPA asks for Vale's API — same audience, different azp.
+  const VALE_MAIL_CLIENT = '99999999-8888-7777-6666-555555555555';
+  const ALLOW = Object.assign({}, OPTS, { allowedClients: [CLIENT, VALE_MAIL_CLIENT] });
+  await test('allow-list: azp = Vale passes', () => assert.strictEqual(verifyAccessToken(makeToken(), ALLOW).ok, true));
+  await test('allow-list: azp = Vale Mail passes', () => {
+    const r = verifyAccessToken(makeToken({ azp: VALE_MAIL_CLIENT }), ALLOW);
+    assert.strictEqual(r.ok, true, r.reason); assert.strictEqual(r.claims.azp, VALE_MAIL_CLIENT);
+  });
+  await test('allow-list: an unknown azp is bad_azp', () => assert.strictEqual(verifyAccessToken(makeToken({ azp: 'other-app' }), ALLOW).reason, 'bad_azp'));
+  await test('allow-list: a missing azp is bad_azp', () => assert.strictEqual(verifyAccessToken(makeToken({ azp: undefined }), ALLOW).reason, 'bad_azp'));
+  await test('allow-list never widens the audience', () => assert.strictEqual(verifyAccessToken(makeToken({ aud: VALE_MAIL_CLIENT, azp: VALE_MAIL_CLIENT }), ALLOW).reason, 'bad_aud'));
+  await test('no allowedClients → only clientId is accepted (back-compat)', () => {
+    assert.strictEqual(verifyAccessToken(makeToken({ azp: VALE_MAIL_CLIENT }), OPTS).reason, 'bad_azp');
+    assert.strictEqual(verifyAccessToken(makeToken(), OPTS).ok, true);
+  });
+  await test('an empty allowedClients falls back to clientId', () => {
+    assert.strictEqual(verifyAccessToken(makeToken(), Object.assign({}, OPTS, { allowedClients: [] })).ok, true);
+    assert.strictEqual(verifyAccessToken(makeToken({ azp: VALE_MAIL_CLIENT }), Object.assign({}, OPTS, { allowedClients: [] })).reason, 'bad_azp');
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();

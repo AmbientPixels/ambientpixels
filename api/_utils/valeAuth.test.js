@@ -126,6 +126,40 @@ const req = (headers) => ({ headers: headers || {} });
     assert.strictEqual(auth.valeConfig({ VALE_STRICT_AUTH: '1' }).strict, true);
   });
 
+  await test('valeConfig: VALE_ALLOWED_CLIENTS is a trimmed comma list', () => {
+    assert.deepStrictEqual(auth.valeConfig({ VALE_CLIENT_ID: 'a', VALE_ALLOWED_CLIENTS: 'a, b' }).allowedClients, ['a', 'b']);
+  });
+  await test('valeConfig: unset allow-list → [clientId]', () => {
+    assert.deepStrictEqual(auth.valeConfig({ VALE_CLIENT_ID: 'a' }).allowedClients, ['a']);
+    assert.deepStrictEqual(auth.valeConfig({ VALE_CLIENT_ID: 'a', VALE_ALLOWED_CLIENTS: ' , ' }).allowedClients, ['a']);
+  });
+  await test('valeConfig: the allow-list always contains clientId', () => {
+    assert.deepStrictEqual(auth.valeConfig({ VALE_CLIENT_ID: 'a', VALE_ALLOWED_CLIENTS: 'b' }).allowedClients, ['a', 'b']);
+    assert.deepStrictEqual(auth.valeConfig({ VALE_CLIENT_ID: 'a', VALE_ALLOWED_CLIENTS: 'b,a,b' }).allowedClients, ['a', 'b']);
+  });
+  await test('valeConfig: no clientId → empty allow-list (never a wildcard)', () => {
+    assert.deepStrictEqual(auth.valeConfig({}).allowedClients, []);
+  });
+  await test('bearer from a second allowed client (Vale Mail) passes and carries its azp', async () => {
+    auth._resetJwksCache();
+    const d = deps(); d.cfg.allowedClients = [CLIENT, 'vale-mail-client'];
+    const r = await auth.requireCeoAsync(req({ authorization: 'Bearer ' + token({ azp: 'vale-mail-client' }) }), null, {}, d);
+    assert.strictEqual(r.ok, true, r.reason); assert.strictEqual(r.claims.azp, 'vale-mail-client');
+  });
+  await test('bearer from an unlisted client is bad_azp', async () => {
+    auth._resetJwksCache();
+    const d = deps(); d.cfg.allowedClients = [CLIENT, 'vale-mail-client'];
+    const r = await auth.requireCeoAsync(req({ authorization: 'Bearer ' + token({ azp: 'stranger' }) }), null, {}, d);
+    assert.strictEqual(r.ok, false); assert.strictEqual(r.reason, 'bad_azp');
+  });
+  await test('cfg without allowedClients (older callers) still accepts only clientId', async () => {
+    auth._resetJwksCache();
+    let r = await auth.requireCeoAsync(req({ authorization: 'Bearer ' + token({ azp: 'vale-mail-client' }) }), null, {}, deps());
+    assert.strictEqual(r.reason, 'bad_azp');
+    r = await auth.requireCeoAsync(req({ authorization: 'Bearer ' + token() }), null, {}, deps());
+    assert.strictEqual(r.ok, true, r.reason);
+  });
+
   // vale-state end to end on the deny paths (no storage is touched before the checks).
   const ctx = () => ({ log: Object.assign(() => {}, { error: () => {}, warn: () => {} }), res: null });
   await test('vale-state: the old principal cannot read mail-derived keys or the token (rollback case)', async () => {

@@ -356,6 +356,33 @@ test('an ample deadline does not interfere with a healthy call', async () => {
   assert.strictEqual(out.provider, 'claude');
 });
 
+// ── noFallback (Vale Mail client threads: Claude only, never Gemini) ──
+
+test('noFallback: a failing Claude throws LlmUnavailableError after exactly one attempt', async () => {
+  reset();
+  responses = [{ status: 529, body: '{"error":{"type":"overloaded_error"}}' }, geminiOk('should never be used')];
+  await assert.rejects(
+    () => callModel({ prompt: 'x', model: 'claude-sonnet', noFallback: true, caller: 't' }),
+    err => err instanceof LlmUnavailableError && err.attempts.length === 1 && err.attempts[0].provider === 'claude'
+  );
+  assert.strictEqual(requests.length, 1, 'only one provider call allowed');
+  assert.ok(requests.every(r => !/generativelanguage/.test(r.url)), 'Gemini must not be called');
+});
+
+test('noFallback: a healthy Claude answers normally', async () => {
+  reset();
+  responses = [claudeOk('fine')];
+  const out = await callModel({ prompt: 'x', model: 'claude-sonnet', noFallback: true, caller: 't' });
+  assert.strictEqual(out.text, 'fine'); assert.strictEqual(out.provider, 'claude'); assert.strictEqual(out.fellBackFrom, null);
+});
+
+test('noFallback: a transport error is still one attempt', async () => {
+  reset();
+  responses = [() => { throw new Error('socket hang up'); }, geminiOk('nope')];
+  await assert.rejects(() => callModel({ prompt: 'x', noFallback: true, caller: 't' }), err => err instanceof LlmUnavailableError && err.attempts.length === 1);
+  assert.strictEqual(requests.length, 1);
+});
+
 // ── classification, directly ──
 
 test('classify distinguishes credits from capacity from error', () => {

@@ -4,6 +4,10 @@
 
 var BASE = 'https://graph.microsoft.com/v1.0';
 var MAX_RETRIES = 3;
+// Immutable IDs survive moves between folders (archive), so a stored id keeps pointing at the
+// same message. Sent on every request; other preferences are appended to the same header.
+var IMMUTABLE = 'IdType="ImmutableId"';
+function preferHeader(extra) { return extra ? IMMUTABLE + ', ' + extra : IMMUTABLE; }
 
 var INBOX_SELECT = 'id,subject,from,toRecipients,ccRecipients,receivedDateTime,isRead,importance,flag,' +
   'inferenceClassification,bodyPreview,webLink,conversationId,internetMessageHeaders';
@@ -23,7 +27,9 @@ function createGraph(deps) {
     if (url.indexOf(BASE + '/') !== 0) throw new GraphError(0, 'refusing non-Graph URL');
     for (var attempt = 0; ; attempt++) {
       calls++;
-      var r = await deps.fetch(url, { headers: Object.assign({ Authorization: 'Bearer ' + deps.token }, headers || {}) });
+      var h = Object.assign({}, headers || {});
+      h.Prefer = preferHeader(h.Prefer);
+      var r = await deps.fetch(url, { headers: Object.assign({ Authorization: 'Bearer ' + deps.token }, h) });
       if ((r.status === 429 || r.status >= 500) && attempt < MAX_RETRIES) {
         var ra = Number(r.headers && r.headers.get && r.headers.get('retry-after'));
         await sleep(Number.isFinite(ra) && ra > 0 ? Math.min(ra, 10) * 1000 : 1500 * (attempt + 1));

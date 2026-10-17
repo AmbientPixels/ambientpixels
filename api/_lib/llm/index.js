@@ -225,6 +225,7 @@ async function callGemini(modelId, opts) {
  *   for large generations (the AmbientScore evaluators emit up to 16k tokens and
  *   legitimately run for minutes) — too low a value aborts a healthy call and
  *   burns a fallback attempt on a request that was going to succeed.
+ * @param {boolean} [opts.noFallback] - try the primary model only, never another provider
  * @param {number} [opts.deadlineAt] - absolute epoch-ms ceiling for the WHOLE
  *   chain. `timeoutMs` bounds one attempt; this bounds all of them, so a caller
  *   behind a hard limit (Azure kills an HTTP request at 230s) can guarantee it
@@ -238,7 +239,9 @@ async function callModel(opts) {
   if (!opts || !opts.prompt) throw new Error('callModel: prompt is required');
 
   const primary = opts.model || 'claude-sonnet';
-  const chain = registry.buildChain(primary);
+  // noFallback: the primary model only — for content that must never leave its provider
+  // (Vale Mail client threads are Claude-only). Fails with LlmUnavailableError after one attempt.
+  const chain = opts.noFallback ? [primary] : registry.buildChain(primary);
   const attempts = [];
 
   for (const modelKey of chain) {
