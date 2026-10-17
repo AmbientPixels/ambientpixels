@@ -44,9 +44,25 @@ async function narrate(facts, kind) {
   } catch (e) { return fallback; }
 }
 
+// Once the email brief (valeMorningBrief) is switched on AND has delivered at least once, the
+// Discord morning brief is a duplicate — skip it. The evening wrap is unchanged. Not "sent
+// today": in winter this 14:00 UTC run is 06:00 PST, before the email brief's 06:30.
+function skipDiscordMorning(kind, env, briefLog) {
+  if (kind !== 'morning') return false;
+  if (env.VALE_STRICT_AUTH !== '1' || env.VALE_MAIL_ENABLED !== '1') return false;
+  return !!(briefLog && briefLog.lastSent && briefLog.lastSent.at);
+}
+
 module.exports = async function (context, myTimer) {
   try {
     var kind = (new Date().getUTCHours() < 12) ? 'evening' : 'morning'; // 01:00 UTC → evening, 14:00 UTC → morning
+    if (kind === 'morning' && process.env.VALE_MAIL_ENABLED === '1') {
+      var logMeta = await vs.getValeWithMeta('valeBriefLog');
+      if (!logMeta.failed && skipDiscordMorning(kind, process.env, logMeta.value)) {
+        context.log('[valeBriefCron] morning Discord brief skipped — the email brief is live');
+        return;
+      }
+    }
     var heartbeatRuns = (await storage.getState('heartbeatRuns')) || [];
     var approvalQueue = (await storage.getState('approvalQueue')) || [];
     var ceoActionList = (await vs.getVale('ceoActionList')) || [];
@@ -69,3 +85,5 @@ module.exports = async function (context, myTimer) {
     context.log.error('[valeBriefCron] ' + (e && e.message));
   }
 };
+
+module.exports.skipDiscordMorning = skipDiscordMorning;
