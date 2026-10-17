@@ -1,0 +1,56 @@
+{
+  "_note": "Vale Mail product config (public, not secrets). Everything product-specific lives here so another company's version is a re-skin: names, agent identity, tenant + client IDs, own domain and copy. clientId stays empty until the Vale Mail app registration exists (morning setup step 3); while it is empty the page runs the demo mailbox.",
+  "version": 1,
+  "productName": "Vale Mail",
+  "companyName": "AmbientPixels",
+  "agent": {
+    "name": "Vale",
+    "role": "Chief of Staff",
+    "color": "#9b8cff",
+    "icon": "mail"
+  },
+  "tenantId": "96bfe658-4094-4192-88f8-5b0874471c7e",
+  "clientId": "",
+  "valeScope": "api://b3abb7ff-5838-4bd7-97f1-205ab3237185/access_as_user",
+  "authRedirectPath": "/pages/vale-auth.html",
+  "mailbox": "chad@ambientpixels.ai",
+  "ownDomain": "ambientpixels.ai",
+  "graphScopes": ["User.Read", "Mail.ReadWrite", "Mail.Send", "Calendars.Read"],
+  "demoDefault": true,
+  "demoFixture": "/data/vale-mail-demo.json",
+  "inboxPageSize": 50,
+  "undoSeconds": 10,
+  "copy": {
+    "tagline": "Your inbox, sorted by Vale.",
+    "demoBanner": "Demo mailbox. Nothing here is real; sending is simulated.",
+    "notSorted": "Not sorted yet",
+    "clientMarker": "client",
+    "clientDraftNotice": "Client mail: Vale drafts this with Claude only. If Claude is unavailable, there is no draft.",
+    "replyToWarning": "Replies go to {replyTo}, not {from}. Check this is really them before you answer.",
+    "draftFailed": "Vale couldn't draft this one. You can still write your reply here.",
+    "sendFailed": "Not sent. Your reply is safe in Drafts. Try again.",
+    "checkedAt": "Checked at {time}",
+    "filters": {
+      "needs_you": "Needs you",
+      "waiting": "Waiting on others",
+      "all": "Everything",
+      "newsletter": "Newsletters",
+      "set_aside": "Set aside"
+    },
+    "empty": {
+      "needs_you": "Nothing needs you right now. Vale will put anything that does here.",
+      "waiting": "Nobody owes you a reply.",
+      "all": "This folder is empty.",
+      "newsletter": "No newsletters in the latest mail.",
+      "set_aside": "Nothing set aside.",
+      "search": "No mail matches that search."
+    },
+    "stances": {
+      "yes": "Yes",
+      "no": "No",
+      "later": "Later",
+      "more": "Need more",
+      "ack": "Acknowledge"
+    }
+  }
+}

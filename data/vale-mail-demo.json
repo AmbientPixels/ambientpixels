@@ -1,0 +1,2626 @@
+{
+  "_note": "Demo mailbox for Vale Mail. Invented people at invented .example companies; nothing here is real. All times are relative to \"anchor\": the demo adapter shifts every date by (now - anchor) so the mailbox always looks current. Regenerate by hand only; never paste real mail here.",
+  "version": 1,
+  "anchor": "2026-10-17T15:00:00Z",
+  "triagedAt": "2026-10-17T14:00:00Z",
+  "me": {
+    "displayName": "Chad Martin",
+    "mail": "chad@ambientpixels.ai"
+  },
+  "folderList": [
+    {
+      "id": "inbox",
+      "displayName": "Inbox",
+      "wellKnownName": "inbox"
+    },
+    {
+      "id": "sentitems",
+      "displayName": "Sent",
+      "wellKnownName": "sentitems"
+    },
+    {
+      "id": "archive",
+      "displayName": "Archive",
+      "wellKnownName": "archive"
+    }
+  ],
+  "folders": {
+    "inbox": [
+      {
+        "id": "demo-inb-031",
+        "conversationId": "conv-demo-inb-031",
+        "subject": "Coffee next week?",
+        "bodyPreview": "Hey Chad, I am in Seattle Tuesday through Thursday next week. Want to grab coffee and swap notes on agent tooling? Noah",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hey Chad, I am in Seattle Tuesday through Thursday next week. Want to grab coffee and swap notes on agent tooling?</div><div><br></div><div>Noah</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Noah Bennett",
+            "address": "noah@harbor-labs.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Noah Bennett",
+            "address": "noah@harbor-labs.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T14:48:00Z",
+        "sentDateTime": "2026-10-17T14:47:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-031"
+      },
+      {
+        "id": "demo-inb-010",
+        "conversationId": "conv-clientco-dashboard",
+        "subject": "RE: Q4 dashboard feedback",
+        "bodyPreview": "Adding one more: is the CSV export something you can include in this sprint, or should we plan it for January? Kim From: Priya Shah <priya@clientco.example> Sen",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Adding one more: is the CSV export something you can include in this sprint, or should we plan it for January?</div><div><br></div><div>Kim</div><hr><div><b>From:</b> Priya Shah &lt;priya@clientco.example&gt;<br><b>Sent:</b> Fri, 16 Oct 2026 19:00:00 GMT</div><blockquote><div>A few notes from the team on the dashboard mockups.</div></blockquote>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          },
+          {
+            "emailAddress": {
+              "name": "Priya Shah",
+              "address": "priya@clientco.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T14:36:00Z",
+        "sentDateTime": "2026-10-17T14:35:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-010"
+      },
+      {
+        "id": "demo-inb-029",
+        "conversationId": "conv-demo-inb-029",
+        "subject": "Your morning brief",
+        "bodyPreview": "Good morning, Chad. 3 emails need you today: Dana (kickoff time), Kim (SOW redlines, client), and Ravi (sandbox key). One payment-change email looks suspicious:",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Good morning, Chad.</div><div><br></div><div>3 emails need you today: Dana (kickoff time), Kim (SOW redlines, client), and Ravi (sandbox key). One payment-change email looks suspicious: its replies go to a different address.</div><div><br></div><div>Two meetings today. Your calendar is clear after 2pm.</div><div><br></div><div>Vale</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Vale",
+            "address": "vale@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Vale",
+            "address": "vale@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T14:00:00Z",
+        "sentDateTime": "2026-10-17T13:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-029"
+      },
+      {
+        "id": "demo-inb-036",
+        "conversationId": "conv-demo-inb-036",
+        "subject": "Did Marcus reach you?",
+        "bodyPreview": "Hi Chad, just checking Marcus from Lumen got in touch. He is great; worth the call. Ana",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad, just checking Marcus from Lumen got in touch. He is great; worth the call.</div><div><br></div><div>Ana</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Ana Ortiz",
+            "address": "ana@cedar-advisors.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Ana Ortiz",
+            "address": "ana@cedar-advisors.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T13:00:00Z",
+        "sentDateTime": "2026-10-17T12:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-036"
+      },
+      {
+        "id": "demo-inb-021",
+        "conversationId": "conv-demo-inb-021",
+        "subject": "[ambientpixels] Build passed on master",
+        "bodyPreview": "All checks have passed on master (3 of 3).",
+        "body": {
+          "contentType": "html",
+          "content": "<div>All checks have passed on master (3 of 3).</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "CodeHub",
+            "address": "notifications@codehub.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "CodeHub",
+            "address": "notifications@codehub.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T12:00:00Z",
+        "sentDateTime": "2026-10-17T11:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-021"
+      },
+      {
+        "id": "demo-inb-016",
+        "conversationId": "conv-demo-inb-016",
+        "subject": "This week: pricing pages that convert",
+        "bodyPreview": "Pricing pages that convert Three teardown lessons from this week, plus the one change that lifted trials 18%. Read the issue Unsubscribe",
+        "body": {
+          "contentType": "html",
+          "content": "<table width=\"100%\" style=\"background:#f4f4f7\"><tr><td align=\"center\"><img src=\"https://cdn.productbrief.example/hero-oct.png\" width=\"600\" alt=\"The Product Brief\"><h1 style=\"font-family:Georgia,serif\">Pricing pages that convert</h1><p>Three teardown lessons from this week, plus the one change that lifted trials 18%.</p><img src=\"https://track.productbrief.example/open.gif?u=abc123\" width=\"1\" height=\"1\" alt=\"\"><p><a href=\"https://productbrief.example/read/pricing\">Read the issue</a></p><p style=\"font-size:12px;color:#888\"><a href=\"https://productbrief.example/u/abc123\">Unsubscribe</a></p></td></tr></table>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "The Product Brief",
+            "address": "newsletter@productbrief.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "The Product Brief",
+            "address": "newsletter@productbrief.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T10:00:00Z",
+        "sentDateTime": "2026-10-17T09:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [
+          {
+            "name": "List-Unsubscribe",
+            "value": "<https://productbrief.example/u/abc123>"
+          },
+          {
+            "name": "List-Unsubscribe-Post",
+            "value": "List-Unsubscribe=One-Click"
+          }
+        ],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-016"
+      },
+      {
+        "id": "demo-inb-024",
+        "conversationId": "conv-demo-inb-024",
+        "subject": "Sandbox key?",
+        "bodyPreview": "Hey Chad, Do you have a sandbox key I can use for testing the scoring API? I want to wire it into our staging site this weekend. Thanks, Ravi On Mon, Oct 12, 20",
+        "body": {
+          "contentType": "text",
+          "content": "Hey Chad,\n\nDo you have a sandbox key I can use for testing the scoring API? I want to wire it into our staging site this weekend.\n\nThanks,\nRavi\n\nOn Mon, Oct 12, 2026 at 9:14 AM Chad Martin <chad@ambientpixels.ai> wrote:\n> Happy to help with the integration. Can you share your staging URL?"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Ravi Menon",
+            "address": "ravi@oakline-dev.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Ravi Menon",
+            "address": "ravi@oakline-dev.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T09:00:00Z",
+        "sentDateTime": "2026-10-17T08:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-024"
+      },
+      {
+        "id": "demo-inb-015",
+        "conversationId": "conv-northwind-bank",
+        "subject": "Updated bank details for invoice #2291",
+        "bodyPreview": "Hi Chad, Our bank changed this month. Please use the new account below for invoice #2291 and reply to confirm once the transfer is scheduled. This is time sensi",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Our bank changed this month. Please use the new account below for invoice #2291 and reply to confirm once the transfer is scheduled. This is time sensitive.</div><div><br></div><div>Account: 0042 9917 3301</div><div>Routing: 110000000</div><div><br></div><div>Thanks,</div><div>Dana</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [
+          {
+            "emailAddress": {
+              "name": "Dana Reyes",
+              "address": "dana.reyes.billing@quickmail.example"
+            }
+          }
+        ],
+        "receivedDateTime": "2026-10-17T07:00:00Z",
+        "sentDateTime": "2026-10-17T06:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "high",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-015"
+      },
+      {
+        "id": "demo-inb-023",
+        "conversationId": "conv-demo-inb-023",
+        "subject": "Quick quote for a piece on AI agents?",
+        "bodyPreview": "Hi Chad, I am writing a short piece on how small companies use AI agents day to day. Would you be available for a quick quote by Friday? Two or three sentences ",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>I am writing a short piece on how small companies use AI agents day to day. Would you be available for a quick quote by Friday? Two or three sentences is plenty.</div><div><br></div><div>Sofia Alvarez</div><div>Brightline PR</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Sofia Alvarez",
+            "address": "sofia@brightline-pr.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Sofia Alvarez",
+            "address": "sofia@brightline-pr.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T06:00:00Z",
+        "sentDateTime": "2026-10-17T05:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-023"
+      },
+      {
+        "id": "demo-inb-025",
+        "conversationId": "conv-demo-inb-025",
+        "subject": "Question about the website audit",
+        "bodyPreview": "Hi there, I run a small coffee roaster and saw your website audit. What does the report include, and how long does it take to get it? Thanks! Sam",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi there,</div><div><br></div><div>I run a small coffee roaster and saw your website audit. What does the report include, and how long does it take to get it?</div><div><br></div><div>Thanks!</div><div>Sam</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Sam Rivera",
+            "address": "sam@greenleaf-coffee.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Sam Rivera",
+            "address": "sam@greenleaf-coffee.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T03:00:00Z",
+        "sentDateTime": "2026-10-17T02:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-025"
+      },
+      {
+        "id": "demo-inb-019",
+        "conversationId": "conv-demo-inb-019",
+        "subject": "Your October invoice is ready",
+        "bodyPreview": "Your invoice for October is ready: $41.20, charged to the card ending 4242. View invoice",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Your invoice for October is ready: $41.20, charged to the card ending 4242.</div><div><a href=\"https://cloudhost.example/billing\">View invoice</a></div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "CloudHost Billing",
+            "address": "billing@cloudhost.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "CloudHost Billing",
+            "address": "billing@cloudhost.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-17T01:00:00Z",
+        "sentDateTime": "2026-10-17T00:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-019"
+      },
+      {
+        "id": "demo-inb-026",
+        "conversationId": "conv-demo-inb-026",
+        "subject": "Saturday?",
+        "bodyPreview": "Are we still on for dinner Saturday at 7? I can book the place on Pike if so. M",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Are we still on for dinner Saturday at 7? I can book the place on Pike if so.</div><div><br></div><div>M</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Maya Chen",
+            "address": "maya@friendmail.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Maya Chen",
+            "address": "maya@friendmail.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T21:00:00Z",
+        "sentDateTime": "2026-10-16T20:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-026"
+      },
+      {
+        "id": "demo-inb-009",
+        "conversationId": "conv-clientco-dashboard",
+        "subject": "Q4 dashboard feedback",
+        "bodyPreview": "Hi Chad, A few notes from the team on the dashboard mockups: the funnel chart is the favourite, the cohort table felt dense, and we would like a CSV export. Pri",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>A few notes from the team on the dashboard mockups: the funnel chart is the favourite, the cohort table felt dense, and we would like a CSV export.</div><div><br></div><div>Priya</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Priya Shah",
+            "address": "priya@clientco.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Priya Shah",
+            "address": "priya@clientco.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          },
+          {
+            "emailAddress": {
+              "name": "Kim Okafor",
+              "address": "kim@clientco.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T19:00:00Z",
+        "sentDateTime": "2026-10-16T18:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-009"
+      },
+      {
+        "id": "demo-inb-020",
+        "conversationId": "conv-demo-inb-020",
+        "subject": "New sign-in to your account",
+        "bodyPreview": "We noticed a new sign-in to your CloudHost account from Seattle, WA on Edge for Windows. If this was you, there is nothing to do.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>We noticed a new sign-in to your CloudHost account from Seattle, WA on Edge for Windows.</div><div>If this was you, there is nothing to do.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "CloudHost Security",
+            "address": "security@cloudhost.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "CloudHost Security",
+            "address": "security@cloudhost.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T17:00:00Z",
+        "sentDateTime": "2026-10-16T16:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-020"
+      },
+      {
+        "id": "demo-inb-008",
+        "conversationId": "conv-clientco-sow",
+        "subject": "RE: Statement of work: Q4 conversion sprint",
+        "bodyPreview": "Hi Chad, Thanks for turning this around so fast. Our legal team added a few redlines (attached). Mostly wording, but one real ask: can you confirm the second mi",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Thanks for turning this around so fast. Our legal team added a few redlines (attached). Mostly wording, but one real ask: can you confirm the second milestone lands before Nov 14? That is our board date.</div><div><br></div><div>Kim</div><hr><div><b>From:</b> Chad Martin &lt;chad@ambientpixels.ai&gt;<br><b>Sent:</b> Wed, 14 Oct 2026 13:00:00 GMT</div><blockquote><div>Attached is the statement of work for the Q4 conversion sprint.</div></blockquote>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [
+          {
+            "emailAddress": {
+              "name": "Priya Shah",
+              "address": "priya@clientco.example"
+            }
+          }
+        ],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T13:00:00Z",
+        "sentDateTime": "2026-10-16T12:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": true,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-008"
+      },
+      {
+        "id": "demo-inb-027",
+        "conversationId": "conv-demo-inb-027",
+        "subject": "Logo concepts v2",
+        "bodyPreview": "Hi Chad, Here are the two refined directions. A keeps the periwinkle mark; B goes bolder with teal. Concept A Concept B Which direction do you prefer, A or B? N",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Here are the two refined directions. A keeps the periwinkle mark; B goes bolder with teal.</div><div><br></div><table><tr><td><img src=\"cid:concept-a@studio-kite\" width=\"160\" alt=\"Concept A\"><br>Concept A</td><td><img src=\"cid:concept-b@studio-kite\" width=\"160\" alt=\"Concept B\"><br>Concept B</td></tr></table><div><br></div><div>Which direction do you prefer, A or B? Notes are attached.</div><div><br></div><div>Elena</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Elena Park",
+            "address": "elena@studio-kite.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Elena Park",
+            "address": "elena@studio-kite.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T11:00:00Z",
+        "sentDateTime": "2026-10-16T10:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": true,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-027"
+      },
+      {
+        "id": "demo-inb-006",
+        "conversationId": "conv-northwind-kickoff",
+        "subject": "RE: Northwind x AmbientPixels: kickoff",
+        "bodyPreview": "Hi Chad, Thanks for your patience. Could we move the kickoff to Thursday at 10am Pacific? I will send the invite as soon as you confirm. I will also bring two h",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Thanks for your patience. Could we move the kickoff to Thursday at 10am Pacific? I will send the invite as soon as you confirm. I will also bring two homepage directions to react to.</div><div><br></div><div>Best,</div><div>Dana</div><hr><div><b>From:</b> Chad Martin &lt;chad@ambientpixels.ai&gt;<br><b>Sent:</b> Thu, 15 Oct 2026 13:00:00 GMT</div><blockquote><div>Hi Dana, any luck with a time? Happy to do Thursday too.</div></blockquote>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T09:00:00Z",
+        "sentDateTime": "2026-10-16T08:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-006"
+      },
+      {
+        "id": "demo-inb-017",
+        "conversationId": "conv-demo-inb-017",
+        "subject": "Issue 88: the quiet launch",
+        "bodyPreview": "This week: why quiet launches beat loud ones, a cold-email teardown, and five tools readers love. Read online",
+        "body": {
+          "contentType": "html",
+          "content": "<div style=\"max-width:560px\"><img src=\"https://img.indiefounders.example/banner-88.jpg\" alt=\"Indie Founders Weekly\" width=\"560\"><p>This week: why quiet launches beat loud ones, a cold-email teardown, and five tools readers love.</p><p><a href=\"https://indiefounders.example/88\">Read online</a></p></div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Indie Founders Weekly",
+            "address": "weekly@indiefounders.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Indie Founders Weekly",
+            "address": "weekly@indiefounders.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T08:00:00Z",
+        "sentDateTime": "2026-10-16T07:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [
+          {
+            "name": "List-Unsubscribe",
+            "value": "<mailto:unsub@indiefounders.example>"
+          },
+          {
+            "name": "List-Unsubscribe-Post",
+            "value": "List-Unsubscribe=One-Click"
+          }
+        ],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-017"
+      },
+      {
+        "id": "demo-inb-033",
+        "conversationId": "conv-demo-inb-033",
+        "subject": "Renewal reminder: 2 domains renew in 30 days",
+        "bodyPreview": "Two domains renew automatically on Nov 16. No action is needed if your card is current.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Two domains renew automatically on Nov 16. No action is needed if your card is current.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Domain Desk",
+            "address": "renewals@domaindesk.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Domain Desk",
+            "address": "renewals@domaindesk.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-16T03:00:00Z",
+        "sentDateTime": "2026-10-16T02:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-033"
+      },
+      {
+        "id": "demo-inb-018",
+        "conversationId": "conv-demo-inb-018",
+        "subject": "Seattle Founders Meetup: Thursday 6pm",
+        "bodyPreview": "Seattle Founders Meetup is this Thursday at 6pm. 42 people are going. See details",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Seattle Founders Meetup is this Thursday at 6pm. 42 people are going.</div><div><a href=\"https://meetup-hub.example/e/991\">See details</a></div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Meetup Hub",
+            "address": "events@meetup-hub.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Meetup Hub",
+            "address": "events@meetup-hub.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T23:00:00Z",
+        "sentDateTime": "2026-10-15T22:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [
+          {
+            "name": "List-Unsubscribe",
+            "value": "<https://meetup-hub.example/unsub>"
+          },
+          {
+            "name": "List-Unsubscribe-Post",
+            "value": "List-Unsubscribe=One-Click"
+          }
+        ],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-018"
+      },
+      {
+        "id": "demo-inb-030",
+        "conversationId": "conv-demo-inb-030",
+        "subject": "Top engineers ready to interview this week",
+        "bodyPreview": "Hi Chad, we have 12 senior engineers ready to interview this week. Want me to send profiles?",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad, we have 12 senior engineers ready to interview this week. Want me to send profiles?</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Hirewave Talent",
+            "address": "talent@hirewave.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Hirewave Talent",
+            "address": "talent@hirewave.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T19:00:00Z",
+        "sentDateTime": "2026-10-15T18:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "other",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-030"
+      },
+      {
+        "id": "demo-inb-034",
+        "conversationId": "conv-demo-inb-034",
+        "subject": "Accepted: ClientCo weekly sync",
+        "bodyPreview": "Kim Okafor has accepted this meeting.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Kim Okafor has accepted this meeting.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T16:00:00Z",
+        "sentDateTime": "2026-10-15T15:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-034"
+      },
+      {
+        "id": "demo-inb-028",
+        "conversationId": "conv-demo-inb-028",
+        "subject": "Fieldnote podcast: recording confirmed",
+        "bodyPreview": "Hi Chad, You are confirmed for Fieldnote on Oct 28 at 2pm Pacific. I will send the prep questions a week before. Ines",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>You are confirmed for Fieldnote on Oct 28 at 2pm Pacific. I will send the prep questions a week before.</div><div><br></div><div>Ines</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Ines Duarte",
+            "address": "ines@fieldnote-podcast.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Ines Duarte",
+            "address": "ines@fieldnote-podcast.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T11:00:00Z",
+        "sentDateTime": "2026-10-15T10:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-028"
+      },
+      {
+        "id": "demo-inb-035",
+        "conversationId": "conv-demo-inb-035",
+        "subject": "Your Q3 summary is ready",
+        "bodyPreview": "Revenue, expenses and a tax estimate for Q3 are ready to review.",
+        "body": {
+          "contentType": "html",
+          "content": "<div><img src=\"https://assets.tallybooks.example/q3-chart.png\" alt=\"Q3 chart\" width=\"480\"><p>Revenue, expenses and a tax estimate for Q3 are ready to review.</p></div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Tally Books",
+            "address": "hello@tallybooks.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Tally Books",
+            "address": "hello@tallybooks.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T05:00:00Z",
+        "sentDateTime": "2026-10-15T04:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [
+          {
+            "name": "List-Unsubscribe",
+            "value": "<https://tallybooks.example/unsub>"
+          },
+          {
+            "name": "List-Unsubscribe-Post",
+            "value": "List-Unsubscribe=One-Click"
+          }
+        ],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-035"
+      },
+      {
+        "id": "demo-inb-032",
+        "conversationId": "conv-demo-inb-032",
+        "subject": "How did we do?",
+        "bodyPreview": "Tell us about your recent support experience. It takes one minute.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Tell us about your recent support experience. It takes one minute.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Formly Surveys",
+            "address": "surveys@formly.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Formly Surveys",
+            "address": "surveys@formly.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-14T23:00:00Z",
+        "sentDateTime": "2026-10-14T22:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [
+          {
+            "name": "List-Unsubscribe",
+            "value": "<https://formly.example/unsub>"
+          },
+          {
+            "name": "List-Unsubscribe-Post",
+            "value": "List-Unsubscribe=One-Click"
+          }
+        ],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-032"
+      },
+      {
+        "id": "demo-inb-022",
+        "conversationId": "conv-demo-inb-022",
+        "subject": "Intro from Ana: Lumen Capital",
+        "bodyPreview": "Hi Chad, Ana mentioned you are building an agent platform for small teams. I lead seed investments at Lumen Capital and would love to learn more. Are you open t",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Ana mentioned you are building an agent platform for small teams. I lead seed investments at Lumen Capital and would love to learn more.</div><div><br></div><div>Are you open to a 20-minute call next week? Tuesday or Thursday afternoon are easiest for me.</div><div><br></div><div>Marcus</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Marcus Lee",
+            "address": "marcus@lumen-capital.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Marcus Lee",
+            "address": "marcus@lumen-capital.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-14T11:00:00Z",
+        "sentDateTime": "2026-10-14T10:59:24Z",
+        "isRead": false,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "flagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-022"
+      },
+      {
+        "id": "demo-inb-003",
+        "conversationId": "conv-northwind-kickoff",
+        "subject": "RE: Northwind x AmbientPixels: kickoff",
+        "bodyPreview": "Wednesday at 10 is booked on our side, sorry. Let me check with the team and come back to you. Dana",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Wednesday at 10 is booked on our side, sorry. Let me check with the team and come back to you.</div><div><br></div><div>Dana</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-13T15:00:00Z",
+        "sentDateTime": "2026-10-13T14:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-003"
+      },
+      {
+        "id": "demo-inb-001",
+        "conversationId": "conv-northwind-kickoff",
+        "subject": "Northwind x AmbientPixels: kickoff",
+        "bodyPreview": "Hi Chad, Great to connect last week. We would love to start the site refresh with a 30-minute kickoff. I have attached nothing yet; just want to lock a time fir",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Great to connect last week. We would love to start the site refresh with a 30-minute kickoff. I have attached nothing yet; just want to lock a time first.</div><div><br></div><div>Best,</div><div>Dana</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-12T15:00:00Z",
+        "sentDateTime": "2026-10-12T14:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-001"
+      },
+      {
+        "id": "demo-inb-011",
+        "conversationId": "conv-clientco-invoice",
+        "subject": "Invoice 1042",
+        "bodyPreview": "Hi Chad, Got the invoice, routing it to AP now. Jordan",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad,</div><div><br></div><div>Got the invoice, routing it to AP now.</div><div><br></div><div>Jordan</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Jordan Blake",
+            "address": "jordan@clientco.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Jordan Blake",
+            "address": "jordan@clientco.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-10T13:00:00Z",
+        "sentDateTime": "2026-10-10T12:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-011"
+      },
+      {
+        "id": "demo-inb-013",
+        "conversationId": "conv-pinecrest-contract",
+        "subject": "Contract review",
+        "bodyPreview": "Chad, Happy to review the contractor agreement. Send it over when ready. Theo Grant Pinecrest Law",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Chad,</div><div><br></div><div>Happy to review the contractor agreement. Send it over when ready.</div><div><br></div><div>Theo Grant</div><div>Pinecrest Law</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Theo Grant",
+            "address": "theo@pinecrest-law.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Theo Grant",
+            "address": "theo@pinecrest-law.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-09T07:00:00Z",
+        "sentDateTime": "2026-10-09T06:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "inbox",
+        "webLink": "https://outlook.office.com/mail/demo/demo-inb-013"
+      }
+    ],
+    "sentitems": [
+      {
+        "id": "demo-sen-005",
+        "conversationId": "conv-northwind-kickoff",
+        "subject": "RE: Northwind x AmbientPixels: kickoff",
+        "bodyPreview": "Hi Dana, any luck with a time? Happy to do Thursday too. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Dana, any luck with a time? Happy to do Thursday too.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Dana Reyes",
+              "address": "dana@northwind-studio.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T13:00:00Z",
+        "sentDateTime": "2026-10-15T12:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-005"
+      },
+      {
+        "id": "demo-sen-040",
+        "conversationId": "conv-ines-pod",
+        "subject": "RE: Fieldnote podcast",
+        "bodyPreview": "Oct 28 at 2pm works. Looking forward to it. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Oct 28 at 2pm works. Looking forward to it.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Ines Duarte",
+              "address": "ines@fieldnote-podcast.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-15T03:00:00Z",
+        "sentDateTime": "2026-10-15T02:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-040"
+      },
+      {
+        "id": "demo-sen-007",
+        "conversationId": "conv-clientco-sow",
+        "subject": "Statement of work: Q4 conversion sprint",
+        "bodyPreview": "Hi Kim, Attached is the statement of work for the Q4 conversion sprint, with three milestones and the review dates we discussed. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Kim,</div><div><br></div><div>Attached is the statement of work for the Q4 conversion sprint, with three milestones and the review dates we discussed.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Kim Okafor",
+              "address": "kim@clientco.example"
+            }
+          }
+        ],
+        "ccRecipients": [
+          {
+            "emailAddress": {
+              "name": "Priya Shah",
+              "address": "priya@clientco.example"
+            }
+          }
+        ],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-14T13:00:00Z",
+        "sentDateTime": "2026-10-14T12:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-007"
+      },
+      {
+        "id": "demo-sen-037",
+        "conversationId": "conv-maya-sat",
+        "subject": "Dinner soon?",
+        "bodyPreview": "Hey Maya, dinner one night this week or next? Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hey Maya, dinner one night this week or next?</div><div><br></div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Maya Chen",
+              "address": "maya@friendmail.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-14T07:00:00Z",
+        "sentDateTime": "2026-10-14T06:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-037"
+      },
+      {
+        "id": "demo-sen-004",
+        "conversationId": "conv-northwind-kickoff",
+        "subject": "RE: Northwind x AmbientPixels: kickoff",
+        "bodyPreview": "No problem, Dana. Let me know what works. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>No problem, Dana. Let me know what works.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Dana Reyes",
+              "address": "dana@northwind-studio.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-13T21:00:00Z",
+        "sentDateTime": "2026-10-13T20:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-004"
+      },
+      {
+        "id": "demo-sen-012",
+        "conversationId": "conv-clientco-invoice",
+        "subject": "RE: Invoice 1042",
+        "bodyPreview": "Hi Jordan, Quick check: has invoice 1042 cleared AP? It shows as unpaid on our side. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Jordan,</div><div><br></div><div>Quick check: has invoice 1042 cleared AP? It shows as unpaid on our side.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Jordan Blake",
+              "address": "jordan@clientco.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-13T11:00:00Z",
+        "sentDateTime": "2026-10-13T10:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-012"
+      },
+      {
+        "id": "demo-sen-002",
+        "conversationId": "conv-northwind-kickoff",
+        "subject": "RE: Northwind x AmbientPixels: kickoff",
+        "bodyPreview": "Hi Dana, Sounds good. Tuesday or Wednesday morning works best for me. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Dana,</div><div><br></div><div>Sounds good. Tuesday or Wednesday morning works best for me.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Dana Reyes",
+              "address": "dana@northwind-studio.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-13T01:00:00Z",
+        "sentDateTime": "2026-10-13T00:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-002"
+      },
+      {
+        "id": "demo-sen-014",
+        "conversationId": "conv-pinecrest-contract",
+        "subject": "RE: Contract review",
+        "bodyPreview": "Hi Theo, Here it is. No rush, but next week would be ideal. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Theo,</div><div><br></div><div>Here it is. No rush, but next week would be ideal.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Theo Grant",
+              "address": "theo@pinecrest-law.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-12T13:00:00Z",
+        "sentDateTime": "2026-10-12T12:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-014"
+      },
+      {
+        "id": "demo-sen-039",
+        "conversationId": "conv-ravi-integration",
+        "subject": "RE: Scoring API integration",
+        "bodyPreview": "Happy to help with the integration. Can you share your staging URL? Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Happy to help with the integration. Can you share your staging URL?</div><div><br></div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Ravi Menon",
+              "address": "ravi@oakline-dev.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-12T10:00:00Z",
+        "sentDateTime": "2026-10-12T09:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-039"
+      },
+      {
+        "id": "demo-sen-038",
+        "conversationId": "conv-elena-brief",
+        "subject": "Logo refresh brief",
+        "bodyPreview": "Hi Elena, Brief attached in the doc we shared. Two directions is perfect. Thanks, Chad",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Elena,</div><div><br></div><div>Brief attached in the doc we shared. Two directions is perfect.</div><div><br></div><div>Thanks,</div><div>Chad</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Elena Park",
+              "address": "elena@studio-kite.example"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-11T19:00:00Z",
+        "sentDateTime": "2026-10-11T18:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "sentitems",
+        "webLink": "https://outlook.office.com/mail/demo/demo-sen-038"
+      }
+    ],
+    "archive": [
+      {
+        "id": "demo-arc-046",
+        "conversationId": "conv-demo-arc-046",
+        "subject": "Domain transfer complete",
+        "bodyPreview": "Your domain transfer is complete.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Your domain transfer is complete.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Domain Desk",
+            "address": "renewals@domaindesk.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Domain Desk",
+            "address": "renewals@domaindesk.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-08T21:00:00Z",
+        "sentDateTime": "2026-10-08T20:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "archive",
+        "webLink": "https://outlook.office.com/mail/demo/demo-arc-046"
+      },
+      {
+        "id": "demo-arc-045",
+        "conversationId": "conv-demo-arc-045",
+        "subject": "Welcome aboard",
+        "bodyPreview": "Hi Chad, excited to start working together. Looping in Priya and Jordan. Kim",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Hi Chad, excited to start working together. Looping in Priya and Jordan.</div><div><br></div><div>Kim</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-08T01:00:00Z",
+        "sentDateTime": "2026-10-08T00:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "archive",
+        "webLink": "https://outlook.office.com/mail/demo/demo-arc-045"
+      },
+      {
+        "id": "demo-arc-044",
+        "conversationId": "conv-demo-arc-044",
+        "subject": "Great meeting you",
+        "bodyPreview": "Great meeting you at the agent tooling dinner. Let us stay in touch. Noah",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Great meeting you at the agent tooling dinner. Let us stay in touch.</div><div><br></div><div>Noah</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Noah Bennett",
+            "address": "noah@harbor-labs.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Noah Bennett",
+            "address": "noah@harbor-labs.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-06T19:00:00Z",
+        "sentDateTime": "2026-10-06T18:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "archive",
+        "webLink": "https://outlook.office.com/mail/demo/demo-arc-044"
+      },
+      {
+        "id": "demo-arc-043",
+        "conversationId": "conv-demo-arc-043",
+        "subject": "Your September invoice is ready",
+        "bodyPreview": "Your invoice for September is ready: $39.80.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Your invoice for September is ready: $39.80.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "CloudHost Billing",
+            "address": "billing@cloudhost.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "CloudHost Billing",
+            "address": "billing@cloudhost.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-05T03:00:00Z",
+        "sentDateTime": "2026-10-05T02:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "archive",
+        "webLink": "https://outlook.office.com/mail/demo/demo-arc-043"
+      },
+      {
+        "id": "demo-arc-042",
+        "conversationId": "conv-demo-arc-042",
+        "subject": "RE: Brand colors",
+        "bodyPreview": "Locked: periwinkle #9b8cff as the accent, near-black for text. Elena",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Locked: periwinkle #9b8cff as the accent, near-black for text.</div><div><br></div><div>Elena</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "Elena Park",
+            "address": "elena@studio-kite.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "Elena Park",
+            "address": "elena@studio-kite.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-10-01T19:00:00Z",
+        "sentDateTime": "2026-10-01T18:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "archive",
+        "webLink": "https://outlook.office.com/mail/demo/demo-arc-042"
+      },
+      {
+        "id": "demo-arc-041",
+        "conversationId": "conv-demo-arc-041",
+        "subject": "Welcome to CloudHost",
+        "bodyPreview": "Your account is ready.",
+        "body": {
+          "contentType": "html",
+          "content": "<div>Your account is ready.</div>"
+        },
+        "from": {
+          "emailAddress": {
+            "name": "CloudHost",
+            "address": "welcome@cloudhost.example"
+          }
+        },
+        "sender": {
+          "emailAddress": {
+            "name": "CloudHost",
+            "address": "welcome@cloudhost.example"
+          }
+        },
+        "toRecipients": [
+          {
+            "emailAddress": {
+              "name": "Chad Martin",
+              "address": "chad@ambientpixels.ai"
+            }
+          }
+        ],
+        "ccRecipients": [],
+        "replyTo": [],
+        "receivedDateTime": "2026-09-30T23:00:00Z",
+        "sentDateTime": "2026-09-30T22:59:24Z",
+        "isRead": true,
+        "isDraft": false,
+        "importance": "normal",
+        "flag": {
+          "flagStatus": "notFlagged"
+        },
+        "hasAttachments": false,
+        "inferenceClassification": "focused",
+        "internetMessageHeaders": [],
+        "parentFolderId": "archive",
+        "webLink": "https://outlook.office.com/mail/demo/demo-arc-041"
+      }
+    ]
+  },
+  "labels": {
+    "demo-inb-001": {
+      "label": "fyi",
+      "why": "Older message in a thread you have since answered",
+      "by": "rule"
+    },
+    "demo-inb-003": {
+      "label": "fyi",
+      "why": "Older message in a thread you have since answered",
+      "by": "rule"
+    },
+    "demo-inb-006": {
+      "label": "needs_you",
+      "why": "Dana is waiting on you to confirm Thursday 10am",
+      "by": "model"
+    },
+    "demo-inb-008": {
+      "label": "needs_you",
+      "why": "Unread client mail",
+      "by": "rule"
+    },
+    "demo-inb-009": {
+      "label": "fyi",
+      "why": "Client mail (already read)",
+      "by": "rule"
+    },
+    "demo-inb-011": {
+      "label": "waiting",
+      "why": "You asked Jordan about payment 4 days ago; no answer yet",
+      "by": "rule"
+    },
+    "demo-inb-013": {
+      "label": "waiting",
+      "why": "You sent the contract 5 days ago; Theo hasn't replied",
+      "by": "rule"
+    },
+    "demo-inb-015": {
+      "label": "needs_you",
+      "why": "Payment change request; replies go to a different address",
+      "by": "model"
+    },
+    "demo-inb-016": {
+      "label": "newsletter",
+      "why": "Newsletter",
+      "by": "rule"
+    },
+    "demo-inb-017": {
+      "label": "newsletter",
+      "why": "Newsletter",
+      "by": "rule"
+    },
+    "demo-inb-018": {
+      "label": "noise",
+      "why": "Event announcement",
+      "by": "rule"
+    },
+    "demo-inb-019": {
+      "label": "receipt",
+      "why": "Receipt or account notice",
+      "by": "rule"
+    },
+    "demo-inb-020": {
+      "label": "receipt",
+      "why": "Receipt or account notice",
+      "by": "rule"
+    },
+    "demo-inb-021": {
+      "label": "fyi",
+      "why": "Automated build notice",
+      "by": "rule"
+    },
+    "demo-inb-022": {
+      "label": "needs_you",
+      "why": "Investor asking for a call; you flagged it",
+      "by": "model"
+    },
+    "demo-inb-023": {
+      "label": "needs_you",
+      "why": "Press request with a Friday deadline",
+      "by": "model"
+    },
+    "demo-inb-024": {
+      "label": "needs_you",
+      "why": "Ravi needs a sandbox key to keep building",
+      "by": "model"
+    },
+    "demo-inb-025": {
+      "label": "needs_you",
+      "why": "Possible customer asking what the audit includes",
+      "by": "model"
+    },
+    "demo-inb-026": {
+      "label": "needs_you",
+      "why": "Maya wants to confirm Saturday dinner",
+      "by": "model"
+    },
+    "demo-inb-027": {
+      "label": "needs_you",
+      "why": "Elena needs your pick between two logo concepts",
+      "by": "model"
+    },
+    "demo-inb-028": {
+      "label": "fyi",
+      "why": "Confirmation; nothing to do until Oct 28",
+      "by": "model"
+    },
+    "demo-inb-029": {
+      "label": "fyi",
+      "why": "Your daily brief from Vale",
+      "by": "rule"
+    },
+    "demo-inb-030": {
+      "label": "noise",
+      "why": "Outlook sorted it to Other",
+      "by": "rule"
+    },
+    "demo-inb-032": {
+      "label": "noise",
+      "why": "Survey request",
+      "by": "rule"
+    },
+    "demo-inb-033": {
+      "label": "receipt",
+      "why": "Receipt or account notice",
+      "by": "rule"
+    },
+    "demo-inb-034": {
+      "label": "fyi",
+      "why": "Calendar reply; nothing to do",
+      "by": "rule"
+    },
+    "demo-inb-035": {
+      "label": "newsletter",
+      "why": "Newsletter",
+      "by": "rule"
+    }
+  },
+  "rules": {
+    "rulesOnlyDomains": [
+      "clientco.example"
+    ],
+    "vips": [
+      "kim@clientco.example"
+    ],
+    "muted": [],
+    "receipts": [
+      "cloudhost.example",
+      "domaindesk.example"
+    ]
+  },
+  "attachments": {
+    "demo-inb-008": [
+      {
+        "id": "att-sow-redlines",
+        "name": "SOW-redlines.txt",
+        "size": 226,
+        "contentType": "text/plain",
+        "isInline": false,
+        "contentId": null,
+        "contentBytes": "UmVkbGluZXMgKENsaWVudENvIGxlZ2FsKQoKMS4gU2VjdGlvbiAyLjE6IHJlcGxhY2UgImJlc3QgZWZmb3J0cyIgd2l0aCAiY29tbWVyY2lhbGx5IHJlYXNvbmFibGUgZWZmb3J0cyIuCjIuIFNlY3Rpb24gMzogbWlsZXN0b25lIDIgZHVlIGRhdGUgdG8gYmUgb24gb3IgYmVmb3JlIDIwMjYtMTEtMTQuCjMuIFNlY3Rpb24gNjogYWRkIDMwLWRheSB0ZXJtaW5hdGlvbiBmb3IgY29udmVuaWVuY2UuCg=="
+      }
+    ],
+    "demo-inb-027": [
+      {
+        "id": "att-concept-a",
+        "name": "concept-a.png",
+        "size": 301,
+        "contentType": "image/png",
+        "isInline": true,
+        "contentId": "concept-a@studio-kite",
+        "contentBytes": "iVBORw0KGgoAAAANSUhEUgAAAKAAAABaCAIAAACwpMoFAAAA9ElEQVR4nO3RQQnAMADAwGrqexLrYGI7BXtuhXBwAgIZ99qEjeMFfMrgOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI77Y/A1F28MjjM4zuA4g+MMjjM4zuA4g+MMjjM4zuA4g+MMjjM4zuA4g+MKgznI4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOewC1hXuMxfvT1AAAAABJRU5ErkJggg=="
+      },
+      {
+        "id": "att-concept-b",
+        "name": "concept-b.png",
+        "size": 303,
+        "contentType": "image/png",
+        "isInline": true,
+        "contentId": "concept-b@studio-kite",
+        "contentBytes": "iVBORw0KGgoAAAANSUhEUgAAAKAAAABaCAIAAACwpMoFAAAA9klEQVR4nO3RsQmAMAAAwdRO4T5pnNPSCZ3AMgaegxvg4cf53ISN7QUsZXCcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGxxkcZ3CcwXEGx/0x+LgmXwyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wyOMzjO4DiD4wqD2cjgOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI4zOM7gOIPjDI57AcjENzr/fntYAAAAAElFTkSuQmCC"
+      },
+      {
+        "id": "att-concept-notes",
+        "name": "concept-notes.txt",
+        "size": 145,
+        "contentType": "text/plain",
+        "isInline": false,
+        "contentId": null,
+        "contentBytes": "Q29uY2VwdCBBOiBwZXJpd2lua2xlIG1hcmssIHJvdW5kZWQgdHlwZSwgY2FsbS4KQ29uY2VwdCBCOiB0ZWFsLCBoZWF2aWVyIHdlaWdodCwgbW9yZSBjb250cmFzdCBhdCBzbWFsbCBzaXplcy4KQm90aCB0ZXN0ZWQgYXQgMTZweCBmYXZpY29uIHNpemUuCg=="
+      }
+    ]
+  },
+  "calendar": [
+    {
+      "id": "demo-evt-1",
+      "subject": "Northwind kickoff (tentative)",
+      "start": {
+        "dateTime": "2026-10-17T17:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "end": {
+        "dateTime": "2026-10-17T17:30:00.0000000",
+        "timeZone": "UTC"
+      },
+      "isAllDay": false,
+      "showAs": "busy",
+      "location": {
+        "displayName": ""
+      },
+      "isOnlineMeeting": true,
+      "onlineMeeting": {
+        "joinUrl": "https://meet.example/northwind-kickoff"
+      },
+      "organizer": {
+        "emailAddress": {
+          "name": "Dana Reyes",
+          "address": "dana@northwind-studio.example"
+        }
+      },
+      "attendees": [
+        {
+          "emailAddress": {
+            "name": "Dana Reyes",
+            "address": "dana@northwind-studio.example"
+          },
+          "type": "required",
+          "status": {
+            "response": "accepted"
+          }
+        },
+        {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          },
+          "type": "required",
+          "status": {
+            "response": "tentativelyAccepted"
+          }
+        }
+      ],
+      "responseStatus": {
+        "response": "tentativelyAccepted"
+      }
+    },
+    {
+      "id": "demo-evt-2",
+      "subject": "ClientCo weekly sync",
+      "start": {
+        "dateTime": "2026-10-17T20:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "end": {
+        "dateTime": "2026-10-17T20:45:00.0000000",
+        "timeZone": "UTC"
+      },
+      "isAllDay": false,
+      "showAs": "busy",
+      "location": {
+        "displayName": ""
+      },
+      "isOnlineMeeting": true,
+      "onlineMeeting": {
+        "joinUrl": "https://meet.example/clientco-weekly"
+      },
+      "organizer": {
+        "emailAddress": {
+          "name": "Chad Martin",
+          "address": "chad@ambientpixels.ai"
+        }
+      },
+      "attendees": [
+        {
+          "emailAddress": {
+            "name": "Kim Okafor",
+            "address": "kim@clientco.example"
+          },
+          "type": "required",
+          "status": {
+            "response": "accepted"
+          }
+        },
+        {
+          "emailAddress": {
+            "name": "Priya Shah",
+            "address": "priya@clientco.example"
+          },
+          "type": "required",
+          "status": {
+            "response": "accepted"
+          }
+        },
+        {
+          "emailAddress": {
+            "name": "Jordan Blake",
+            "address": "jordan@clientco.example"
+          },
+          "type": "required",
+          "status": {
+            "response": "none"
+          }
+        }
+      ],
+      "responseStatus": {
+        "response": "organizer"
+      }
+    },
+    {
+      "id": "demo-evt-3",
+      "subject": "Focus: Vale Mail review",
+      "start": {
+        "dateTime": "2026-10-17T22:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "end": {
+        "dateTime": "2026-10-17T23:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "isAllDay": false,
+      "showAs": "tentative",
+      "location": {
+        "displayName": ""
+      },
+      "isOnlineMeeting": false,
+      "onlineMeeting": null,
+      "organizer": {
+        "emailAddress": {
+          "name": "Chad Martin",
+          "address": "chad@ambientpixels.ai"
+        }
+      },
+      "attendees": [],
+      "responseStatus": {
+        "response": "organizer"
+      }
+    },
+    {
+      "id": "demo-evt-4",
+      "subject": "Coffee with Noah (proposed)",
+      "start": {
+        "dateTime": "2026-10-18T17:30:00.0000000",
+        "timeZone": "UTC"
+      },
+      "end": {
+        "dateTime": "2026-10-18T18:15:00.0000000",
+        "timeZone": "UTC"
+      },
+      "isAllDay": false,
+      "showAs": "busy",
+      "location": {
+        "displayName": "Pike Place Market"
+      },
+      "isOnlineMeeting": false,
+      "onlineMeeting": null,
+      "organizer": {
+        "emailAddress": {
+          "name": "Noah Bennett",
+          "address": "noah@harbor-labs.example"
+        }
+      },
+      "attendees": [
+        {
+          "emailAddress": {
+            "name": "Noah Bennett",
+            "address": "noah@harbor-labs.example"
+          },
+          "type": "required",
+          "status": {
+            "response": "accepted"
+          }
+        },
+        {
+          "emailAddress": {
+            "name": "Chad Martin",
+            "address": "chad@ambientpixels.ai"
+          },
+          "type": "required",
+          "status": {
+            "response": "notResponded"
+          }
+        }
+      ],
+      "responseStatus": {
+        "response": "notResponded"
+      }
+    },
+    {
+      "id": "demo-evt-5",
+      "subject": "Investor call: Lumen Capital",
+      "start": {
+        "dateTime": "2026-10-18T21:00:00.0000000",
+        "timeZone": "UTC"
+      },
+      "end": {
+        "dateTime": "2026-10-18T21:20:00.0000000",
+        "timeZone": "UTC"
+      },
+      "isAllDay": false,
+      "showAs": "busy",
+      "location": {
+        "displayName": ""
+      },
+      "isOnlineMeeting": true,
+      "onlineMeeting": {
+        "joinUrl": "https://meet.example/lumen-intro"
+      },
+      "organizer": {
+        "emailAddress": {
+          "name": "Chad Martin",
+          "address": "chad@ambientpixels.ai"
+        }
+      },
+      "attendees": [
+        {
+          "emailAddress": {
+            "name": "Marcus Lee",
+            "address": "marcus@lumen-capital.example"
+          },
+          "type": "required",
+          "status": {
+            "response": "accepted"
+          }
+        }
+      ],
+      "responseStatus": {
+        "response": "organizer"
+      }
+    }
+  ],
+  "workHours": {
+    "start": "09:00",
+    "end": "17:00",
+    "tz": "America/Los_Angeles"
+  },
+  "drafts": {
+    "yes": "Hi {firstName},\n\nYes, that works for me. I'll confirm the details on my side today.\n\nThanks,\nChad",
+    "no": "Hi {firstName},\n\nThanks for thinking of me. I'm going to pass on this one, but I appreciate you asking.\n\nThanks,\nChad",
+    "later": "Hi {firstName},\n\nThanks for this. I can't give you a proper answer today; I'll get back to you by Tuesday.\n\nThanks,\nChad",
+    "more": "Hi {firstName},\n\nHappy to help. Quick question before I commit: can you share a bit more detail on what you need and by when?\n\nThanks,\nChad",
+    "ack": "Hi {firstName},\n\nGot it, thank you. Nothing needed from me right now; I'll keep an eye out.\n\nThanks,\nChad",
+    "compose": "Hi {firstName},\n\nQuick note: {instruction}\n\nLet me know what works.\n\nThanks,\nChad",
+    "default": "Hi {firstName},\n\nThanks for the note. Sounds good; I'll follow up shortly with next steps.\n\nThanks,\nChad"
+  }
+}
