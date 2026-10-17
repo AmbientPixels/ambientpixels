@@ -158,6 +158,20 @@ function deps(over) {
     assert.strictEqual(store.data.valeMailAudit.slice(-1)[0].run, 'disconnect');
   });
 
+  await test('test-brief needs a bearer token', async () => {
+    let ran = false;
+    const c = ctx(); await connect.handle(c, { method: 'POST', params: { op: 'test-brief' } }, deps({ auth: noAuth, runTest: async () => { ran = true; return {}; } }));
+    assert.strictEqual(c.res.status, 401); assert.strictEqual(ran, false);
+  });
+  await test('test-brief maps run results to clear responses', async () => {
+    const cases = [[{ ran: true, sent: true, subject: '[Test] Vale brief' }, 200], [{ ran: false, reason: 'too_soon' }, 429],
+      [{ ran: false, reason: 'disabled' }, 409], [{ ran: true, sent: false, error: 'sendMail 403' }, 502], [{ ran: false, reason: 'log_unreadable' }, 503]];
+    for (const [result, status] of cases) {
+      const c = ctx(); await connect.handle(c, { method: 'POST', params: { op: 'test-brief' } }, deps({ runTest: async () => result }));
+      assert.strictEqual(c.res.status, status, JSON.stringify(result));
+    }
+  });
+
   // Token store
   const connected = () => memStore({ valeMailToken: tokenStore.connectionRecord({ refresh_token: 'RT-OLD' }, {}, CFG.tokenKey, '2026-10-17T00:00:00Z') });
   await test('refresh returns an access token and rotates the stored refresh token', async () => {

@@ -108,8 +108,10 @@
       '<div><strong>' + (c.connected ? 'Connected' : (c.needsReconnect ? 'Needs reconnect' : 'Not connected')) + '</strong>' +
       (c.account ? ' · ' + h(c.account) : '') + '</div>' +
       '<div style="opacity:.75">Last brief sent: ' + (lb ? h(when(lb.at)) : 'never') + '</div>' +
-      '<div style="margin-left:auto">' + (c.connected
-        ? '<button class="ap-btn" id="vale-disconnect">Disconnect</button>'
+      '<div style="margin-left:auto;display:flex;gap:.5rem;align-items:center">' + (c.connected
+        ? '<span id="vale-test-msg" style="font-size:.8rem;opacity:.75"></span>' +
+          '<button class="ap-btn ap-btn--primary" id="vale-test">Send me a test brief</button>' +
+          '<button class="ap-btn" id="vale-disconnect">Disconnect</button>'
         : '<button class="ap-btn ap-btn--primary" id="vale-connect">' + (c.needsReconnect ? 'Reconnect' : 'Connect') + '</button>') + '</div></div>' +
       '<p style="font-size:.8rem;opacity:.7;margin-top:.5rem">Read-only: Vale can read mail and calendar; she can\'t send, delete or change anything. ' +
       'Chat answers use ' + h((state.cfg && state.cfg.chatProvider) || 'the fleet chat model') + '; client domains are never sent to a model.</p>';
@@ -128,6 +130,17 @@
     if (btn) btn.onclick = async function () {
       var s = await api('/vale-connect/start');
       if (s.body && s.body.url) location.href = s.body.url;
+    };
+    var tb = document.getElementById('vale-test');
+    if (tb) tb.onclick = async function () {
+      var msg = document.getElementById('vale-test-msg');
+      tb.disabled = true;
+      msg.textContent = 'Reading your mail and writing the brief… (up to a minute)';
+      var t = await api('/vale-connect/test-brief', { method: 'POST' });
+      msg.textContent = t.status === 200 ? 'Sent — check your inbox: ' + (t.body.subject || '')
+        : (t.body && t.body.error) ? t.body.error : 'Failed (' + t.status + ').';
+      tb.disabled = false;
+      setTimeout(render, 4000);
     };
     var dis = document.getElementById('vale-disconnect');
     if (dis) dis.onclick = async function () {

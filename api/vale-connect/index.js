@@ -5,6 +5,7 @@
 //                                               single-use state, the PKCE verifier and the oid check
 //   POST /api/vale-connect/disconnect  bearer   deletes the stored refresh token
 //   POST /api/vale-connect/forget      bearer   wipes derived mail data and the audit
+//   POST /api/vale-connect/test-brief  bearer   runs the morning brief now as "[Test]" (3-min cooldown)
 // 503 until the app settings exist. Gated on configuration + bearer only, never on the
 // VALE_STRICT_AUTH / VALE_MAIL_ENABLED flags, so Connect can happen before mail is on.
 'use strict';
@@ -126,6 +127,15 @@ async function handle(context, req, deps) {
       return json(context, 200, { ok: true, connection: { connected: false } });
     }
 
+    if (op === 'test-brief' && req.method === 'POST') {
+      var r = await deps.runTest();
+      if (r.reason === 'disabled') return json(context, 409, { error: 'Mail is switched off.' });
+      if (r.reason === 'too_soon') return json(context, 429, { error: 'One test brief every 3 minutes.' });
+      if (!r.ran) return json(context, 503, { error: 'Could not start the test (' + r.reason + ').' });
+      if (!r.sent) return json(context, 502, { ok: false, error: String(r.error || 'send failed').slice(0, 200) });
+      return json(context, 200, { ok: true, subject: r.subject });
+    }
+
     if (op === 'forget' && req.method === 'POST') {
       await deps.store.set('valeMailState', null);
       await deps.store.set('valeMailBriefs', null);
@@ -148,7 +158,14 @@ function defaultDeps() {
     auth: requireCeoAsync,
     store: { getWithMeta: vs.getValeWithMeta, mutate: vs.mutateVale, set: vs.setVale },
     fetch: (typeof fetch === 'function') ? fetch : require('node-fetch'),
-    now: Date.now
+    now: Date.now,
+    // The CEO's "send me a test brief": the real run, outside the window, flagged as a test.
+    runTest: function () {
+      var bd = require('../_lib/vale/briefDeps');
+      var d = bd.briefDeps(bd.briefConfig());
+      d.test = true;
+      return require('../_lib/vale/briefRun').runBrief(d);
+    }
   };
 }
 

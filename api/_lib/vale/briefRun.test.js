@@ -148,6 +148,42 @@ function deps(over) {
     assert.ok(ids.indexOf('m-person') === -1 && ids.indexOf('m-vip') !== -1, ids.join(','));
   });
 
+  await test('test brief: runs outside the window, marked [Test], leaves the real 06:30 brief alone', async () => {
+    const d = deps({ now: () => Date.parse('2026-10-17T05:10:00Z'), test: true, // Fri 22:10 PDT
+      store: connectedStore({ valeBriefLog: { days: {}, watermark: '2026-10-16T12:00:00Z' } }) });
+    const r = await runBrief(d);
+    assert.strictEqual(r.sent, true, r.error || r.reason);
+    assert.ok(/^\[Test\] Vale brief/.test(d.sent[0].subject));
+    const log = d.store.data.valeBriefLog;
+    assert.deepStrictEqual(log.days, {}, 'no day marked');
+    assert.strictEqual(log.watermark, '2026-10-16T12:00:00Z', 'watermark untouched');
+    assert.strictEqual(log.lastTest.status, 'sent');
+    assert.ok(!log.lastSent, 'test is not the last real brief');
+    assert.strictEqual(d.store.data.valeMailAudit.slice(-1)[0].run, 'test-brief');
+    assert.strictEqual(d.store.data.valeMailBriefs[0].test, true);
+  });
+  await test('test brief: one every 3 minutes', async () => {
+    const d = deps({ now: () => NOW, test: true });
+    await runBrief(d);
+    d.now = () => NOW + 60000;
+    assert.strictEqual((await runBrief(d)).reason, 'too_soon');
+    d.now = () => NOW + 4 * 60000;
+    assert.strictEqual((await runBrief(d)).sent, true);
+  });
+  await test('test brief: still dormant when mail is switched off', async () => {
+    const d = deps({ test: true, cfg: Object.assign({}, CFG, { mailEnabled: false }) });
+    assert.strictEqual((await runBrief(d)).reason, 'disabled'); assert.deepStrictEqual(d.store.ops, []);
+  });
+  await test('test brief failure does not mark the real day failed or ping Discord', async () => {
+    const notices = [];
+    const d = deps({ test: true, sendBrief: async () => { throw new Error('sendMail 403'); }, notify: async (t) => notices.push(t) });
+    const r = await runBrief(d);
+    assert.strictEqual(r.sent, false);
+    assert.deepStrictEqual(d.store.data.valeBriefLog.days, {});
+    assert.strictEqual(d.store.data.valeBriefLog.lastTest.status, 'failed');
+    assert.strictEqual(notices.length, 0);
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();

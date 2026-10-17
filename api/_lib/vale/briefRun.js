@@ -18,6 +18,7 @@ var MAX_GAP_MS = 3 * DAY;         // never re-triage more than 72 h
 var STATE_TTL_MS = 14 * DAY;
 var BRIEFS_CAP = 60;
 var LOG_DAYS = 14;
+var TEST_COOLDOWN_MS = 3 * 60 * 1000;
 
 function iso(ms) { return new Date(ms).toISOString(); }
 
@@ -56,15 +57,25 @@ async function runBrief(deps) {
 
   var store = deps.store;
   var nowMs = deps.now();
+  // deps.test: the CEO's "send me a test brief" — runs now, outside the window, and leaves the
+  // day's status and the watermark alone so the real 06:30 brief still goes out in full.
+  var test = !!deps.test;
   var logMeta = await store.getWithMeta('valeBriefLog');
   if (logMeta.failed) return { ran: false, reason: 'log_unreadable' };
-  var decision = schedule.shouldSendBrief(nowMs, logMeta.value);
-  if (!decision.send) return { ran: false, reason: decision.reason };
-  var date = decision.date;
+  var date;
+  if (test) {
+    var lastTest = logMeta.value && logMeta.value.lastTest;
+    if (lastTest && nowMs - Date.parse(lastTest.at) < TEST_COOLDOWN_MS) return { ran: false, reason: 'too_soon' };
+    date = schedule.pacificParts(nowMs).date;
+    await store.mutate('valeBriefLog', function (cur) { return Object.assign({ days: {} }, cur || {}, { lastTest: { at: iso(nowMs), status: 'sending' } }); });
+  } else {
+    var decision = schedule.shouldSendBrief(nowMs, logMeta.value);
+    if (!decision.send) return { ran: false, reason: decision.reason };
+    date = decision.date;
+    await store.mutate('valeBriefLog', function (cur) { return markDay(cur, date, { status: 'sending', at: iso(nowMs) }); });
+  }
 
-  await store.mutate('valeBriefLog', function (cur) { return markDay(cur, date, { status: 'sending', at: iso(nowMs) }); });
-
-  var auditEntry = { at: iso(nowMs), run: 'brief', calls: 0, messages: 0, events: 0, ok: false };
+  var auditEntry = { at: iso(nowMs), run: test ? 'test-brief' : 'brief', calls: 0, messages: 0, events: 0, ok: false };
   var brief = null;
   var triaged = null;
   try {
@@ -114,9 +125,11 @@ async function runBrief(deps) {
       await store.set('valeMailState', { at: iso(nowMs), expiresAt: iso(nowMs + STATE_TTL_MS), triaged: triaged, waiting: waiting });
     }
 
+    if (test) brief.subject = '[Test] ' + brief.subject;
     await deps.sendBrief({ to: cfg.ceoAddress, subject: brief.subject, html: brief.html });
 
     await store.mutate('valeBriefLog', function (cur) {
+      if (test) return Object.assign({ days: {} }, cur || {}, { lastTest: { at: iso(nowMs), status: 'sent', subject: brief.subject } });
       var next = markDay(cur, date, { status: 'sent', at: iso(nowMs) });
       if (triaged) next.watermark = iso(nowMs);
       next.lastSent = { date: date, at: iso(nowMs), subject: brief.subject };
@@ -124,14 +137,19 @@ async function runBrief(deps) {
     });
     await store.mutate('valeMailBriefs', function (cur) {
       var list = Array.isArray(cur) ? cur.slice() : [];
-      list.push({ at: iso(nowMs), date: date, subject: brief.subject, text: brief.text, needsYouIds: brief.needsYouIds, delivery: 'sent' });
+      list.push({ at: iso(nowMs), date: date, subject: brief.subject, text: brief.text, needsYouIds: brief.needsYouIds, delivery: 'sent', test: test || undefined });
       return list.slice(-BRIEFS_CAP);
     });
     auditEntry.ok = true;
-    return { ran: true, sent: true, subject: brief.subject };
+    return { ran: true, sent: true, subject: brief.subject, test: test };
   } catch (err) {
     auditEntry.error = err && err.message;
-    try { await store.mutate('valeBriefLog', function (cur) { return markDay(cur, date, { status: 'failed', at: iso(nowMs), error: String(auditEntry.error || '').slice(0, 200) }); }); } catch (e) { /* next run retries */ }
+    try {
+      await store.mutate('valeBriefLog', function (cur) {
+        if (test) return Object.assign({ days: {} }, cur || {}, { lastTest: { at: iso(nowMs), status: 'failed', error: String(auditEntry.error || '').slice(0, 200) } });
+        return markDay(cur, date, { status: 'failed', at: iso(nowMs), error: String(auditEntry.error || '').slice(0, 200) });
+      });
+    } catch (e) { /* next run retries */ }
     if (brief) {
       try {
         await store.mutate('valeMailBriefs', function (cur) {
@@ -141,7 +159,7 @@ async function runBrief(deps) {
         });
       } catch (e) { /* best effort */ }
     }
-    if (deps.notify) { try { await deps.notify('Vale could not email your morning brief. It will retry before 9am; details are on the Office page.'); } catch (e) { /* best effort */ } }
+    if (deps.notify && !test) { try { await deps.notify('Vale could not email your morning brief. It will retry before 9am; details are on the Office page.'); } catch (e) { /* best effort */ } }
     return { ran: true, sent: false, error: auditEntry.error };
   } finally {
     await audit.appendAudit(store, auditEntry);

@@ -4,39 +4,13 @@
 'use strict';
 
 var { runBrief } = require('../_lib/vale/briefRun');
-var { valeConfig } = require('../_utils/valeAuth');
-var connect = require('../vale-connect/index');
-
-async function notifyDiscord(text) {
-  var url = process.env.DISCORD_VALE_WEBHOOK;
-  if (!url) return false;
-  var f = (typeof fetch === 'function') ? fetch : require('node-fetch');
-  var r = await f(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: 'Vale — Office of the CEO', content: String(text).slice(0, 500) }) });
-  return r.ok || r.status === 204;
-}
+var { briefConfig, briefDeps } = require('../_lib/vale/briefDeps');
 
 module.exports = async function (context) {
-  var cfg = Object.assign({}, connect.connectConfig(), valeConfig(), {
-    ceoAddress: process.env.VALE_CEO_UPN || 'chad@ambientpixels.ai',
-    senderAddress: process.env.VALE_SENDER || 'vale@ambientpixels.ai'
-  });
+  var cfg = briefConfig();
   if (!cfg.strict || !cfg.mailEnabled) return; // dormant: no storage, no network
-
-  var vs = require('../_utils/valeStorage');
-  var { callModel } = require('../_lib/llm');
-  var mailer = require('../_lib/vale/mailer');
-  var fetchImpl = (typeof fetch === 'function') ? fetch : require('node-fetch');
   try {
-    var result = await runBrief({
-      cfg: cfg,
-      now: Date.now,
-      store: { getWithMeta: vs.getValeWithMeta, mutate: vs.mutateVale, set: vs.setVale },
-      fetch: fetchImpl,
-      callModel: callModel,
-      sendBrief: function (msg) { return mailer.sendBrief({ cfg: cfg, fetch: fetchImpl }, msg); },
-      seedRules: require('../_data/vale-mail-rules.seed.json'),
-      notify: notifyDiscord
-    });
+    var result = await runBrief(briefDeps(cfg));
     context.log('[valeMorningBrief] ' + JSON.stringify(result));
   } catch (e) {
     context.log.error('[valeMorningBrief] ' + (e && e.message));
