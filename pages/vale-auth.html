@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Signing you in — Vale</title>
+  <style>
+    body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: #0b0b0c; color: rgba(255,255,255,.75); font-family: Inter, -apple-system, Segoe UI, sans-serif; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <p>Signing you in…</p>
+  <!--
+    Return page for Vale's Microsoft sign-ins (2026-10-17). Public on purpose: arriving back from
+    login.microsoftonline.com (or from the API's Connect callback) is a cross-site navigation, so the
+    site's login cookie isn't sent and the protected Office page answers 401. This page finishes the
+    MSAL sign-in (tokens go to sessionStorage, same origin as the Office page), then moves to the
+    Office page from inside the site, where the cookie is sent.
+  -->
+  <script src="/js/vendor/msal-browser.min.js"></script>
+  <script>
+    (async function () {
+      var OFFICE = '/modules/company/office.html';
+      var q = new URLSearchParams(location.search);
+      function go(extra) { location.replace(OFFICE + '?vale=1' + (extra || '')); }
+
+      // Connect callback bounce from the API: ?connect=ok|error&reason=...
+      if (q.get('connect')) {
+        go('&connect=' + encodeURIComponent(q.get('connect')) + (q.get('reason') ? '&reason=' + encodeURIComponent(q.get('reason')) : ''));
+        return;
+      }
+      try {
+        var cfg = await (await fetch('/data/vale-config.json', { cache: 'no-store' })).json();
+        var app = new msal.PublicClientApplication({
+          auth: {
+            clientId: cfg.clientId,
+            authority: 'https://login.microsoftonline.com/' + cfg.tenantId,
+            redirectUri: location.origin + '/pages/vale-auth.html',
+            navigateToLoginRequestUrl: false
+          },
+          cache: { cacheLocation: 'sessionStorage' }
+        });
+        await app.initialize();
+        await app.handleRedirectPromise();
+        go('&signin=ok');
+      } catch (e) {
+        go('&signin=error&reason=' + encodeURIComponent((e && e.errorCode) || 'unknown'));
+      }
+    })();
+  </script>
+</body>
+</html>

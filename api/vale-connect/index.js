@@ -34,7 +34,9 @@ function connectConfig(env) {
     tokenKey: env.VALE_TOKEN_KEY || '',
     loginHint: env.VALE_CEO_UPN || 'chad@ambientpixels.ai',
     redirectUri: env.VALE_REDIRECT_URI || 'https://ambientpixels-nova-api.azurewebsites.net/api/vale-connect/callback',
-    officeUrl: env.VALE_OFFICE_URL || 'https://ambientpixels.ai/modules/company/office.html'
+    // A public return page: arriving cross-site from the API, the site's login cookie isn't sent, so
+    // redirecting straight to the protected Office page would 401. The page forwards to the Office.
+    officeUrl: env.VALE_OFFICE_URL || 'https://ambientpixels.ai/pages/vale-auth.html'
   };
 }
 

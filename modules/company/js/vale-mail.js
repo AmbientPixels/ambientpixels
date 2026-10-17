@@ -31,7 +31,10 @@
   function banner() {
     var q = new URLSearchParams(location.search);
     var c = q.get('connect');
-    if (!c) return '';
+    if (!c) {
+      if (q.get('signin') === 'error') return '<div class="vale-banner" style="padding:.5rem .75rem;border-radius:6px;background:rgba(239,68,68,.12);color:#ef4444;margin-bottom:.75rem">Microsoft sign-in did not finish (' + h(q.get('reason') || 'unknown') + '). Try again.</div>';
+      return '';
+    }
     if (c === 'ok') return '<div class="vale-banner" style="padding:.5rem .75rem;border-radius:6px;background:rgba(52,211,153,.12);color:#34d399;margin-bottom:.75rem">Connected. Vale can now read your mail and calendar.</div>';
     return '<div class="vale-banner" style="padding:.5rem .75rem;border-radius:6px;background:rgba(239,68,68,.12);color:#ef4444;margin-bottom:.75rem">Connect didn\'t finish (' + h(q.get('reason') || 'unknown') + '). Try again.</div>';
   }
@@ -153,7 +156,9 @@
     }
     await loadScript('/js/vendor/msal-browser.min.js');
     state.msal = new msal.PublicClientApplication({
-      auth: { clientId: state.cfg.clientId, authority: 'https://login.microsoftonline.com/' + state.cfg.tenantId, redirectUri: location.origin + location.pathname },
+      // Microsoft returns to a public page: coming back cross-site, the site's login cookie isn't sent and
+      // the protected Office page would answer 401. /pages/vale-auth.html finishes and moves here.
+      auth: { clientId: state.cfg.clientId, authority: 'https://login.microsoftonline.com/' + state.cfg.tenantId, redirectUri: location.origin + '/pages/vale-auth.html', navigateToLoginRequestUrl: false },
       cache: { cacheLocation: 'sessionStorage' }
     });
     await state.msal.initialize();
