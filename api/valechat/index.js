@@ -10,6 +10,8 @@ var vs = require('../_utils/valeStorage');
 var mem = require('../_utils/vale-memory');
 var { requireCeoAsync, valeConfig } = require('../_utils/valeAuth');
 var { formatMailContext } = require('../_lib/vale/mailContext');
+var liveMail = require('../_lib/vale/liveMail');
+var { briefConfig, briefDeps } = require('../_lib/vale/briefDeps');
 
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -93,12 +95,29 @@ module.exports = async function (context, req) {
     }
 
     // Read-only mail context: only for a verified Microsoft sign-in with mail switched on.
+    // Live inbox first (read now through the brief's read-only token); the last brief's
+    // "needs you" summary rides along for its judgments, and is all she has if live fails.
     var mailContext = '';
+    var live = null;
     var vcfg = valeConfig();
     if (gate.via === 'bearer' && vcfg.strict && vcfg.mailEnabled) {
+      try {
+        var bd = briefDeps(briefConfig());
+        live = await liveMail.loadLiveMail({ cfg: bd.cfg, now: bd.now, fetch: bd.fetch, store: bd.store, seedRules: bd.seedRules });
+      } catch (e) {
+        live = { ok: false, reason: 'error' };
+        context.log.warn('[valechat] Live mail unavailable: ' + e.message);
+      }
+      if (live.ok) mailContext = live.block;
+      else {
+        mailContext = '\n\n(Live mail is unavailable right now (' + live.reason + ')' +
+          (/reconnect|not_connected/.test(live.reason) ? ' — Chad needs to reconnect on the Office page, Mail card' : '') +
+          '. Say so if asked about email; use only the summary below and never guess.)';
+        live = null;
+      }
       var mailMeta = await vs.getValeWithMeta('valeMailState');
-      mailContext = mailMeta.failed
-        ? '\n\n(Mail state could not be loaded right now — say so if asked about email; never guess.)'
+      mailContext += mailMeta.failed
+        ? '\n\n(The last brief\'s mail summary could not be loaded right now.)'
         : formatMailContext(mailMeta.value, Date.now());
     }
 
@@ -114,25 +133,27 @@ module.exports = async function (context, req) {
     contents.push({ role: 'user', parts: [{ text: message }] });
 
     var isClaude = await _useClaude();
-    var reply = '';
-    var usage = null;
 
-    if (isClaude && ANTHROPIC_API_KEY) {
-      var claudeMsgs = contents.map(function (c) {
-        return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') };
-      });
-      var cRes = await fetch(CLAUDE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: systemPrompt, messages: claudeMsgs })
-      });
-      var cData = await cRes.json();
-      if (!cRes.ok) { context.res = { status: cRes.status, headers: corsHeaders, body: { error: 'Vale hit a glitch.', details: cData } }; return; }
-      reply = (cData.content && cData.content[0] && cData.content[0].text) || '';
-      if (cData.usage) usage = { promptTokens: cData.usage.input_tokens, completionTokens: cData.usage.output_tokens, model: CLAUDE_MODEL, claude: true };
-    } else {
+    // One model call. Returns { reply, usage } or { error: { status, details } }.
+    async function ask(sys) {
+      if (isClaude && ANTHROPIC_API_KEY) {
+        var claudeMsgs = contents.map(function (c) {
+          return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') };
+        });
+        var cRes = await fetch(CLAUDE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+          body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: sys, messages: claudeMsgs })
+        });
+        var cData = await cRes.json();
+        if (!cRes.ok) return { error: { status: cRes.status, details: cData } };
+        return {
+          reply: (cData.content && cData.content[0] && cData.content[0].text) || '',
+          usage: cData.usage ? { promptTokens: cData.usage.input_tokens, completionTokens: cData.usage.output_tokens, model: CLAUDE_MODEL, claude: true } : null
+        };
+      }
       var geminiBody = {
-        systemInstruction: { parts: [{ text: systemPrompt }] },
+        systemInstruction: { parts: [{ text: sys }] },
         contents: contents,
         generationConfig: { temperature: 0.7, topP: 0.95, topK: 40, maxOutputTokens: 1024 }
       };
@@ -140,10 +161,17 @@ module.exports = async function (context, req) {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(geminiBody)
       });
       var gData = await gRes.json();
-      if (!gRes.ok) { context.res = { status: gRes.status, headers: corsHeaders, body: { error: 'Vale hit a glitch.', details: gData } }; return; }
-      reply = (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
-      if (gData.usageMetadata) usage = { promptTokens: gData.usageMetadata.promptTokenCount, completionTokens: (gData.usageMetadata.candidatesTokenCount || 0) + (gData.usageMetadata.thoughtsTokenCount || 0), model: 'gemini-2.5-flash', claude: false };
+      if (!gRes.ok) return { error: { status: gRes.status, details: gData } };
+      return {
+        reply: (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '',
+        usage: gData.usageMetadata ? { promptTokens: gData.usageMetadata.promptTokenCount, completionTokens: (gData.usageMetadata.candidatesTokenCount || 0) + (gData.usageMetadata.thoughtsTokenCount || 0), model: 'gemini-2.5-flash', claude: false } : null
+      };
     }
+
+    // At most one whole-mailbox search, when Vale asks for it with a SEARCH_MAIL line.
+    var answer = await liveMail.answerWithSearch(ask, systemPrompt, live);
+    if (answer.error) { context.res = { status: answer.error.status, headers: corsHeaders, body: { error: 'Vale hit a glitch.', details: answer.error.details } }; return; }
+    var reply = answer.reply;
 
     // Persist the exchange (ring buffer).
     var conv = (await vs.getVale('valeConversations')) || [];
@@ -164,8 +192,9 @@ module.exports = async function (context, req) {
       if (added.added) await vs.setVale('valeMemory', added.list);
     }
 
-    // Best-effort usage logging (correct ledger per provider).
-    if (usage) {
+    // Best-effort usage logging (correct ledger per provider), one entry per model call.
+    for (var u = 0; u < answer.usages.length; u++) {
+      var usage = answer.usages[u];
       try {
         if (usage.claude) await storage.logClaudeUsage({ caller: 'valechat', model: usage.model, promptTokens: usage.promptTokens, completionTokens: usage.completionTokens });
         else await storage.logGeminiUsage({ caller: 'valechat', model: usage.model, promptTokens: usage.promptTokens, completionTokens: usage.completionTokens });

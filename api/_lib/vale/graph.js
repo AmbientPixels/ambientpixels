@@ -7,7 +7,8 @@ var MAX_RETRIES = 3;
 
 var INBOX_SELECT = 'id,subject,from,toRecipients,ccRecipients,receivedDateTime,isRead,importance,flag,' +
   'inferenceClassification,bodyPreview,webLink,conversationId,internetMessageHeaders';
-var SENT_SELECT = 'id,subject,toRecipients,sentDateTime,conversationId';
+var LIVE_SELECT = 'id,subject,from,toRecipients,receivedDateTime,isRead,bodyPreview,webLink';
+var SENT_SELECT ='id,subject,toRecipients,sentDateTime,conversationId';
 var EVENT_SELECT = 'id,subject,start,end,location,attendees,organizer,isOnlineMeeting,responseStatus,isCancelled,isOrganizer';
 
 class GraphError extends Error { constructor(status, msg) { super('graph ' + status + ': ' + msg); this.name = 'GraphError'; this.status = status; } }
@@ -61,6 +62,13 @@ function createGraph(deps) {
       return getPaged('/me/mailFolders/sentitems/messages?' + q({
         '$select': SENT_SELECT, '$filter': 'sentDateTime ge ' + sinceIso, '$orderby': 'sentDateTime desc', '$top': 50
       }), cap || 200);
+    },
+    // Whole-mailbox search for Vale's chat. Graph rejects $orderby/$filter alongside $search;
+    // results come back by relevance. The caller passes an already-sanitized query.
+    searchMessages: function (query, cap) {
+      return getPaged('/me/messages?' + q({
+        '$search': '"' + String(query || '').replace(/"/g, '') + '"', '$select': LIVE_SELECT, '$top': 25
+      }), cap || 25);
     },
     calendarView: function (startIso, endIso) {
       return getPaged('/me/calendarView?' + q({
