@@ -164,13 +164,9 @@
           .catch(function () { addBubble('vale', 'I could not reach the server.'); });
       });
 
-      // Mail setup (2026-10-17): the Microsoft sign-in + Mail card load only with ?vale=1, and stay
-      // on for this browser session so the sign-in redirect (which drops the query) can finish.
-      var valeMail = false;
-      try {
-        valeMail = /[?&]vale=1\b/.test(location.search) || sessionStorage.getItem('vale-mail') === '1' || /[#&?](code|error)=/.test(location.hash);
-        if (valeMail) sessionStorage.setItem('vale-mail', '1');
-      } catch (e) { valeMail = /[?&]vale=1\b/.test(location.search); }
+      // Vale's Microsoft sign-in + Mail card (2026-10-17). Always loaded: once VALE_STRICT_AUTH is on,
+      // every Vale call on this page needs the Microsoft bearer token it provides.
+      var valeMail = true;
       var valeReady = Promise.resolve();
       if (valeMail) {
         valeReady = new Promise(function (resolve) {
