@@ -71,7 +71,10 @@ async function handle(context, req, deps) {
     var rules = (!rulesMeta.failed && rulesMeta.value) || deps.seedRules || {};
     // The browser may flag a client thread it can see (earlier messages, Reply-To); that only ever
     // adds Claude-only routing, never removes it.
-    var client = rulesMeta.failed || draftLib.isClientThread(v.req, rules) || v.req.client === true;
+    // A compose with nobody on To yet can't be checked against the client list, and its
+    // instruction may name a client: fail closed (Claude only).
+    var composeNoTo = v.req.mode === 'compose' && !(v.req.to && v.req.to.length);
+    var client = rulesMeta.failed || composeNoTo || draftLib.isClientThread(v.req, rules) || v.req.client === true;
 
     var p = draftLib.buildDraftPrompt(v.req, deps.voice, { client: client });
     var out;

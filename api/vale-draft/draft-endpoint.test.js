@@ -208,6 +208,24 @@ async function post(d, b, method) {
     assert.strictEqual(d.callModel.calls.length, 0);
   });
 
+  // ── round 6: compose with an empty To fails closed ──
+  await test('compose with to: [] → noFallback: true', async () => {
+    const d = deps();
+    const c = await post(d, { mode: 'compose', to: [], instruction: 'Reply to Northwind about invoice 2291' });
+    assert.strictEqual(c.res.status, 200);
+    assert.strictEqual(d.callModel.calls[0].noFallback, true);
+  });
+  await test('compose with no to field → noFallback: true', async () => {
+    const d = deps();
+    await post(d, { mode: 'compose', instruction: 'Say hi' });
+    assert.strictEqual(d.callModel.calls[0].noFallback, true);
+  });
+  await test('compose to a non-client → fallback allowed', async () => {
+    const d = deps();
+    await post(d, { mode: 'compose', to: ['dana@vendor.example'], instruction: 'Say hi' });
+    assert.strictEqual(d.callModel.calls[0].noFallback, false);
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();
