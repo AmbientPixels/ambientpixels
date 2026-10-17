@@ -24,10 +24,22 @@
     (async function () {
       var OFFICE = '/modules/company/office.html';
       var q = new URLSearchParams(location.search);
-      // Vale Mail (/modules/company/mail.html) signs in with its own app registration and marks the
-      // round trip in sessionStorage; everything else is the Office page's Vale sign-in, unchanged.
+      // Vale Mail (/modules/company/mail.html) signs in with its own app registration. It is routed
+      // by the MSAL request state in the response (it ends in '|vmail'); a sign-in response without
+      // that state is the Office page's Vale sign-in, unchanged. Only when the response carries no
+      // state at all does a fresh (under 10 minutes) round-trip flag from mail.html decide.
       var mail = false;
-      try { mail = !q.get('connect') && sessionStorage.getItem('vmail.authReturn') === '1'; sessionStorage.removeItem('vmail.authReturn'); } catch (e) { mail = false; }
+      try {
+        var hq = new URLSearchParams(location.hash.replace(/^#/, ''));
+        var state = hq.get('state') || q.get('state');
+        var flag = null;
+        try { flag = JSON.parse(sessionStorage.getItem('vmail.authReturn') || 'null'); } catch (x) { flag = null; }
+        sessionStorage.removeItem('vmail.authReturn');
+        var fresh = !!(flag && typeof flag.at === 'number' && Date.now() - flag.at >= 0 && Date.now() - flag.at < 10 * 60 * 1000);
+        if (q.get('connect')) mail = false;
+        else if (state) mail = /\|vmail$/.test(state);
+        else mail = fresh;
+      } catch (e) { mail = false; }
       function go(extra) {
         if (mail) { location.replace('/modules/company/mail.html' + (extra ? '?' + extra.replace(/^&/, '') : '')); return; }
         location.replace(OFFICE + '?vale=1' + (extra || ''));

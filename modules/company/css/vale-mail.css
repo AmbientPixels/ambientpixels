@@ -21,7 +21,7 @@
   --vm-sep: var(--c-sep);
   --vm-text: var(--c-text);
   --vm-text-2: rgba(255, 255, 255, 0.66);
-  --vm-text-3: rgba(255, 255, 255, 0.46);
+  --vm-text-3: rgba(255, 255, 255, 0.58);
   --vm-warn: #fbbf24;
   --vm-warn-bg: rgba(251, 191, 36, 0.09);
   --vm-warn-border: rgba(251, 191, 36, 0.32);
@@ -48,7 +48,7 @@ body[data-theme="light"] .vmail {
   --vm-hover: rgba(0, 0, 0, 0.03);
   --vm-selected: rgba(124, 108, 242, 0.1);
   --vm-text-2: rgba(0, 0, 0, 0.66);
-  --vm-text-3: rgba(0, 0, 0, 0.5);
+  --vm-text-3: rgba(0, 0, 0, 0.6);
   --vm-warn: #a16207;
   --vm-warn-bg: rgba(234, 179, 8, 0.1);
   --vm-warn-border: rgba(202, 138, 4, 0.35);
@@ -85,6 +85,7 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   padding: 0;
 }
 #vmail-main {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--vm-top-h));
@@ -100,10 +101,38 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 }
 
 .vmail :focus-visible {
-  outline: none;
+  /* Transparent outline keeps a ring in forced-colors mode, which drops box-shadow. */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
   box-shadow: var(--vm-focus);
   border-radius: var(--c-r-sm);
 }
+/* The reading pane takes focus programmatically after Enter; it shows no ring of its own. */
+.vmail-reader:focus-visible { outline: none; box-shadow: none; }
+.vmail-reader:focus-within .vmail-reader__bar { border-top: 2px solid var(--vm-agent-border); }
+@media (forced-colors: active) {
+  .vmail :focus-visible,
+  .vmail-list:focus-visible { outline: 2px solid CanvasText; }
+  .vmail-reader:focus-visible { outline: none; }
+  .vmail-row[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+}
+
+/* Skip link: hidden until focused. */
+.vmail-skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1200;
+  padding: 8px 12px;
+  border-radius: var(--c-r-sm);
+  background: var(--vm-agent);
+  color: var(--vm-agent-ink);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.vmail-skip:focus,
+.vmail-skip:focus-visible { transform: none; }
 
 .vmail-visually-hidden {
   position: absolute;
@@ -262,6 +291,7 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 
 /* ── Shell: three columns ≥1100, two ≥720, one below ── */
 .vmail-shell {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: grid;
@@ -392,8 +422,29 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   gap: 10px;
   min-height: 22px;
 }
-.vmail-folder-select { display: none; }
-.vmail-folder-select select { padding: 4px 8px; font-size: var(--c-text-xs); }
+.vmail-folder-select { display: none; position: relative; }
+.vmail-folder-select select {
+  height: 26px;
+  padding: 0 24px 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--c-r-sm);
+  background: transparent;
+  color: var(--vm-text);
+  font: 600 var(--c-text-base)/1 var(--c-font);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.vmail-folder-select select:hover { border-color: var(--vm-sep); background: var(--vm-hover); }
+.vmail-folder-select__chev {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  font-size: 10px;
+  color: var(--vm-text-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
 .vmail-listhead__count {
   font-size: var(--c-text-xs);
   color: var(--vm-text-3);
@@ -402,17 +453,22 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 
 .vmail-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
   margin-top: 10px;
-  padding: 2px;
+  padding: 2px 18px 2px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 20px), transparent);
 }
+.vmail-chips::-webkit-scrollbar { display: none; }
 .vmail-chip {
   flex: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 4px 9px;
   border-radius: var(--c-r-pill);
   border: 1px solid var(--vm-sep);
   background: transparent;
@@ -423,20 +479,18 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 .vmail-chip:hover { background: var(--vm-hover); color: var(--vm-text); }
+/* One selected style for every chip. */
 .vmail-chip[aria-pressed="true"] {
-  background: var(--vm-text);
-  border-color: var(--vm-text);
-  color: var(--vm-bg);
-}
-.vmail-chip--agent[aria-pressed="true"] {
-  background: var(--vm-agent);
-  border-color: var(--vm-agent);
-  color: var(--vm-agent-ink);
+  background: var(--vm-agent-dim);
+  border-color: var(--vm-agent-border);
+  color: var(--vm-agent-text);
 }
 .vmail-chip__count {
   font-variant-numeric: tabular-nums;
-  opacity: 0.75;
+  font-weight: 400;
+  color: var(--vm-text-3);
 }
+.vmail-chip[aria-pressed="true"] .vmail-chip__count { color: var(--vm-agent-text); }
 
 .vmail-searchhead {
   display: flex;
@@ -460,6 +514,8 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   font-size: var(--c-text-xs);
   line-height: 1.35;
 }
+.vmail-nextup__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vmail-nextup__more { flex: none; margin-left: auto; color: var(--vm-text-3); }
 .vmail-nextup strong { color: var(--vm-text); font-weight: 600; }
 .vmail-nextup--clash { border-color: var(--vm-warn-border); }
 
@@ -848,6 +904,19 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   color: var(--vm-text-2);
 }
 .vmail-editor__head strong { color: var(--vm-text); font-weight: 600; }
+.vmail-warnchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border: 1px solid var(--vm-danger-border);
+  border-radius: var(--c-r-pill);
+  background: var(--vm-danger-bg);
+  color: var(--vm-danger);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+}
 .vmail-editor__by {
   margin-left: auto;
   display: inline-flex;
@@ -962,15 +1031,26 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 .vmail-attachment i { color: var(--vm-text-3); }
 .vmail-attachment__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
 .vmail-attachment__size { color: var(--vm-text-3); font-size: var(--c-text-xs); font-weight: 400; }
+.vmail-plainbody {
+  max-width: 72ch;
+  padding: 4px 0;
+  background: transparent;
+  color: var(--vm-text);
+  font-size: var(--c-text-base);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .vmail-frame {
   display: block;
   width: 100%;
   height: 62vh;
-  min-height: 420px;
+  min-height: 240px;
   border: 1px solid var(--vm-sep);
   border-radius: var(--c-r);
   background: #ffffff;
 }
+.vmail-frame--short { height: 320px; }
 
 /* Reader greeting (nothing open) */
 .vmail-hello {
@@ -1014,32 +1094,50 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 .vmail-readskel span:nth-child(3) { width: 100%; height: 96px; border-radius: 16px; margin-top: 22px; }
 .vmail-readskel span:nth-child(4) { width: 100%; height: 240px; border-radius: 12px; }
 
-/* ── Send countdown bar + toast ── */
+/* ── Send countdown bar + toast ──
+   Absolutely positioned on the shell grid's last column (the reading pane at every width, the
+   only column on phones), so they centre over the reader and never cover the list. */
 .vmail-sendbar,
 .vmail-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 22px;
+  position: absolute;
+  grid-column: -2 / -1;
+  grid-row: 1;
+  justify-self: center;
+  align-self: end;
+  left: auto;
+  bottom: 20px;
   z-index: 1100;
   display: flex;
   align-items: center;
   gap: 12px;
-  max-width: calc(100vw - 32px);
+  max-width: calc(100% - 32px);
+  margin: 0 16px;
   padding: 10px 12px 10px 16px;
   border-radius: var(--c-r);
+  /* Fully opaque raised surface: nothing behind may show through. */
   background: var(--c-surface-2);
   border: 1px solid var(--c-sep-strong);
   color: var(--vm-text);
   box-shadow: var(--vm-shadow);
-  transform: translateX(-50%);
   animation: vmail-pop 0.18s var(--vm-ease);
   font-size: 13px;
 }
 @keyframes vmail-pop {
-  from { opacity: 0; transform: translate(-50%, 8px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from { transform: translateY(8px); }
+  to { transform: none; }
 }
-.vmail-sendbar { border-color: var(--vm-agent-border); bottom: 76px; }
+.vmail-sendbar { border-color: var(--vm-agent-border); bottom: 20px; }
+.vmail-sendbar:not([hidden]) ~ .vmail-toast:not([hidden]) { bottom: 78px; }
+.vmail .vmail-sendbar__undo {
+  background: var(--vm-agent);
+  border-color: var(--vm-agent);
+  color: var(--vm-agent-ink);
+  font-weight: 600;
+}
+.vmail .vmail-sendbar__undo:hover { background: var(--vm-agent-text); border-color: var(--vm-agent-text); color: var(--vm-agent-ink); }
+/* Room under the editor while the bar is up, so it never covers the editor text. */
+.vmail.is-sending .vmail-article { padding-bottom: 96px; }
+.vmail.is-sending .vmail-editor { scroll-margin-bottom: 84px; }
 .vmail-sendbar__text strong { font-variant-numeric: tabular-nums; }
 .vmail-sendbar__progress {
   width: 90px;
@@ -1117,8 +1215,8 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
 @media (max-width: 1099px) {
   .vmail-shell { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); }
   .vmail-nav { display: none; }
-  .vmail-folder-select { display: block; }
-  .vmail-nextup { display: block; }
+  .vmail-folder-select { display: inline-flex; align-items: center; }
+  .vmail-nextup { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
   .vmail-top { grid-template-columns: auto minmax(160px, 1fr) auto; }
   .vmail-article { padding: 18px 20px 40px; }
 }
@@ -1143,10 +1241,16 @@ body[data-theme="light"] .vmail .ap-input:focus { border-color: var(--vm-agent-b
   .vmail-article { padding: 16px 16px 40px; }
   .vmail-subject { font-size: var(--c-text-lg); }
   .vmail-vale { padding: 14px; }
-  .vmail-frame { height: 70vh; min-height: 360px; }
+  .vmail-frame { height: 70vh; min-height: 240px; }
+  .vmail-frame--short { height: 320px; }
+  .vmail-meta { position: relative; gap: 10px; }
+  .vmail-meta .vmail-avatar { width: 28px; height: 28px; font-size: 12px; }
+  .vmail-meta__who > div:first-child { display: flex; flex-direction: column; padding-right: 72px; }
+  .vmail-meta__addr { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; font-size: var(--c-text-xs); }
+  .vmail-meta__when { position: absolute; top: 2px; right: 0; }
   .vmail-hello__keys { display: none; }
-  .vmail-sendbar { bottom: 128px; }
-  .vmail-toast { bottom: 72px; }
+  .vmail-sendbar,
+  .vmail-toast { bottom: 16px; }
 }
 
 /* Sidebar top bar is 36px and the rail moves to the bottom (52px) at ≤768px. */

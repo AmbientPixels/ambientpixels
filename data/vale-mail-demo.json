@@ -2198,7 +2198,7 @@
     },
     "demo-inb-008": {
       "label": "needs_you",
-      "why": "Unread client mail",
+      "why": "Kim needs you to confirm milestone 2 lands before Nov 14 (their board date)",
       "by": "rule"
     },
     "demo-inb-009": {
@@ -2223,12 +2223,12 @@
     },
     "demo-inb-016": {
       "label": "newsletter",
-      "why": "Newsletter",
+      "why": "Weekly newsletter; the pricing-page teardown is relevant to AmbientScore",
       "by": "rule"
     },
     "demo-inb-017": {
       "label": "newsletter",
-      "why": "Newsletter",
+      "why": "Weekly founder newsletter; this issue is about quiet launches",
       "by": "rule"
     },
     "demo-inb-018": {
@@ -2238,12 +2238,12 @@
     },
     "demo-inb-019": {
       "label": "receipt",
-      "why": "Receipt or account notice",
+      "why": "October hosting invoice, $41.20 on the card ending 4242; nothing to do",
       "by": "rule"
     },
     "demo-inb-020": {
       "label": "receipt",
-      "why": "Receipt or account notice",
+      "why": "New sign-in from Seattle on Edge; nothing to do if that was you",
       "by": "rule"
     },
     "demo-inb-021": {
@@ -2303,7 +2303,7 @@
     },
     "demo-inb-033": {
       "label": "receipt",
-      "why": "Receipt or account notice",
+      "why": "Two domains renew automatically on Nov 16; nothing to do",
       "by": "rule"
     },
     "demo-inb-034": {
@@ -2313,7 +2313,7 @@
     },
     "demo-inb-035": {
       "label": "newsletter",
-      "why": "Newsletter",
+      "why": "Q3 summary is ready to review; nothing to answer",
       "by": "rule"
     }
   },

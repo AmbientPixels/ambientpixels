@@ -23,6 +23,8 @@
 
   <main class="content-section vmail is-booting" id="vmail-main" aria-busy="true">
 
+    <a class="vmail-skip" id="vmail-skip" href="#vmail-list">Skip to messages</a>
+
     <div class="vmail-banner" id="vmail-banner" role="note" hidden>
       <i class="fas fa-flask" aria-hidden="true"></i><span id="vmail-banner-text"></span>
     </div>
@@ -51,7 +53,7 @@
       <nav class="vmail-nav" aria-label="Folders and today">
         <ul class="vmail-folders" id="vmail-folders"></ul>
         <section class="vmail-today" id="vmail-today" aria-labelledby="vmail-today-title">
-          <h2 class="vmail-section-title" id="vmail-today-title">Today</h2>
+          <h2 class="vmail-section-title" id="vmail-today-title">Schedule</h2>
           <div id="vmail-today-body"></div>
         </section>
       </nav>
@@ -62,6 +64,7 @@
             <label class="vmail-folder-select">
               <span class="vmail-visually-hidden">Folder</span>
               <select id="vmail-folder-select" class="ap-input"></select>
+              <i class="fas fa-chevron-down vmail-folder-select__chev" aria-hidden="true"></i>
             </label>
             <span class="vmail-listhead__count" id="vmail-count" aria-live="polite"></span>
           </div>
@@ -77,18 +80,22 @@
 
       <section class="vmail-reader" id="vmail-reader" aria-label="Reading pane" tabindex="-1"></section>
 
+      <!-- Bars sit over the reading column (positioned on the shell grid), never over the list. -->
+      <div class="vmail-sendbar" id="vmail-sendbar" hidden>
+        <span class="vmail-sendbar__text" id="vmail-sendbar-text"></span>
+        <progress class="vmail-sendbar__progress" id="vmail-sendbar-progress" max="10" value="10"></progress>
+        <button type="button" class="ap-btn vmail-btn-sm vmail-sendbar__undo" id="vmail-undo-send">Undo</button>
+      </div>
+
+      <div class="vmail-toast" id="vmail-toast" role="status" aria-live="polite" hidden>
+        <span class="vmail-toast__text" id="vmail-toast-text"></span>
+        <button type="button" class="vmail-toast__undo" id="vmail-toast-undo" hidden>Undo</button>
+      </div>
+
     </div>
 
-    <div class="vmail-sendbar" id="vmail-sendbar" role="status" aria-live="polite" hidden>
-      <span class="vmail-sendbar__text" id="vmail-sendbar-text"></span>
-      <progress class="vmail-sendbar__progress" id="vmail-sendbar-progress" max="10" value="10"></progress>
-      <button type="button" class="ap-btn vmail-btn-sm vmail-sendbar__undo" id="vmail-undo-send">Undo</button>
-    </div>
-
-    <div class="vmail-toast" id="vmail-toast" role="status" aria-live="polite" hidden>
-      <span class="vmail-toast__text" id="vmail-toast-text"></span>
-      <button type="button" class="vmail-toast__undo" id="vmail-toast-undo" hidden>Undo</button>
-    </div>
+    <span class="vmail-visually-hidden" id="vmail-sendbar-sr" aria-live="assertive"></span>
+    <span class="vmail-visually-hidden" id="vmail-announce" aria-live="polite"></span>
 
     <dialog class="vmail-sheet" id="vmail-help" aria-labelledby="vmail-help-title">
       <div class="vmail-sheet__head">

@@ -20,6 +20,7 @@
   "demoFixture": "/data/vale-mail-demo.json",
   "inboxPageSize": 50,
   "undoSeconds": 10,
+  "remoteImagesAllowed": false,
   "copy": {
     "tagline": "Your inbox, sorted by Vale.",
     "demoBanner": "Demo mailbox. Nothing here is real; sending is simulated.",

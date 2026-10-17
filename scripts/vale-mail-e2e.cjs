@@ -24,6 +24,10 @@ const MIME = {
   '.webp': 'image/webp', '.woff2': 'font/woff2', '.txt': 'text/plain'
 };
 
+// The production Content-Security-Policy (read-only from staticwebapp.config.json), sent on every
+// HTML response so a CSP breakage fails here instead of on the live site.
+const PROD_CSP = (JSON.parse(fs.readFileSync(path.join(ROOT, 'staticwebapp.config.json'), 'utf8')).globalHeaders || {})['Content-Security-Policy'] || '';
+
 function serve() {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
@@ -38,7 +42,10 @@ function serve() {
         if (/runtime-config\.js$/.test(p)) { res.writeHead(200, { 'Content-Type': MIME['.js'] }); res.end('/* local */'); return; }
         res.writeHead(404, { 'Content-Type': 'text/plain' }); res.end('not found'); return;
       }
-      res.writeHead(200, { 'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+      const ext = path.extname(file).toLowerCase();
+      const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-store' };
+      if (ext === '.html' && PROD_CSP) headers['Content-Security-Policy'] = PROD_CSP;
+      res.writeHead(200, headers);
       res.end(buf);
     });
   });
@@ -49,6 +56,37 @@ function check(cond, what) {
   if (!cond) throw new Error('E2E check failed: ' + what);
   console.log('  ok  ', what);
 }
+
+const SHIM = `(() => {
+  if (window.__vmShim) return;
+  window.__vmShim = true;
+  window.__vmFail = window.__vmFail || {};
+  window.__vmCalls = {};
+  let real;
+  Object.defineProperty(window, 'ValeMailDemo', {
+    configurable: true,
+    get() { return real; },
+    set(v) {
+      const orig = v.createDemoGraph;
+      real = Object.assign({}, v, {
+        createDemoGraph(fx, o) {
+          const g = orig(fx, o);
+          Object.keys(g).forEach((k) => {
+            const f = g[k];
+            if (typeof f !== 'function') return;
+            g[k] = function () {
+              window.__vmCalls[k] = (window.__vmCalls[k] || 0) + 1;
+              if (window.__vmFail[k] > 0) { window.__vmFail[k]--; return Promise.reject({ status: 0, code: 'network' }); }
+              return f.apply(this, arguments);
+            };
+          });
+          window.__vmGraph = g;
+          return g;
+        }
+      });
+    }
+  });
+})();`;
 
 const fixture = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'vale-mail-demo.json'), 'utf8'));
 const core = require(path.join(ROOT, 'modules', 'company', 'js', 'vale-mail-core.js'));
@@ -62,20 +100,20 @@ async function main() {
   function watch(page) {
     page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
     page.on('console', (m) => {
-      if (m.type() !== 'error') return;
       const t = m.text();
       const loc = (m.location() && m.location().url) || '';
+      // CSP violations are never filtered: the page ships with the production policy.
+      if (/Content Security Policy/i.test(t)) { problems.push('csp: ' + t); return; }
+      if (m.type() !== 'error') return;
       // Third-party font/icon CDNs can be slow or offline on a dev box; they are not our code.
       if (/fonts\.googleapis|fonts\.gstatic|cdnjs\.cloudflare/.test(t + ' ' + loc)) return;
-      // After the test presses "Show images" the newsletter asks for its invented .example images,
-      // which cannot resolve (sandboxed srcdoc frames bypass page routing). Expected, and only those.
-      if (/ERR_NAME_NOT_RESOLVED/.test(t) && /^https:\/\/[a-z0-9.-]+\.example\//.test(loc)) return;
       problems.push('console: ' + t + (loc ? ' @ ' + loc : ''));
     });
   }
   try {
     // ── Desktop 1440 ──
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    await ctx.addInitScript(SHIM);
     const page = await ctx.newPage();
     watch(page);
     const t0 = Date.now();
@@ -83,7 +121,7 @@ async function main() {
     await page.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
     const ttiMs = Date.now() - t0;
     console.log('  inbox interactive in ' + ttiMs + ' ms');
-    check(ttiMs < 2500, 'inbox interactive quickly on demo (' + ttiMs + ' ms)');
+    check(ttiMs < 1000, 'inbox interactive in under 1 s on demo (' + ttiMs + ' ms)');
 
     check(await page.isVisible('.vmail-banner'), 'demo banner visible');
     check(/Demo mailbox/.test(await page.textContent('.vmail-banner')), 'demo banner copy');
@@ -129,6 +167,13 @@ async function main() {
     await page.click('#vmail-show-images');
     await page.waitForFunction((s) => /img-src data: cid: https:/.test(document.querySelector(s).srcdoc), frameSel);
     check(true, 'Show images allows https images');
+    await page.waitForTimeout(300);
+    const shown = await page.$eval(frameSel, (f) => f.srcdoc);
+    check(/<img[^>]+src="data:image\/png;base64,/.test(shown), 'demo: Show images renders real (drawn) images');
+    const nf = page.frames().find((f) => f !== page.mainFrame() && f.parentFrame() === page.mainFrame());
+    let natural = -1;
+    try { natural = await nf.evaluate(() => Math.max.apply(null, Array.from(document.images).map((i) => i.naturalWidth))); } catch (e) { natural = -1; }
+    if (natural !== -1) check(natural > 0, 'demo: an image in the newsletter has naturalWidth > 0 (' + natural + ')');
     await page.screenshot({ path: path.join(SHOTS, '03-newsletter.png') });
 
     // ── Stance → draft → send → undo → send → Sent ──
@@ -154,6 +199,12 @@ async function main() {
     await page.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
     await page.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
     check(true, 'send completes after the countdown');
+    await page.waitForFunction((n) => (document.querySelector('.vmail-chip[data-filter="needs_you"] .vmail-chip__count') || {}).textContent === String(n), want.needs_you - 1, { timeout: 5000 });
+    check(await chipCount('needs_you') === String(want.needs_you - 1), 'after the reply, Needs you drops by one');
+    check(await chipCount('waiting') === String(want.waiting + 1), 'after the reply, Waiting on others grows by one');
+    check(/You answered just now/.test(await page.textContent('.vmail-vale')), 'panel says "You answered just now"');
+    check(!(await page.$('.vmail-vale .vmail-stance')), 'no stance buttons once answered');
+    check(!(await page.$('#vmail-list [data-id="demo-inb-006"]')), 'the answered email leaves the Needs you list');
     await page.click('.vmail-folder[data-folder="sentitems"]');
     await page.waitForSelector('#vmail-list [role="option"]', { timeout: 5000 });
     const firstSent = await page.textContent('#vmail-list [role="option"]:first-child');
@@ -209,8 +260,265 @@ async function main() {
     check(true, 'Esc closes the shortcut sheet');
     await ctx.close();
 
+    // ── Reply-To guard: the safe address is the default, and what the editor shows is what sends ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+      await pg.click('.vmail-chip[data-filter="all"]');
+      await pg.click('#vmail-list [data-id="demo-inb-015"]');
+      await pg.waitForSelector('.vmail-warn--replyto', { timeout: 5000 });
+      check(await pg.getAttribute('.vmail-warn--replyto', 'role') === 'note', 'Reply-To warning is a note, not a re-firing alert');
+      check(!(await pg.$('.vmail-vale .vmail-stance[data-stance]')), 'Reply-To mismatch: no one-tap stance buttons (no Acknowledge)');
+      check(/another way/.test(await pg.textContent('.vmail-vale .vmail-question')), 'Reply-To mismatch: Vale says to check another way first');
+      await pg.click('.vmail-vale [data-act="draft"]');
+      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && t.value.trim().length > 0 && !t.disabled; }, null, { timeout: 5000 });
+      const head1 = await pg.textContent('.vmail-editor__head');
+      check(/dana@northwind-studio\.example/.test(head1) && !/quickmail/.test(head1), 'Draft a reply goes to the From address by default');
+      await pg.click('.vmail-warn--replyto [data-act="use-replyto"]');
+      const head2 = await pg.textContent('.vmail-editor__head');
+      check(/quickmail\.example/.test(head2) && await pg.isVisible('.vmail-warnchip'), 'Use the Reply-To address switches the editor, with a "Not the sender\'s address" chip');
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
+      check(/quickmail\.example/.test(await pg.textContent('#vmail-sendbar-text')), 'countdown names the Reply-To address itself, not a display name');
+      await pg.click('#vmail-undo-send');
+      await pg.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 3000 });
+      await pg.click('.vmail-warn--replyto [data-act="use-from"]');
+      check(/dana@northwind-studio\.example/.test(await pg.textContent('.vmail-editor__head')), 'switching back shows the From address');
+      await pg.click('#vmail-send');
+      await pg.waitForFunction(() => /Sent to dana@northwind-studio\.example/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      const sent1 = await pg.evaluate(async () => (await window.__vmGraph.listMessages({ folder: 'sentitems' })).items[0].toRecipients.map((r) => r.emailAddress.address));
+      check(JSON.stringify(sent1) === '["dana@northwind-studio.example"]', 'sent to exactly the address the editor showed (From): ' + sent1);
+      await pg.click('.vmail-warn--replyto [data-act="use-replyto"]');
+      await pg.click('.vmail-vale [data-act="reply"]');
+      await pg.fill('#vmail-editor-text', 'Checking with you here first.');
+      check(/quickmail\.example/.test(await pg.textContent('.vmail-editor__head')), 'second reply shows the Reply-To address');
+      await pg.click('#vmail-send');
+      await pg.waitForFunction(() => /Sent to dana\.reyes\.billing@quickmail\.example/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      const sent2 = await pg.evaluate(async () => (await window.__vmGraph.listMessages({ folder: 'sentitems' })).items[0].toRecipients.map((r) => r.emailAddress.address));
+      check(JSON.stringify(sent2) === '["dana.reyes.billing@quickmail.example"]', 'sent to exactly the address the editor showed (Reply-To): ' + sent2);
+      await c.close();
+    }
+
+    // ── Keyboard only: skip link, j, Tab to a stance, Enter, Ctrl+Enter, Undo with Enter ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+      let onSkip = false;
+      for (let i = 0; i < 60 && !onSkip; i++) {
+        await pg.keyboard.press('Tab');
+        onSkip = await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-skip');
+      }
+      check(onSkip, 'keyboard: Tab reaches the "Skip to messages" link');
+      await pg.keyboard.press('Enter');
+      check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-list'), 'keyboard: the skip link moves focus to the message list');
+      await pg.keyboard.press('j');
+      await pg.waitForSelector('.vmail-stance[data-stance="yes"]', { timeout: 5000 });
+      let onYes = false;
+      for (let i = 0; i < 30 && !onYes; i++) {
+        await pg.keyboard.press('Tab');
+        onYes = await pg.evaluate(() => { const a = document.activeElement; return !!a && a.matches('.vmail-stance[data-stance="yes"]'); });
+      }
+      check(onYes, 'keyboard: Tab reaches the Yes stance');
+      await pg.keyboard.press('Enter');
+      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /Yes, that works/.test(t.value) && document.activeElement === t; }, null, { timeout: 5000 });
+      check(true, 'keyboard: Enter on Yes drafts the reply and focuses the editor');
+      await pg.keyboard.press('Control+Enter');
+      await pg.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
+      check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-undo-send'), 'keyboard: Ctrl+Enter starts the countdown and focuses Undo');
+      const quietCountdown = await pg.$eval('#vmail-sendbar-text', (el) => { for (let n = el; n; n = n.parentElement) if (n.hasAttribute && n.hasAttribute('aria-live')) return false; return true; });
+      check(quietCountdown, 'a11y: the per-second countdown is not in a live region');
+      check(/Press Undo/.test(await pg.textContent('#vmail-sendbar-sr')), 'a11y: the send is announced once in its own live region');
+      await pg.keyboard.press('Enter');
+      await pg.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 3000 });
+      check(/Yes, that works/.test(await pg.inputValue('#vmail-editor-text')), 'keyboard: Enter on Undo stops the send');
+
+      // Forced colors: the focus ring must survive (box-shadow is dropped there).
+      await pg.emulateMedia({ forcedColors: 'active' });
+      await pg.focus('#vmail-search');
+      await pg.keyboard.press('Tab');
+      const ring = await pg.evaluate(() => { const a = document.activeElement; return a.id + ':' + getComputedStyle(a).outlineStyle; });
+      check(ring === 'vmail-compose:solid', 'forced colors: focused Compose has a solid outline (' + ring + ')');
+      await pg.emulateMedia({ forcedColors: 'none' });
+
+      // j/k: one Graph read when the selection settles, not one per key press.
+      await pg.click('.vmail-chip[data-filter="all"]');
+      await pg.focus('#vmail-list');
+      await pg.waitForTimeout(400);
+      await pg.evaluate(() => { window.__vmCalls.getMessage = 0; });
+      for (let i = 0; i < 8; i++) await pg.keyboard.press('j');
+      await pg.waitForTimeout(900);
+      const gets = await pg.evaluate(() => window.__vmCalls.getMessage || 0);
+      check(gets >= 1 && gets <= 2, 'holding j: ' + gets + ' message read(s) for 8 presses');
+      const selSubj = await pg.$eval('#vmail-list [aria-selected="true"] .vmail-row__subject strong', (e) => e.textContent);
+      check((await pg.textContent('#vmail-subject')) === selSubj, 'the reader shows the last selected email');
+
+      // Esc closes the reader and focus returns to the list.
+      await pg.keyboard.press('Escape');
+      await pg.waitForSelector('#vmail-reader .vmail-hello', { timeout: 3000 });
+      check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-list'), 'Esc closes the reader; focus returns to the list');
+
+      // f / u with Undo.
+      const fid = await pg.$eval('#vmail-list [aria-selected="true"]', (r) => r.getAttribute('data-id'));
+      const rowSel = '#vmail-list [data-id="' + fid + '"]';
+      const wasFlagged = !!(await pg.$(rowSel + ' .fa-flag'));
+      await pg.keyboard.press('f');
+      await pg.waitForFunction(([s, w]) => !!document.querySelector(s + ' .fa-flag') !== w, [rowSel, wasFlagged], { timeout: 3000 });
+      check(true, 'f toggles the flag');
+      await pg.waitForSelector('#vmail-toast-undo:not([hidden])', { timeout: 3000 });
+      await pg.click('#vmail-toast-undo');
+      await pg.waitForFunction(([s, w]) => !!document.querySelector(s + ' .fa-flag') === w, [rowSel, wasFlagged], { timeout: 3000 });
+      check(true, 'Undo restores the flag');
+      await pg.focus('#vmail-list');
+      const wasUnread = await pg.$eval(rowSel, (r) => r.classList.contains('is-unread'));
+      await pg.keyboard.press('u');
+      await pg.waitForFunction(([s, w]) => document.querySelector(s).classList.contains('is-unread') !== w, [rowSel, wasUnread], { timeout: 3000 });
+      check(true, 'u toggles read / unread');
+      await pg.waitForSelector('#vmail-toast-undo:not([hidden])', { timeout: 3000 });
+      await pg.click('#vmail-toast-undo');
+      await pg.waitForFunction(([s, w]) => document.querySelector(s).classList.contains('is-unread') === w, [rowSel, wasUnread], { timeout: 3000 });
+      check(true, 'Undo restores read / unread');
+
+      // Compose with a Vale brief → send → it lands in Sent.
+      await pg.click('#vmail-compose');
+      await pg.fill('#vmail-compose-to', 'pat@vendor.example');
+      await pg.fill('#vmail-compose-subject', 'E2E compose check');
+      await pg.fill('#vmail-compose-brief', 'confirm the Friday call');
+      await pg.click('form[data-form="brief"] button[type="submit"]');
+      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && /confirm the Friday call/.test(t.value) && !t.disabled; }, null, { timeout: 5000 });
+      check(/Hi Pat/.test(await pg.inputValue('#vmail-editor-text')), 'compose: Vale drafts from the one-line brief');
+      await pg.click('#vmail-send');
+      await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      await pg.click('.vmail-folder[data-folder="sentitems"]');
+      await pg.waitForFunction(() => /E2E compose check/.test((document.querySelector('#vmail-list [role="option"]') || {}).textContent || ''), null, { timeout: 5000 });
+      check(true, 'compose: the new email is at the top of Sent');
+
+      // A failed send keeps the draft, says so, and "Try again" sends it.
+      await pg.click('.vmail-folder[data-folder="inbox"]');
+      await pg.click('.vmail-chip[data-filter="all"]');
+      await pg.click('#vmail-list [data-id="demo-inb-025"]');
+      await pg.waitForSelector('.vmail-vale .vmail-stance[data-stance]', { timeout: 5000 });
+      await pg.click('.vmail-vale .vmail-stance[data-stance]');
+      await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && t.value.trim() && !t.disabled; }, null, { timeout: 5000 });
+      await pg.evaluate(() => { window.__vmFail.sendDraft = 1; });
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('.vmail-editor__error[role="alert"]', { timeout: 20000 });
+      check(/Try again/.test(await pg.textContent('#vmail-send')), 'send failure: the editor says so and Send reads "Try again"');
+      await pg.click('#vmail-send');
+      await pg.waitForFunction(() => /Sent/.test((document.querySelector('#vmail-toast') || {}).textContent || ''), null, { timeout: 20000 });
+      check(true, 'send failure: Try again sends it');
+      await c.close();
+    }
+
+    // ── Errors: inbox and calendar fail once, then recover with Try again ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript('window.__vmFail = { listMessages: 1, calendarView: 1 };');
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list .vmail-error', { timeout: 8000 });
+      check(/offline/.test(await pg.textContent('#vmail-list .vmail-error')), 'inbox failure: plain-words error in the list');
+      await pg.click('#vmail-list .vmail-error [data-act="reload"]');
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 5000 });
+      check(true, 'inbox failure: Try again loads the rows');
+      await pg.waitForSelector('#vmail-today-body [data-act="calendar"]', { timeout: 5000 });
+      check(true, 'calendar failure: Today shows Try again');
+      await pg.click('#vmail-today-body [data-act="calendar"]');
+      await pg.waitForSelector('#vmail-today-body .vmail-event', { timeout: 5000 });
+      check(true, 'calendar failure: Try again loads the meetings');
+      await c.close();
+    }
+
+    // ── 1024: two columns, folder menu, one-line chips ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1024, height: 768 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 8000 });
+      check(!(await pg.isVisible('.vmail-nav')), '1024: folder column hidden');
+      check(await pg.isVisible('#vmail-folder-select'), '1024: folder menu visible');
+      const sw = await pg.evaluate(() => document.documentElement.scrollWidth);
+      check(sw <= 1024, '1024: no horizontal scroll (' + sw + ')');
+      const tops = await pg.$$eval('.vmail-chip', (cs) => cs.map((x) => x.offsetTop));
+      check(new Set(tops).size === 1, '1024: filter chips sit on one line');
+      await pg.screenshot({ path: path.join(SHOTS, '10-1024.png') });
+      await c.close();
+    }
+
+    // ── Hostile email battery in Edge: zero remote requests even with the meta CSP removed ──
+    {
+      const c = await browser.newContext();
+      const pg = await c.newPage();
+      const hits = [];
+      await pg.route('**/*', (route) => {
+        const u = route.request().url();
+        if (/evil\.example/.test(u)) { hits.push(u); return route.abort(); }
+        return route.continue();
+      });
+      const battery = [
+        '<svg width="10" height="10"><image href="https://evil.example/a.png" width="10" height="10"/></svg>',
+        '<svg width="10" height="10"><image xlink:href="https://evil.example/b.png" width="10" height="10"/></svg>',
+        '<svg width="10" height="10"><filter id="f"><feImage href="https://evil.example/c.png"/></filter><rect filter="url(#f)" width="10" height="10"/></svg>',
+        '<svg><use href="https://evil.example/s.svg#x"/></svg>',
+        '<div style="width:10px;height:10px;background:url(&#39;https://evil.example/d.png&#39;)">x</div>',
+        '<div style="width:10px;height:10px;background:u\\72l(https://evil.example/e.png)">x</div>',
+        '<div style="width:10px;height:10px;background:url(ht\\74ps://evil.example/f.png)">x</div>',
+        '<style>@import "https://evil.example/g.css";</style><p>x</p>',
+        '<style>div.q{width:10px;height:10px;background-image:image-set("https://evil.example/h.png" 1x)}</style><div class="q">x</div>',
+        '<img src="https://evil.example/i.png"><img srcset="https://evil.example/j.png 2x">'
+      ];
+      const noCsp = (d) => d.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+      await pg.setContent('<img src="https://evil.example/control.png">');
+      await pg.waitForTimeout(300);
+      check(hits.length >= 1, 'battery probe sees a raw remote image (control)');
+      hits.length = 0;
+      for (const b of battery) {
+        await pg.setContent(noCsp(core.safeBodyDoc({ contentType: 'html', content: b }, false)));
+        await pg.waitForTimeout(150);
+      }
+      check(hits.length === 0, 'hostile battery: zero remote requests with images hidden, even without the CSP meta' + (hits.length ? ': ' + hits.join(', ') : ''));
+      await c.close();
+    }
+
+    // ── vale-auth.html routes by the MSAL state, not a sticky flag ──
+    {
+      const c = await browser.newContext();
+      const pg = await c.newPage();
+      const MSAL_STUB = 'window.msal = { PublicClientApplication: function () { this.initialize = function () { return Promise.resolve(); }; this.handleRedirectPromise = function () { return Promise.resolve(null); }; } };';
+      await pg.route('**/js/vendor/msal-browser.min.js', (route) => route.fulfill({ status: 200, contentType: 'text/javascript', body: MSAL_STUB }));
+      let cfgs = [];
+      pg.on('request', (rq) => { const u = rq.url(); if (/\/data\/vale-(config|mail-product)\.json/.test(u)) cfgs.push(/vale-config/.test(u) ? 'office' : 'mail'); });
+      async function land(flag, hash) {
+        await pg.goto(base + '/data/vale-mail-demo.json');
+        await pg.evaluate((f) => { if (f === null) sessionStorage.removeItem('vmail.authReturn'); else sessionStorage.setItem('vmail.authReturn', f); }, flag);
+        cfgs = [];
+        await pg.goto(base + '/pages/vale-auth.html' + hash);
+        await pg.waitForURL(/\/modules\/company\/(office|mail)\.html/, { timeout: 8000, waitUntil: 'commit' });
+        return { url: pg.url(), cfgs: Array.from(new Set(cfgs)) };
+      }
+      let r1 = await land('1', '#code=x&state=abc');
+      check(/office\.html\?vale=1&signin=ok/.test(r1.url) && r1.cfgs.join() === 'office', 'vale-auth: a stale flag does not hijack the Office sign-in');
+      let r2 = await land(JSON.stringify({ at: Date.now() }), '#code=x&state=abc%7Cvmail');
+      check(/mail\.html\?signin=ok/.test(r2.url) && r2.cfgs.join() === 'mail', 'vale-auth: a Vale Mail response (state …|vmail) returns to mail.html');
+      let r3 = await land(JSON.stringify({ at: Date.now() }), '#code=x&state=abc');
+      check(/office\.html/.test(r3.url) && r3.cfgs.join() === 'office', 'vale-auth: an Office response wins over a fresh abandoned Vale Mail flag');
+      await c.close();
+    }
+
     // ── Phone 390×844 ──
     const pctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    await pctx.addInitScript(SHIM);
     const ph = await pctx.newPage();
     watch(ph);
     await ph.goto(base + PAGE);
