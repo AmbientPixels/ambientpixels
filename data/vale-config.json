@@ -1,7 +1,7 @@
 {
   "_note": "Public Vale sign-in settings (not secrets). clientId and scope are filled in at setup (docs/superpowers/plans/2026-10-17-vale-setup-checklist.md). Empty clientId = the Mail card shows 'not set up yet'.",
   "tenantId": "96bfe658-4094-4192-88f8-5b0874471c7e",
-  "clientId": "",
-  "scope": "",
+  "clientId": "b3abb7ff-5838-4bd7-97f1-205ab3237185",
+  "scope": "api://b3abb7ff-5838-4bd7-97f1-205ab3237185/access_as_user",
   "chatProvider": "Gemini 2.5 Flash or Claude Sonnet, whichever the fleet model switch is set to"
 }
