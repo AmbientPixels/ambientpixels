@@ -715,9 +715,18 @@ test('attribute names with quotes or junk are dropped, first duplicate wins', ()
 
 test('an unresolved cid: image is dropped (it can never load and trips the page CSP)', () => {
   const b = bodyOf(C.safeBodyDoc(html('<img src="cid:logo@x" alt="Logo">'), true));
-  assert.strictEqual(b, '<img alt="Logo" referrerpolicy="no-referrer">');
+  assert.strictEqual(b, '<img data-vm-cid alt="Logo" referrerpolicy="no-referrer">');
   const ok = bodyOf(C.safeBodyDoc(html('<img src="cid:logo@x">'), false, { 'logo@x': 'data:image/png;base64,AA' }));
   assert.strictEqual(ok, '<img src="data:image/png;base64,AA" referrerpolicy="no-referrer">');
+});
+test('cidPending marks the body so unresolved inline images show as placeholders, never a src', () => {
+  const d = C.safeBodyDoc(html('<img src="cid:a@x" alt="Concept A"><img alt="B" src="cid:b@x">'), false, null, { cidPending: true });
+  assert.ok(/<body class="vm-cid-wait"><img data-vm-cid src="data:image\/gif;base64,[^"]+" alt="Concept A"/.test(d));
+  assert.ok(/<img alt="B" data-vm-cid src="data:image\/gif;base64,[^"]+"/.test(d));
+  assert.ok(!/src="cid:/.test(d));
+  assert.ok(!C.safeBodyDoc(html('<img src="cid:a@x">'), false).includes('data:image/gif'));
+  assert.ok(d.includes('.vm-cid-wait img[data-vm-cid]{'));
+  assert.ok(C.safeBodyDoc(html('<p>x</p>'), false).includes('<body><p>x</p>'));
 });
 
 // ── Round 4: beacons, referrer, folded HTML quotes ──

@@ -118,8 +118,9 @@
           var hit = inline[normCid(val.replace(/^\s*cid:/i, ''))];
           if (typeof hit === 'string' && /^data:image\//i.test(hit)) val = hit;
         }
-        // An unresolved cid: can never load in a browser (and trips the page CSP): drop it.
-        if (an === 'src' && /^cid:/.test(urlForCheck(val))) return;
+        // An unresolved cid: can never load in a browser (and trips the page CSP): drop it, and
+        // mark the image so a reader still fetching attachments can show a neutral placeholder.
+        if (an === 'src' && /^cid:/.test(urlForCheck(val))) { out.push(' data-vm-cid'); return; }
         // Unsafe URLs are removed outright (never rewritten to "#", which would open this page).
         if (unsafeUrl(val, an)) return;
       }
@@ -297,7 +298,12 @@
     'details.vm-quote{margin:12px 0 0}details.vm-quote>summary{display:inline-block;list-style:none;cursor:pointer;padding:0 8px;' +
     'border-radius:6px;background:#ececf1;color:#555;font-weight:700;letter-spacing:1px;line-height:18px}' +
     'details.vm-quote>summary::-webkit-details-marker{display:none}details.vm-quote>summary:focus-visible{outline:2px solid #5b4fd6;outline-offset:2px}' +
-    'details.vm-quote[open]>summary{margin-bottom:8px}';
+    'details.vm-quote[open]>summary{margin-bottom:8px}' +
+    // Inline images still being fetched: a quiet grey box (a blank 1x1 image), never a broken-image glyph.
+    '.vm-cid-wait img[data-vm-cid]{display:inline-block;min-width:120px;min-height:90px;border-radius:6px;background:#ececf1;vertical-align:middle}';
+
+  // A transparent 1x1 GIF: the src a pending inline image gets, so it draws as a box, not a broken image.
+  var BLANK_GIF = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   // Where quoted history starts in sanitised HTML (every "<" in it is a tag the sanitiser
   // rebuilt, with double-quoted attributes): Outlook's divRplyFwdMsg / appendonsend, Gmail's
@@ -330,20 +336,24 @@
   // Full HTML document for <iframe sandbox srcdoc>. Defence in depth: the sandbox (no
   // allow-scripts / allow-same-origin) and the CSP meta already stop scripts and remote
   // loads; the sanitiser also removes them so nothing depends on one layer.
-  function safeBodyDoc(body, allowImages, inlineImages) {
+  // opts.cidPending: the reader is still fetching inline (cid:) images; they show as placeholders.
+  function safeBodyDoc(body, allowImages, inlineImages, opts) {
     var b = body || {};
     var isHtml = str(b.contentType).toLowerCase() === 'html';
     var inner = isHtml ? foldQuotedHtml(sanitizeHtml(b.content, inlineImages)) : '<pre class="vm-text">' + escapeHtml(b.content) + '</pre>';
     // Images hidden: remove remote image URLs outright, so nothing is even requested
     // (tracking pixels never fire) and nothing depends on the CSP alone.
     if (isHtml && !allowImages) inner = stripRemoteImages(inner);
+    // Unresolved inline images lost their cid: src in the sanitiser; while they load they get a
+    // blank local image (the sanitiser keeps only one src, so this is the only one).
+    if (isHtml && opts && opts.cidPending) inner = inner.replace(/(<img\b[^>]*?\sdata-vm-cid)(?=[\s>\/])/gi, function (all, head) { return head + ' src="' + BLANK_GIF + '"'; });
     var csp = "default-src 'none'; style-src 'unsafe-inline'; img-src data: cid:" + (allowImages ? ' https:' : '') + "; font-src data:; form-action 'none'";
     // no-referrer: a srcdoc frame inherits this page's referrer, so a shown image would tell the
     // sender's server the mail was read here. Mail's own <meta> tags are removed, so this holds.
     return '<!doctype html><html><head><meta charset="utf-8">' +
       '<meta name="referrer" content="no-referrer">' +
       '<meta http-equiv="Content-Security-Policy" content="' + csp + '">' +
-      '<base target="_blank"><style>' + BASE_CSS + '</style></head><body>' + inner + '</body></html>';
+      '<base target="_blank"><style>' + BASE_CSS + '</style></head><body' + (opts && opts.cidPending ? ' class="vm-cid-wait"' : '') + '>' + inner + '</body></html>';
   }
 
   // Same detector as the stripper: true exactly when hiding images would remove something.

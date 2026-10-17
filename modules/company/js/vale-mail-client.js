@@ -208,6 +208,7 @@
 
   function setFolder(folder) {
     if (S.folder === folder && !S.search) return;
+    dropPlainToast();
     S.folder = folder;
     S.search = null;
     $('vmail-search').value = '';
@@ -230,12 +231,16 @@
     if (S.search) chips.setAttribute('aria-hidden', 'true'); else chips.removeAttribute('aria-hidden');
     if (!inInbox) return;
     var c = inboxCounts();
+    // Nothing loaded yet (or the load failed): no counts at all, never a "0" that claims an
+    // empty inbox. The empty count span keeps each chip's width close to its loaded size.
+    var L = list('inbox');
+    var unknown = !L.items.length && (L.loading || !!L.error || !L.loaded);
     chips.innerHTML = FILTERS.map(function (f) {
       var on = S.filter === f;
       var long = copy('filterNames.' + f, copy('filters.' + f, f));
       return '<button type="button" class="vmail-chip' + (f === 'needs_you' ? ' vmail-chip--agent' : '') + '" data-filter="' + f + '" aria-pressed="' + on + '"' +
-        ' title="' + h(long) + '" aria-label="' + h(long + ', ' + (c[f] || 0)) + '">' +
-        h(copy('filters.' + f, f)) + ' <span class="vmail-chip__count" aria-hidden="true">' + (c[f] || 0) + '</span></button>';
+        ' title="' + h(long) + '" aria-label="' + h(unknown ? long : long + ', ' + (c[f] || 0)) + '">' +
+        h(copy('filters.' + f, f)) + ' <span class="vmail-chip__count" aria-hidden="true">' + (unknown ? '' : (c[f] || 0)) + '</span></button>';
     }).join('');
     // One row at every width; a narrow pane scrolls it. Never leave the selected chip half shown.
     var sel = chips.querySelector('[aria-pressed="true"]');
@@ -473,11 +478,20 @@
         : await S.g.listMessages({ folder: folder, top: S.cfg.inboxPageSize || 50 });
     } catch (e) { err = e; }
     if (!C.listSettle(L, token, res, err)) return;
-    if (err && more) toast(C.errorText(err).text, null, 'error');
-    if (!err && folder === 'inbox' && !S.demo && S.sortState === 'ok') S.labels = C.triageLabels(S.sortRaw, L.items);
-    if (folder === S.folder) renderListPane();
-    if (folder === 'inbox') { renderFolders(); renderGreetingIfIdle(); }
-    if (folder === 'sentitems' && S.open && S.open.msg) renderValeSlot();
+    // Callers fire and forget: nothing after the settle may reject, or the list would sit on
+    // skeletons forever. A throw here becomes the error card (with Try again) instead.
+    try {
+      if (err && more) toast(C.errorText(err).text, null, 'error');
+      if (!err && folder === 'inbox' && !S.demo && S.sortState === 'ok') {
+        try { S.labels = C.triageLabels(S.sortRaw, L.items); } catch (x) { S.labels = {}; }
+      }
+      if (folder === S.folder) renderListPane();
+      if (folder === 'inbox') { renderFolders(); renderGreetingIfIdle(); }
+      if (folder === 'sentitems' && S.open && S.open.msg) renderValeSlot();
+    } catch (e) {
+      L.error = L.error || e;
+      try { if (folder === S.folder) renderListPane(); } catch (x) { /* the error card is the fallback */ }
+    }
     if (folder === 'inbox' && !more) markBooted();
   }
 
@@ -613,12 +627,15 @@
       else if (L.error) line = 'Your inbox didn\'t load. Use Try again on the left.';
       else if (c.needs_you) line = c.needs_you + (c.needs_you === 1 ? ' email needs you' : ' emails need you') + (c.waiting ? ', and ' + c.waiting + (c.waiting === 1 ? ' thread is' : ' threads are') + ' waiting on others.' : '.');
       else line = 'Nothing needs you right now.' + (c.waiting ? ' ' + c.waiting + ' waiting on others.' : '');
+      // No list yet (loading or failed): no move/open/archive hints with nothing to act on, and
+      // a plain hello instead of a cheerful time-of-day greeting over an error.
+      var noList = !L.items.length && (!L.loaded || !!L.error);
       r.innerHTML = '<div class="vmail-hello">' +
         '<span class="vmail-avatar vmail-avatar--agent vmail-avatar--lg" aria-hidden="true">' + h(S.agent.charAt(0)) + '</span>' +
-        '<h2 class="vmail-hello__title">' + h(greeting() + (first ? ', ' + first : '')) + '.</h2>' +
+        '<h2 class="vmail-hello__title">' + h((L.error && !L.items.length ? 'Hi' : greeting()) + (first ? ', ' + first : '')) + '.</h2>' +
         '<p class="vmail-hello__text">' + h(line) + '</p>' +
         (c.needs_you ? '<button type="button" class="ap-btn vmail-btn-agent" data-act="start">Start with what needs you</button>' : '') +
-        '<div class="vmail-hello__keys"><span><kbd>j</kbd><kbd>k</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>e</kbd> archive</span><span><kbd>?</kbd> all shortcuts</span></div>' +
+        (noList ? '' : '<div class="vmail-hello__keys"><span><kbd>j</kbd><kbd>k</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>e</kbd> archive</span><span><kbd>?</kbd> all shortcuts</span></div>') +
         '</div>';
       return;
     }
@@ -659,7 +676,8 @@
       (isMine(m) ? '' : tool('reply', 'fa-reply', 'Reply', 'r')) +
       (archived || isMine(m) ? '' : tool('archive', 'fa-box-archive', 'Archive', 'e')) +
       tool('flag', 'fa-flag', flagged ? 'Unflag' : 'Flag', 'f', flagged ? ' is-on' : '') +
-      tool('unread', m.isRead ? 'fa-envelope' : 'fa-envelope-open', m.isRead ? 'Mark unread' : 'Mark read', 'u') +
+      // Read/unread means nothing on your own sent mail.
+      (isMine(m) ? '' : tool('unread', m.isRead ? 'fa-envelope' : 'fa-envelope-open', m.isRead ? 'Mark unread' : 'Mark read', 'u')) +
       '<span class="vmail-spacer"></span><span class="vmail-toolbar__subject" aria-hidden="true">' + h(m.subject || '(no subject)') + '</span></div>';
   }
 
@@ -766,7 +784,7 @@
     var slot = $('vmail-vale-slot');
     if (!slot || !S.open || !S.open.msg) return;
     var m = S.open.msg;
-    if (isMine(m)) { slot.innerHTML = ''; return; }
+    if (isMine(m)) { slot.innerHTML = sentPanelHtml(m); return; }
     var l = labelFor(m);
     var name = l && C.labelName(l.label);
     // "Sent. It's X's turn now." shows only right after the send; reopened later, the thread
@@ -825,13 +843,17 @@
 
     var facts = [];
     var th = C.threadText(C.threadStrip(thread(m), S.me), now());
-    if (th) facts.push('<li><i class="fas fa-layer-group" aria-hidden="true"></i>' + h(th) + '</li>');
+    // A guarded email gets none of the familiarity lines ("2 from you", "You last wrote to …"):
+    // the From header can be faked, and borrowed history makes a lure look routine.
+    if (th && !guard) facts.push('<li><i class="fas fa-layer-group" aria-hidden="true"></i>' + h(th) + '</li>');
     // "Last time you spoke" and "waiting on you" mean nothing for newsletters and robots, and
     // repeat the send itself right after Chad answered.
-    // A faked or lookalike sender borrows the real one's history: say where real mail comes from instead.
+    // A faked, lookalike or Reply-To sender: say where real mail comes from (or nothing), never
+    // the real sender's history.
     var spoke = automated || answered ? '' : guard && guard.kind === 'lookalike'
       ? 'Real mail from ' + first + ' comes from ' + guard.known
-      : guard && guard.kind === 'outside' ? 'Real ' + guard.from + ' mail comes from inside your organization' : lastSpoke(m);
+      : guard && guard.kind === 'outside' ? 'Real ' + guard.from + ' mail comes from inside your organization'
+      : guard ? '' : lastSpoke(m);
     if (spoke) facts.push('<li><i class="fas fa-clock-rotate-left" aria-hidden="true"></i>' + h(spoke) + '</li>');
     var waiting = automated || answered || newer || theirTurn || !askLabel ? null : C.waitingOnYou(m, sentInThread(m), now(), { ownDomain: S.cfg.ownDomain });
     if (waiting) facts.push('<li class="is-urgent"><i class="fas fa-hourglass-half" aria-hidden="true"></i>' + h(waitingText(waiting.since)) + '</li>');
@@ -902,6 +924,43 @@
       announce(mismatch ? 'Check who you\'re replying to. Replies to this email are set to go to a different address than the sender\'s.'
         : 'Check who this is from. The sender may not be who they appear to be.');
     }
+  }
+
+  // Chad's own sent email: is it still waiting on them? Their reply (with a way to open it), or
+  // how long it has gone unanswered with a nudge. Drafts get nothing.
+  function sentPanelHtml(m) {
+    var to = (m.toRecipients || [])[0];
+    if (!to || !addrOf(to) || m.isDraft || m.parentFolderId === 'drafts') return '';
+    var first = C.firstName(to);
+    var t = msgTime(m);
+    var later = thread(m).filter(function (x) { return x.id !== m.id && msgTime(x) > t; })
+      .sort(function (a, b) { return msgTime(b) - msgTime(a); });
+    var reply = later.filter(function (x) { return !isMine(x); })[0] || null;
+    var followUp = later.filter(isMine)[0] || null;
+    var facts = [];
+    var th = C.threadText(C.threadStrip(thread(m), S.me), now());
+    if (th) facts.push('<li><i class="fas fa-layer-group" aria-hidden="true"></i>' + h(th) + '</li>');
+    var s = S.session && S.session.key === m.id ? S.session : null;
+    var dis = s && /^(drafting|countdown|sending)$/.test(s.m.state) ? ' disabled' : '';
+    var ask;
+    if (reply) {
+      ask = '<div class="vmail-ask"><p class="vmail-question">' + h(C.firstName(reply.from)) + ' replied ' +
+        h(C.agoText(reply.receivedDateTime || reply.sentDateTime, now())) + '.</p>' +
+        '<div class="vmail-stances"><button type="button" class="ap-btn vmail-btn-agent" data-act="open-latest" data-next="' + h(reply.id) + '"><i class="fas fa-arrow-up" aria-hidden="true"></i>Open the reply</button></div></div>';
+    } else {
+      var since = C.formatWhen(m.sentDateTime || m.receivedDateTime, now());
+      if (since === 'Yesterday') since = 'yesterday';
+      var line = followUp ? 'You followed up ' + C.agoText(followUp.sentDateTime || followUp.receivedDateTime, now()) + '. ' + first + ' hasn\'t replied yet.'
+        : first + ' hasn\'t replied since ' + since + '.';
+      ask = '<div class="vmail-ask"><p class="vmail-question">' + h(line) + '</p>' +
+        '<div class="vmail-stances" role="group" aria-label="Answer with ' + h(S.agent) + '">' +
+        stanceBtn('nudge', s, dis, copy('stances.nudge', 'Draft a nudge')) + '</div>' + tellForm(dis) + '</div>';
+    }
+    return '<section class="vmail-vale" aria-label="' + h(S.agent) + '">' +
+      '<div class="vmail-vale__head"><span class="vmail-avatar vmail-avatar--agent vmail-avatar--sm" aria-hidden="true">' + h(S.agent.charAt(0)) + '</span>' +
+      '<div><span class="vmail-vale__name">' + h(S.agent) + '</span> <span class="vmail-vale__role">' + h((S.cfg.agent && S.cfg.agent.role) || '') + '</span></div>' +
+      (reply ? '' : '<span class="vmail-tag vmail-tag--waiting">' + h(C.labelName('waiting') || 'Waiting') + '</span>') + '</div>' +
+      (facts.length ? '<ul class="vmail-facts">' + facts.join('') + '</ul>' : '') + ask + '</section>';
   }
 
   // The post-send way on: the label truncates (full text in the tooltip and accessible name).
@@ -1038,7 +1097,9 @@
     // Demo only: the fixture's invented image hosts can never load, so "Show images" swaps them for
     // locally drawn pictures. Detection above still ran on the original URLs.
     if (S.demo && o.showImages) body = { contentType: 'html', content: demoImages(body.content) };
-    frame.srcdoc = C.safeBodyDoc(body, !!o.showImages, o.inline || null);
+    // Inline images still loading: placeholders (with their alt text) until the bytes arrive.
+    var cidPending = !!o.attsLoading && /cid:/i.test(String(m.body.content || ''));
+    frame.srcdoc = C.safeBodyDoc(body, !!o.showImages, o.inline || null, { cidPending: cidPending });
     slot.appendChild(frame);
   }
 
@@ -1222,7 +1283,10 @@
     return {
       key: key, mode: mode, msgId: msg ? msg.id : null, conversationId: msg ? msg.conversationId : null,
       m: C.sendMachine(), text: '', lastVale: '', stance: null, byVale: false,
-      to: mode === 'reply' ? C.replyTargets(msg) : [], toText: '', subject: '', brief: '',
+      // A nudge on Chad's own sent email goes to the people he wrote to, never back to himself.
+      to: mode !== 'reply' ? [] : msg && isMine(msg)
+        ? (msg.toRecipients || []).map(function (r) { return { name: (r.emailAddress && r.emailAddress.name) || '', address: addrOf(r).trim().toLowerCase() }; }).filter(function (r) { return r.address; })
+        : C.replyTargets(msg), toText: '', subject: '', brief: '',
       draftId: null, quoted: '', error: null, note: '', timer: null, left: 0
     };
   }
@@ -1305,12 +1369,12 @@
     var to = recipientsFor(s);
     var head;
     if (s.mode === 'reply') {
-      head = '<div class="vmail-editor__head"><span>Reply to <strong>' + h(to.map(function (r) { return r.name || r.address; }).join(', ') || 'no one') + '</strong> ' +
+      head = '<div class="vmail-editor__head"><span class="vmail-editor__to">Reply to <strong>' + h(to.map(function (r) { return r.name || r.address; }).join(', ') || 'no one') + '</strong> ' +
         h(to.map(function (r) { return '<' + r.address + '>'; }).join(', ')) + '</span>' +
         (toReplyToTarget(s) ? '<span class="vmail-warnchip"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>Not the sender\'s address</span>' : '') +
         (s.byVale ? '<span class="vmail-editor__by"><span class="vmail-avatar vmail-avatar--agent vmail-avatar--sm" aria-hidden="true">' + h(S.agent.charAt(0)) + '</span>Drafted by ' + h(S.agent) + ' · edit freely' + (S.demo ? '<span class="vmail-demochip">Demo draft</span>' : '') + '</span>' : '') + '</div>';
     } else {
-      head = '<div class="vmail-editor__head"><span>From <strong>' + h(S.me.displayName || S.cfg.mailbox) + '</strong> ' + h('<' + (S.me.mail || S.cfg.mailbox) + '>') + '</span>' +
+      head = '<div class="vmail-editor__head"><span class="vmail-editor__to">From <strong>' + h(S.me.displayName || S.cfg.mailbox) + '</strong> ' + h('<' + (S.me.mail || S.cfg.mailbox) + '>') + '</span>' +
         (s.byVale ? '<span class="vmail-editor__by"><span class="vmail-avatar vmail-avatar--agent vmail-avatar--sm" aria-hidden="true">' + h(S.agent.charAt(0)) + '</span>Drafted by ' + h(S.agent) + ' · edit freely' + (S.demo ? '<span class="vmail-demochip">Demo draft</span>' : '') + '</span>' : '') + '</div>' +
         '<div class="vmail-editor__fields">' +
         '<label for="vmail-compose-to">To</label><input id="vmail-compose-to" class="ap-input" type="text" inputmode="email" autocomplete="off" placeholder="name@company.com" value="' + h(s.toText) + '"' + (locked ? ' disabled' : '') + '>' +
@@ -1329,6 +1393,7 @@
       ' placeholder="' + (s.mode === 'reply' ? 'Write your reply, or pick an answer above and ' + h(S.agent) + ' drafts it.' : 'Write your email.') + '"></textarea>' +
       (drafting ? '<div class="vmail-drafting" role="status"><span class="vmail-drafting__dots" aria-hidden="true"><span></span><span></span><span></span></span>' + h(S.agent) + ' is drafting' + (client ? ' with Claude' : '') + '…</div>' : '') +
       '</div>' +
+      '<div id="vmail-fill-slot">' + fillNoteHtml(s, drafting) + '</div>' +
       (s.mode === 'reply' ? '<p class="vmail-editor__note">The original email is quoted below your reply when it sends.</p>' : '') +
       (s.note ? '<p class="vmail-editor__note vmail-editor__note--ok">' + h(s.note) + '</p>' : '') +
       (s.error ? '<div class="vmail-editor__error" role="alert">' + h(s.error) + '</div>' : '') +
@@ -1338,6 +1403,32 @@
       '<span class="vmail-spacer"></span><span class="vmail-editor__hint">' + h(S.cfg.undoSeconds || 10) + ' seconds to undo after Send</span>' +
       '</div></section>';
     $('vmail-editor-text').value = s.text;
+    placeToast();
+  }
+
+  // Bracketed gaps a draft leaves for Chad ("[day]"): named under the editor as soon as they
+  // are there, and Send stops on them until they are filled (or Chad picks Send anyway).
+  function fillNoteHtml(s, drafting) {
+    var gaps = drafting ? [] : C.findPlaceholders(s.text);
+    if (!gaps.length) return '';
+    return '<p class="vmail-fill" id="vmail-fill-note"><i class="fas fa-pen-to-square" aria-hidden="true"></i><span>Fill in ' +
+      gaps.map(function (g) { return '<strong>' + h(g) + '</strong>'; }).join(', ') + ' before sending.</span>' +
+      (s.fillBlocked ? '<button type="button" class="ap-btn vmail-btn-sm" data-act="send-anyway">Send anyway</button>' : '') + '</p>';
+  }
+  function renderFillNote(s) {
+    var slot = $('vmail-fill-slot');
+    if (!slot) return;
+    if (!C.findPlaceholders(s.text).length) s.fillBlocked = false;
+    var html = fillNoteHtml(s, s.m.state === 'drafting');
+    if (slot.innerHTML !== html) slot.innerHTML = html;
+  }
+  function selectGap(gap) {
+    var t = $('vmail-editor-text');
+    if (!t || t.disabled) return;
+    var i = t.value.indexOf(gap);
+    try { t.focus({ preventScroll: true }); } catch (e) { t.focus(); }
+    if (i !== -1 && t.setSelectionRange) t.setSelectionRange(i, i + gap.length);
+    revealEditor();
   }
 
   function revealEditor() {
@@ -1365,7 +1456,7 @@
   function startCompose() {
     if (sessionBusy()) { toast('Wait for the email that\'s sending, or undo it first.'); return; }
     // A plain notice (no Undo) would sit over the editor's buttons on a phone: clear it.
-    if (!S.undoFn && $('vmail-toast') && !$('vmail-toast').hidden) hideToast();
+    dropPlainToast();
     S.openSeq++;
     S.openId = null;
     S.justSent = null;
@@ -1386,7 +1477,8 @@
   async function draftWithVale(stance, instruction, option) {
     var compose = S.open && S.open.compose;
     if (!compose && (!S.open || !S.open.msg)) return;
-    if (!compose && isMine(S.open.msg)) return;
+    // Chad's own sent email: only a follow-up (the nudge, or his own words) makes sense.
+    if (!compose && isMine(S.open.msg) && stance !== 'nudge' && !instruction) return;
     var s = ensureSession(compose ? 'compose' : 'reply');
     if (!s) return;
     if (s.m.state === 'undone' || s.m.state === 'failed' || s.m.state === 'idle') s.m.next('edit');
@@ -1495,6 +1587,20 @@
     var bad = !to.length ? 'Add who this goes to.' : (to.some(function (r) { return !EMAIL_RE.test(r.address); }) ? 'One of those addresses doesn\'t look right.' : '');
     if (!bad && !s.text.trim()) bad = 'Write something first, or pick an answer for ' + S.agent + ' to draft.';
     if (bad) { s.error = bad; renderEditorSlot(); focusEditor(); return; }
+    // A gap left for Chad ("[day]") never goes out by accident: stop, select it, and offer
+    // Send anyway. No countdown starts.
+    var gaps = C.findPlaceholders(s.text);
+    var anyway = s.sendAnyway;
+    s.sendAnyway = false;
+    if (gaps.length && !anyway && !s.firstSendAt) {
+      s.fillBlocked = true;
+      s.error = null;
+      renderEditorSlot();
+      selectGap(gaps[0]);
+      announce('Fill in ' + gaps.join(', ') + ' before sending, or choose Send anyway.');
+      return;
+    }
+    s.fillBlocked = false;
     s.error = null;
     s.note = '';
     persist(s);
@@ -1824,6 +1930,7 @@
   async function runSearch(raw) {
     var q = C.searchQuery(raw);
     if (!q) { clearSearch(); return; }
+    dropPlainToast();
     var seq = (S.searchSeq = (S.searchSeq || 0) + 1);
     S.search = { q: q, loading: true, items: [], error: null };
     S.selectedId = null;
@@ -1868,13 +1975,33 @@
     $('vmail-toast-undo').hidden = !S.undoFn;
     $('vmail-toast').classList.toggle('vmail-toast--error', kind === 'error');
     $('vmail-toast').hidden = false;
+    // Announced through the always-present live region: a region that appears with its text
+    // already in it is often not read, and a repeated "Archived." would not be read again.
+    announce($('vmail-toast-text').textContent);
+    placeToast();
     S.toastTimer = setTimeout(hideToast, S.undoFn ? 8000 : 4500);
   }
-  function hideToast() { $('vmail-toast').hidden = true; S.undoFn = null; }
+  // Never over the editor's Send/Discard row: when it would be, the toast moves to the top of
+  // the reading column (re-checked as the reader scrolls).
+  function placeToast() {
+    var t = $('vmail-toast');
+    if (!t || t.hidden) return;
+    t.classList.remove('vmail-toast--high');
+    var row = document.querySelector('#vmail-reader .vmail-editor__actions');
+    if (!row) return;
+    var a = t.getBoundingClientRect(), b = row.getBoundingClientRect();
+    var hit = b.height > 0 && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    t.classList.toggle('vmail-toast--high', hit);
+  }
+  function hideToast() { if (!$('vmail-toast')) return; $('vmail-toast').hidden = true; S.undoFn = null; }
+  // A toast without Undo is about something already done: drop it when Chad moves on (search,
+  // another folder, compose, the shortcut sheet) so it never reads as caused by the new screen.
+  function dropPlainToast() { if ($('vmail-toast') && !$('vmail-toast').hidden && !S.undoFn) { clearTimeout(S.toastTimer); hideToast(); } }
 
   function openHelp() {
     var d = $('vmail-help');
     if (d.open) return;
+    dropPlainToast();
     if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
   }
   function closeHelp() {
@@ -1941,6 +2068,7 @@
     $('vmail-schedule').addEventListener('close', function () { var n = $('vmail-nextup'); if (n && !n.hidden) focusQuiet(n); });
 
     var reader = $('vmail-reader');
+    reader.addEventListener('scroll', placeToast, { passive: true });
     reader.addEventListener('click', function (e) {
       if (e.target.closest('#vmail-back')) { closeReader(); return; }
       if (e.target.closest('#vmail-show-images')) { S.open.showImages = true; renderBodySlot(); return; }
@@ -1970,6 +2098,7 @@
         if (s.m.state === 'idle') s.m.next('edit');
         clearTimeout(s.saveTimer);
         s.saveTimer = setTimeout(function () { persist(s); }, 300);
+        renderFillNote(s);
       } else if (e.target.id === 'vmail-compose-to') { s.toText = e.target.value; persist(s); }
       else if (e.target.id === 'vmail-compose-subject') { s.subject = e.target.value; persist(s); }
       else if (e.target.id === 'vmail-compose-brief') { s.brief = e.target.value; }
@@ -2023,6 +2152,7 @@
       case 'flag': if (id) setFlag(id, !isFlagged(S.open.msg)); break;
       case 'unread': if (id) setRead(id, !S.open.msg.isRead); break;
       case 'discard': discard(); break;
+      case 'send-anyway': if (S.session) { S.session.sendAnyway = true; startSend(); } break;
       case 'quote': {
         var qd = $('vmail-quote');
         if (!qd) break;
@@ -2068,8 +2198,8 @@
         else draftWithVale(null, '');
         break;
       case 'flag': { e.preventDefault(); var fm = findMsg(targetId()); if (fm) setFlag(fm.id, !isFlagged(fm)); break; }
-      case 'unread': { e.preventDefault(); var um = findMsg(targetId()); if (um) setRead(um.id, !um.isRead); break; }
-      case 'search': e.preventDefault(); $('vmail-search').focus(); $('vmail-search').select(); break;
+      case 'unread': { e.preventDefault(); var um = findMsg(targetId()); if (um && !isMine(um)) setRead(um.id, !um.isRead); break; }
+      case 'search': e.preventDefault(); dropPlainToast(); $('vmail-search').focus(); $('vmail-search').select(); break;
       case 'help': e.preventDefault(); openHelp(); break;
       case 'undo': {
         if (!S.undoFn || $('vmail-toast').hidden) return;

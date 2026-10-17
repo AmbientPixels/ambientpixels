@@ -93,7 +93,8 @@
         <button type="button" class="ap-btn vmail-btn-sm vmail-sendbar__undo" id="vmail-undo-send">Undo</button>
       </div>
 
-      <div class="vmail-toast" id="vmail-toast" role="status" aria-live="polite" hidden>
+      <!-- Not a live region: toast() announces through #vmail-announce, which is always present. -->
+      <div class="vmail-toast" id="vmail-toast" hidden>
         <span class="vmail-toast__text" id="vmail-toast-text"></span>
         <button type="button" class="vmail-toast__undo" id="vmail-toast-undo" hidden>Undo</button>
       </div>
