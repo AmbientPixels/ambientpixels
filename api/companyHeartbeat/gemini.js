@@ -44,30 +44,6 @@ async function _resolveModel() {
   return _cachedModel;
 }
 
-// Revenue Seasons privilege tier: probation agents run the economy model.
-// Read-only ledger peek, cached like the model key; fail-open to no downgrade.
-var _probCache = null;
-var _probExpiry = 0;
-async function _probationSet() {
-  var now = Date.now();
-  if (_probCache && now < _probExpiry) return _probCache;
-  var set = Object.create(null);   // null-proto: an agent id can never collide with Object.prototype keys
-  try {
-    var rw = await storage.getState('agentRewards');
-    var priv = rw && rw.privileges;
-    if (priv && priv.enabled !== false && priv.tiers) {
-      Object.keys(priv.tiers).forEach(function (id) { if (priv.tiers[id] === 'probation') set[id] = true; });
-    }
-  } catch (e) {
-    // Fail-open WITHOUT caching: a transient blob error must not pin "nobody is on
-    // probation" for the full TTL. Next call retries.
-    return set;
-  }
-  _probCache = set;
-  _probExpiry = now + CACHE_TTL_MS;
-  return set;
-}
-
 function _isClaudeModel(model) {
   return registry.isClaudeModel(model);
 }
@@ -232,10 +208,6 @@ function _logFallback(failedKey, usedKey, agentId, caller) {
 async function _callWithFallback(prompt, agentId, maxTokens, temperature, caller, structured) {
   var configured = await _resolveModel();
   if (!MODELS[configured]) configured = 'gemini'; // unknown config → safe default
-  try {
-    var _prob = await _probationSet();
-    if (agentId && _prob[agentId]) configured = 'gemini-flash';
-  } catch (_pe) { /* fail-open */ }
   var chain = registry.buildChain(configured);
   return registry.runChain(
     chain,

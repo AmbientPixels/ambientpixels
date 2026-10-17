@@ -148,7 +148,7 @@ function buildPrompt(signal, grounding, nowMs) {
     lines.push('CONSISTENCY RULE: active campaigns and the decisions above are current CEO-endorsed strategy. Do NOT propose work that contradicts or duplicates them unless your rationale NAMES the campaign/decision and justifies the change with data newer than that decision. A rejected item above must not be re-proposed in different words.');
   }
   lines.push('');
-  lines.push('The company north star is paying customers. Prefer a move that advances revenue when the data supports it.');
+  lines.push('The company north star is qualified uses: a real person (not the fleet, a bot or the CEO) completing the first-value event of a free product, per week. Prefer a move that advances it when the data supports it.');
   lines.push('');
   lines.push('Return ONLY minified JSON, no prose. Shape:');
   if (signal.kind === 'objective') {

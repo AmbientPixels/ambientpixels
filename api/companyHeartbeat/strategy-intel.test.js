@@ -118,6 +118,44 @@ t('isQualifiedScan drops agent-minted, failed and own-site scans', function () {
   assert.strictEqual(isQS(null), false);
 });
 
+console.log('cost per qualified use');
+const { computeCostPerUse, buildStrategyDigest, _buildStrategyPromptBlock } = require('./strategy-intel');
+const NOW_CPU = Date.UTC(2026, 9, 16, 12, 0, 0);
+const spendByDay = {
+  '2026-10-16': { cost: 1.5 }, '2026-10-12': { cost: 2.5 },
+  '2026-10-09': { cost: 100 } // 7 days back — outside the window
+};
+
+t('divides 7d spend by qualified uses', function () {
+  const r = computeCostPerUse({ llmSpendByDay: spendByDay, funnel: { qualifiedScans7d: 1 }, qualifiedPaUses7d: { total: 3 } }, NOW_CPU);
+  assert.deepStrictEqual(r, { spend7d: 4, uses7d: 4, perUse: 1 });
+});
+
+t('zero uses reports spend with no per-use figure', function () {
+  const r = computeCostPerUse({ llmSpendByDay: spendByDay, funnel: { qualifiedScans7d: 0 }, qualifiedPaUses7d: 0 }, NOW_CPU);
+  assert.deepStrictEqual(r, { spend7d: 4, uses7d: 0, perUse: null });
+});
+
+t('unmeasured uses or spend is null, never a zero', function () {
+  assert.strictEqual(computeCostPerUse({ llmSpendByDay: spendByDay, funnel: { qualifiedScans7d: 2 } }, NOW_CPU), null);
+  assert.strictEqual(computeCostPerUse({ funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: 1 }, NOW_CPU), null);
+});
+
+t('strategy block shows the real north star and the efficiency line, under the hard cap', function () {
+  const cs = {
+    era: 'build-public', mission: 'x'.repeat(160), eraGoal: 'y'.repeat(120), riskPosture: 'measured', monthlyBudget: 110,
+    northStar: [
+      { metric: 'qualified_uses_week', target: 10, by: '2026-12-03', source: 'auto', priority: 1 },
+      { metric: 'paying_customers', target: 2, by: '2026-12-31', source: 'manual', priority: 2 }
+    ]
+  };
+  const d = buildStrategyDigest(cs, { llmSpendByDay: spendByDay, funnel: { qualifiedScans7d: 1 }, qualifiedPaUses7d: { total: 1 } }, NOW_CPU);
+  const block = _buildStrategyPromptBlock(d);
+  assert.ok(/qualified_uses_week: 2 → 10/.test(block), 'real value, not "?"');
+  assert.ok(/EFFICIENCY \(7d\): \$4\.00 LLM spend \/ 2 qualified uses = \$2\.00 per use/.test(block), 'efficiency line');
+  assert.ok(block.length <= 1200, 'block is ' + block.length + ' chars');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail === 0 ? 0 : 1);
 

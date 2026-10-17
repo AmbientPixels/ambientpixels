@@ -8,7 +8,6 @@ const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('.
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildAllocationPromptBlock } = require('./allocation-intel');
-const { buildProgressionPromptBlock } = require('./rewards-engine');
 const { _buildEmergencePromptBlock } = require('./emergence-intel');
 
 // Agent Identity Evolution (System 14) — Forge-only FLEET HEALTH block.
@@ -338,7 +337,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers, parkedPendingCount, campaignAvailabilityBlock, videoDeskBlock, releasesBlock } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, activeOffers, parkedPendingCount, campaignAvailabilityBlock, videoDeskBlock, releasesBlock } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1289,23 +1288,10 @@ Where relevant to your content tasks, weave in references to these trends to inc
     allocationSection = _buildAllocationPromptBlock(agent, allocationDigest) || '';
   } catch (_allocPromptErr) { allocationSection = ''; }
 
-  // Progression block (rewards system) — every agent sees their level / XP / streak +
-  // fleet standing, with a reminder that XP is earned ONLY from outcomes (not activity),
-  // so the competitive nudge drives real work, not gaming.
-  let progressionSection = '';
-  try {
-    progressionSection = buildProgressionPromptBlock(agent.id, agentRewards) || '';
-  } catch (_progPromptErr) { progressionSection = ''; }
-
-  // Action-slot cap stated in the rules below. Must track the privilege tier the server
-  // actually enforces (agent-runner _slotCap), or vanguard's extra slot is unusable and
-  // probation gets a policy violation for obeying its own prompt. Base 3 on any failure.
-  let _promptSlotCap = 3;
-  try {
-    var _pTier = (agentRewards && agentRewards.privileges && agentRewards.privileges.enabled !== false &&
-      agentRewards.privileges.tiers && agentRewards.privileges.tiers[agent.id]) || 'line';
-    _promptSlotCap = Math.max(1, 3 + (_pTier === 'vanguard' ? 1 : (_pTier === 'probation' ? -1 : 0)));
-  } catch (_slotErr) { _promptSlotCap = 3; }
+  // Action-slot cap stated in the rules below — must match agent-runner _slotCap
+  // (GUARDRAILS.maxActionsPerCyclePerAgent). Rewards levels are display-only since 2026-10-16
+  // and no longer reach the prompt.
+  const _promptSlotCap = 3;
 
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
@@ -1943,7 +1929,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${progressionSection}${productLifecycleSection}${proposalSection}${releasesBlock || ''}${videoDeskBlock || ''}${costSection}${forgeOpsSection}${fleetHealthSection}${emergenceSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${productLifecycleSection}${proposalSection}${releasesBlock || ''}${videoDeskBlock || ''}${costSection}${forgeOpsSection}${fleetHealthSection}${emergenceSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -2313,7 +2299,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - What is measured, in order: people who used an offer after clicking (qualifiedUses in YOUR RECENT OUTCOMES, per post and per campaign), then clicks. Likes, follower counts and post volume are not goals; broadcast volume on this account is measured at ~0 people and is DISPROVEN as a lever.
   - Prefer mechanisms over more posts: search-intent pages, directory listings, replies into threads where someone is actually asking (replies to named people always go to the CEO), one weekly scoreboard post instead of daily broadcast.
   - Every proposal is a testable bet: hypothesis, evidence with a denominator (k of n, window, source), expected effect on the north star, and a kill rule. A proposal that repeats a lost bet without newer evidence is blocked.${costIntel && costIntel.funnel ? `
-  - LIVE CONVERSION FUNNEL (7d): ${costIntel.funnel.scans7d} scans → ${costIntel.funnel.leads7d} leads → ${costIntel.funnel.sales7d} sales (lifetime: ${costIntel.funnel.scansTotal} scans, ${costIntel.funnel.leadsTotal} leads, ${costIntel.funnel.salesTotal} sales). This funnel IS your scoreboard. If leads = 0, your next experiment targets the conversion step — lead capture, distribution into buyer-intent spaces, or the offer — NOT more post volume into small follower counts.` : ''}
+  - LIVE CONVERSION FUNNEL (7d): ${costIntel.funnel.scans7d} scans → ${costIntel.funnel.leads7d} leads → ${costIntel.funnel.sales7d} sales (lifetime: ${costIntel.funnel.scansTotal} scans, ${costIntel.funnel.leadsTotal} leads, ${costIntel.funnel.salesTotal} sales). This funnel is context, not your scoreboard — the scoreboard is the north star in COMPANY STRATEGY.` : ''}
   - YOUR SCAN TOOL — arm outreach with real findings: { "type": "run-ambientscore-scan", "scan": { "url": "https://prospect-site.com", "taskId": "<the reply/post task the results should land on>", "note": "why this prospect" } }
     Queues a free audit of a prospect's site; within ~10-20 min the results (score, top findings, shareable report link) arrive as a system comment on that task, so Scribe can cite REAL findings in the reply. Daily cap applies — spend scans on threads where someone is actively asking for site/landing-page feedback.
 - STRATEGIC MARKETING DIRECTOR (Echo):
@@ -2330,7 +2316,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
      - Running? Don't change the variable. Wait for conclusion.
      - None running? Start one based on your weakest metric.
   3. ACT — Prioritized:
-     a. CONVERSION FIRST: drive AmbientScore work — outbound reply tasks into buyer-intent threads, funnel content with a direct CTA (see CONVERSION OWNER above)
+     a. NORTH STAR FIRST: get a real person to use a free offer (see DISTRIBUTION OWNER above)
      b. Respond to declining platforms (run experiment to test new approach, NOT more of the same)
      c. Fill behind-pace campaigns (create tasks)
      d. Propose campaigns for uncovered opportunities (propose-campaign with data rationale)
@@ -2579,7 +2565,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Evidence-first. Cite concrete numbers/sources in every propose-* action and memory write.
   - Use remember only for verified_fact or constraint types.
   - Avoid memory overuse.
-- PROSPECT SCANNING (Scout — conversion support, revenue pivot):
+- PROSPECT SCANNING (Scout — distribution support):
   Your Bluesky discovery keywords now target BUYER INTENT (people asking for landing page feedback, complaining their site doesn't convert, launching something new). When a discovered thread has a findable website and a bluesky_reply task exists for it, queue a free AmbientScore audit of the prospect's site so Scribe can cite real findings in the reply:
   { "type": "run-ambientscore-scan", "scan": { "url": "https://prospect-site.com", "taskId": "<the bluesky_reply task id>", "note": "thread context" } }
   Results arrive as a system comment on that task within ~10-20 min (score, top findings, shareable report link). Daily cap applies — spend scans where someone is ACTIVELY asking for feedback.
