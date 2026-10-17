@@ -8,7 +8,8 @@ var fetch = require('node-fetch');
 var storage = require('../_utils/companyStorage');
 var vs = require('../_utils/valeStorage');
 var mem = require('../_utils/vale-memory');
-var { requireCeoAsync } = require('../_utils/valeAuth');
+var { requireCeoAsync, valeConfig } = require('../_utils/valeAuth');
+var { formatMailContext } = require('../_lib/vale/mailContext');
 
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -91,7 +92,17 @@ module.exports = async function (context, req) {
       companyContext = '\n\n(Fleet snapshot is currently unavailable — do not invent fleet numbers.)';
     }
 
-    var systemPrompt = VALE_SYSTEM_INSTRUCTION + memoryBlocks + companyContext;
+    // Read-only mail context: only for a verified Microsoft sign-in with mail switched on.
+    var mailContext = '';
+    var vcfg = valeConfig();
+    if (gate.via === 'bearer' && vcfg.strict && vcfg.mailEnabled) {
+      var mailMeta = await vs.getValeWithMeta('valeMailState');
+      mailContext = mailMeta.failed
+        ? '\n\n(Mail state could not be loaded right now — say so if asked about email; never guess.)'
+        : formatMailContext(mailMeta.value, Date.now());
+    }
+
+    var systemPrompt = VALE_SYSTEM_INSTRUCTION + memoryBlocks + companyContext + mailContext;
 
     // Build conversation contents.
     var contents = [];
