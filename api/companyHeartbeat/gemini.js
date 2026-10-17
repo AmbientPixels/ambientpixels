@@ -192,7 +192,7 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
         model: gId,
         agentId: agentId || null,
         promptTokens: um.promptTokenCount || 0,
-        completionTokens: um.candidatesTokenCount || 0,
+        completionTokens: (um.candidatesTokenCount || 0) + (um.thoughtsTokenCount || 0),
         totalTokens: um.totalTokenCount || 0
       }).catch(function () {});
     }

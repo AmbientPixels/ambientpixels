@@ -294,7 +294,7 @@ async function callGemini(systemPrompt, userMessage) {
   const data = await res.json();
   if (!res.ok) throw new Error('Gemini ' + res.status + ': ' + JSON.stringify(data).substring(0, 200));
   const um = data?.usageMetadata;
-  if (um) { storage.logGeminiUsage({ caller: 'standup', model: 'gemini-2.5-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {}); }
+  if (um) { storage.logGeminiUsage({ caller: 'standup', model: 'gemini-2.5-flash', promptTokens: um.promptTokenCount || 0, completionTokens: (um.candidatesTokenCount || 0) + (um.thoughtsTokenCount || 0), totalTokens: um.totalTokenCount || 0 }).catch(() => {}); }
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 

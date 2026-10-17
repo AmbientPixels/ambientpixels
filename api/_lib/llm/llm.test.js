@@ -210,6 +210,17 @@ test('Gemini spend lands on the Gemini rail, not the Claude one', async () => {
   assert.strictEqual(claudeLogged.length, 0, 'a failed Claude call must not be logged as spend');
 });
 
+test('Gemini thinking tokens are billed as output, so they count in completionTokens', async () => {
+  reset();
+  const thinking = geminiOk('ok', 900, 40);
+  const body = JSON.parse(thinking.body);
+  body.usageMetadata.thoughtsTokenCount = 500;
+  thinking.body = JSON.stringify(body);
+  responses = [creditError, thinking];
+  await callModel({ prompt: 'p', caller: 'pixel-agent-run' });
+  assert.strictEqual(geminiLogged[0].completionTokens, 540, 'thoughts were left out of the cost');
+});
+
 test('a fallback is recorded to llmFallbackLog — this is how we learn credits ran dry', async () => {
   reset();
   responses = [creditError, geminiOk('ok')];

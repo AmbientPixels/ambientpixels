@@ -54,7 +54,7 @@ async function _callModel(prompt, maxTokens, caller) {
     var gData = await gRes.json();
     if (!gRes.ok) throw new Error('Gemini ' + gRes.status);
     var um = gData && gData.usageMetadata;
-    if (um) storage.logGeminiUsage({ caller: caller || 'weekly-report', model: 'gemini-2.5-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(function () {});
+    if (um) storage.logGeminiUsage({ caller: caller || 'weekly-report', model: 'gemini-2.5-flash', promptTokens: um.promptTokenCount || 0, completionTokens: (um.candidatesTokenCount || 0) + (um.thoughtsTokenCount || 0), totalTokens: um.totalTokenCount || 0 }).catch(function () {});
     return (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
   } finally {
     clearTimeout(timeoutId);

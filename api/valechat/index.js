@@ -131,7 +131,7 @@ module.exports = async function (context, req) {
       var gData = await gRes.json();
       if (!gRes.ok) { context.res = { status: gRes.status, headers: corsHeaders, body: { error: 'Vale hit a glitch.', details: gData } }; return; }
       reply = (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
-      if (gData.usageMetadata) usage = { promptTokens: gData.usageMetadata.promptTokenCount, completionTokens: gData.usageMetadata.candidatesTokenCount, model: 'gemini-2.5-flash', claude: false };
+      if (gData.usageMetadata) usage = { promptTokens: gData.usageMetadata.promptTokenCount, completionTokens: (gData.usageMetadata.candidatesTokenCount || 0) + (gData.usageMetadata.thoughtsTokenCount || 0), model: 'gemini-2.5-flash', claude: false };
     }
 
     // Persist the exchange (ring buffer).

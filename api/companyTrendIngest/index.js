@@ -339,7 +339,7 @@ async function callGemini(promptText, log) {
       model: 'gemini-2.5-flash',
       agentId: null,
       promptTokens: um.promptTokenCount || 0,
-      completionTokens: um.candidatesTokenCount || 0,
+      completionTokens: (um.candidatesTokenCount || 0) + (um.thoughtsTokenCount || 0),
       totalTokens: um.totalTokenCount || 0
     }).catch(function () {});
   }

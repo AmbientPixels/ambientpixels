@@ -200,7 +200,7 @@ async function callGemini(modelId, opts) {
     truncated: cand.finishReason === 'MAX_TOKENS',
     usage: {
       promptTokens: um.promptTokenCount || 0,
-      completionTokens: um.candidatesTokenCount || 0,
+      completionTokens: (um.candidatesTokenCount || 0) + (um.thoughtsTokenCount || 0),
       totalTokens: um.totalTokenCount || 0
     }
   };
