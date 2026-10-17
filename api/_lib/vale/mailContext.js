@@ -12,7 +12,7 @@ function formatMailContext(state, nowMs) {
   var needs = state.triaged.filter(function (i) { return i.label === 'needs_you'; }).slice(0, 25);
   needs.forEach(function (i) {
     if (i.rulesOnly) lines.push('- needs you: ' + i.from + ' (' + _date(i.receivedAt) + ') [client mail — details withheld from chat]');
-    else lines.push('- needs you: ' + (i.fromName ? i.fromName + ' ' : '') + '<' + i.from + '> (' + _date(i.receivedAt) + ') — ' + (i.subject || '') + (i.why ? ' — ' + i.why : '') + (i.webLink ? ' — ' + i.webLink : ''));
+    else lines.push('- needs you: ' + (i.fromName ? i.fromName + ' ' : '') + '<' + i.from + '> (' + _date(i.receivedAt) + ') — ' + (i.subject || '') + (i.why ? ' — ' + i.why : ''));
   });
   (state.waiting || []).slice(0, 10).forEach(function (w) {
     lines.push('- waiting on: ' + (w.toName || w.to) + ' — ' + (w.subject || '') + ' — ' + w.days + ' days, no reply');

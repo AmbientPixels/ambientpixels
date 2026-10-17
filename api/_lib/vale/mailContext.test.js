@@ -25,9 +25,10 @@ const STATE = {
     assert.ok(s.indexOf('pat@hanson-client.example (2026-10-16)') !== -1);
     assert.ok(s.indexOf('Q4 portal roadmap') === -1 && s.indexOf('Pat Lee') === -1 && s.indexOf('Unread client mail') === -1);
   });
-  await test('normal items carry sender, subject, reason and the Outlook link', () => {
+  await test('normal items carry sender, subject and reason, but no URL for the model to copy', () => {
     const s = formatMailContext(STATE, NOW);
     assert.ok(s.indexOf('Dana Reyes <dana@clientco.example> (2026-10-16) — Time slots — Asks for slots') !== -1);
+    assert.ok(s.indexOf('https://') === -1);
   });
   await test('mail is fenced as data and Vale is told she cannot act on it', () => {
     const s = formatMailContext(STATE, NOW);

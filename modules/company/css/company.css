@@ -233,6 +233,10 @@ textarea.ap-input { resize: vertical; line-height: 1.4; }
 .vale-hours__day { display: inline-flex; align-items: center; gap: .25rem; font-size: .85rem; cursor: pointer; }
 .vale-hours__msg { font-size: .8rem; opacity: .7; }
 
+/* ── Office "Talk to Vale" chat bubbles (office.html) ── */
+.office-bubble { margin-bottom: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+.office-bubble__link { color: rgba(90, 228, 255, 0.9); white-space: nowrap; }
+
 /* ── Shared Page Header ── */
 .ap-page-header {
   display: flex;

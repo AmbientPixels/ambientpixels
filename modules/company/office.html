@@ -139,11 +139,24 @@
       }
 
       // ── Chat ──
-      function addBubble(role, text) {
+      // Vale's replies: escape first, then allow only **bold**, line breaks and "[open N]" links
+      // whose URL the server supplied (links[N], Outlook only). Nothing from the model becomes HTML.
+      function valeText(text, links) {
+        links = links || {};
+        return h(text)
+          .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[open (\d{1,3})\]/g, function (all, n) {
+            var url = links[n];
+            return (typeof url === 'string' && /^https:\/\/outlook\.(office|office365)\.com\//.test(url))
+              ? '<a class="office-bubble__link" href="' + h(url) + '" target="_blank" rel="noopener noreferrer">open in Outlook</a>' : '';
+          })
+          .replace(/\n/g, '<br>');
+      }
+      function addBubble(role, text, links) {
         var log = document.getElementById('office-chat-log');
         var div = document.createElement('div');
         div.className = 'office-bubble office-bubble--' + role;
-        div.innerHTML = '<strong>' + (role === 'vale' ? 'Vale' : 'You') + ':</strong> ' + h(text);
+        div.innerHTML = '<strong>' + (role === 'vale' ? 'Vale' : 'You') + ':</strong> ' + (role === 'vale' ? valeText(text, links) : h(text));
         log.appendChild(div); log.scrollTop = log.scrollHeight;
       }
       document.getElementById('office-chat-form').addEventListener('submit', function (e) {
@@ -156,7 +169,7 @@
           .then(function (r) { return r.json(); })
           .then(function (d) {
             var reply = d.reply || d.error || '(no reply)';
-            addBubble('vale', reply);
+            addBubble('vale', reply, d.links);
             chatHistory.push({ role: 'user', text: msg }); chatHistory.push({ role: 'vale', text: reply });
             if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
             document.getElementById('office-chat-remember').checked = false;

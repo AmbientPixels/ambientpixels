@@ -201,7 +201,8 @@ module.exports = async function (context, req) {
       } catch (e) { /* non-fatal */ }
     }
 
-    context.res = { status: 200, headers: corsHeaders, body: { reply: reply } };
+    // links: "[open N]" in the reply → exact Outlook URL (the page renders them; Vale never types URLs).
+    context.res = { status: 200, headers: corsHeaders, body: { reply: reply, links: (live && live.links) || {} } };
   } catch (error) {
     context.log.error('[valechat] Internal error: ' + error.message);
     context.res = { status: 500, headers: corsHeaders, body: { error: 'Vale experienced a system fault.', details: error.message } };

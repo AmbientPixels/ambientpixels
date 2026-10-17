@@ -35,9 +35,27 @@ function res(status, body) {
     const b = live.formatLiveMail({ recent: RECENT, rules: RULES, nowMs: NOW });
     assert.ok(b.indexOf('Pat Lee <someone@gmail.com>') !== -1);
     assert.ok(b.indexOf('Alias test') !== -1 && b.indexOf('does this arrive') !== -1);
-    assert.ok(b.indexOf('https://outlook.office.com/x/Alias%20test') !== -1);
+    assert.ok(b.indexOf('https://') === -1, 'no raw URLs for the model to copy (it garbled one: office3605)');
+    assert.ok(b.indexOf('[#1]') !== -1);
     assert.ok(b.indexOf('to hello@ambientpixels.ai') !== -1);
     assert.ok(b.indexOf('[receipt]') !== -1);
+    assert.ok(b.indexOf('Fri, Oct 16, 11:10 PM PT') !== -1, 'times are Pacific (06:10Z = 11:10 PM PDT the day before)');
+    assert.ok(b.indexOf('UTC') === -1);
+  });
+  await test('each email gets a number; links map holds the exact Outlook URL; search keeps counting', () => {
+    const links = {};
+    const b = live.formatLiveMail({ recent: RECENT, rules: RULES, nowMs: NOW, links });
+    assert.strictEqual(links['1'], 'https://outlook.office.com/x/Alias%20test');
+    assert.ok(links['2'] && links['3'] && !links['4']);
+    assert.ok(/[open N]/.test(b) && /never write URLs/i.test(b));
+    live.formatSearch('alyssa', [RECENT[1]], RULES, links);
+    assert.strictEqual(links['4'], RECENT[1].webLink);
+  });
+  await test('only Outlook web links are kept', () => {
+    const links = {};
+    live.formatLiveMail({ recent: [msg('a@b.com', 'A', 'Evil', 'x', '2026-10-17T01:00:00Z', { webLink: 'javascript:alert(1)' }),
+      msg('a@b.com', 'A', 'Ok', 'x', '2026-10-17T01:00:00Z', { webLink: 'https://outlook.office365.com/owa/?ItemID=1' })], rules: RULES, nowMs: NOW, links });
+    assert.deepStrictEqual(links, { '2': 'https://outlook.office365.com/owa/?ItemID=1' });
   });
   await test('mail text sits inside DATA markers and previews are clipped', () => {
     const long = [msg('a@b.com', 'A', 'Long', 'x'.repeat(2000), '2026-10-17T01:00:00Z')];
@@ -87,6 +105,7 @@ function res(status, body) {
     assert.strictEqual(r.ok, true);
     assert.ok(r.block.indexOf('Demo times') === -1);
     assert.ok(typeof r.search === 'function');
+    assert.strictEqual(r.links['1'], RECENT[1].webLink);
   });
   await test('loadLiveMail: Graph failure → ok:false, never an empty inbox', async () => {
     const r = await live.loadLiveMail({
