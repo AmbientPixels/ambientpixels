@@ -265,23 +265,29 @@
         var clean = cssWithoutRemote(cssDecode(decodeEntities(css)));
         return clean === null ? all : open + clean.replace(/</g, '\\3c ') + close;
       })
-      // Any attribute that holds CSS (style="", and SVG fill/filter/mask="url(...)"): HTML
-      // entities first, then CSS escapes, as the browser does.
-      .replace(/\s([a-z_:][a-z0-9_:.-]*)="([^"]*)"/gi, function (all, a, v) {
-        var dec = cssDecode(decodeEntities(v));
-        if (!/url\s*\(|image(?:-set)?\s*\(|@import/i.test(dec)) return all;
-        var clean = cssWithoutRemote(dec);
-        return clean === null ? all : ' ' + a + '="' + escapeHtml(clean) + '"';
-      })
-      .replace(IMAGE_ATTRS, function (all, a, v) { return localImageUrl(v) ? all : ''; })
-      .replace(/\ssrcset="([^"]*)"/gi, function (all, v) {
-        var parts = decodeEntities(v).split(/,(?=\s*[^\s,]+(?:\s|$))/);
-        return parts.every(function (p) { return localImageUrl(p.trim().split(/\s+/)[0]); }) ? all : '';
-      })
-      // SVG images: <image>, <feImage> and <use> fetch their href.
-      .replace(/<((?:[a-z0-9-]+:)?(?:image|feimage|use))\b([^>]*)>/gi, function (all, name, rest) {
-        var kept = rest.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return localImageUrl(v) ? a : ''; });
-        return kept === rest ? all : '<' + name + kept + '>';
+      // Every attribute pass runs inside one tag, never over text: a literal '"' in a text node
+      // would otherwise pair with a real attribute's opening quote and hide that attribute.
+      // Rebuilt tags never hold a raw '>' in a value (the sanitiser escapes it), so
+      // /<[a-z][^>]*>/ spans exactly one tag.
+      .replace(/<[a-z][^>]*>/gi, function (tag) {
+        // Any attribute that holds CSS (style="", and SVG fill/filter/mask="url(...)"): HTML
+        // entities first, then CSS escapes, as the browser does.
+        var t = tag.replace(/\s([a-z_:][a-z0-9_:.-]*)="([^"]*)"/gi, function (all, a, v) {
+          var dec = cssDecode(decodeEntities(v));
+          if (!/url\s*\(|image(?:-set)?\s*\(|@import/i.test(dec)) return all;
+          var clean = cssWithoutRemote(dec);
+          return clean === null ? all : ' ' + a + '="' + escapeHtml(clean) + '"';
+        })
+          .replace(IMAGE_ATTRS, function (all, a, v) { return localImageUrl(v) ? all : ''; })
+          .replace(/\ssrcset="([^"]*)"/gi, function (all, v) {
+            var parts = decodeEntities(v).split(/,(?=\s*[^\s,]+(?:\s|$))/);
+            return parts.every(function (p) { return localImageUrl(p.trim().split(/\s+/)[0]); }) ? all : '';
+          });
+        // SVG images: <image>, <feImage> and <use> fetch their href.
+        if (/^<(?:[a-z0-9-]+:)?(?:image|feimage|use)\b/i.test(t)) {
+          t = t.replace(/\s(?:xlink:)?href="([^"]*)"/gi, function (a, v) { return localImageUrl(v) ? a : ''; });
+        }
+        return t;
       });
   }
 
@@ -816,10 +822,10 @@
   function triageLabels(state, inbox) {
     var out = {};
     if (!state || typeof state !== 'object') return out;
-    (state.triaged || []).forEach(function (t) {
+    (Array.isArray(state.triaged) ? state.triaged : []).forEach(function (t) {
       if (t && typeof t.id === 'string' && t.label) out[t.id] = { label: t.label, why: str(t.why), by: t.by || null };
     });
-    (state.waiting || []).forEach(function (w) {
+    (Array.isArray(state.waiting) ? state.waiting : []).forEach(function (w) {
       if (!w || !w.conversationId) return;
       var newest = null;
       (inbox || []).forEach(function (m) {
@@ -955,6 +961,15 @@
     return { body: body, quote: quote };
   }
 
+  // Bracketed gaps a draft leaves for Chad ("[day]", "[Your answer here.]"), in the reply only:
+  // quoted history below it is someone else's text. Each distinct gap once, in order.
+  function findPlaceholders(text) {
+    var body = splitQuoted(text).body;
+    var out = [];
+    (body.match(/\[[^\]\n]{1,40}\]/g) || []).forEach(function (p) { if (out.indexOf(p) === -1) out.push(p); });
+    return out;
+  }
+
   // ── Loads that may land out of order ───────────────────────────────────────
 
   // list state: { items, next, loading, loaded, error, seq }. listBegin returns a token (or null:
@@ -1012,7 +1027,7 @@
     questionKind: questionKind, choiceOptions: choiceOptions, sendRecovery: sendRecovery,
     valeStateFrom: valeStateFrom, greetingFor: greetingFor,
     isInternal: isInternal, claimsOwnDomain: claimsOwnDomain, knownContacts: knownContacts, senderMismatch: senderMismatch,
-    stripRelativeTime: stripRelativeTime, splitQuoted: splitQuoted, quoteStartHtml: quoteStartHtml, listBegin: listBegin, listSettle: listSettle,
+    stripRelativeTime: stripRelativeTime, splitQuoted: splitQuoted, findPlaceholders: findPlaceholders, quoteStartHtml: quoteStartHtml, listBegin: listBegin, listSettle: listSettle,
     draftClientFlag: draftClientFlag, sendProbe: sendProbe
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;

@@ -430,6 +430,23 @@ const allMsgs = (f) => [].concat(...Object.values(f.folders));
     await assert.rejects(g.listConversation(''), (e) => e.status === 400);
   });
 
+  await test('previewOf decodes numeric and hex entities', () => {
+    const { previewOf } = require('./vale-mail-demo.js');
+    assert.strictEqual(previewOf('<p>I&#39;ll &#x27;x&#x27;</p>'), "I'll 'x'");
+    assert.strictEqual(previewOf('<p>a&nbsp;&amp;&lt;b&gt;</p><p>c</p>'), 'a &<b> c');
+  });
+
+  await test("a sent reply's preview reads I'll, not I&#39;ll", async () => {
+    const g = demo();
+    const d = await g.createReply(fixture().folders.inbox[0].id);
+    await g.patchDraft(d.id, { bodyHtml: 'Hi, I&#39;ll check &amp; you&#39;re set.' });
+    await g.sendDraft(d.id);
+    const sent = await g.listMessages({ folder: 'sentitems' });
+    const top = sent.items.find((m) => m.id === d.id);
+    assert.ok(!/&#/.test(top.bodyPreview), top.bodyPreview);
+    assert.ok(top.bodyPreview.includes("I'll check & you're set."), top.bodyPreview);
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();

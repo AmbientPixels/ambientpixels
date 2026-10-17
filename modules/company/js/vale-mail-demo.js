@@ -75,10 +75,10 @@
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+  // The shared core's text conversion, so numeric and hex entities (&#39; from textToHtml) decode.
+  var Core = (typeof module !== 'undefined' && module.exports) ? require('./vale-mail-core.js') : (root && root.ValeMailCore);
   function previewOf(html) {
-    return String(html || '').replace(/<(style|script)[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]*>/g, ' ')
-      .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&')
-      .replace(/\s+/g, ' ').trim().slice(0, 255);
+    return Core.htmlToText(String(html || '')).replace(/\s+/g, ' ').trim().slice(0, 255);
   }
   function when(m) { return m.receivedDateTime || m.sentDateTime || ''; }
   function listView(m) { var c = clone(m); delete c.body; return c; }
@@ -407,7 +407,7 @@
     return fill(by[key] || d[key]);
   }
 
-  var _exports = { createDemoGraph: createDemoGraph, shiftIso: shiftIso, rewriteInstruction: rewriteInstruction, demoDraft: demoDraft };
+  var _exports = { createDemoGraph: createDemoGraph, shiftIso: shiftIso, rewriteInstruction: rewriteInstruction, demoDraft: demoDraft, previewOf: previewOf };
   if (typeof module !== 'undefined' && module.exports) module.exports = _exports;
   else if (root) root.ValeMailDemo = _exports;
 })(typeof window !== 'undefined' ? window : this);

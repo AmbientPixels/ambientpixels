@@ -1036,5 +1036,40 @@ test('sendRecovery: a 503 with isDraft false → sent; with isDraft true → ret
   assert.strictEqual(C.sendRecovery({ status: 503 }, null, Date.now(), 'c1', null), 'retry');
 });
 
+// ── round 5: text-node quotes, placeholders, malformed sort state ──
+[
+  '<p>a b="</p><div style="background:url(https://evil.example/t.png)">x</div>',
+  '<p>k m="</p><svg><rect fill="url(https://evil.example/f)"/></svg>',
+  '<p>t src="</p><img src="https://evil.example/p.png">',
+  '<p>s srcset="</p><img srcset="https://evil.example/a.png 1x">',
+  '<p>h href="</p><svg><image href="https://evil.example/i.png"/></svg>'
+].forEach((content, i) => {
+  test('a quote in text cannot hide a remote image attribute (' + (i + 1) + ')', () => {
+    assert.ok(!C.safeBodyDoc(html(content), false).includes('evil.example'));
+    assert.strictEqual(C.hasRemoteImages(content), true);
+  });
+});
+test('attribute passes leave text that looks like attributes alone', () => {
+  const d = C.safeBodyDoc(html('<p>style="background:url(https://x.example/a)" is text</p>'), false);
+  assert.ok(d.includes('style=&quot;background') || d.includes('style="background:url(https://x.example/a)" is text'));
+  assert.strictEqual(C.hasRemoteImages('<p>see src="https://x.example/a.png" here</p>'), false);
+});
+test('findPlaceholders lists bracketed gaps in the reply, once each, in order', () => {
+  assert.deepStrictEqual(C.findPlaceholders('Hi Ravi,\n\nI will have it by [day]. See you [when], or [day].'), ['[day]', '[when]']);
+  assert.deepStrictEqual(C.findPlaceholders('[Your answer here.]'), ['[Your answer here.]']);
+});
+test('findPlaceholders ignores quoted history, empty brackets, long and multi-line spans', () => {
+  assert.deepStrictEqual(C.findPlaceholders('Thanks, done.\n\nOn Mon, Dana wrote:\n> pick a [day]'), []);
+  assert.deepStrictEqual(C.findPlaceholders('Thanks.\n> [quoted]'), []);
+  assert.deepStrictEqual(C.findPlaceholders('a [] b [' + 'x'.repeat(41) + '] c [two\nlines]'), []);
+  assert.deepStrictEqual(C.findPlaceholders(''), []);
+  assert.deepStrictEqual(C.findPlaceholders(null), []);
+});
+test('triageLabels ignores a triaged or waiting value that is not an array', () => {
+  assert.deepStrictEqual(C.triageLabels({ triaged: { a: 1 } }, []), {});
+  assert.deepStrictEqual(C.triageLabels({ waiting: 'x' }, []), {});
+  assert.deepStrictEqual(C.triageLabels({ triaged: {} }, []), {});
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
