@@ -245,7 +245,8 @@
   function cssWithoutRemote(decoded) {
     var hit = false;
     var out = decoded.replace(/@import\b[^;]*;?/gi, function () { hit = true; return ''; })
-      .replace(/url\(([^)]*)\)/gi, function (all, inner) { if (!localCssTarget(inner)) { hit = true; return 'none'; } return all; })
+      // src() is a URL function too (CSS Values 4): treated exactly like url().
+      .replace(/\b(?:url|src)\(([^)]*)\)/gi, function (all, inner) { if (!localCssTarget(inner)) { hit = true; return 'none'; } return all; })
       .replace(/(?:-webkit-)?image(?:-set)?\(((?:[^()]|\([^()]*\))*)\)/gi, function (all, inner) {
         // Whatever is left once local url()s and local strings are taken out must not look like a URL.
         var rest = inner.replace(/url\([^)]*\)/gi, '').replace(/"[^"]*"|'[^']*'/g, function (q) { return localCssTarget(q) ? '' : 'x:'; });
@@ -275,7 +276,7 @@
         // entities first, then CSS escapes, as the browser does.
         var t = tag.replace(/\s([a-z_:][a-z0-9_:.-]*)="([^"]*)"/gi, function (all, a, v) {
           var dec = cssDecode(decodeEntities(v));
-          if (!/url\s*\(|image(?:-set)?\s*\(|@import/i.test(dec)) return all;
+          if (!/(?:url|src)\s*\(|image(?:-set)?\s*\(|@import/i.test(dec)) return all;
           var clean = cssWithoutRemote(dec);
           return clean === null ? all : ' ' + a + '="' + escapeHtml(clean) + '"';
         })
@@ -614,6 +615,18 @@
     return Object.prototype.hasOwnProperty.call(KEYS, event.key) ? KEYS[event.key] : null;
   }
 
+  // The ARIA listbox keys, for when the message list itself has focus (the client only asks then),
+  // so arrows stay native in the reader and in text fields.
+  var LIST_KEYS = { ArrowDown: 'next', ArrowUp: 'prev', Down: 'next', Up: 'prev', Home: 'first', End: 'last' };
+  function listKeyFor(event) {
+    if (!event || typeof event.key !== 'string') return null;
+    if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return null;
+    var t = event.target || {};
+    var tag = str(t.tagName).toUpperCase();
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable) return null;
+    return Object.prototype.hasOwnProperty.call(LIST_KEYS, event.key) ? LIST_KEYS[event.key] : null;
+  }
+
   // ── UI helpers (Task 5): dates, sizes, names, drafts, clashes, errors ───────
 
   var DEFAULT_TZ = 'America/Los_Angeles';
@@ -916,6 +929,26 @@
     return out;
   }
 
+  // The one person a compose brief names ("tell Ravi the key is on its way"): capitalised words
+  // matched against the first names of people. Returns { name, address, first } when exactly
+  // one address matches, else null (no name, or two people share it). Only a suggestion: the
+  // client never fills To with it on its own.
+  function contactFromBrief(brief, people) {
+    var words = {};
+    (str(brief).match(/\b[A-Z][a-z][A-Za-z'’-]*/g) || []).forEach(function (w) { words[w.toLowerCase()] = 1; });
+    var hits = {}, n = 0, pick = null;
+    (people || []).forEach(function (p) {
+      var e = ea(p);
+      var first = e.name.replace(/["']/g, '').trim().split(/[\s,]+/)[0] || '';
+      if (!e.address || !first || /@/.test(first) || !words[first.toLowerCase()]) return;
+      if (hits[e.address]) return;
+      hits[e.address] = 1;
+      n++;
+      pick = { name: e.name, address: e.address, first: first };
+    });
+    return n === 1 ? pick : null;
+  }
+
   // A sender that looks like someone you know but isn't: the same display name under another
   // address, or a domain one or two letters off a known correspondent's. Returns
   // { from, known } (addresses) or null. A sender you have written to before is never flagged.
@@ -976,7 +1009,15 @@
   function findPlaceholders(text) {
     var body = splitQuoted(text).body;
     var out = [];
-    (body.match(/\[[^\]\n]{1,40}\]/g) || []).forEach(function (p) { if (out.indexOf(p) === -1) out.push(p); });
+    // Only gaps shaped like Vale's (words, with lowercase): not "[1]" footnotes, "[sic]",
+    // "[EXTERNAL]" tags, "/items/[id]" paths or "[text](link)" markdown Chad typed himself.
+    var re = /(^|[^\w\/\]])(\[([A-Za-z][A-Za-z ,.'’-]{0,38})\])(?!\()/g;
+    var mm;
+    while ((mm = re.exec(body))) {
+      var p = mm[2], inner = mm[3];
+      if (!/[a-z]/.test(inner) || /^sic$/i.test(inner.trim())) continue;
+      if (out.indexOf(p) === -1) out.push(p);
+    }
     return out;
   }
 
@@ -1032,7 +1073,7 @@
     safeBodyDoc: safeBodyDoc, hasRemoteImages: hasRemoteImages, htmlToText: htmlToText, textToHtml: textToHtml,
     replyTargets: replyTargets, replyToMismatch: replyToMismatch, findQuestion: findQuestion,
     threadStrip: threadStrip, waitingOnYou: waitingOnYou, bucketOf: bucketOf, counts: counts,
-    isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor,
+    isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor, listKeyFor: listKeyFor, contactFromBrief: contactFromBrief,
     escapeHtml: escapeHtml,
     questionKind: questionKind, choiceOptions: choiceOptions, sendRecovery: sendRecovery,
     valeStateFrom: valeStateFrom, greetingFor: greetingFor,

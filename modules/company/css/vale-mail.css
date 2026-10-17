@@ -114,13 +114,16 @@ body[data-theme] .vmail .ap-input:focus {
   box-shadow: var(--vm-focus);
   border-radius: var(--c-r-sm);
 }
-/* The reading pane takes focus programmatically after Enter; it shows no ring of its own. */
+/* The reading pane takes focus programmatically after Enter: no ring around the whole pane, but
+   its toolbar gets a periwinkle underline so the move from the list is visible. */
 .vmail-reader:focus-visible { outline: none; box-shadow: none; }
+.vmail-reader:focus-visible .vmail-reader__bar,
+body[data-theme] .vmail-reader:focus-visible .vmail-reader__bar.vmail-toolbar--with-subject { box-shadow: inset 0 -2px 0 var(--vm-agent); }
 .vmail-reader:focus-within .vmail-reader__bar { border-top-color: var(--vm-agent-border); }
 @media (forced-colors: active) {
   .vmail :focus-visible,
   .vmail-list:focus-visible { outline: 2px solid CanvasText; }
-  .vmail-reader:focus-visible { outline: none; }
+  .vmail-reader:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
   .vmail-row[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
 }
 
@@ -592,6 +595,8 @@ body[data-theme] a.vmail-skip:focus-visible {
   padding: 4px 0 24px;
 }
 .vmail-list:focus-visible { box-shadow: none; border-radius: 0; }
+/* No active row (an empty result): the list itself shows the focus. */
+.vmail-list:focus-visible:not([aria-activedescendant]) { box-shadow: inset 0 0 0 2px var(--vm-agent); }
 
 .vmail-row {
   position: relative;
@@ -715,6 +720,21 @@ body[data-theme] a.vmail-skip:focus-visible {
 }
 .vmail-tag--check i { font-size: 10px; }
 .vmail-tag--unsorted { background: transparent; border: 1px dashed var(--vm-sep-strong, var(--c-sep-strong)); color: var(--vm-text-3); font-weight: 500; }
+.vmail-row__draft {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--vm-agent-dim);
+  color: var(--vm-agent-text);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 .vmail-client {
   display: inline-flex;
   align-items: center;
@@ -814,21 +834,26 @@ body[data-theme] a.vmail-skip:focus-visible {
 body[data-theme="light"] .vmail-reader__bar.vmail-toolbar--with-subject { box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.12); }
 .vmail-toolbar--with-subject .vmail-spacer { display: none; }
 .vmail-reader__bar .vmail-spacer { flex: 1; }
+/* The subject that docks in the toolbar on scroll: right-aligned behind a hairline, in
+   secondary text, so it never reads as another button. */
 .vmail-toolbar__subject {
   display: none;
-  flex: 1 1 0;
+  flex: 0 1 auto;
   min-width: 0;
-  max-width: none;
-  padding-left: 12px;
+  max-width: 40%;
+  margin-left: auto;
+  padding-left: 16px;
+  border-left: 1px solid var(--vm-sep);
   text-align: right;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--vm-text);
+  font-weight: 500;
+  color: var(--vm-text-2);
 }
-.vmail-toolbar--with-subject .vmail-toolbar__subject { display: block; }
+.vmail-toolbar--with-subject .vmail-toolbar__subject { display: block; animation: vmail-fade-in 0.15s var(--vm-ease); }
+@keyframes vmail-fade-in { from { opacity: 0; } to { opacity: 1; } }
 .vmail-tool {
   display: inline-flex;
   flex-shrink: 0;
@@ -1103,6 +1128,38 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
 }
 .vmail-editor__fields label { font-size: var(--c-text-xs); color: var(--vm-text-3); }
 .vmail-editor__fields .ap-input { width: 100%; }
+/* Vale's part of compose: one periwinkle group, label right above its input. */
+.vmail-compose__vale {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--vm-agent-border);
+  border-radius: var(--c-r);
+  background: var(--vm-agent-soft);
+}
+.vmail-editor__fields .vmail-compose__vale label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vm-agent-text);
+  font-weight: 600;
+}
+.vmail-compose__vale .vmail-tell { margin-top: 0; }
+.vmail-compose__vale label::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vm-agent);
+}
+/* "Send to Ravi Menon <ravi@…>?": a one-tap suggestion under To, never filled on its own. */
+.vmail-suggest { grid-column: 2; margin: -2px 0 0; }
+.vmail-suggest[hidden] { display: none; }
+.vmail-suggest .ap-btn { padding: 4px 10px; font-size: var(--c-text-xs); }
 .vmail-editor__body { position: relative; padding: 12px 14px 0; }
 .vmail-editor__text {
   display: block;
@@ -1197,6 +1254,15 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
   gap: 8px;
   margin: 0 0 12px;
   padding: 0;
+}
+.vmail-attskel {
+  display: block;
+  width: 160px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--vm-raised) 0%, var(--vm-hover) 50%, var(--vm-raised) 100%);
+  background-size: 200% 100%;
+  animation: vmail-shimmer 1.4s ease-in-out infinite;
 }
 .vmail-attachment {
   display: inline-flex;
@@ -1346,14 +1412,22 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
 .vmail-sendbar:not([hidden]) ~ .vmail-toast:not([hidden]) { bottom: 78px; }
 /* The toast would sit on the editor's Send/Discard row: it moves to the top of the reading column. */
 .vmail .vmail-toast.vmail-toast--high:not([hidden]),
-.vmail .vmail-sendbar:not([hidden]) ~ .vmail-toast.vmail-toast--high:not([hidden]) { align-self: start; bottom: auto; top: 58px; }
-.vmail .vmail-sendbar__undo {
-  background: var(--vm-agent);
-  border-color: var(--vm-agent);
-  color: var(--vm-agent-ink);
-  font-weight: 600;
+.vmail .vmail-sendbar:not([hidden]) ~ .vmail-toast.vmail-toast--high:not([hidden]) { align-self: start; justify-self: end; bottom: auto; top: 12px; margin-right: 16px; }
+/* One Undo look in the send bar and the toast: tinted, so filled periwinkle stays Send's. */
+.vmail .vmail-sendbar__undo,
+.vmail .vmail-toast__undo {
+  flex: none;
+  min-height: 0;
+  padding: 4px 10px;
+  border: 1px solid var(--vm-agent-border);
+  border-radius: 6px;
+  background: var(--vm-agent-dim);
+  color: var(--vm-agent-text);
+  font: 600 13px/1.2 var(--c-font);
+  cursor: pointer;
 }
-.vmail .vmail-sendbar__undo:hover { background: var(--vm-agent-text); border-color: var(--vm-agent-text); color: var(--vm-agent-ink); }
+.vmail .vmail-sendbar__undo:hover,
+.vmail .vmail-toast__undo:hover { background: var(--vm-agent); border-color: var(--vm-agent); color: var(--vm-agent-ink); }
 /* Room under the editor while the bar is up, so it never covers the editor text. */
 .vmail.is-sending .vmail-article { padding-bottom: 96px; }
 .vmail.is-sending .vmail-editor { scroll-margin-bottom: 84px; }
@@ -1371,17 +1445,6 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
 .vmail-sendbar__progress::-webkit-progress-value { background: var(--vm-agent); transition: width 0.25s linear; }
 .vmail-sendbar__progress::-moz-progress-bar { background: var(--vm-agent); }
 .vmail-toast__text { min-width: 0; overflow-wrap: anywhere; }
-.vmail-toast__undo {
-  flex: none;
-  padding: 3px 8px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--vm-agent-text);
-  font: 600 13px/1.2 var(--c-font);
-  cursor: pointer;
-}
-.vmail-toast__undo:hover { background: var(--vm-agent-dim); }
 .vmail-toast--error { border-color: var(--vm-danger-border); }
 
 /* ── Shortcut sheet ── */
@@ -1407,6 +1470,10 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
 .vmail-sheet__head h2 { margin: 0; font-size: var(--c-text-md); font-weight: 600; }
 .vmail-keys { margin: 0; padding: 8px 16px 16px; }
 .vmail-sheet__body { padding: 8px 16px 16px; }
+/* In the schedule sheet, the title, day headers and event bars share one left edge. */
+.vmail-sheet__body .vmail-day__name { padding-left: 0; padding-right: 0; }
+.vmail-sheet__body .vmail-event { padding-left: 10px; }
+.vmail-sheet__body .vmail-event::before { left: 0; }
 .vmail-keys > div {
   display: flex;
   align-items: center;

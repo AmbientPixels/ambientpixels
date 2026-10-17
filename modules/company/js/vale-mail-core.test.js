@@ -1080,5 +1080,54 @@ test('triageLabels ignores a triaged or waiting value that is not an array', () 
   assert.deepStrictEqual(C.triageLabels({ triaged: {} }, []), {});
 });
 
+// ── round 6 ──
+test('findPlaceholders skips brackets Chad writes himself', () => {
+  assert.deepStrictEqual(C.findPlaceholders('See note [1] and [2].'), []);
+  assert.deepStrictEqual(C.findPlaceholders('He said "teh" [sic].'), []);
+  assert.deepStrictEqual(C.findPlaceholders('[EXTERNAL] forwarded'), []);
+  assert.deepStrictEqual(C.findPlaceholders('see /x/[id] and https://e.example/items/[slug]'), []);
+  assert.deepStrictEqual(C.findPlaceholders('Read [the doc](https://e.example/d) first.'), []);
+  assert.deepStrictEqual(C.findPlaceholders('Can do [day], at [time].'), ['[day]', '[time]']);
+  assert.deepStrictEqual(C.findPlaceholders('[day]'), ['[day]']);
+});
+test('src() in a <style> block is stripped like url()', () => {
+  const out = C.safeBodyDoc({ contentType: 'html', content: '<style>p{background:src(https://e.example/a)}</style><p>x</p>' }, false);
+  assert.ok(out.indexOf('e.example') === -1, out);
+});
+test('src() in a style attribute is stripped like url()', () => {
+  const out = C.safeBodyDoc({ contentType: 'html', content: '<p style="background-image:src(&quot;https://e.example/b&quot;)">x</p>' }, false);
+  assert.ok(out.indexOf('e.example') === -1, out);
+  const kept = C.safeBodyDoc({ contentType: 'html', content: '<p style="background:src(data:image/png;base64,AA)">x</p>' }, false);
+  assert.ok(kept.indexOf('data:image/png') !== -1);
+});
+test('contactFromBrief finds the one person a brief names', () => {
+  const people = [
+    { emailAddress: { name: 'Ravi Menon', address: 'Ravi@oakline-dev.example' } },
+    { emailAddress: { name: 'Dana Reyes', address: 'dana@northwind.example' } },
+    { emailAddress: { name: 'Dana Cole', address: 'dana@other.example' } },
+    { emailAddress: { name: '', address: 'noname@x.example' } }
+  ];
+  assert.deepStrictEqual(C.contactFromBrief('tell Ravi the sandbox key is on its way by Monday', people),
+    { name: 'Ravi Menon', address: 'ravi@oakline-dev.example', first: 'Ravi' });
+  assert.strictEqual(C.contactFromBrief('ask Dana about the invoice', people), null, 'two Danas: ambiguous');
+  assert.strictEqual(C.contactFromBrief('tell Ravi and Dana', people), null, 'two people named');
+  assert.strictEqual(C.contactFromBrief('say the key is on its way', people), null);
+  assert.strictEqual(C.contactFromBrief('tell ravi hi', people), null, 'lowercase is not a name');
+  assert.strictEqual(C.contactFromBrief('', people), null);
+  assert.strictEqual(C.contactFromBrief('Tell Ravi', null), null);
+  // The same person twice (sent to more than once) is still one match.
+  assert.strictEqual(C.contactFromBrief('Tell Ravi', people.concat([people[0]])).address, 'ravi@oakline-dev.example');
+});
+test('listKeyFor maps the listbox keys, and never inside text fields', () => {
+  const map = { ArrowDown: 'next', ArrowUp: 'prev', Home: 'first', End: 'last' };
+  Object.keys(map).forEach((k) => assert.strictEqual(C.listKeyFor(ev(k)), map[k], k));
+  assert.strictEqual(C.listKeyFor(ev('j')), null);
+  ['TEXTAREA', 'INPUT', 'SELECT'].forEach((tag) => assert.strictEqual(C.listKeyFor(ev('ArrowDown', { target: { tagName: tag } })), null, tag));
+  assert.strictEqual(C.listKeyFor(ev('ArrowDown', { target: { tagName: 'DIV', isContentEditable: true } })), null);
+  assert.strictEqual(C.listKeyFor(ev('End', { shiftKey: true })), null);
+  assert.strictEqual(C.shortcutFor(ev('ArrowDown')), null, 'arrows are not global shortcuts');
+  assert.strictEqual(C.shortcutFor(ev('ArrowDown', { target: { tagName: 'TEXTAREA' } })), null);
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

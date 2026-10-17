@@ -336,6 +336,7 @@
     if (m.hasAttachments) marks += '<i class="fas fa-paperclip" role="img" aria-label="Has attachments"></i>';
     if (isFlagged(m)) marks += '<i class="fas fa-flag" role="img" aria-label="Flagged"></i>';
     if (S.replied[m.conversationId]) marks += '<i class="fas fa-reply" role="img" aria-label="You replied"></i>';
+    var draftMark = hasDraft(m.id) ? draftMarkHtml() : '';
     var vale = '';
     if (!sentView && !isMine(m)) {
       var why = whyFor(m);
@@ -351,11 +352,31 @@
       '<span class="vmail-row__dot" aria-hidden="true"></span>' +
       '<div class="vmail-row__main">' +
       '<div class="vmail-row__top"><span class="vmail-row__from">' + h(who) + '</span>' +
-      (marks ? '<span class="vmail-row__marks">' + marks + '</span>' : '') +
+      (marks ? '<span class="vmail-row__marks">' + marks + '</span>' : '') + draftMark +
       '<time class="vmail-row__when" datetime="' + h(whenIso || '') + '">' + h(C.formatWhen(whenIso, now())) + '</time></div>' +
       '<div class="vmail-row__subject"><strong>' + h(m.subject || '(no subject)') + '</strong>' +
       (preview ? ' — <span class="vmail-row__preview">' + h(preview) + '</span>' : '') + '</div>' + vale +
       '</div></div>';
+  }
+  // An unsent reply waiting on this email: the live one, or text Chad typed and left.
+  function hasDraft(id) {
+    // The editor's input handler keeps session.text current.
+    if (S.session && S.session.key === id && S.session.mode === 'reply') return !!String(S.session.text || '').trim();
+    var saved = loadTyped(id);
+    return !!(saved && String(saved.text || '').trim());
+  }
+  function draftMarkHtml() { return '<span class="vmail-row__draft">Draft</span>'; }
+  // Re-mark one row without re-rendering the list (typing saves every 300 ms).
+  function refreshDraftMark(id) {
+    if (!id || id === 'compose') return;
+    var row = document.getElementById(rowDomId(id));
+    if (!row) return;
+    var cur = row.querySelector('.vmail-row__draft');
+    var want = hasDraft(id);
+    if (want && !cur) {
+      var when = row.querySelector('.vmail-row__when');
+      if (when) when.insertAdjacentHTML('beforebegin', draftMarkHtml());
+    } else if (!want && cur) cur.parentNode.removeChild(cur);
   }
   // Your newest message in the thread, when it is newer than m (you wrote last).
   function lastSentAfter(m) {
@@ -454,6 +475,14 @@
     var i = -1;
     for (var k = 0; k < items.length; k++) if (items[k].id === S.selectedId) i = k;
     var j = i === -1 ? (delta > 0 ? 0 : items.length - 1) : Math.max(0, Math.min(items.length - 1, i + delta));
+    moveTo(j);
+  }
+
+  // Select row j of the visible list; on wider screens the reader follows once it settles.
+  function moveTo(j) {
+    var items = visibleItems();
+    if (!items.length) return;
+    j = Math.max(0, Math.min(items.length - 1, j));
     var id = items[j].id;
     select(id);
     if (isPhone()) return;
@@ -768,7 +797,9 @@
     var order = items.slice(start).concat(items.slice(0, start));
     for (var j = 0; j < order.length; j++) {
       var x = order[j];
-      if (x.id !== m.id && !isMine(x) && !answeredAt(x) && x.conversationId !== m.conversationId) return x;
+      // A guarded email (lookalike, Reply-To, outside sender) is never offered as "Next": it
+      // would borrow the trust of the email just answered.
+      if (x.id !== m.id && !isMine(x) && !answeredAt(x) && x.conversationId !== m.conversationId && !guardFor(x)) return x;
     }
     return null;
   }
@@ -855,7 +886,8 @@
       : guard && guard.kind === 'outside' ? 'Real ' + guard.from + ' mail comes from inside your organization'
       : guard ? '' : lastSpoke(m);
     if (spoke) facts.push('<li><i class="fas fa-clock-rotate-left" aria-hidden="true"></i>' + h(spoke) + '</li>');
-    var waiting = automated || answered || newer || theirTurn || !askLabel ? null : C.waitingOnYou(m, sentInThread(m), now(), { ownDomain: S.cfg.ownDomain });
+    // No "Waiting on your reply" urgency on a guarded email either: it would press Chad to answer a lure.
+    var waiting = guard || automated || answered || newer || theirTurn || !askLabel ? null : C.waitingOnYou(m, sentInThread(m), now(), { ownDomain: S.cfg.ownDomain });
     if (waiting) facts.push('<li class="is-urgent"><i class="fas fa-hourglass-half" aria-hidden="true"></i>' + h(waitingText(waiting.since)) + '</li>');
 
     var client = '';
@@ -1045,7 +1077,9 @@
           '<span class="vmail-attachment__size">' + h(C.formatSize(a.size)) + '</span><i class="fas fa-download" aria-hidden="true"></i></button></li>';
       }).join('') + '</ul>';
     } else if (o.attsLoading) {
-      html += '<p class="vmail-quiet">Loading attachments…</p>';
+      // Shimmer chips where the attachment chips will land, on the strip's own edge.
+      html += '<div class="vmail-attachments vmail-attachments--loading" role="status"><span class="vmail-visually-hidden">Loading attachments</span>' +
+        '<span class="vmail-attskel" aria-hidden="true"></span><span class="vmail-attskel" aria-hidden="true"></span></div>';
     } else if (o.attsError) {
       html += '<p class="vmail-quiet">Couldn\'t load the attachments. <button type="button" class="ap-btn vmail-btn-sm" data-act="atts">Try again</button></p>';
     }
@@ -1265,7 +1299,32 @@
     }
   }
 
-  function setReading(on) { $('vmail-main').classList.toggle('is-reading', !!on); }
+  // On a phone, opening an email is a page of its own: it gets a history entry, so the system
+  // Back gesture returns to the list instead of leaving Vale Mail. Desktop is unchanged.
+  function readerInHistory() { try { return !!(history.state && history.state.vmail === 'reader'); } catch (e) { return false; } }
+  function setReading(on) {
+    var main = $('vmail-main');
+    var was = main.classList.contains('is-reading');
+    main.classList.toggle('is-reading', !!on);
+    try {
+      // history.back() is async: while one is pending, the popstate handler re-adds the entry.
+      if (on && !was && isPhone() && !readerInHistory() && !S.backPending) history.pushState({ vmail: 'reader' }, '');
+      else if (!on && was && !S.popping && !S.backPending && readerInHistory()) { S.backPending = true; history.back(); }
+    } catch (e) { /* history unavailable: the in-app back arrow still works */ }
+  }
+  function onPopState() {
+    if (S.backPending) {
+      // Our own in-app back landed. Reopened in the meantime: the reader gets its entry again.
+      S.backPending = false;
+      if ($('vmail-main').classList.contains('is-reading') && isPhone() && !readerInHistory()) {
+        try { history.pushState({ vmail: 'reader' }, ''); } catch (e) { /* ignore */ }
+      }
+      return;
+    }
+    if (readerInHistory() || !$('vmail-main').classList.contains('is-reading')) return;
+    S.popping = true;
+    try { closeReader(); } finally { S.popping = false; }
+  }
 
   function closeReader() {
     S.open = null;
@@ -1274,7 +1333,16 @@
     S.openSeq++;
     setReading(false);
     renderReader();
-    $('vmail-list').focus();
+    focusList();
+  }
+
+  // Focus the list without the browser's own jump-scroll (it hid the first row's sender line);
+  // the active row is then brought into view only as far as needed.
+  function focusList() {
+    var l = $('vmail-list');
+    try { l.focus({ preventScroll: true }); } catch (e) { l.focus(); }
+    var cur = l.getAttribute('aria-activedescendant') && document.getElementById(l.getAttribute('aria-activedescendant'));
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
   }
 
   // ── Editor sessions (reply / compose) + send with Undo ────────────────────
@@ -1301,7 +1369,11 @@
     if (sessionBusy()) { toast('Wait for the email that\'s sending, or undo it first.'); return null; }
     if (S.session) persist(S.session);
     var msg = mode === 'reply' ? S.open && S.open.msg : null;
+    // A fresh reply makes an earlier "Draft discarded" Undo stale: it would replace the new text.
+    if (S.undoFn && S.undoFn.restoresSession) { clearTimeout(S.toastTimer); hideToast(); }
+    var oldKey = S.session && S.session.key;
     S.session = newSession(key, mode, msg);
+    refreshDraftMark(oldKey);
     return S.session;
   }
 
@@ -1312,6 +1384,7 @@
     var typed = s.text.trim() && !(s.byVale && s.text === s.lastVale) ? s.text : '';
     if (typed || s.toText || s.subject) saveTyped(s.key, { text: typed, toText: s.toText, subject: s.subject, byVale: s.byVale && !!typed });
     else clearTyped(s.key);
+    refreshDraftMark(s.key);
   }
 
   function restoreSession(msg) {
@@ -1378,9 +1451,10 @@
         (s.byVale ? '<span class="vmail-editor__by"><span class="vmail-avatar vmail-avatar--agent vmail-avatar--sm" aria-hidden="true">' + h(S.agent.charAt(0)) + '</span>Drafted by ' + h(S.agent) + ' · edit freely' + (S.demo ? '<span class="vmail-demochip">Demo draft</span>' : '') + '</span>' : '') + '</div>' +
         '<div class="vmail-editor__fields">' +
         '<label for="vmail-compose-to">To</label><input id="vmail-compose-to" class="ap-input" type="text" inputmode="email" autocomplete="off" placeholder="name@company.com" value="' + h(s.toText) + '"' + (locked ? ' disabled' : '') + '>' +
+        (s.suggestTo && !s.toText.trim() && !locked ? '<p class="vmail-suggest" id="vmail-suggest-to"><button type="button" class="ap-btn vmail-btn-agent" data-act="use-suggest">Send to ' + h(s.suggestTo.name || s.suggestTo.address) + ' &lt;' + h(s.suggestTo.address) + '&gt;?</button></p>' : '') +
         '<label for="vmail-compose-subject">Subject</label><input id="vmail-compose-subject" class="ap-input" type="text" maxlength="300" autocomplete="off" value="' + h(s.subject) + '"' + (locked ? ' disabled' : '') + '>' +
-        '<label for="vmail-compose-brief">' + h(copy('composeBriefLabel', 'Ask {agent} to draft it').replace('{agent}', S.agent)) + '</label><form class="vmail-tell" data-form="brief"><input id="vmail-compose-brief" class="ap-input" type="text" maxlength="500" autocomplete="off" placeholder="In a line, what should this email say?" value="' + h(s.brief) + '"' + (locked || drafting ? ' disabled' : '') + '>' +
-        '<button type="submit" class="ap-btn vmail-btn-agent"' + (locked || drafting ? ' disabled' : '') + '>Draft with ' + h(S.agent) + '</button></form>' +
+        '<div class="vmail-compose__vale"><label for="vmail-compose-brief">' + h(copy('composeBriefLabel', 'Ask {agent} to draft it').replace('{agent}', S.agent)) + '</label><form class="vmail-tell" data-form="brief"><input id="vmail-compose-brief" class="ap-input" type="text" maxlength="500" autocomplete="off" placeholder="In a line, what should this email say?" value="' + h(s.brief) + '"' + (locked || drafting ? ' disabled' : '') + '>' +
+        '<button type="submit" class="ap-btn vmail-btn-agent"' + (locked || drafting ? ' disabled' : '') + '>Draft with ' + h(S.agent) + '</button></form></div>' +
         '</div>';
     }
     var client = s.mode === 'reply' && S.open && S.open.msg && (isClientThread(S.open.msg) || !!S.rulesFailed);
@@ -1525,6 +1599,15 @@
   async function valeDraft(s, msg, stance, instruction, option) {
     var target = s.mode === 'reply' ? recipientsFor(s)[0] : parseAddresses(s.toText)[0];
     var first = C.firstName(target ? { name: target.name, address: target.address } : null);
+    // Compose with an empty To: if the brief names exactly one person Chad has written to, greet
+    // them and offer them as the recipient (one tap; To is never filled silently).
+    if (s.mode === 'compose') {
+      s.suggestTo = null;
+      if (!target) {
+        var named = C.contactFromBrief(instruction, C.knownContacts(list('sentitems').items).filter(function (p) { return p.address !== String(S.me.mail || '').toLowerCase(); }));
+        if (named) { s.suggestTo = named; first = named.first; }
+      }
+    }
     var mismatch = !!(msg && guardFor(msg));
     if (S.demo) {
       await sleep(450 + Math.round(Math.random() * 400));
@@ -1562,7 +1645,8 @@
     } else {
       var toList = parseAddresses(s.toText);
       body = { mode: 'compose', from: '', fromName: '', subject: s.subject, latest: '', prior: [], stance: null, instruction: String(instruction || ''), to: toList.map(function (r) { return r.address; }).slice(0, 50),
-        client: !!S.rulesFailed || C.threadIsClient([{ toRecipients: toList.map(function (r) { return { emailAddress: r }; }) }], rulesDomains) };
+        // Nobody on To yet: the brief may name a client, so fail closed (Claude only).
+        client: !!S.rulesFailed || !toList.length || C.threadIsClient([{ toRecipients: toList.map(function (r) { return { emailAddress: r }; }) }], rulesDomains) };
     }
     var r = await valeApi('/vale-draft', { method: 'POST', body: JSON.stringify(body) });
     if (r.status === 200 && r.body && typeof r.body.draft === 'string' && r.body.draft.trim()) return r.body.draft;
@@ -1739,6 +1823,7 @@
     // The "Sent. It's their turn" panel belongs to this moment only (see renderValeSlot).
     S.justSent = s.mode === 'reply' ? s.msgId : null;
     if (S.session === s) S.session = null;
+    refreshDraftMark(s.key);
     s.m.next('reset');
     $('vmail-sendbar').hidden = true;
     $('vmail-sendbar-sr').textContent = 'Sent.';
@@ -1778,6 +1863,7 @@
     clearTyped(s.key);
     S.session = null;
     clearTimeout(s.saveTimer);
+    refreshDraftMark(s.key);
     if (S.open && S.open.compose) { S.open = null; setReading(false); renderReader(); focusQuiet($('vmail-list')); }
     else {
       renderEditorSlot();
@@ -1787,8 +1873,13 @@
     }
     if (s.text.trim()) {
       // Undo restores the session from memory: an unedited draft is never written to storage.
-      toast('Draft discarded.', function () {
+      var undoDiscard = function () {
         if (sessionBusy()) return;
+        // Never overwrite a reply Chad has started since.
+        var cur = S.session;
+        var curT = $('vmail-editor-text');
+        if (cur && curT) cur.text = curT.value;
+        if (cur && cur.key === s.key && cur.text.trim()) { toast('You\'ve started a new reply, so the old draft wasn\'t restored.'); return; }
         if (s.mode === 'compose') {
           S.openSeq++;
           S.openId = null;
@@ -1811,7 +1902,9 @@
         } else {
           persist(s);
         }
-      });
+      };
+      undoDiscard.restoresSession = true;
+      toast('Draft discarded.', undoDiscard);
     }
   }
 
@@ -1978,12 +2071,16 @@
     // Announced through the always-present live region: a region that appears with its text
     // already in it is often not read, and a repeated "Archived." would not be read again.
     announce($('vmail-toast-text').textContent);
-    placeToast();
+    placeToast(true);
     S.toastTimer = setTimeout(hideToast, S.undoFn ? 8000 : 4500);
   }
   // Never over the editor's Send/Discard row: when it would be, the toast moves to the top of
   // the reading column (re-checked as the reader scrolls).
-  function placeToast() {
+  // When a toast appears over the Send/Discard row, the reader scrolls that row clear (the article
+  // keeps room under it). Only when the pane can't scroll that far does the toast move up to the
+  // toolbar band, top right, clear of the subject. On scroll it only re-checks: it never scrolls
+  // against Chad.
+  function placeToast(onShow) {
     var t = $('vmail-toast');
     if (!t || t.hidden) return;
     t.classList.remove('vmail-toast--high');
@@ -1991,6 +2088,16 @@
     if (!row) return;
     var a = t.getBoundingClientRect(), b = row.getBoundingClientRect();
     var hit = b.height > 0 && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    if (hit && onShow) {
+      var pane = $('vmail-reader');
+      var need = Math.ceil(b.bottom - a.top) + 16;
+      var room = pane.scrollHeight - pane.clientHeight - pane.scrollTop;
+      if (room >= need) {
+        pane.scrollTop += need;
+        b = row.getBoundingClientRect();
+        hit = a.top < b.bottom && b.top < a.bottom;
+      }
+    }
     t.classList.toggle('vmail-toast--high', hit);
   }
   function hideToast() { if (!$('vmail-toast')) return; $('vmail-toast').hidden = true; S.undoFn = null; }
@@ -2018,7 +2125,30 @@
     // sidebar.js wraps around the page (it has already run by DOMContentLoaded).
     var skip = $('vmail-skip');
     if (skip && document.body.firstChild !== skip) document.body.insertBefore(skip, document.body.firstChild);
-    skip.addEventListener('click', function (e) { e.preventDefault(); $('vmail-list').focus(); });
+    skip.addEventListener('click', function (e) { e.preventDefault(); focusList(); });
+    // A listbox always has an active option when it has focus: the first row, if nothing (or a
+    // row no longer shown) is selected. Selecting is not opening, so nothing is marked read.
+    // A click or tap picks its own row: only keyboard / programmatic focus selects the first one
+    // (selecting on pointer focus would scroll the list under the pointer mid-click).
+    $('vmail-list').addEventListener('pointerdown', function () { S.listPointer = true; setTimeout(function () { S.listPointer = false; }, 0); });
+    $('vmail-list').addEventListener('focus', function () {
+      if (S.listPointer) return;
+      var items = visibleItems();
+      if (!items.length) return;
+      var shown = S.selectedId && items.some(function (x) { return x.id === S.selectedId; });
+      if (!shown) select(items[0].id);
+    });
+    // The ARIA listbox keys, only while the list itself has focus.
+    $('vmail-list').addEventListener('keydown', function (e) {
+      if (e.target !== $('vmail-list') || $('vmail-help').open || $('vmail-schedule').open) return;
+      var k = C.listKeyFor(e);
+      if (!k) return;
+      e.preventDefault();
+      if (k === 'next') move(1);
+      else if (k === 'prev') move(-1);
+      else if (k === 'first') moveTo(0);
+      else moveTo(visibleItems().length - 1);
+    });
     // The fades follow the row's real size: scrolling, the pane showing again after reading
     // (phones), and late-loading fonts all change what overflows.
     $('vmail-chips').addEventListener('scroll', chipEdges, { passive: true });
@@ -2039,7 +2169,12 @@
     });
     $('vmail-chips').addEventListener('click', function (e) {
       var c = e.target.closest('[data-filter]');
-      if (c) setFilter(c.getAttribute('data-filter'));
+      if (!c) return;
+      var f = c.getAttribute('data-filter');
+      setFilter(f);
+      // A chip half under the fade comes fully into view once pressed.
+      var on = $('vmail-chips').querySelector('[data-filter="' + cssEsc(f) + '"]');
+      if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     });
     $('vmail-folders').addEventListener('click', function (e) {
       var f = e.target.closest('[data-folder]');
@@ -2048,9 +2183,9 @@
     $('vmail-folder-select').addEventListener('change', function (e) { setFolder(e.target.value); });
     $('vmail-search-form').addEventListener('submit', function (e) { e.preventDefault(); runSearch($('vmail-search').value); });
     $('vmail-search').addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { e.preventDefault(); clearSearch(); $('vmail-search').blur(); $('vmail-list').focus(); }
+      if (e.key === 'Escape') { e.preventDefault(); clearSearch(); $('vmail-search').blur(); focusList(); }
     });
-    $('vmail-search-clear').addEventListener('click', function () { clearSearch(); $('vmail-list').focus(); });
+    $('vmail-search-clear').addEventListener('click', function () { clearSearch(); focusList(); });
     $('vmail-compose').addEventListener('click', startCompose);
     $('vmail-help-btn').addEventListener('click', openHelp);
     $('vmail-help-close').addEventListener('click', closeHelp);
@@ -2099,15 +2234,30 @@
         clearTimeout(s.saveTimer);
         s.saveTimer = setTimeout(function () { persist(s); }, 300);
         renderFillNote(s);
-      } else if (e.target.id === 'vmail-compose-to') { s.toText = e.target.value; persist(s); }
+      } else if (e.target.id === 'vmail-compose-to') {
+        s.toText = e.target.value; persist(s);
+        var sg = $('vmail-suggest-to');
+        if (sg) sg.hidden = !!s.toText.trim();
+      }
       else if (e.target.id === 'vmail-compose-subject') { s.subject = e.target.value; persist(s); }
       else if (e.target.id === 'vmail-compose-brief') { s.brief = e.target.value; }
     });
     reader.addEventListener('keydown', function (e) {
       if (e.target.id === 'vmail-editor-text' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); startSend(); }
+      // Esc leaves the editor (the draft is kept, never discarded); a second Esc closes as usual.
+      if (e.target.id === 'vmail-editor-text' && (e.key === 'Escape' || e.key === 'Esc') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        var es = S.session;
+        if (es) { es.text = e.target.value; clearTimeout(es.saveTimer); persist(es); }
+        var rd = $('vmail-reader');
+        var spot = rd.querySelector('.vmail-vale .vmail-stance.is-picked:not([disabled])') || rd.querySelector('.vmail-vale .vmail-stance:not([disabled])') ||
+          rd.querySelector('.vmail-reader__bar [data-act="reply"]:not([disabled])');
+        focusQuiet(spot || rd);
+      }
     });
 
     document.addEventListener('keydown', onKey);
+    window.addEventListener('popstate', onPopState);
     window.addEventListener('beforeunload', function (e) {
       if (sessionBusy()) { e.preventDefault(); e.returnValue = ''; }
       if (S.session) persist(S.session);
@@ -2164,10 +2314,38 @@
         break;
       }
       case 'use-from': if (id && !sessionBusy()) { delete S.replyTo[id]; renderValeSlot(); renderEditorSlot(); } break;
+      case 'use-suggest': {
+        var ss = S.session;
+        if (!ss || ss.mode !== 'compose' || !ss.suggestTo || sessionBusy()) break;
+        var toIn = $('vmail-compose-to');
+        if (toIn) ss.toText = toIn.value;
+        if (!ss.toText.trim()) ss.toText = ss.suggestTo.address;
+        ss.suggestTo = null;
+        persist(ss);
+        renderEditorSlot();
+        var nt = $('vmail-compose-subject');
+        if (nt) focusQuiet(nt);
+        break;
+      }
       case 'use-replyto': if (id && !sessionBusy()) { S.replyTo[id] = 'replyto'; renderValeSlot(); renderEditorSlot(); } break;
       default: break;
     }
     return el;
+  }
+
+  // d: when Vale found a yes/no or either/or question, the answer buttons ARE the draft: a
+  // stance-less draft would only be a placeholder. Focus the first one instead.
+  function draftOrPick() {
+    var r = $('vmail-reader');
+    var group = r && r.querySelector('.vmail-vale .vmail-stances');
+    var firstBtn = group && group.querySelector('.vmail-stance[data-stance="yes"]:not([disabled]),.vmail-stance[data-stance="choice"]:not([disabled])');
+    if (firstBtn && S.open && S.open.msg && !guardFor(S.open.msg) && !(S.session && S.session.key === S.open.msg.id && S.session.text.trim())) {
+      firstBtn.focus();
+      var labels = Array.prototype.map.call(group.querySelectorAll('.vmail-stance[data-stance]'), function (b) { return b.textContent.trim(); }).filter(Boolean);
+      announce('Pick an answer: ' + labels.join(', ') + '.');
+      return;
+    }
+    draftWithVale(null, '');
   }
 
   function onKey(e) {
@@ -2194,8 +2372,8 @@
         break;
       case 'draft':
         e.preventDefault();
-        if (S.selectedId && S.selectedId !== S.openId) openMessage(S.selectedId, { show: true }).then(function () { draftWithVale(null, ''); });
-        else draftWithVale(null, '');
+        if (S.selectedId && S.selectedId !== S.openId) openMessage(S.selectedId, { show: true }).then(function () { draftOrPick(); });
+        else draftOrPick();
         break;
       case 'flag': { e.preventDefault(); var fm = findMsg(targetId()); if (fm) setFlag(fm.id, !isFlagged(fm)); break; }
       case 'unread': { e.preventDefault(); var um = findMsg(targetId()); if (um && !isMine(um)) setRead(um.id, !um.isRead); break; }
@@ -2386,7 +2564,7 @@
     loadFolder('inbox');
     loadFolder('sentitems');
     loadCalendar();
-    if (location.hash === '#vmail-list') $('vmail-list').focus();
+    if (location.hash === '#vmail-list') focusList();
     setInterval(function () { renderStamp(); renderNextUp(); }, 60000);
   }
 

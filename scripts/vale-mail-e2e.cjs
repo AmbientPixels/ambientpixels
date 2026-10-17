@@ -377,7 +377,8 @@ async function main() {
       check(onSkip, 'keyboard: the first Tab press focuses "Skip to messages"');
       await pg.keyboard.press('Enter');
       check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-list'), 'keyboard: the skip link moves focus to the message list');
-      await pg.keyboard.press('j');
+      // The first row is already active once the list has focus (round 6): Enter opens it.
+      await pg.keyboard.press('Enter');
       await pg.waitForSelector('.vmail-stance[data-stance="yes"]', { timeout: 5000 });
       let onYes = false;
       for (let i = 0; i < 30 && !onYes; i++) {
@@ -1266,6 +1267,167 @@ async function main() {
       await c.close();
     }
 
+    // ── Round 6: keyboard listbox, focus cues, draft markers, stale undo, d, Esc, compose brief, Next ──
+    {
+      const c = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await c.addInitScript(SHIM);
+      const pg = await c.newPage();
+      watch(pg);
+      await pg.goto(base + PAGE);
+      await pg.waitForSelector('#vmail-list [data-id="demo-inb-006"]', { timeout: 8000 });
+      await pg.waitForFunction(() => (window.__vmCalls.listMessages || 0) >= 2, null, { timeout: 5000 });
+      const open = opener(pg);
+      const ad = () => pg.$eval('#vmail-list', (l) => l.getAttribute('aria-activedescendant'));
+
+      // Skip link → the list has an active option with a visible ring; Enter opens it.
+      await pg.keyboard.press('Tab');
+      check(await pg.evaluate(() => document.activeElement && document.activeElement.id === 'vmail-skip'), 'round 6: Tab lands on the skip link first');
+      await pg.keyboard.press('Enter');
+      const sk = await pg.evaluate(() => {
+        const l = document.querySelector('#vmail-list');
+        const first = l.querySelector('[role="option"]');
+        const id = l.getAttribute('aria-activedescendant');
+        const row = id && document.getElementById(id);
+        return { focused: document.activeElement === l, id, firstId: first.id, shadow: row ? getComputedStyle(row).boxShadow : 'none',
+          inView: first.getBoundingClientRect().top >= l.getBoundingClientRect().top - 0.5,
+          subj: first.querySelector('.vmail-row__subject strong').textContent };
+      });
+      check(sk.focused && sk.id === sk.firstId && sk.shadow !== 'none' && sk.inView, 'round 6: skip link → list focused, first row active with a ring, not scrolled away (' + JSON.stringify(sk) + ')');
+      await pg.keyboard.press('Enter');
+      await pg.waitForFunction((s) => (document.querySelector('#vmail-subject') || {}).textContent === s, sk.subj, { timeout: 5000 });
+      check(true, 'round 6: Enter right after the skip link opens the active row');
+      const cue = await pg.evaluate(() => ({ id: document.activeElement && document.activeElement.id, bar: getComputedStyle(document.querySelector('.vmail-reader__bar')).boxShadow }));
+      check(cue.id === 'vmail-reader' && /inset/.test(cue.bar), 'round 6: the focused reader shows a cue on its toolbar (' + JSON.stringify(cue) + ')');
+      await pg.emulateMedia({ forcedColors: 'active' });
+      const fc = await pg.evaluate(() => getComputedStyle(document.querySelector('#vmail-reader')).outlineStyle);
+      check(fc === 'solid', 'round 6: forced colors: the focused reader has a solid outline (' + fc + ')');
+      await pg.emulateMedia({ forcedColors: 'none' });
+
+      // Arrow keys, Home and End on the listbox.
+      await pg.click('.vmail-chip[data-filter="all"]');
+      await pg.focus('#vmail-list');
+      const rowIds = await pg.$$eval('#vmail-list [role="option"]', (r) => r.map((x) => x.id));
+      await pg.keyboard.press('Home');
+      check(await ad() === rowIds[0], 'round 6: Home → first row');
+      await pg.keyboard.press('ArrowDown');
+      await pg.keyboard.press('ArrowDown');
+      check(await ad() === rowIds[2], 'round 6: ArrowDown twice → third row');
+      await pg.keyboard.press('ArrowUp');
+      check(await ad() === rowIds[1], 'round 6: ArrowUp → second row');
+      await pg.keyboard.press('End');
+      check(await ad() === rowIds[rowIds.length - 1], 'round 6: End → last row');
+      await pg.keyboard.press('Home');
+      check(await ad() === rowIds[0], 'round 6: Home → first row again');
+      // An empty result still shows focus on the list itself.
+      await pg.fill('#vmail-search', 'zzzz nothing matches');
+      await pg.press('#vmail-search', 'Enter');
+      await pg.waitForSelector('#vmail-list .vmail-empty', { timeout: 5000 });
+      await pg.focus('#vmail-list');
+      const emptyRing = await pg.$eval('#vmail-list', (l) => l.matches(':focus-visible') ? getComputedStyle(l).boxShadow : 'not-focus-visible');
+      check(emptyRing !== 'none' && emptyRing !== 'not-focus-visible', 'round 6: an empty list shows its own focus ring (' + emptyRing + ')');
+      await pg.click('#vmail-search-clear');
+      await pg.waitForSelector('#vmail-list [role="option"]', { timeout: 5000 });
+      await pg.click('.vmail-chip[data-filter="needs_you"]');
+
+      // d on a yes/no question focuses the answers instead of drafting a placeholder.
+      await open('demo-inb-023');
+      await pg.focus('#vmail-list');
+      await pg.keyboard.press('d');
+      const dk = await pg.evaluate(() => ({ cls: document.activeElement.className, txt: document.activeElement.textContent.trim(), ed: !!document.querySelector('#vmail-editor-text') }));
+      check(/vmail-stance/.test(dk.cls) && dk.txt === 'Yes' && !dk.ed, 'round 6: d on a yes/no question focuses "Yes", no placeholder draft (' + JSON.stringify(dk) + ')');
+      // ...and still drafts when there is no question to answer.
+      let plain = null;
+      for (const id of await pg.$$eval('#vmail-list [role="option"]', (r) => r.map((x) => x.getAttribute('data-id')))) {
+        await open(id);
+        const ok = await pg.evaluate(() => {
+          const v = document.querySelector('#vmail-reader .vmail-vale');
+          return !!v.querySelector('[data-act="draft"]') && !v.querySelector('[data-stance="yes"],[data-stance="choice"]') && !v.querySelector('[data-act="draft-safe"]');
+        });
+        if (ok) { plain = id; break; }
+      }
+      if (plain) {
+        await pg.focus('#vmail-list');
+        await pg.keyboard.press('d');
+        await draftLands(pg, /\S/);
+        check(true, 'round 6: d on ' + plain + ' (no yes/no question) drafts a reply');
+        await pg.click('.vmail-editor [data-act="discard"]');
+      } else console.log('  skip  round 6: no plain email in Needs you to try d on');
+
+      // Draft marker: a live or saved reply marks its row; Discard clears it.
+      await open('demo-inb-006');
+      await pg.click('.vmail-vale .vmail-stance[data-stance="yes"]');
+      await draftLands(pg, /Thursday/);
+      await open('demo-inb-024');
+      check(await pg.isVisible('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft'), 'round 6: a row with an unsent reply shows "Draft"');
+      check(!(await pg.$('#vmail-list [data-id="demo-inb-024"] .vmail-row__draft')), 'round 6: a row without one does not');
+      await open('demo-inb-006');
+      await pg.waitForSelector('#vmail-editor-text', { timeout: 5000 });
+      // Esc leaves the editor without losing the draft; a second Esc closes the reader.
+      const before = await pg.inputValue('#vmail-editor-text');
+      await pg.focus('#vmail-editor-text');
+      await pg.keyboard.press('Escape');
+      const esc1 = await pg.evaluate(() => ({ tag: document.activeElement.tagName, id: document.activeElement.id }));
+      check(esc1.id !== 'vmail-editor-text' && (await pg.inputValue('#vmail-editor-text')) === before, 'round 6: Esc in the editor moves focus out and keeps the draft (' + JSON.stringify(esc1) + ')');
+      await pg.keyboard.press('Escape');
+      await pg.waitForFunction(() => document.activeElement && document.activeElement.id === 'vmail-list', null, { timeout: 3000 });
+      check(true, 'round 6: a second Esc returns focus to the list');
+      await open('demo-inb-006');
+      await pg.waitForSelector('#vmail-editor-text', { timeout: 5000 });
+      check((await pg.inputValue('#vmail-editor-text')) === before, 'round 6: the draft is still there after Esc, Esc');
+      await pg.click('.vmail-editor [data-act="discard"]');
+      await pg.waitForFunction(() => !document.querySelector('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft'), null, { timeout: 3000 });
+      check(true, 'round 6: Discard clears the row\'s "Draft" marker');
+
+      // A stale "Draft discarded" Undo never overwrites a reply started since.
+      await pg.waitForFunction(() => /Draft discarded/.test(document.querySelector('#vmail-toast').textContent) && !document.querySelector('#vmail-toast').hidden, null, { timeout: 3000 });
+      await pg.click('.vmail-reader__bar [data-act="reply"]');
+      await pg.waitForSelector('#vmail-editor-text', { timeout: 5000 });
+      await pg.fill('#vmail-editor-text', 'NEW');
+      const tst = await pg.evaluate(() => { const t = document.querySelector('#vmail-toast'); return t.hidden || document.querySelector('#vmail-toast-undo').hidden; });
+      check(tst, 'round 6: starting a new reply drops the stale "Draft discarded" Undo');
+      await pg.focus('#vmail-reader');
+      await pg.keyboard.press('z');
+      check((await pg.inputValue('#vmail-editor-text')) === 'NEW', 'round 6: z after that leaves the new reply alone');
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // A lookalike sender: no "Waiting on your reply" urgency.
+      await open('demo-inb-047');
+      const t47 = await pg.textContent('#vmail-reader .vmail-vale');
+      check(!/Waiting on your reply/.test(t47) && !(await pg.$('#vmail-reader .vmail-vale li.is-urgent')), 'round 6: a guarded email shows no "Waiting on your reply" line');
+
+      // Compose: the brief names Ravi → "Hi Ravi," and a one-tap To suggestion.
+      await pg.click('#vmail-compose');
+      await pg.waitForSelector('#vmail-compose-brief', { timeout: 5000 });
+      await pg.fill('#vmail-compose-brief', 'tell Ravi the sandbox key is on its way by Monday');
+      await pg.click('form[data-form="brief"] button[type="submit"]');
+      await draftLands(pg, /^Hi Ravi,/);
+      check((await pg.inputValue('#vmail-compose-to')) === '', 'round 6: compose never fills To on its own');
+      const sug = await pg.textContent('#vmail-suggest-to [data-act="use-suggest"]');
+      check(/ravi@oakline-dev\.example/.test(sug), 'round 6: compose offers "Send to Ravi Menon <ravi@oakline-dev.example>?" (' + sug.trim() + ')');
+      await pg.click('#vmail-suggest-to [data-act="use-suggest"]');
+      check((await pg.inputValue('#vmail-compose-to')) === 'ravi@oakline-dev.example' && !(await pg.$('#vmail-suggest-to')), 'round 6: the suggestion fills To when tapped');
+      const lab = await pg.evaluate(() => {
+        const r = (s) => document.querySelector(s).getBoundingClientRect();
+        return { to: Math.round(r('#vmail-compose-to').top - r('label[for="vmail-compose-to"]').bottom), brief: Math.round(r('#vmail-compose-brief').top - r('label[for="vmail-compose-brief"]').bottom) };
+      });
+      check(lab.brief >= 0 && lab.brief <= 12, 'round 6: the Vale brief label sits right above its input (' + JSON.stringify(lab) + ')');
+      await pg.screenshot({ path: path.join(SHOTS, '19-compose-suggest.png') });
+      await pg.click('.vmail-editor [data-act="discard"]');
+
+      // After a send, "Next" never offers a guarded email.
+      await pg.click('.vmail-chip[data-filter="needs_you"]');
+      await open('demo-inb-006');
+      await pg.click('.vmail-vale .vmail-stance[data-stance="yes"]');
+      await draftLands(pg, /Thursday/);
+      await fillGaps(pg);
+      await pg.click('#vmail-send');
+      await pg.waitForSelector('.vmail-vale [data-act="next"]', { timeout: 20000 });
+      const nx = await pg.$eval('.vmail-vale [data-act="next"]', (b) => ({ id: b.getAttribute('data-next'), t: b.textContent }));
+      check(nx.id !== 'demo-inb-047' && nx.id !== 'demo-inb-015' && !/Change of bank account/.test(nx.t), 'round 6: "Next" after a send skips guarded emails (' + JSON.stringify(nx) + ')');
+      check(!(await pg.$('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft')), 'round 6: no "Draft" marker after a completed send');
+      await c.close();
+    }
+
     // ── Real mode (MSAL + Microsoft Graph), fully stubbed: nothing leaves this machine ──
     // MSAL is a stub, the product config gets a client id, Graph answers from a small fixture
     // with OPAQUE folder ids (as the real Graph does), and vale-state / vale-draft are captured.
@@ -1419,6 +1581,15 @@ async function main() {
         check(rs.id === 'r3' && rs.row === rs.reader && rs.reader === 'Coffee soon', 'real mode: after e then z, the selected row is the open email (' + JSON.stringify(rs) + ')');
         check(out.foreign.length === 0, 'real mode: no request leaves for any non-stubbed host' + (out.foreign.length ? ': ' + out.foreign.join(', ') : ''));
         await pg.screenshot({ path: path.join(SHOTS, '17-real-mode.png') });
+        // Compose with nobody on To yet fails closed: the brief may name a client.
+        await pg.click('#vmail-compose');
+        await pg.waitForSelector('#vmail-compose-brief', { timeout: 5000 });
+        await pg.fill('#vmail-compose-brief', 'reply to Northwind about invoice 2291');
+        await pg.click('form[data-form="brief"] button[type="submit"]');
+        await pg.waitForFunction(() => { const t = document.querySelector('#vmail-editor-text'); return t && !t.disabled && /Thanks for this/.test(t.value); }, null, { timeout: 5000 });
+        const dc = out.drafts[out.drafts.length - 1];
+        check(dc.mode === 'compose' && dc.to.length === 0 && dc.client === true, 'real mode: a compose draft with an empty To is client:true (Claude only)');
+        await pg.click('.vmail-editor [data-act="discard"]');
         await c.close();
       }
       // Paged inbox: every listbox child is an option; "Load older mail" is reachable and works.
@@ -1483,6 +1654,20 @@ async function main() {
     await ph.tap('#vmail-back');
     await ph.waitForSelector('#vmail-list', { state: 'visible', timeout: 3000 });
     check(true, 'phone: back returns to the list');
+    // The system Back gesture returns to the list instead of leaving Vale Mail; the in-app
+    // arrow leaves no extra history entry behind.
+    await ph.tap('#vmail-list [data-id="demo-inb-024"]');
+    await ph.waitForSelector('#vmail-reader .vmail-vale', { timeout: 5000 });
+    await ph.goBack();
+    await ph.waitForSelector('#vmail-list', { state: 'visible', timeout: 3000 });
+    check(/mail.html/.test(ph.url()) && !(await ph.isVisible('#vmail-reader')), 'phone: system Back closes the email and stays on Vale Mail (' + ph.url() + ')');
+    await ph.tap('#vmail-list [data-id="demo-inb-024"]');
+    await ph.waitForSelector('#vmail-reader .vmail-vale', { timeout: 5000 });
+    check(await ph.evaluate(() => history.state && history.state.vmail === 'reader'), 'phone: opening an email adds one history entry');
+    await ph.tap('#vmail-back');
+    await ph.waitForSelector('#vmail-list', { state: 'visible', timeout: 3000 });
+    await ph.waitForFunction(() => !(history.state && history.state.vmail), null, { timeout: 3000 });
+    check(true, 'phone: the in-app back arrow pops that entry too');
 
     // Phone, round 3: no keyboard hint, an honest chip fade, a Next button that fits.
     check(!(await ph.isVisible('.vmail-search__kbd')), 'phone: no "/" keyboard hint in the search field');
