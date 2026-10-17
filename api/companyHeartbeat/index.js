@@ -626,12 +626,18 @@ module.exports = async function (context) {
     // live sources. Injected into every prompt directly under WORLD STATE.
     // Null when unseeded — prompts simply lack the block (fail-open).
     var strategyDigest = null;
+    // Counted once per cycle and shared with SE-2 below. Before 2026-10-16 only SE-2
+    // got it, so every agent read the primary north star as "?".
+    var _qualifiedPaUses7d = null;
+    try { _qualifiedPaUses7d = await require('./pa-metrics').countQualifiedPaUses7d(Date.now()); } catch (_pmq) { /* unmeasured */ }
     try {
       strategyDigest = buildStrategyDigest(companyStrategy, {
         socialAccountStats: socialAccountStats,
         blogPostViews: _blogPostViewsForDigest,
         revenueDigest: revenueDigest,
-        funnel: costIntel && costIntel.funnel
+        funnel: costIntel && costIntel.funnel,
+        qualifiedPaUses7d: _qualifiedPaUses7d,
+        llmSpendByDay: costIntel && costIntel.gemini && costIntel.gemini.byDay
       }, Date.now());
       if (strategyDigest) context.log('[heartbeat] Strategy digest:', strategyDigest.northStar.length, 'north stars, era=' + strategyDigest.era);
       else context.log('[heartbeat] Strategy digest: companyStrategy not seeded — block omitted');
@@ -4028,8 +4034,7 @@ module.exports = async function (context) {
       try { _rrRuns7d = await require('./pa-metrics').countResumeRoastRuns7d(Date.now()); } catch (_pm7) { /* unmeasured */ }
       // Decision 8 (2026-10-06): qualified_uses_week counts every product's first-value
       // event, not only Resume Roast runs. null = unmeasured.
-      let _paUses7d = null;
-      try { _paUses7d = await require('./pa-metrics').countQualifiedPaUses7d(Date.now()); } catch (_pmq) { /* unmeasured */ }
+      const _paUses7d = _qualifiedPaUses7d;
       if (_paUses7d && typeof _paUses7d === 'object') context.log('[Heartbeat] Qualified PA uses 7d:', _paUses7d.total, JSON.stringify(_paUses7d.byProduct));
       const _se2 = evaluateObjectives(objectives, {
         socialAccountStats: socialAccountStats,
