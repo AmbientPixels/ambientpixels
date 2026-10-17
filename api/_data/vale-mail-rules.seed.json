@@ -1,0 +1,13 @@
+{
+  "_note": "Seed for vale/valeMailRules. Used only until the CEO saves rules from the Office page. rulesOnlyDomains: client mail sorted by rules alone, never sent to an AI model.",
+  "vips": [],
+  "muted": [],
+  "receipts": ["stripe.com", "paypal.com", "godaddy.com", "squareup.com", "amazon.com", "apple.com", "github.com", "anthropic.com"],
+  "rulesOnlyDomains": ["hansonconsultgroup.com", "evergreengoodwill.org"],
+  "projects": {
+    "Evergreen": { "domains": ["evergreengoodwill.org"], "keywords": ["evergreen", "goodwill"] },
+    "Hanson-related": { "domains": ["hansonconsultgroup.com"], "keywords": ["hanson"] },
+    "Video": { "domains": [], "keywords": ["video", "youtube", "studio", "voiceover"] },
+    "AP": { "domains": ["ambientpixels.ai"], "keywords": ["ambientpixels", "ambientscore", "pixel agents", "cardforge", "blindspot", "storyforge"] }
+  }
+}
