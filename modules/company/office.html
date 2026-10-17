@@ -77,9 +77,12 @@
       // company-store.js, whose GET target (company-state) is anonymous-readable.
       var API = (window.CompanyStore && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
       function authHeaders() {
-        return (window.CompanyStore && CompanyStore.getWriteHeaders)
+        var hdrs = (window.CompanyStore && CompanyStore.getWriteHeaders)
           ? CompanyStore.getWriteHeaders()
           : { 'Content-Type': 'application/json' };
+        // Verified Microsoft sign-in (vale-mail.js), when present, is what Vale's endpoints trust.
+        if (window.ValeAuth && window.ValeAuth.token) hdrs = Object.assign({}, hdrs, { Authorization: 'Bearer ' + window.ValeAuth.token });
+        return hdrs;
       }
       // Resolve once the CEO principal has been fetched, so the first reads pass the gate.
       function whenAuthReady() {
@@ -161,8 +164,26 @@
           .catch(function () { addBubble('vale', 'I could not reach the server.'); });
       });
 
-      // Initial reads wait for the CEO principal so the gate passes on first paint.
-      whenAuthReady().then(function () {
+      // Mail setup (2026-10-17): the Microsoft sign-in + Mail card load only with ?vale=1, and stay
+      // on for this browser session so the sign-in redirect (which drops the query) can finish.
+      var valeMail = false;
+      try {
+        valeMail = /[?&]vale=1\b/.test(location.search) || sessionStorage.getItem('vale-mail') === '1' || /[#&?](code|error)=/.test(location.hash);
+        if (valeMail) sessionStorage.setItem('vale-mail', '1');
+      } catch (e) { valeMail = /[?&]vale=1\b/.test(location.search); }
+      var valeReady = Promise.resolve();
+      if (valeMail) {
+        valeReady = new Promise(function (resolve) {
+          var s = document.createElement('script');
+          s.src = '/modules/company/js/vale-mail.js';
+          s.onload = function () { (window.ValeAuth && window.ValeAuth.ready ? window.ValeAuth.ready : Promise.resolve()).then(resolve, resolve); };
+          s.onerror = resolve;
+          document.body.appendChild(s);
+        });
+      }
+
+      // Initial reads wait for the CEO principal (and the Microsoft sign-in, if on) so the gate passes on first paint.
+      Promise.all([whenAuthReady(), valeReady]).then(function () {
         loadActions();
         loadBrief();
       });
