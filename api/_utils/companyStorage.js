@@ -492,6 +492,8 @@ async function migrateStore(payload) {
 // ── Gemini API Usage Tracking ──
 // Gemini pricing (per 1M tokens). 2.0-flash retained for historical usage entries.
 const GEMINI_PRICING = {
+  // Argon launched 2026-10-13 at a limited-time introductory price — recheck when it ends.
+  'gemini-4-argon': { input: 2.00, output: 10.00 },
   'gemini-2.5-pro': { input: 1.25, output: 10.00 },
   'gemini-2.5-flash': { input: 0.30, output: 2.50 },
   'gemini-2.0-flash': { input: 0.10, output: 0.40 },

@@ -9,7 +9,8 @@ var MODELS = {
   'claude-haiku':  'claude-haiku-4-5-20251001',
   'gemini':        'gemini-2.5-flash',
   'gemini-flash':  'gemini-2.5-flash',
-  'gemini-pro':    'gemini-2.5-pro'
+  'gemini-pro':    'gemini-2.5-pro',
+  'gemini-argon':  'gemini-4-argon'
 };
 
 // Fixed cross-provider tail appended to every chain. Contains one Gemini and one
@@ -63,7 +64,10 @@ async function runChain(chain, attemptFn, onFallback) {
 // returns HTTP 400 "Budget 0 is invalid" otherwise). Flash / Flash-Lite accept a
 // 0 budget and NEED it, so their thinking tokens don't consume maxOutputTokens and
 // truncate the structured JSON envelope. Keyed by resolved model ID.
-var THINKING_REQUIRED = { 'gemini-2.5-pro': true };
+// gemini-4-argon ACCEPTS a 0 budget (verified live 2026-10-16) but is listed here on
+// purpose: it replaced Pro as the fleet's decision model, so it keeps Pro's dynamic
+// thinking + 8192 output ceiling rather than answering without reasoning.
+var THINKING_REQUIRED = { 'gemini-2.5-pro': true, 'gemini-4-argon': true };
 
 function requiresThinking(modelId) {
   return !!THINKING_REQUIRED[modelId];

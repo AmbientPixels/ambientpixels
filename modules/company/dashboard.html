@@ -589,6 +589,7 @@
             <button data-model="claude-haiku" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Haiku 4.5</button>
             <button data-model="gemini" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Gemini Flash</button>
             <button data-model="gemini-pro" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Gemini Pro</button>
+            <button data-model="gemini-argon" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Gemini Argon</button>
           </div>
           <div id="panel-fleet"></div>
         </div>
@@ -2694,8 +2695,8 @@
       }
       // ── Model Pill Toggle ──
       var _activeModelKey = 'claude-sonnet'; // default
-      var _modelIdMap = { 'claude-sonnet': 'claude-sonnet-4-6', 'claude-haiku': 'claude-haiku-4-5-20251001', 'gemini': 'gemini-2.5-flash', 'gemini-pro': 'gemini-2.5-pro' };
-      var _modelLabelMap = { 'claude-sonnet': 'Claude Sonnet', 'claude-haiku': 'Claude Haiku', 'gemini': 'Gemini Flash', 'gemini-pro': 'Gemini Pro' };
+      var _modelIdMap = { 'claude-sonnet': 'claude-sonnet-4-6', 'claude-haiku': 'claude-haiku-4-5-20251001', 'gemini': 'gemini-2.5-flash', 'gemini-pro': 'gemini-2.5-pro', 'gemini-argon': 'gemini-4-argon' };
+      var _modelLabelMap = { 'claude-sonnet': 'Claude Sonnet', 'claude-haiku': 'Claude Haiku', 'gemini': 'Gemini Flash', 'gemini-pro': 'Gemini Pro', 'gemini-argon': 'Gemini Argon' };
 
       function _highlightActivePill() {
         var pills = document.querySelectorAll('#model-switcher .model-pill');
