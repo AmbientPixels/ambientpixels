@@ -851,7 +851,7 @@ module.exports = async function (context) {
       // doc has no hero at all. Runs before the revision-task dedup so open revisions get it too.
       const _heroRevTag = 'hero-revision-for-' + _actionId;
       const _round = (_pra.approval && _pra.approval.revision_count) || 0;
-      const _fb = _revisionFeedback.classify(_pra.approval && _pra.approval.decision_note);
+      const _fb = _revisionFeedback.classify(_pra.approval && _pra.approval.decision_note, _pra.approval && _pra.approval.revision_scope);
       const _revDocForHero = _docId ? documents.find(d => d.id === _docId) : null;
       const _heroCampaign = _revDocForHero && _revDocForHero.campaign_id ? campaigns.find(c => c && c.id === _revDocForHero.campaign_id) : null;
       const _docMissingHero = !!_revDocForHero && !_revDocForHero.hero_image_asset_id && !(_heroCampaign && _heroCampaign.heroImage === false);
@@ -984,7 +984,7 @@ module.exports = async function (context) {
       }
       // Image-only feedback (same test as the spawn step): the new hero IS the revision. Promote
       // once it is on the doc, with the article text unchanged; no writer deliverable needed.
-      const _imageOnly = _revisionFeedback.classify(_pra.approval && _pra.approval.decision_note).imageOnly && _roundHeroTasks.length > 0;
+      const _imageOnly = _revisionFeedback.classify(_pra.approval && _pra.approval.decision_note, _pra.approval && _pra.approval.revision_scope).imageOnly && _roundHeroTasks.length > 0;
       let _doneTask = null;
       let _revText = null;
       if (_imageOnly) {
@@ -1025,6 +1025,7 @@ module.exports = async function (context) {
       _pra.approval = _pra.approval || {};
       _pra.approval.status = 'pending';
       _pra.approval.decision_note = null;
+      _pra.approval.revision_scope = null;
       _pra.approval.revised_at = new Date().toISOString();
       _pra.approval.revision_count = (_pra.approval.revision_count || 0) + 1;
       _pra.approval.revised_by_system = true;

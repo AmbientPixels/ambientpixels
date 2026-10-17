@@ -3087,14 +3087,16 @@ var AgentEngine = (function () {
     return null;
   }
 
-  // CEO requests revision on an action
-  function requestActionRevision(actionId, note) {
+  // CEO requests revision on an action. scope ('text' | 'image' | 'both', blog posts only) tells
+  // the heartbeat who does the revision; absent, it routes by the note's wording.
+  function requestActionRevision(actionId, note, scope) {
     var list = getActions();
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
       if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'revision_requested')) {
         a.approval.status = 'revision_requested';
         a.approval.decision_note = note || null;
+        a.approval.revision_scope = scope || null;
         a.updatedAt = new Date().toISOString();
         _syncLegacy(a);
         _saveActions(list);

@@ -316,3 +316,4 @@ body[data-theme="dim"] .act-modal { background: #1e293b; border-color: rgba(148,
 /* Modal */
 .act-modal-icon { margin-right: 0.35rem; opacity: 0.6; }
 .act-modal-desc { font-size: var(--c-text-xs); opacity: 0.6; margin: 0 0 0.5rem; }
+.act-view-toggle--modal { margin: 0 0 0.6rem; background: rgba(255,255,255,0.06); }

@@ -584,6 +584,14 @@
     <div class="act-modal">
       <h3><i class="fas fa-comment-dots act-modal-icon dash-icon-amber"></i>Send Revision Request</h3>
       <p class="act-modal-desc">Tell the agent what needs to change before approval.</p>
+      <div id="revision-scope-row" hidden>
+        <p class="act-modal-desc">What needs to change?</p>
+        <span class="act-view-toggle act-view-toggle--modal" id="revision-scope" role="radiogroup" aria-label="What needs to change">
+          <button type="button" role="radio" data-scope="text" aria-checked="false">Text</button>
+          <button type="button" role="radio" data-scope="image" aria-checked="false">Image</button>
+          <button type="button" role="radio" data-scope="both" aria-checked="false">Both</button>
+        </span>
+      </div>
       <textarea id="revision-note" placeholder="Example: Tighten the headline, remove placeholder hashtags, and schedule for 9AM PST."></textarea>
       <div class="act-modal-actions">
         <button id="revision-cancel">Cancel</button>
@@ -673,8 +681,15 @@
       window._revisionModal = {
         backdrop: backdrop,
         note: noteEl,
-        actionId: null
+        actionId: null,
+        scopeRow: document.getElementById('revision-scope-row'),
+        scope: null
       };
+      // Blog posts: Text / Image / Both. The heartbeat uses it to send the revision to the writer,
+      // to Design (hero image), or to both — no guessing from the wording.
+      document.querySelectorAll('#revision-scope button').forEach(function (btn) {
+        btn.addEventListener('click', function () { setRevisionScope(btn.dataset.scope); });
+      });
       document.getElementById('revision-cancel').addEventListener('click', closeRevisionModal);
       document.getElementById('revision-save').addEventListener('click', submitRevisionNote);
       backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeRevisionModal(); });
@@ -2451,9 +2466,9 @@
       }
     }
     function doReject(id) { if (!confirm('Reject this action? This cannot be undone.')) return; AE.rejectAction(id); renderAll(); }
-    function doRevision(id, note) {
+    function doRevision(id, note, scope) {
       // Sync version updates localStorage instantly — render UI immediately
-      var a = AE.requestActionRevision(id, note || '');
+      var a = AE.requestActionRevision(id, note || '', scope);
       renderAll();
       if (!a) { _showExecNotice('error', 'Revision request failed — action not found or already processed.'); return Promise.resolve(); }
       // Async server sync in background — toast confirms when done
@@ -2515,6 +2530,8 @@
       if (!rm) return;
       rm.actionId = ids; // pass array
       rm.note.value = '';
+      rm.scopeRow.hidden = true; // bulk revisions keep wording-based routing
+      setRevisionScope(null);
       rm.backdrop.classList.add('open');
       setTimeout(function() { rm.note.focus(); }, 50);
     }
@@ -2528,11 +2545,26 @@
       if (btn) btn.textContent = show ? 'Show less \u2191' : 'Show full copy \u2193';
     }
 
+    function setRevisionScope(scope) {
+      var rm = window._revisionModal;
+      if (!rm) return;
+      rm.scope = scope || null;
+      document.querySelectorAll('#revision-scope button').forEach(function (btn) {
+        var on = btn.dataset.scope === rm.scope;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+    }
+
     function openRevisionModal(id) {
       var rm = window._revisionModal;
       if (!rm) return;
       rm.actionId = id;
       rm.note.value = '';
+      // The text/image choice only applies to blog posts (publish_document), which carry a hero image.
+      var act = AE.getActions().find(function (a) { return a.id === id; });
+      rm.scopeRow.hidden = !(act && (act.type || act.action_type) === 'publish_document');
+      setRevisionScope(null);
       rm.backdrop.classList.add('open');
       setTimeout(function () { rm.note.focus(); }, 50);
     }
@@ -2553,6 +2585,11 @@
         rm.note.focus();
         return;
       }
+      if (!rm.scopeRow.hidden && !rm.scope) {
+        alert('Pick what needs to change: Text, Image or Both.');
+        return;
+      }
+      var scope = rm.scopeRow.hidden ? null : rm.scope;
       var btn = document.getElementById('revision-save');
       var origText = btn.innerHTML;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:0.3rem;"></i>Syncing…';
@@ -2569,7 +2606,7 @@
           .then(function() { _showExecNotice('success', actionId.length + ' revision requests synced.'); })
           .catch(function() { _showExecNotice('warn', 'Revisions saved locally but server sync may have failed.'); });
       } else {
-        revisionPromise = doRevision(actionId, note);
+        revisionPromise = doRevision(actionId, note, scope);
       }
       revisionPromise.finally(function () {
         btn.innerHTML = origText;

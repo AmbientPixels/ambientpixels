@@ -9,7 +9,12 @@
 var IMAGE_CUE = /hero|imag|imge|picture|photo|illustrat|visual|graphic|artwork|thumbnail/i;
 var TEXT_CUE = /rewrit|re-writ|reword|rephras|\btone\b|\bvoice\b|intro|opening|headline|title|paragraph|\bcopy\b|section|shorten|shorter|longer|expand|\bcut\b|\btrim|typo|grammar|spelling|\bcta\b|call to action|\blinks?\b|\bfacts?\b|\bclaims?\b|wording|sentence|\bwords?\b|\bedit|clarif|jargon|ending|conclusion|summary|\btext\b|writing/i;
 
-function classify(note) {
+// scope is the CEO's explicit pick in the revision modal ('text' | 'image' | 'both') and always
+// wins; the wording is only the fallback for revisions sent without one (bulk, older clients).
+function classify(note, scope) {
+  if (scope === 'text' || scope === 'image' || scope === 'both') {
+    return { image: scope !== 'text', text: scope !== 'image', imageOnly: scope === 'image' };
+  }
   var s = String(note || '');
   var image = IMAGE_CUE.test(s);
   var text = !image || TEXT_CUE.test(s);

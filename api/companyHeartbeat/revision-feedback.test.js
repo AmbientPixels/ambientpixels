@@ -24,6 +24,13 @@ test('feedback that asks for text changes still goes to the writer', () => {
   }
 });
 
+test('the CEO\'s explicit pick wins over the wording', () => {
+  assert.deepStrictEqual(classify('Tighten the intro', 'image'), { image: true, text: false, imageOnly: true });
+  assert.deepStrictEqual(classify('We need a hero image', 'text'), { image: false, text: true, imageOnly: false });
+  assert.deepStrictEqual(classify('Make it pop', 'both'), { image: true, text: true, imageOnly: false });
+  assert.strictEqual(classify('We need a hero image', 'nonsense').imageOnly, true, 'an unknown scope falls back to wording');
+});
+
 test('empty feedback is a text revision, never image-only', () => {
   assert.deepStrictEqual(classify(''), { image: false, text: true, imageOnly: false });
   assert.strictEqual(classify(null).imageOnly, false);
