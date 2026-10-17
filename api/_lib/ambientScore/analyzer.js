@@ -229,7 +229,52 @@ async function analyze(url, opts) {
   // Step 4: Compute deterministic score (site-type-aware weights)
   const scoreResult = computeScore(evaluations, siteType);
 
+  const assemble = (synthesis, extraMeta) => ({
+    url: url,
+    finalUrl: scraped.finalUrl,
+    createdAt: new Date().toISOString(),
+    unlocked: false,
+    score: scoreResult.score,
+    grade: scoreResult.grade,
+    siteType: siteType,
+    siteTypeLabel: WEIGHT_PROFILES[siteType] ? WEIGHT_PROFILES[siteType].label : siteType,
+    siteTypeConfidence: siteTypeConfidence,
+    dimensions: scoreResult.dimensions,
+    findings: scoreResult.findings,
+    teaserFindings: scoreResult.teaserFindings,
+    synthesis: synthesis,
+    extraction: extraction,
+    disclaimer: scoreResult.disclaimer,
+    jsRenderedWarning: scraped.jsRenderedWarning,
+    contentWarning: scraped.contentWarning || null,
+    hydratedCounters: scraped.hydratedCounters || 0,
+    errors: errors.length > 0 ? errors.slice() : null,
+    metadata: Object.assign({
+      scrapeTimeMs: scrapeTimeMs,
+      evalTimeMs: evalTimeMs,
+      wordCount: scraped.wordCount,
+      analyzedUrl: scraped.finalUrl || url,
+      siteTypeReasoning: siteTypeReasoning,
+      rawScoreAvg: scoreResult.rawScoreAvg // LLM 1-10 weighted avg, for audit
+    }, extraMeta)
+  });
+
+  // Everything the free teaser shows (score, grade, top findings, dimension counts)
+  // exists now; synthesis only feeds the paid report. Hand the scored report to the
+  // caller before synthesis so a visitor isn't kept waiting ~a minute for paid-only
+  // work. It carries a fallback summary so a paid viewer who opens it early still
+  // sees a usable report; the final write replaces it. Advisory: never fails the scan.
+  const teaserReadyMs = Date.now() - startTime;
+  if (opts && typeof opts.onScored === 'function') {
+    try {
+      const early = assemble(buildFallbackSynthesis(scoreResult), { teaserReadyMs: teaserReadyMs });
+      early.synthesisPending = true;
+      await opts.onScored(early);
+    } catch (e) { /* advisory only */ }
+  }
+
   // Step 5: Synthesis (Stage 3 LLM call)
+  const synthStartTime = Date.now();
   // Synthesis length scales with how much is wrong on the page, so a tight
   // output cap fails on exactly the sites with the most findings. Truncation
   // at a given budget is deterministic — the retry must raise the ceiling.
@@ -267,37 +312,12 @@ async function analyze(url, opts) {
     grade: scoreResult.grade,
     teaserFindings: scoreResult.teaserFindings,
     totalFindings: scoreResult.totalFindings,
-    fullReport: {
-      url: url,
-      finalUrl: scraped.finalUrl,
-      createdAt: new Date().toISOString(),
-      unlocked: false,
-      score: scoreResult.score,
-      grade: scoreResult.grade,
-      siteType: siteType,
-      siteTypeLabel: WEIGHT_PROFILES[siteType] ? WEIGHT_PROFILES[siteType].label : siteType,
-      siteTypeConfidence: siteTypeConfidence,
-      dimensions: scoreResult.dimensions,
-      findings: scoreResult.findings,
-      teaserFindings: scoreResult.teaserFindings,
-      synthesis: synthesis,
-      extraction: extraction,
-      disclaimer: scoreResult.disclaimer,
-      jsRenderedWarning: scraped.jsRenderedWarning,
-      contentWarning: scraped.contentWarning || null,
-      hydratedCounters: scraped.hydratedCounters || 0,
-      errors: errors.length > 0 ? errors : null,
-      metadata: {
-        scrapeTimeMs: scrapeTimeMs,
-        evalTimeMs: evalTimeMs,
-        totalTimeMs: totalTimeMs,
-        claudeCalls: 5 - failedGroups + evalRetries + (synthesisRetried ? 1 : 0),
-        wordCount: scraped.wordCount,
-        analyzedUrl: scraped.finalUrl || url,
-        siteTypeReasoning: siteTypeReasoning,
-        rawScoreAvg: scoreResult.rawScoreAvg // LLM 1-10 weighted avg, for audit
-      }
-    }
+    fullReport: assemble(synthesis, {
+      totalTimeMs: totalTimeMs,
+      teaserReadyMs: teaserReadyMs,
+      synthTimeMs: Date.now() - synthStartTime,
+      claudeCalls: 5 - failedGroups + evalRetries + (synthesisRetried ? 1 : 0)
+    })
   };
 }
 

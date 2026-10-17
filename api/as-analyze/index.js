@@ -146,27 +146,36 @@ async function startBackgroundAnalysis(context, url, reportId, tier) {
   // Awaited: the client must have something to poll before we answer.
   await storage.setState(key, stubFor('fetch'));
 
+  // A payment or refund can land while analysis is still running — a report
+  // written over the blob must not clobber what the money already decided.
+  const keepMoneyState = async (report) => {
+    report.id = reportId;
+    try {
+      const existing = await storage.getState(key);
+      if (existing && existing.unlocked) {
+        report.unlocked = true;
+        report.paidAt = existing.paidAt || null;
+        report.customerEmail = existing.customerEmail || null;
+        report.priceType = existing.priceType || 'single';
+      }
+      if (existing && existing.revokedAt) {
+        report.unlocked = false;
+        report.revokedAt = existing.revokedAt;
+        report.revokedReason = existing.revokedReason || null;
+      }
+    } catch (mergeErr) { /* merge is best-effort */ }
+    return report;
+  };
+
   // Deliberately not awaited from here on.
-  analyze(url, { onStage: (stage) => storage.setState(key, stubFor(stage)) })
+  analyze(url, {
+    onStage: (stage) => storage.setState(key, stubFor(stage)),
+    // The free teaser is ready before synthesis (paid-only) runs: publish it now so
+    // the visitor's poll ends ~a minute sooner. The final write below replaces it.
+    onScored: async (early) => storage.setState(key, await keepMoneyState(early))
+  })
     .then(async (result) => {
-      result.fullReport.id = reportId;
-      // A payment or refund can land while analysis is still running — the
-      // finished report must not clobber what the money already decided.
-      try {
-        const existing = await storage.getState(key);
-        if (existing && existing.unlocked) {
-          result.fullReport.unlocked = true;
-          result.fullReport.paidAt = existing.paidAt || null;
-          result.fullReport.customerEmail = existing.customerEmail || null;
-          result.fullReport.priceType = existing.priceType || 'single';
-        }
-        if (existing && existing.revokedAt) {
-          result.fullReport.unlocked = false;
-          result.fullReport.revokedAt = existing.revokedAt;
-          result.fullReport.revokedReason = existing.revokedReason || null;
-        }
-      } catch (mergeErr) { /* merge is best-effort */ }
-      await storage.setState(key, result.fullReport);
+      await storage.setState(key, await keepMoneyState(result.fullReport));
       await logScan({ reportId, url, tier: tier, score: result.score, timestamp: new Date().toISOString() });
     })
     .catch(async (err) => {
