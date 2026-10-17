@@ -149,6 +149,29 @@ function computeCostPerUse(sources, nowMs) {
   return { spend7d: spend, uses7d: uses, perUse: uses > 0 ? Math.round((spend / uses) * 100) / 100 : null };
 }
 
+// Per-product qualified uses (7d): the same two halves as qualified_uses_week,
+// kept apart so agents can see WHICH product moves. AmbientScore scans come from
+// funnel.qualifiedScans7d; every other product from qualifiedPaUses7d.byProduct
+// (pa-metrics.countQualifiedUsesInEvents, which never counts scan_completed, so
+// nothing is counted twice). Products at 0 are dropped. null when either half or
+// the PA breakdown is unmeasured: a missing pipe must never read as zeros.
+function computeByProduct(sources) {
+  const f = sources && sources.funnel;
+  const scans = f ? Number(f.qualifiedScans7d) : NaN;
+  const pa = sources ? sources.qualifiedPaUses7d : null;
+  if (!Number.isFinite(scans) || !pa || typeof pa !== 'object') return null;
+  const bp = pa.byProduct;
+  if (!bp || typeof bp !== 'object' || Array.isArray(bp)) return null;
+  const out = {};
+  if (scans > 0) out.ambientscore = scans;
+  for (const k of Object.keys(bp)) {
+    const n = Number(bp[k]);
+    if (!Number.isFinite(n)) return null;
+    if (n > 0) out[k] = (out[k] || 0) + n;
+  }
+  return out;
+}
+
 // → digest | null. Null means "no strategy seeded" — callers emit nothing.
 function buildStrategyDigest(companyStrategy, sources, nowMs) {
   const cs = companyStrategy;
@@ -180,7 +203,8 @@ function buildStrategyDigest(companyStrategy, sources, nowMs) {
     riskPosture: String(cs.riskPosture || '').substring(0, 60),
     monthlyBudget: Number(cs.monthlyBudget) || null,
     northStar: northStar,
-    costPerUse: computeCostPerUse(sources, now)
+    costPerUse: computeCostPerUse(sources, now),
+    byProduct: computeByProduct(sources)
   };
 }
 
@@ -192,21 +216,32 @@ function _buildStrategyPromptBlock(digest) {
   lines.push('═══ COMPANY STRATEGY (era: ' + digest.era + ') ═══');
   if (digest.mission) lines.push('MISSION: ' + digest.mission);
   if (digest.eraGoal) lines.push('ERA GOAL: ' + digest.eraGoal);
-  lines.push('NORTH STARS (every proposal, campaign and task should serve one):');
+  // Labels were shortened 2026-10-17 to fit the BY PRODUCT line under the cap
+  // (the worst-case digest was already over it); meaning unchanged.
+  lines.push('NORTH STARS:');
   digest.northStar.forEach(function (ns, i) {
     const cur = ns.resolved ? String(ns.current) : '?';
     const tags = [];
     if (i === 0) tags.push('PRIMARY');
-    tags.push(ns.source === 'manual' ? (ns.resolved ? 'manual' : 'manual — telemetry pending') : 'auto');
-    const pct = ns.pctToTarget !== null ? ' (' + ns.pctToTarget + '% of the way)' : '';
+    tags.push(ns.source === 'manual' ? (ns.resolved ? 'manual' : 'manual, unmeasured') : 'auto');
+    const pct = ns.pctToTarget !== null ? ' (' + ns.pctToTarget + '%)' : '';
     lines.push((i + 1) + '. ' + ns.metric + ': ' + cur + ' → ' + ns.target + ' by ' + (ns.by || 'n/a') + pct + ' [' + tags.join(' · ') + ']');
   });
-  lines.push('RULE: propose-objective / propose-campaign MUST include "northStarMetric" naming which north star it serves. Proposals serving none get flagged for CEO scrutiny.');
+  lines.push('RULE: propose-objective / propose-campaign MUST name a "northStarMetric"; none = CEO scrutiny.');
+  if (digest.byProduct !== undefined) {
+    let bp = 'unmeasured';
+    if (digest.byProduct && typeof digest.byProduct === 'object') {
+      const names = Object.keys(digest.byProduct).filter(function (k) { return digest.byProduct[k] > 0; })
+        .sort(function (a, b) { return (digest.byProduct[b] - digest.byProduct[a]) || (a < b ? -1 : a > b ? 1 : 0); });
+      bp = names.length ? names.map(function (k) { return k + ' ' + digest.byProduct[k]; }).join(' · ') : 'none yet';
+    }
+    lines.push('BY PRODUCT (7d): ' + bp);
+  }
   const cpu = digest.costPerUse;
   if (cpu) {
     lines.push('EFFICIENCY (7d): $' + cpu.spend7d.toFixed(2) + ' LLM spend / ' + cpu.uses7d + ' qualified uses = ' +
-      (cpu.perUse !== null ? '$' + cpu.perUse.toFixed(2) + ' per use. Lower is better: more uses, or less spend on work that brings none.'
-        : 'no uses yet, so this week\'s spend bought zero. Spend cycles only on work that can reach a real person.'));
+      (cpu.perUse !== null ? '$' + cpu.perUse.toFixed(2) + ' per use. Lower = better.'
+        : 'no uses yet; this week\'s spend bought nothing. Spend only on work that can reach a real person.'));
   }
   const meta = [];
   if (digest.monthlyBudget) meta.push('BUDGET: $' + digest.monthlyBudget + '/mo');
@@ -284,6 +319,7 @@ module.exports = {
   resolveNorthStarMetric: resolveNorthStarMetric,
   buildStrategyDigest: buildStrategyDigest,
   computeCostPerUse: computeCostPerUse,
+  computeByProduct: computeByProduct,
   _buildStrategyPromptBlock: _buildStrategyPromptBlock,
   evaluateObjectives: evaluateObjectives,
   isQualifiedScan: isQualifiedScan,

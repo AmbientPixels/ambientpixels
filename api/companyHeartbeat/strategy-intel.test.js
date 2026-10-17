@@ -156,6 +156,79 @@ t('strategy block shows the real north star and the efficiency line, under the h
   assert.ok(block.length <= 1200, 'block is ' + block.length + ' chars');
 });
 
+console.log('qualified uses by product');
+const CS_BP = { era: 'demand', northStar: [{ metric: 'qualified_uses_week', target: 10, by: '2026-12-03', source: 'auto', priority: 1 }] };
+
+t('digest.byProduct merges AmbientScore scans with the PA products', function () {
+  const d = buildStrategyDigest(CS_BP, { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: { total: 3, byProduct: { pixelagents: 2, cardforge: 1 } } }, NOW_CPU);
+  assert.deepStrictEqual(d.byProduct, { ambientscore: 2, pixelagents: 2, cardforge: 1 });
+});
+
+t('BY PRODUCT line is sorted by count desc, then name', function () {
+  const d = buildStrategyDigest(CS_BP, { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: { total: 3, byProduct: { pixelagents: 2, cardforge: 1 } } }, NOW_CPU);
+  const block = _buildStrategyPromptBlock(d);
+  assert.ok(block.includes('BY PRODUCT (7d): ambientscore 2 · pixelagents 2 · cardforge 1'), block);
+});
+
+t('products with 0 are omitted', function () {
+  const d = buildStrategyDigest(CS_BP, { funnel: { qualifiedScans7d: 0 }, qualifiedPaUses7d: { total: 4, byProduct: { storyforge: 4, blindspot: 0 } } }, NOW_CPU);
+  assert.deepStrictEqual(d.byProduct, { storyforge: 4 });
+  const block = _buildStrategyPromptBlock(d);
+  assert.ok(block.includes('BY PRODUCT (7d): storyforge 4\n'), block);
+  assert.ok(!/ambientscore 0|blindspot 0/.test(block), 'zero products leaked');
+});
+
+t('"none yet" when every product is at 0 (a measured zero)', function () {
+  const d = buildStrategyDigest(CS_BP, { funnel: { qualifiedScans7d: 0 }, qualifiedPaUses7d: { total: 0, byProduct: {} } }, NOW_CPU);
+  assert.deepStrictEqual(d.byProduct, {});
+  assert.ok(_buildStrategyPromptBlock(d).includes('BY PRODUCT (7d): none yet'));
+});
+
+t('unmeasured when EITHER half is missing — never zeros', function () {
+  const cases = [
+    { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: null },
+    { funnel: { qualifiedScans7d: 2 } },
+    { funnel: {}, qualifiedPaUses7d: { total: 1, byProduct: { cardforge: 1 } } },
+    { qualifiedPaUses7d: { total: 1, byProduct: { cardforge: 1 } } },
+    { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: { total: 1 } }, // no breakdown
+    { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: 3 } // legacy numeric shape
+  ];
+  cases.forEach(function (src, i) {
+    const d = buildStrategyDigest(CS_BP, src, NOW_CPU);
+    assert.strictEqual(d.byProduct, null, 'case ' + i);
+    const block = _buildStrategyPromptBlock(d);
+    assert.ok(block.includes('BY PRODUCT (7d): unmeasured'), 'case ' + i + ': ' + block);
+    assert.ok(!/BY PRODUCT \(7d\):[^\n]* 0/.test(block), 'case ' + i + ' printed a zero');
+  });
+});
+
+// Worst case: every text field at its digest truncation, 5 north stars, 8 products
+// with 3-digit weekly counts, ~$1000/week spend (today: single digits, ~$5/day).
+t('worst-case digest stays under the 1200-char cap', function () {
+  const metrics = ['qualified_uses_week', 'paying_customers', 'qualified_visitors_week', 'resume_roast_runs_14d', 'blog_views_week'];
+  const cs = {
+    era: 'x'.repeat(60), mission: 'm'.repeat(200), eraGoal: 'g'.repeat(200),
+    riskPosture: 'r'.repeat(80), planningCadence: 'monthly', monthlyBudget: 1000,
+    northStar: metrics.map(function (m, i) { return { metric: m, target: 1000, by: '2026-12-31', source: i % 2 ? 'manual' : 'auto', priority: i + 1, baseline: 0 }; })
+  };
+  const byProduct = { pixelagents: 999, resumeroast: 998, cardforge: 997, storyforge: 996, blindspot: 995, agentforge: 994, eighthproduct: 993 };
+  const total = Object.keys(byProduct).reduce(function (s, k) { return s + byProduct[k]; }, 0);
+  const big = {};
+  for (let i = 0; i < 7; i++) big[new Date(NOW_CPU - i * 86400000).toISOString().substring(0, 10)] = { cost: 142.85 };
+  const d = buildStrategyDigest(cs, { llmSpendByDay: big, funnel: { qualifiedScans7d: 999 }, qualifiedPaUses7d: { total: total, byProduct: byProduct } }, NOW_CPU);
+  assert.strictEqual(Object.keys(d.byProduct).length, 8);
+  const block = _buildStrategyPromptBlock(d); // throws over the cap
+  assert.ok(block.includes('BY PRODUCT (7d): ambientscore 999 · pixelagents 999'), 'line present');
+  assert.ok(block.includes('EFFICIENCY (7d)'), 'efficiency present');
+  assert.ok(block.length <= 1200, 'block is ' + block.length + ' chars');
+});
+
+t('digest without byProduct (older caller) prints no BY PRODUCT line', function () {
+  const d = buildStrategyDigest(CS_BP, { funnel: { qualifiedScans7d: 2 }, qualifiedPaUses7d: { total: 3, byProduct: { cardforge: 3 } } }, NOW_CPU);
+  delete d.byProduct;
+  assert.ok(!_buildStrategyPromptBlock(d).includes('BY PRODUCT'));
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail === 0 ? 0 : 1);
 
