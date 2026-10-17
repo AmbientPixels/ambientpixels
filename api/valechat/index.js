@@ -8,7 +8,7 @@ var fetch = require('node-fetch');
 var storage = require('../_utils/companyStorage');
 var vs = require('../_utils/valeStorage');
 var mem = require('../_utils/vale-memory');
-var { requireCeo } = require('../_utils/valeAuth');
+var { requireCeoAsync } = require('../_utils/valeAuth');
 
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -46,14 +46,14 @@ module.exports = async function (context, req) {
   var corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, api-key, x-ms-client-principal, x-ms-client-principal-id, x-user-id',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, api-key, x-ms-client-principal, x-ms-client-principal-id, x-user-id',
     'Content-Type': 'application/json'
   };
 
   if (req.method === 'OPTIONS') { context.res = { status: 204, headers: corsHeaders, body: '' }; return; }
 
-  var gate = requireCeo(req, context);
-  if (!gate.ok) { context.res = { status: 403, headers: corsHeaders, body: { error: 'CEO only.' } }; return; }
+  var gate = await requireCeoAsync(req, context);
+  if (!gate.ok) { context.res = { status: 403, headers: corsHeaders, body: { error: 'CEO only.', reason: gate.reason } }; return; }
 
   if (req.method === 'GET') {
     context.res = { status: 200, headers: corsHeaders, body: { status: 'ok', entity: 'Vale', message: 'Vale is here.' } };
