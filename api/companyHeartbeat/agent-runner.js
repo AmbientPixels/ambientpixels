@@ -5281,15 +5281,19 @@ Write the full deliverable first, then the structured JSON block.`;
 
             // The image is attached, so the hero task's job is done. Close it here: an open hero task
             // re-fires the forced generate-image every cycle, and a revision waits on it.
+            // 'hero-only' = the CEO's revision was about the image alone: the heartbeat sends the post
+            // back with its text unchanged, so the writer is not asked to finish a rewrite.
+            var _heroOnlyRevision = false;
             tasks.forEach(function (t) {
               if (!_isOpenHeroTaskFor(t, null, attachTo.id)) return;
+              if (Array.isArray(t.tags) && t.tags.indexOf('hero-only') !== -1) _heroOnlyRevision = true;
               t.status = 'done';
               t.updatedAt = new Date().toISOString();
               t.comments = t.comments || [];
               t.comments.push({ id: 'cmt-hero-done-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4), author: 'system', text: 'Hero image attached to document ' + attachTo.id + ' (asset: ' + imgJobId + ').', type: 'system', createdAt: new Date().toISOString() });
             });
 
-            if (_pubRevTask && _pubRevTask.status !== 'done') {
+            if (_pubRevTask && _pubRevTask.status !== 'done' && !_heroOnlyRevision) {
               _pubRevTask.comments = _pubRevTask.comments || [];
               _pubRevTask.comments.push({
                 id: 'cmt-hero-ready-' + Date.now(),

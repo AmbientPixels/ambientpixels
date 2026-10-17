@@ -828,6 +828,12 @@ module.exports = async function (context) {
     const publishRevisions = revisionActions.filter(a =>
       (a.type === 'publish_document' || a.action_type === 'publish_document') && a.payload
     );
+    const _revisionFeedback = require('./revision-feedback');
+    // This revision round's hero tasks for an action. One per round, whatever its status — a done
+    // hero task must not respawn while the writer is still working (that regenerated the image
+    // every cycle). The round is the action's revision_count, so a later revision gets a fresh one.
+    const _heroTasksForRound = (actionId, round) => tasks.filter(t => !t._archived && Array.isArray(t.tags) &&
+      t.tags.indexOf('hero-revision-for-' + actionId) !== -1 && (t.revision_round || 0) === round);
     for (const _pra of publishRevisions) {
       const _actionId = _pra.id;
       const _docId = (_pra.payload && _pra.payload.documentId) || null;
@@ -844,13 +850,13 @@ module.exports = async function (context) {
       // the image (tagged 'hero-replace' so an existing hero may be overwritten), or when the
       // doc has no hero at all. Runs before the revision-task dedup so open revisions get it too.
       const _heroRevTag = 'hero-revision-for-' + _actionId;
+      const _round = (_pra.approval && _pra.approval.revision_count) || 0;
+      const _fb = _revisionFeedback.classify(_pra.approval && _pra.approval.decision_note);
       const _revDocForHero = _docId ? documents.find(d => d.id === _docId) : null;
-      const _feedbackWantsImage = /hero|imag|imge|picture|photo|illustrat|visual|graphic|artwork|thumbnail/i.test(_pra.approval && _pra.approval.decision_note || '');
       const _heroCampaign = _revDocForHero && _revDocForHero.campaign_id ? campaigns.find(c => c && c.id === _revDocForHero.campaign_id) : null;
       const _docMissingHero = !!_revDocForHero && !_revDocForHero.hero_image_asset_id && !(_heroCampaign && _heroCampaign.heroImage === false);
-      const _heroRevExists = tasks.some(t => !t._archived && Array.isArray(t.tags) && t.tags.indexOf(_heroRevTag) !== -1 &&
-        ['done', 'canceled', 'cancelled', 'archived'].indexOf(String(t.status || '').toLowerCase()) === -1);
-      if (_revDocForHero && (_feedbackWantsImage || _docMissingHero) && !_heroRevExists) {
+      const _roundHeroTasks = _heroTasksForRound(_actionId, _round);
+      if (_revDocForHero && (_fb.image || _docMissingHero) && _roundHeroTasks.length === 0) {
         const _heroRouting = require('./routing');
         const _designer = _heroRouting.resolveRole('design');
         if (!_designer) {
@@ -879,22 +885,36 @@ module.exports = async function (context) {
             updatedAt: new Date().toISOString(),
             campaign_id: _revDocForHero.campaign_id || null,
             objective_id: _revDocForHero.objective_id || null,
-            tags: ['hero-image', 'auto-created', 'visual-workflow', _heroRevTag].concat(_replace ? ['hero-replace'] : []),
+            tags: ['hero-image', 'auto-created', 'visual-workflow', _heroRevTag].concat(_replace ? ['hero-replace'] : [], _fb.imageOnly ? ['hero-only'] : []),
+            revision_round: _round,
+            replaces_asset_id: _revDocForHero.hero_image_asset_id || null,
             comments: [{
               id: 'cmt-herorev-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
               author: 'system',
-              text: 'Auto-spawned after CEO requested revision on publish action ' + _actionId + '. The revision goes back to the CEO once this image is attached.',
+              text: 'Auto-spawned after CEO requested revision on publish action ' + _actionId + '. ' + (_fb.imageOnly
+                ? 'The feedback is about the image only: once it is attached, the post goes back to the CEO with its text unchanged.'
+                : 'The revision goes back to the CEO once this image is attached and the writer has finished.'),
               type: 'system',
               createdAt: new Date().toISOString()
             }]
           });
-          context.log('[Heartbeat] Publish revision: spawned hero task for', _designer, 'doc', _docId, _replace ? '(replace)' : '(missing)');
+          context.log('[Heartbeat] Publish revision: spawned hero task for', _designer, 'doc', _docId, _replace ? '(replace)' : '(missing)', _fb.imageOnly ? 'image-only' : '');
         }
       }
 
+      // Image-only feedback: Design's hero task is the whole revision — the writer does not
+      // rewrite the article. Only when a hero task exists: with no design agent running, fall
+      // back to the writer rather than leave the revision waiting on nobody.
+      if (_fb.imageOnly && _heroTasksForRound(_actionId, _round).length > 0) {
+        _heroTasksForRound(_actionId, _round).forEach(t => { if (t.tags.indexOf('hero-only') === -1) t.tags.push('hero-only'); });
+        continue;
+      }
+
+      // A done task still waiting to be promoted (e.g. held for the hero image) counts too —
+      // otherwise the writer got a second revision task and rewrote the article again.
       const _existing = tasks.find(t =>
-        Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 &&
-        t.status !== 'done' && !t._archived
+        Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 && !t._archived &&
+        (t.status !== 'done' || !t._revision_promoted)
       );
       if (_existing) continue;
       const _revTaskId = 'task_' + Date.now() + '_pubrev_' + Math.random().toString(36).substr(2, 4);
@@ -953,50 +973,44 @@ module.exports = async function (context) {
     for (const _pra of publishRevisions) {
       const _actionId = _pra.id;
       const _dedupTag = 'publish-revision-for-' + _actionId;
-      const _doneTask = tasks.find(t =>
-        Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 &&
-        t.status === 'done' && !t._revision_promoted && !t._archived
-      );
-      if (!_doneTask) continue;
+      const _round = (_pra.approval && _pra.approval.revision_count) || 0;
+      const _roundHeroTasks = _heroTasksForRound(_actionId, _round);
       // Hold the promote while Design is still making the image, so the post goes back to the
       // CEO with it. Only todo/in-progress holds: a hero task parked in review can't wedge it.
-      const _heroPending = tasks.find(t => !t._archived && Array.isArray(t.tags) &&
-        t.tags.indexOf('hero-revision-for-' + _actionId) !== -1 && (t.status === 'todo' || t.status === 'in-progress'));
+      const _heroPending = _roundHeroTasks.find(t => t.status === 'todo' || t.status === 'in-progress');
       if (_heroPending) {
         context.log('[Heartbeat] Promote waiting — hero image task', _heroPending.id, 'still open for action', _actionId);
         continue;
       }
-      const _deliverables = (_doneTask.comments || []).filter(c =>
-        c.type === 'deliverable' && c.author === _doneTask.assignee && c.text && c.text.length > 50
-      );
-      if (_deliverables.length === 0) {
-        context.log('[Heartbeat] Promote skipped — no deliverable on task', _doneTask.id);
-        _doneTask._revision_promoted = 'blocked-no-deliverable';
-        continue;
-      }
-      let _revText = _deliverables[_deliverables.length - 1].text;
-      // Sanitize meta-commentary tails (mirrors agent-runner.js:3140-3142)
-      _revText = _revText.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
-      _revText = _revText.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
-      _revText = _revText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
-      // Drop image markdown pointing at a site-relative path: agents cannot put files on the site,
-      // so these are invented (e.g. /images/blog/<slug>-hero.png, a 404). The real hero rides on
-      // hero_image_asset_id below.
-      _revText = _revText.replace(/^[ \t]*!\[[^\]]*\]\(\/[^)]*\)[ \t]*\r?\n?/gm, '').replace(/\n{3,}/g, '\n\n').trim();
-      // Placeholder bracket gate (mirrors agent-runner.js:3118)
-      if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(_revText)) {
-        context.log('[Heartbeat] Promote BLOCKED — placeholder brackets in task', _doneTask.id);
-        _doneTask._revision_promoted = 'blocked-placeholders';
-        continue;
-      }
-      if (_revText.length < 100) {
-        context.log('[Heartbeat] Promote BLOCKED — content too short on task', _doneTask.id, 'len=', _revText.length);
-        _doneTask._revision_promoted = 'blocked-too-short';
-        continue;
+      // Image-only feedback (same test as the spawn step): the new hero IS the revision. Promote
+      // once it is on the doc, with the article text unchanged; no writer deliverable needed.
+      const _imageOnly = _revisionFeedback.classify(_pra.approval && _pra.approval.decision_note).imageOnly && _roundHeroTasks.length > 0;
+      let _doneTask = null;
+      let _revText = null;
+      if (_imageOnly) {
+        const _heroDoc = documents.find(d => d.id === (_pra.payload.documentId || ''));
+        const _replaced = _roundHeroTasks[_roundHeroTasks.length - 1].replaces_asset_id || null;
+        if (!_heroDoc || !_heroDoc.hero_image_asset_id || _heroDoc.hero_image_asset_id === _replaced) {
+          context.log('[Heartbeat] Promote waiting — image-only revision, no new hero on doc yet for action', _actionId);
+          continue;
+        }
+      } else {
+        _doneTask = tasks.find(t =>
+          Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 &&
+          t.status === 'done' && !t._revision_promoted && !t._archived
+        );
+        if (!_doneTask) continue;
+        const _rt = _revisionFeedback.revisionText(_doneTask);
+        if (_rt.blocked) {
+          context.log('[Heartbeat] Promote BLOCKED —', _rt.blocked, 'on task', _doneTask.id);
+          _doneTask._revision_promoted = 'blocked-' + _rt.blocked;
+          continue;
+        }
+        _revText = _rt.text;
       }
       // Mutate the action payload + approval state (mirrors agent-runner.js:3135-3187)
       _pra.payload = _pra.payload || {};
-      _pra.payload.content_md = _revText;
+      if (_revText !== null) _pra.payload.content_md = _revText;
       // Re-resolve hero image from document (Pixel may have updated the asset since original publish)
       try {
         const _revDoc = documents.find(d => d.id === (_pra.payload.documentId || ''));
@@ -1023,42 +1037,49 @@ module.exports = async function (context) {
       // Update AQ entry (mirrors agent-runner.js:3220-3239)
       const _aqPatch = {
         status: 'pending',
-        submittedAt: new Date().toISOString(),
-        preview: _revText.substring(0, 120)
+        submittedAt: new Date().toISOString()
       };
+      if (_revText !== null) _aqPatch.preview = _revText.substring(0, 120);
       if (_pra.payload.hero_image_url) _aqPatch.heroImageUrl = _pra.payload.hero_image_url;
       if (_pra.payload.hero_image_asset_id) _aqPatch.heroImageAssetId = _pra.payload.hero_image_asset_id;
       _promotePatches.push({ actionId: _actionId, patch: _aqPatch });
-      _doneTask._revision_promoted = true;
-      _doneTask.updatedAt = new Date().toISOString();
-      _doneTask.comments = _doneTask.comments || [];
-      _doneTask.comments.push({
-        id: 'cmt-prom-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
-        author: 'system',
-        text: '[SYSTEM] Promoted deliverable to publish_document action ' + _actionId + '. Action flipped back to pending for CEO review.',
-        type: 'system',
-        createdAt: new Date().toISOString()
-      });
-      // Also mark any sibling in-progress dup tasks for this same action as superseded —
-      // they're working on a problem that no longer exists.
+      if (_doneTask) {
+        _doneTask._revision_promoted = true;
+        _doneTask.updatedAt = new Date().toISOString();
+        _doneTask.comments = _doneTask.comments || [];
+        _doneTask.comments.push({
+          id: 'cmt-prom-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          author: 'system',
+          text: '[SYSTEM] Promoted deliverable to publish_document action ' + _actionId + '. Action flipped back to pending for CEO review.',
+          type: 'system',
+          createdAt: new Date().toISOString()
+        });
+      }
+      // Also retire every other writer task for this same action — they're working on a problem
+      // that no longer exists. Image-only: all of them (the text was never meant to change).
       for (const _sib of tasks) {
-        if (_sib.id === _doneTask.id) continue;
+        if (_doneTask && _sib.id === _doneTask.id) continue;
         if (!Array.isArray(_sib.tags) || _sib.tags.indexOf(_dedupTag) === -1) continue;
-        if (_sib.status === 'done' || _sib._archived) continue;
-        _sib.status = 'done';
-        _sib._revision_superseded = true;
+        if (_sib._archived || _sib._revision_promoted) continue;
+        if (_sib.status !== 'done') {
+          _sib.status = 'done';
+          _sib._revision_superseded = true;
+        }
+        _sib._revision_promoted = 'superseded';
         _sib.updatedAt = new Date().toISOString();
         _sib.comments = _sib.comments || [];
         _sib.comments.push({
           id: 'cmt-supersede-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
           author: 'system',
-          text: '[SYSTEM] Superseded — action ' + _actionId + ' already promoted from sibling task ' + _doneTask.id + '.',
+          text: _doneTask
+            ? '[SYSTEM] Superseded — action ' + _actionId + ' already promoted from sibling task ' + _doneTask.id + '.'
+            : '[SYSTEM] Superseded — the CEO\'s feedback was about the image only, so the post went back for approval with the new hero image and its text unchanged.',
           type: 'system',
           createdAt: new Date().toISOString()
         });
       }
       _promotedAny = true;
-      context.log('[Heartbeat] Promote: action', _actionId, '→ pending, source task', _doneTask.id);
+      context.log('[Heartbeat] Promote: action', _actionId, '→ pending,', _doneTask ? 'source task ' + _doneTask.id : 'image-only (text unchanged)');
     }
     if (_promotedAny) {
       await storage.setState('actions', allActions);
