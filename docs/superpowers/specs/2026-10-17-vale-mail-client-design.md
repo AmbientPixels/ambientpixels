@@ -21,6 +21,8 @@ A refresh token can be exchanged for any scope consented to **its own client ID*
 
 ## 3. Decisions for Chad (before build)
 
+**Chad, 2026-10-17:** 1 = **yes** (add `https://graph.microsoft.com` to `connect-src`); 3 = **yes** (draft client mail only on an explicit click, with the notice; Claude only, no fallback). 2 (remote images) = open.
+
 1. **One protected-file change (`staticwebapp.config.json` CSP):** add `https://graph.microsoft.com` to `connect-src`, so the browser can call Microsoft's mail service. Recommended; nothing else in the policy changes. (Alternative: proxy all mail through the Function App — slower, and puts the send-capable token on the server path.)
 2. **Remote images in emails:** a sandboxed email inherits the site's `img-src`, which only allows a few hosts. **Recommended: no remote images** (tracking pixels blocked as a bonus); inline images embedded in the email still show. Alternative: also add `img-src https:` in the same CSP change.
 3. **Drafting replies to client mail (Hanson, Evergreen):** drafting sends that email's text to a model. **Recommended:** only on an explicit click, **Claude only — no fallback to another provider** for client threads (if Claude is down, no draft), with a notice on client threads saying so. Alternative: no Vale drafts for client mail.
