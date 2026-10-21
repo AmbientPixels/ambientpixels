@@ -31,6 +31,31 @@ async function loadTeamSummary(storage, nowMs) {
   return buildSummary(state, nowMs || Date.now());
 }
 
+// The summary plus the FULL waiting list (the summary keeps only the oldest three), with
+// agent names, for Vale's Teams posts. pending is null when the queue couldn't be read.
+async function loadTeam(storage, nowMs) {
+  const M = require('../../_shared/metrics');
+  const reads = await Promise.all(SOURCES.map((k) => storage.getStateWithMeta(k)));
+  const state = {};
+  SOURCES.forEach((k, i) => {
+    if (!reads[i].failed) state[k] = reads[i].value === null ? (k === 'agentRegistry' ? { agents: [] } : []) : reads[i].value;
+  });
+  if (state.tasks === undefined) return null;
+  const summary = buildSummary(state, nowMs || Date.now());
+  const agents = (state.agentRegistry && state.agentRegistry.agents) || [];
+  const nameOf = (id) => {
+    const a = agents.find((x) => x && x.id === id);
+    if (a && a.name) return a.name;
+    if (!id) return null;
+    if (['ceo', 'chad'].indexOf(String(id).toLowerCase()) !== -1) return null;
+    return String(id).charAt(0).toUpperCase() + String(id).slice(1);
+  };
+  const pending = state.approvalQueue === undefined ? null
+    : M.pendingDecisions({ approvalQueue: state.approvalQueue, tasks: state.tasks })
+      .map((p) => Object.assign({}, p, { from: nameOf(p.from) }));
+  return { summary, pending };
+}
+
 function formatTeamContext(summary) {
   if (!summary || !summary.blocks) {
     return '\n\n(The team summary is unavailable right now. If asked about the team, say so; never invent numbers.)';
@@ -97,4 +122,4 @@ function formatTeamContext(summary) {
   return lines.join('\n');
 }
 
-module.exports = { loadTeamSummary, formatTeamContext };
+module.exports = { loadTeamSummary, loadTeam, formatTeamContext };

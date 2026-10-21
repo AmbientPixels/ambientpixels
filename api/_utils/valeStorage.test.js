@@ -16,14 +16,14 @@ const MAIL_SENSITIVE = ['valeConversations', 'valeMailState', 'valeMailBriefs', 
     assert.strictEqual(vs._key('ceoActionList'), 'vale/ceoActionList');
   });
   // Deliberately exact: adding a key must be a conscious decision about its class.
-  await test('ALLOWED_KEYS covers exactly the fourteen personal keys', () => {
+  await test('ALLOWED_KEYS covers exactly the fifteen personal keys', () => {
     const keys = Object.keys(vs.ALLOWED_KEYS).sort();
     assert.deepStrictEqual(keys, ['ceoActionList', 'ceoProfile', 'valeBriefLog', 'valeBriefs', 'valeConnectPending', 'valeConversations', 'valeDraftRate',
-      'valeMailAudit', 'valeMailBriefs', 'valeMailRules', 'valeMailState', 'valeMailToken', 'valeMemory', 'valeSeed']);
+      'valeMailAudit', 'valeMailBriefs', 'valeMailRules', 'valeMailState', 'valeMailToken', 'valeMemory', 'valeSeed', 'valeTeamsLog']);
   });
   await test('every key has a class', () => Object.keys(vs.ALLOWED_KEYS).forEach((k) => assert.ok(vs.keyClass(k), k)));
   await test('secrets and logs are never exposed, to anyone', () => {
-    ['valeMailToken', 'valeConnectPending', 'valeMailAudit', 'valeBriefLog', 'valeDraftRate'].forEach((k) => {
+    ['valeMailToken', 'valeConnectPending', 'valeMailAudit', 'valeBriefLog', 'valeDraftRate', 'valeTeamsLog'].forEach((k) => {
       assert.strictEqual(vs.keyClass(k), 'never', k);
       ['read', 'write'].forEach((m) => ['bearer', 'principal', null].forEach((via) => assert.strictEqual(vs.accessFor(k, m, via), 'deny', k + ' ' + m + ' ' + via)));
     });
