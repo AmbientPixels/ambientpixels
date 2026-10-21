@@ -65,6 +65,12 @@ const { answer } = require('./chatCore');
     assert.strictEqual(calls.usage[calls.usage.length - 1].caller, 'vale-teams-bot');
   });
 
+  await test('she knows the time in Pacific (no "Good morning" at 7 pm)', async () => {
+    await answer({ message: 'hi', includeMail: false, where: 'teams', nowMs: Date.parse('2026-10-21T02:23:00Z') });
+    const p = calls.prompts.pop();
+    assert.ok(p.indexOf('RIGHT NOW: Tuesday, October 20, 2026 at 7:23 PM Pacific') !== -1, p.slice(0, 900));
+  });
+
   await test('no model key: an error, not a call', async () => {
     const k = process.env.GEMINI_API_KEY; delete process.env.GEMINI_API_KEY;
     const n = calls.prompts.length;

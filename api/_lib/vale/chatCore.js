@@ -107,7 +107,11 @@ async function answer(opts) {
       : formatMailContext(mailMeta.value, Date.now());
   }
 
-  var systemPrompt = VALE_SYSTEM_INSTRUCTION + (WHERE[opts.where] || '') + memoryBlocks + companyContext + teamContext + mailContext;
+  // She has no clock of her own: without this she greeted Chad "Good morning" at 7:23 pm.
+  var nowLine = '\n\nRIGHT NOW: ' + new Date(opts.nowMs || Date.now()).toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+  }) + ' Pacific (Chad\'s time).';
+  var systemPrompt = VALE_SYSTEM_INSTRUCTION + (WHERE[opts.where] || '') + nowLine + memoryBlocks + companyContext + teamContext + mailContext;
 
   var contents = [];
   (Array.isArray(opts.history) ? opts.history : []).forEach(function (turn) {
