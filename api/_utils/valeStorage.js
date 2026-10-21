@@ -28,7 +28,8 @@ var KEY_CLASS = {
   valeMailAudit: 'never',     // one entry per run, no message content
   valeBriefLog: 'never',      // per-Pacific-date send status + inbox watermark
   valeDraftRate: 'never',     // vale-draft hourly counter: { hour, count } only, no content
-  valeTeamsLog: 'never'       // Teams channel posts: what was told when (ids, dates), no content
+  valeTeamsLog: 'never',      // Teams channel posts: what was told when (ids, dates), no content
+  valeTeamsChat: 'never'      // Teams chat turns (no mail is ever read there); server-side only
 };
 
 var ALLOWED_KEYS = {};
