@@ -333,14 +333,6 @@
   .idx,.overall,.mv .k2,.mv .scale,.fix.head .who,.fix.head .m,.fix.head .hint,.day .when{font-size:calc(var(--u)*1.05)}
   .mv .scale,.fix.head .hint{color:var(--color-text-tertiary)}
   .fix.head .hint,.mv .k2{white-space:nowrap}
-  /* fix-01 video over the "Four fixes" slide */
-  .ivid{position:absolute;inset:0;z-index:20;background:var(--color-bg);opacity:0;pointer-events:none;transition:opacity .6s}
-  .ivid.on{opacity:1;pointer-events:auto;cursor:pointer;transition:none}
-  .ivid.gone{transition:none}
-  .ivid video{width:100%;height:100%;object-fit:contain;display:block}
-  .replay{margin-left:calc(var(--u)*1.2);background:none;border:1px solid var(--color-border);color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:calc(var(--u)*.9);letter-spacing:.08em;text-transform:uppercase;padding:calc(var(--u)*.35) calc(var(--u)*.8);cursor:pointer;vertical-align:middle}
-  .replay:hover,.replay:focus-visible{color:var(--color-text-primary);border-color:var(--color-text-tertiary);outline:none}
-  @media print{.ivid,.replay{display:none}}
   /* reference links to the hosted pitch and audit */
   a.ref{color:inherit;text-decoration:underline;text-decoration-color:var(--color-text-muted);text-underline-offset:.25em;transition:color .2s,text-decoration-color .2s}
   a.ref:hover,a.ref:focus-visible{color:var(--color-text-primary);text-decoration-color:currentColor;outline:none}
@@ -392,8 +384,7 @@
       <div class="fix" data-fix="4"><span class="n">04</span><span class="thumb" style="background-image:url('goodwill/deck/04-navigation.png');background-position:100% 16%"></span><span class="t">A simpler menu</span><span class="who">Everyone</span><span class="m">Clicks to programs and Donate</span></div>
       <div class="fix head"><span></span><span class="hint">Click a fix for detail</span><span></span><span class="who">Helps</span><span class="m">We'd measure</span></div>
     </div>
-    <p class="same">Same pages, same photos: <strong>only the words change.</strong> <button type="button" class="replay" id="ivid-replay">▶ Replay fix 01 · 15 s</button></p>
-    <div class="ivid" id="ivid"><video src="goodwill/deck/01-words.mp4" muted playsinline preload="auto"></video></div>
+    <p class="same">Same pages, same photos: <strong>only the words change.</strong></p>
     
   </section>
 
@@ -620,37 +611,6 @@
     window.addEventListener('beforeprint', settle);
     if (s.classList.contains('on')) { wasOn = true; run(); }
   });
-})();
-</script>
-<script>
-// Slide "Four fixes": the 15-second fix-01 video plays over the slide each time it comes on, then fades away to
-// reveal the list. While it plays, the first arrow key (or a click) skips it instead of changing slide.
-// Replay with the button under the list. Print and reduced motion show the plain slide.
-(function () {
-  var wrap = document.getElementById('ivid'); if (!wrap) return;
-  var s = wrap.closest('.slide'), v = wrap.querySelector('video'), replay = document.getElementById('ivid-replay');
-  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function hide(now) { v.pause(); wrap.classList.remove('on'); if (now) wrap.classList.add('gone'); }
-  function play() {
-    wrap.classList.remove('gone'); wrap.classList.add('on');
-    try { v.currentTime = 0; } catch (e) {}
-    var p = v.play(); if (p && p.catch) p.catch(function () { hide(true); });
-  }
-  v.addEventListener('ended', function () { hide(false); });
-  wrap.addEventListener('click', function (e) { e.stopPropagation(); hide(false); });
-  replay.addEventListener('click', function (e) { e.stopPropagation(); play(); });
-  window.addEventListener('keydown', function (e) {
-    if (!wrap.classList.contains('on')) return;
-    if (['ArrowRight', 'ArrowLeft', ' ', 'PageDown', 'PageUp', 'Escape'].indexOf(e.key) < 0) return;
-    e.preventDefault(); e.stopImmediatePropagation(); hide(false);
-  }, true);
-  var wasOn = s.classList.contains('on');
-  new MutationObserver(function () {
-    var on = s.classList.contains('on'); if (on === wasOn) return;
-    wasOn = on; if (on && !still) play(); else hide(true);
-  }).observe(s, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('beforeprint', function () { hide(true); });
-  if (wasOn && !still) play();
 })();
 </script>
 <script>document.addEventListener('click', function (e) { if (e.target.closest('a')) e.stopPropagation(); }, true);</script>
