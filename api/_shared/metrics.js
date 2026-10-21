@@ -146,9 +146,10 @@ function spendMonthToDate(usage, nowMs) {
 }
 
 // ── Heartbeat health ───────────────────────────────────────────────────────────────────────────
-// The fleet runs at 00/06/12/18 UTC (companyHeartbeat/function.json). A slot is missed when 30 minutes have
-// passed since it and no run started at or after it.
-const HB_EVERY_H = 6;
+// The fleet runs every N hours from 00:00 UTC, N read from companyHeartbeat/function.json the same way the
+// heartbeat reads it (constants.HEARTBEAT_INTERVAL_MS), so a schedule change can never make HQ or Vale report
+// runs as missed. A slot is missed when 30 minutes have passed since it and no run started at or after it.
+const HB_EVERY_H = Math.max(1, Math.round(require('../companyHeartbeat/constants').HEARTBEAT_INTERVAL_MS / HOUR));
 const HB_GRACE_MS = 30 * 60000;
 
 function lastSlot(nowMs) {

@@ -92,7 +92,7 @@ const started = (ids) => ({ started: true, date: '2026-10-20', count: 0, notifie
   const STATE = {
     tasks: [{ id: 'b', title: 'Pick a board review time', assignee: 'ceo', status: 'todo', createdAt: '2026-10-19T10:00:00Z' }],
     approvalQueue: [{ id: 'a', type: 'campaign_proposal', name: 'Approve the studio post', proposedBy: 'nova', status: 'pending', createdAt: '2026-10-19T09:00:00Z' }],
-    campaigns: [], objectives: [], heartbeatRuns: [{ startedAt: '2026-10-20T12:00:00Z', status: 'ok' }], governanceLog: [], actions: [], geminiUsage: [],
+    campaigns: [], objectives: [], heartbeatRuns: [{ startedAt: '2026-10-20T16:00:00Z', status: 'ok' }], governanceLog: [], actions: [], geminiUsage: [],
     agentRegistry: { agents: [{ id: 'nova', name: 'Nova', status: 'active' }] }
   };
   const fakes = (status) => {
