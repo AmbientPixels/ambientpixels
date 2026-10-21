@@ -94,6 +94,17 @@ module.exports = async function (context, req) {
       companyContext = '\n\n(Fleet snapshot is currently unavailable — do not invent fleet numbers.)';
     }
 
+    // Where the team is, in HQ's own numbers: what's waiting on Chad (the approval queue the
+    // snapshot above never loaded), goal, campaign pace, who has work, the last 24 hours.
+    var teamContext = '';
+    try {
+      var team = require('../_lib/vale/teamContext');
+      teamContext = team.formatTeamContext(await team.loadTeamSummary(storage, Date.now()));
+    } catch (e) {
+      context.log.warn('[valechat] Team summary unavailable: ' + e.message);
+      teamContext = team ? team.formatTeamContext(null) : '';
+    }
+
     // Read-only mail context: only for a verified Microsoft sign-in with mail switched on.
     // Live inbox first (read now through the brief's read-only token); the last brief's
     // "needs you" summary rides along for its judgments, and is all she has if live fails.
@@ -121,7 +132,7 @@ module.exports = async function (context, req) {
         : formatMailContext(mailMeta.value, Date.now());
     }
 
-    var systemPrompt = VALE_SYSTEM_INSTRUCTION + memoryBlocks + companyContext + mailContext;
+    var systemPrompt = VALE_SYSTEM_INSTRUCTION + memoryBlocks + companyContext + teamContext + mailContext;
 
     // Build conversation contents.
     var contents = [];
