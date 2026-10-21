@@ -57,6 +57,11 @@ async function run(deps, req) {
   var stored = (await deps.vs.getVale('valeTeamsChat')) || [];
   var history = stored.slice(-HISTORY_TURNS).map(function (t) { return { role: t.role, text: t.text }; });
   var ans = await deps.chat.answer({ message: text, history: history, includeMail: false, where: 'teams', caller: 'vale-teams-bot', log: { warn: deps.log } });
+  if (ans.error) {
+    var det = ans.error.details;
+    var why = det && det.error ? (det.error.status || det.error.type || '') + ' ' + (det.error.message || '') : (typeof det === 'string' ? det : '');
+    deps.log('model error: ' + ans.error.status + ' ' + String(why).slice(0, 300));
+  }
   var reply = ans.error ? "I hit a glitch answering that. Try again in a minute, or ask me on the Office page." : (ans.reply || "I don't have an answer for that.");
 
   var st = await send(deps, activity, { type: 'message', text: reply, textFormat: 'markdown' });
