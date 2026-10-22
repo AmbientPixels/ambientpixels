@@ -286,6 +286,18 @@
   .s8run .rbox .send{display:inline-block;margin-left:auto;font-size:calc(var(--u)*.85);font-weight:700;background:#8c2f1e;color:#fff;padding:4px 12px;opacity:.3;transition:opacity .25s}
   .s8typed .rbox .send{opacity:1}
   .s8run .rej{opacity:0}
+  /* the left card as a real draft: score and buttons before the reject, faded with its reason after */
+  .learn .card.faded .vs-l{display:none}
+  .learn .card.faded .rej{margin-left:auto}
+  .learn .acts-l{display:none;margin-bottom:calc(var(--u)*.4)}
+  .s8run .learn .card.faded .vs-l{display:inline-block}
+  .s8run .learn .card.faded .rej{display:none}
+  .s8run .learn .card.faded p{color:var(--gw-ink)}
+  .s8pre .learn .acts-l{display:flex}
+  .s8pre .learn .reason{display:none}
+  .learn .acts-l .a.rj{transition:background .15s,color .15s}
+  .learn .card.faded p{transition:color .5s}
+  .learn .follows{font-size:calc(var(--u)*.9);color:var(--gw-green);font-weight:700;margin:0 0 calc(var(--u)*.9)}
   .s8run .arrowbig{opacity:.15}
   .s8run .learn .lcol:last-child{opacity:.12;transform:translateY(10px)}
   .rej,.arrowbig,.learn .lcol:last-child{transition:opacity .6s,transform .6s}
@@ -483,13 +495,15 @@
     <h2 class="ap-display h2">Say it once, <em>it sticks.</em></h2>
     <div class="learn">
       <div class="lcol"><div class="steplab"><b>1</b>A draft you don’t like</div>
-      <div class="card faded"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="rej">Rejected</span></div>
-        <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our free Job Training and Education programs…</p>
+      <div class="card faded"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs vs-l">Sounds like you: 8/10</span><span class="rej">Rejected</span></div>
+        <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our free Job Training and Education programs, and items that find a new home stay out of landfills.</p>
+        <div class="acts acts-l"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a rj">Reject</span></div>
         <div class="reason"><span><b class="rn">2</b>You say why, once</span><div class="rbox"><mark class="why"><span class="typed">Lead with free job training, every time.</span></mark><i class="caret"></i><b class="send">Save reason</b></div></div></div></div>
       <div class="arrowbig">→</div>
       <div class="lcol"><div class="steplab"><b>3</b>Drafts after that follow it</div>
-      <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Voice 9/10</span></div>
+      <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 9/10</span></div>
         <p><mark>Free job training, powered by your donations.</mark> That box in your garage could be someone’s first step into a new career: material donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
+        <div class="follows">&#10003; Following your note: “Lead with free job training, every time.”</div>
         <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div></div>
     </div>
     <p class="same">No settings, no training sessions: <strong>your “no, because…” is the training.</strong></p>
@@ -633,13 +647,13 @@
 </script>
 <svg class="ptr" id="s8ptr" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.6 1.1 3.9 7.4-3 1.5-3.9-7.5L4 20z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
 <script>
-// Slide "Say it once": each time the slide is shown, a pointer clicks the reason box,
-// types the reason, saves it, and the next draft appears following it.
+// Slide "Say it once": each time the slide is shown, a pointer clicks Reject on a normal-looking draft, the reason box
+// takes the buttons' place, it types the reason, saves it, and the next draft appears following it.
 // Without motion (print, reduced motion) the slide is the static finished state.
 (function () {
   var s = document.querySelector('.slide[data-n="7"]'); if (!s) return;
   var card = s.querySelector('.learn .card.faded'), box = s.querySelector('.rbox'),
-      typed = s.querySelector('.rbox .typed'), send = s.querySelector('.rbox .send'),
+      typed = s.querySelector('.rbox .typed'), send = s.querySelector('.rbox .send'), rej = s.querySelector('.acts-l .rj'),
       ptr = document.getElementById('s8ptr'), full = typed.textContent, timers = [];
   card.appendChild(ptr);
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -650,15 +664,18 @@
     ptr.style.top = (r.top - c.top + r.height * dy) + 'px';
   }
   function click() { ptr.classList.add('click'); at(140, function () { ptr.classList.remove('click'); }); }
-  function stop() { timers.forEach(clearTimeout); timers = []; s.classList.remove('s8run', 's8typed', 's8done'); typed.textContent = full; }
+  function stop() { timers.forEach(clearTimeout); timers = []; s.classList.remove('s8run', 's8pre', 's8typed', 's8done'); typed.textContent = full; }
   function run() {
     stop();
-    typed.textContent = ''; s.classList.add('s8run');
+    typed.textContent = ''; s.classList.add('s8run', 's8pre');
     ptr.style.transition = 'none'; ptr.style.left = '88%'; ptr.style.top = '18%';
     void ptr.offsetWidth; ptr.style.transition = '';
-    at(500, function () { moveTo(box, .25, .7); });
+    at(500, function () { moveTo(rej, .55, .65); });
     at(1300, click);
-    var t = 1550;
+    at(1450, function () { s.classList.remove('s8pre'); });
+    at(1700, function () { moveTo(box, .25, .7); });
+    at(2400, click);
+    var t = 2650;
     for (var k = 1; k <= full.length; k++) (function (k) { at(t + k * 55, function () { typed.textContent = full.slice(0, k); }); })(k);
     t += full.length * 55 + 250;
     at(t, function () { s.classList.add('s8typed'); moveTo(send, .5, .6); });
