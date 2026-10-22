@@ -381,6 +381,11 @@
   .m-ask .m-txt{font-size:calc(var(--u)*1.05);color:var(--gw-ink);min-height:1.3em}
   .m2 .m-ask{opacity:1;transform:none}
   @media print{.mcur,.m-done,.m-ask{display:none}}
+  /* Replay (replay.html): quiet, bottom right, only once the animation has finished */
+  .replay-s{position:absolute;right:calc(var(--u)*2.2);bottom:calc(var(--u)*1.6);z-index:6;background:none;border:1px solid var(--color-border);color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:calc(var(--u)*.8);letter-spacing:.1em;text-transform:uppercase;padding:calc(var(--u)*.3) calc(var(--u)*.7);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s}
+  .replay-s.show{opacity:.7;pointer-events:auto}
+  .replay-s:hover,.replay-s:focus-visible{opacity:1;color:var(--color-text-primary);border-color:var(--color-text-tertiary);outline:none}
+  @media print{.replay-s{display:none}}
   /* reference links to the hosted pitch and audit */
   a.ref{color:inherit;text-decoration:underline;text-decoration-color:var(--color-text-muted);text-underline-offset:.25em;transition:color .2s,text-decoration-color .2s}
   a.ref:hover,a.ref:focus-visible{color:var(--color-text-primary);text-decoration-color:currentColor;outline:none}
@@ -689,6 +694,7 @@
     wasOn = on; if (on) run(); else stop();
   }).observe(s, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('beforeprint', stop);
+  (window.__replay = window.__replay || {})['7'] = run;
   if (wasOn) run();
 })();
 </script>
@@ -727,6 +733,7 @@
       wasOn = on; if (on) run(); else settle();
     }).observe(s, { attributes: true, attributeFilter: ['class'] });
     window.addEventListener('beforeprint', settle);
+    (window.__replay = window.__replay || {})[s.dataset.n] = run;
     if (s.classList.contains('on')) { wasOn = true; run(); }
   });
 })();
@@ -778,12 +785,53 @@
     wasOn = on; if (on) run(); else reset();
   }).observe(s, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('beforeprint', reset);
+  (window.__replay = window.__replay || {})['6'] = run;
   if (wasOn) run();
+})();
+</script>
+<script>
+// Replay for the animated slides: a quiet "Replay" button fades in once a slide's animation has finished, and the
+// R key replays the slide you're on. CSS-driven motion (bars, timeline) restarts through the Web Animations API;
+// the scripted ones (count-up, Monday morning, Say it once) register their run() in window.__replay.
+// Nothing loops. Print and reduced motion: no button.
+(function () {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var DONE = { '2': 1900, '4': 2700, '5': 3600, '6': 5400, '7': 8200 };   // when each slide's motion has settled (ms)
+  window.__replay = window.__replay || {};
+  var btns = {}, timers = {};
+  function showLater(n) {
+    clearTimeout(timers[n]); btns[n].classList.remove('show');
+    timers[n] = setTimeout(function () { btns[n].classList.add('show'); }, DONE[n]);
+  }
+  function replay(n) {
+    var s = document.querySelector('.slide[data-n="' + n + '"]'); if (!s) return;
+    if (s.getAnimations) s.getAnimations({ subtree: true }).forEach(function (a) { try { a.currentTime = 0; a.play(); } catch (e) {} });
+    if (window.__replay[n]) window.__replay[n]();
+    showLater(n);
+  }
+  Object.keys(DONE).forEach(function (n) {
+    var s = document.querySelector('.slide[data-n="' + n + '"]'); if (!s) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'replay-s'; b.innerHTML = '&#8635; Replay';
+    b.setAttribute('aria-label', 'Replay this slide\'s animation (R)');
+    b.addEventListener('click', function (e) { e.stopPropagation(); replay(n); });
+    s.appendChild(b); btns[n] = b;
+    var wasOn = s.classList.contains('on');
+    new MutationObserver(function () {
+      var on = s.classList.contains('on'); if (on === wasOn) return;
+      wasOn = on; if (on) showLater(n); else { clearTimeout(timers[n]); b.classList.remove('show'); }
+    }).observe(s, { attributes: true, attributeFilter: ['class'] });
+    if (wasOn) showLater(n);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'r' && e.key !== 'R') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var s = document.querySelector('.slide.on'); if (s && DONE[s.dataset.n]) { e.preventDefault(); replay(s.dataset.n); }
+  });
 })();
 </script>
 <script>document.addEventListener('click', function (e) { if (e.target.closest('a')) e.stopPropagation(); }, true);</script>
 <div class="counter" id="counter"></div>
-<div class="help">← → to move · F full screen</div>
+<div class="help">← → to move · F full screen · R replay</div>
 <script>
 (function(){
   var slides=[].slice.call(document.querySelectorAll('.slide')), i=0, counter=document.getElementById('counter');
