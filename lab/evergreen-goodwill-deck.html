@@ -216,6 +216,7 @@
   .vs{margin-left:auto;background:#e8f1e9;color:var(--gw-green);font-weight:700;padding:2px 8px}
   .rej{margin-left:auto;background:#f3e6e3;color:#8c2f1e;font-weight:700;padding:2px 8px}
   .card p{font-size:calc(var(--u)*1.3);line-height:1.5;margin:calc(var(--u)*1) 0;flex:1}
+  .app .card p{font-size:calc(var(--u)*1.22);line-height:1.45;margin:calc(var(--u)*.8) 0}
   .card mark{background:#e8f1e9;color:var(--gw-ink);padding:0 2px}
   .acts{display:flex;gap:calc(var(--u)*.6)}
   .acts .a{font-size:calc(var(--u)*.95);font-weight:700;padding:calc(var(--u)*.45) calc(var(--u)*.9);border:1px solid var(--gw-line);color:var(--gw-ink)}
@@ -265,7 +266,7 @@
   .fxm-top h3{margin:0;font-weight:900;font-size:28px;letter-spacing:-0.025em;flex:1}
   .fxm-x{background:none;border:1px solid var(--color-border);color:var(--color-text-primary);font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 14px;cursor:pointer}
   .fxm-x:hover{background:var(--color-text-primary);color:var(--color-bg)}
-  .fxm-card img{display:block;width:100%;height:auto;background:#fff;max-height:58vh;object-fit:contain}
+  .fxm-card img{display:block;width:100%;height:auto;background:#fff;max-height:min(58vh, calc(94vh - 330px));object-fit:contain}
   .fxm-rows{display:grid;grid-template-columns:1.4fr 1fr .7fr;gap:24px;margin-top:16px;border-top:1px solid var(--color-border);padding-top:14px}
   .fxm-rows span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-tertiary)}
   .fxm-rows p{margin:6px 0 0;font-size:16px;line-height:1.5;color:var(--color-text-body)}
@@ -474,7 +475,7 @@
       <div class="mv"><span class="k">Conversion hierarchy</span><span class="bar"><i class="goal" style="width:50%"></i><i style="width:29%"></i></span><span class="v">29<span class="to">→</span><span class="g">50+</span></span><span class="fx"><b data-fix="4"><span class="fn">04</span>Menu</b></span></div>
       <div class="mv"><span class="k">Call-to-action strength</span><span class="bar"><i class="goal" style="width:65%"></i><i style="width:41%"></i></span><span class="v">41<span class="to">→</span><span class="g">65+</span></span><span class="fx"><b data-fix="1"><span class="fn">01</span>Apply link</b><b data-fix="3"><span class="fn">03</span>Shop button</b></span></div>
       <div class="mv"><span class="k">Messaging clarity</span><span class="bar"><i class="goal" style="width:75%"></i><i style="width:61%"></i></span><span class="v">61<span class="to">→</span><span class="g">75+</span></span><span class="fx"><b data-fix="1"><span class="fn">01</span>Headline</b></span></div>
-      <div class="mv head"><span></span><span class="scale"><em>0</em><span class="k2"><i class="sw now"></i>Now <i class="sw goal"></i>Our goal</span><em>100</em></span><span></span><span class="k2">Raised by fix</span></div>
+      <div class="mv head"><span></span><span class="scale"><em>0</em><span class="k2"><i class="sw now"></i>Now <i class="sw goal"></i>Our goal</span><em>100</em></span><span></span><span class="k2">Raised by fix · click a tag</span></div>
     </div>
     <p class="proof">Goals, not guarantees. <strong>We re-run the same audit afterwards and show you the real numbers.</strong></p>
     
@@ -486,7 +487,7 @@
     <h2 class="ap-display h2">How it would work <em>at Goodwill.</em></h2>
     <div class="day" role="img" aria-label="A morning at Goodwill: drafts arrive at 7 am, your team decides at 9:30, a person posts at 11, and your reasons shape the next drafts.">
       <div class="track"><i></i></div>
-      <div class="stop"><span class="dot"></span><span class="when">7:00 am · The agents</span><h3>Drafts <em>arrive.</em></h3><p>Written in your voice, from your own pages. Waiting when you log in.</p></div>
+      <div class="stop"><span class="dot"></span><span class="when">7:00 am · AI drafts</span><h3>Drafts <em>arrive.</em></h3><p>Written in your voice, from your own pages. Waiting when you log in.</p></div>
       <div class="stop you"><span class="dot"></span><span class="when">9:30 am · Your team</span><h3>You <em>decide.</em></h3><p>Approve, fix a word, or say no and why.</p></div>
       <div class="stop done"><span class="dot"></span><span class="when">11:00 am · A person</span><h3>A person <em>posts it.</em></h3><p>Nothing goes out on its own.</p></div>
       <div class="ret"><svg viewBox="0 0 967 100" preserveAspectRatio="none" aria-hidden="true"><path id="retpath" d="M966,0 L966,52 Q966,99 919,99 L48,99 Q1,99 1,52 L1,0"/><circle r="13" class="pip"><animateMotion dur="4s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".45 0 .25 1"><mpath href="#retpath"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.1;.8;.92;1" dur="4s" repeatCount="indefinite"/></circle></svg><span class="lbl">Your reasons shape the next drafts</span></div>
@@ -506,7 +507,7 @@
           <div class="src"><span>Source</span>Your homepage: “free Job Training and Education programs”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
         <div class="card"><div class="ch"><span class="ch-ch">Instagram</span><span class="ch-tp">Adult education</span><span class="vs">Sounds like you: 9/10</span></div>
-          <p>Going back to school as an adult takes courage. Our Adult Basic Education classes and workshops help adults get ready for <mark>today’s workplace</mark>, and <mark>they’re free</mark>. Across <mark>five counties</mark> in Northwest Washington.</p>
+          <p>Going back to school as an adult takes courage. Our Adult Basic Education classes and workshops help adults get ready for <mark>today’s workplace</mark>, and <mark>the classes are free</mark>. Across <mark>five counties</mark> in Northwest Washington.</p>
           <div class="src"><span>Source</span>Your Adult Education page: “today’s workplace”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
         <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Milestone</span><span class="vs">Sounds like you: 8/10</span></div>
@@ -525,13 +526,13 @@
     <div class="learn">
       <div class="lcol"><div class="steplab"><b>1</b>A draft you don’t like</div>
       <div class="card faded"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs vs-l">Sounds like you: 8/10</span><span class="rej">Rejected</span></div>
-        <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our free Job Training and Education programs, and items that find a new home stay out of landfills.</p>
+        <p>Clearing out a closet? Those clothes could help someone start a new career. Donations to Evergreen Goodwill power our free Job Training and Education programs, and items that find a new home stay out of landfills.</p>
         <div class="acts acts-l"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a rj">Reject</span></div>
         <div class="reason"><span><b class="rn">2</b>You say why, once</span><div class="rbox"><mark class="why"><span class="typed">Lead with free job training, every time.</span></mark><i class="caret"></i><b class="send">Save reason</b></div></div></div></div>
       <div class="arrowbig">→</div>
       <div class="lcol"><div class="steplab"><b>3</b>Drafts after that follow it</div>
       <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 9/10</span></div>
-        <p><mark>Free job training, powered by your donations.</mark> That box in your garage could be someone’s first step into a new career: material donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
+        <p><mark>Free job training, powered by your donations.</mark> Clearing out a closet? Those clothes could help someone start a new career: donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
         <div class="follows">&#10003; Following your note: “Lead with free job training, every time.”</div>
         <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div></div>
     </div>
@@ -583,7 +584,7 @@
       why: 'Every purchase pays for the free training, and the button that sends people shopping does not say so. One line turns a transaction into a reason.',
       measure: 'Clicks to shop online.' },
     '4': { title: 'A simpler menu', img: 'goodwill/deck/04-navigation.png',
-      what: 'The top menu goes to six clear choices: Education, Volunteer, Locations, Shop, About, Donate. Nothing is removed: the deeper pages sit one click down, on each section\'s own page and in the footer.',
+      what: 'The top menu goes to five clear choices: Education, Volunteer, Locations, Shop, About. Give and Donate stay as they are. Nothing is removed: the deeper pages sit one click down, on each section\'s own page and in the footer.',
       why: 'Today the header and menus hold 59 links, 25 of them visible before a click, reaching 31 destinations. Offered everything at once, most people choose nothing.',
       measure: 'Clicks to programs and to Donate.' }
   };
