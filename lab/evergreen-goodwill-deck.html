@@ -195,6 +195,9 @@
   .card{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1.4);display:flex;flex-direction:column;color:var(--gw-ink);
         font-family:'Libre Franklin','Helvetica Neue',var(--font-display),sans-serif}
   .ch{display:flex;gap:calc(var(--u)*.8);align-items:center;flex-wrap:wrap;font-size:calc(var(--u)*.95)}
+  .app .ch{flex-wrap:nowrap}
+  .app .ch .ch-tp{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .app .ch .vs{flex:none;white-space:nowrap}
   .ch-ch{font-weight:700;color:var(--gw-navy)}
   .ch-tp{color:#5b6570}
   .vs{margin-left:auto;background:#e8f1e9;color:var(--gw-green);font-weight:700;padding:2px 8px}
@@ -380,9 +383,14 @@
   .m-ask .m-lbl{font-size:calc(var(--u)*.8);color:#5b6570}
   .m-ask .m-txt{font-size:calc(var(--u)*1.05);color:var(--gw-ink);min-height:1.3em}
   .m2 .m-ask{opacity:1;transform:none}
+  .m-ask .m-send{margin-left:auto;font-size:calc(var(--u)*.85);font-weight:700;background:var(--gw-navy);color:#fff;padding:calc(var(--u)*.3) calc(var(--u)*.8)}
+  .m-ask .m-sent{display:none;font-weight:700;color:var(--gw-navy);font-size:calc(var(--u)*.95)}
+  .m3 .m-ask{background:#eaf0f8}
+  .m3 .m-ask .m-lbl,.m3 .m-ask .m-txt,.m3 .m-ask .m-send{display:none}
+  .m3 .m-ask .m-sent{display:inline}
   @media print{.mcur,.m-done,.m-ask{display:none}}
   /* Replay (replay.html): quiet, bottom right, only once the animation has finished */
-  .replay-s{position:absolute;right:calc(var(--u)*2.2);bottom:calc(var(--u)*1.6);z-index:6;background:none;border:1px solid var(--color-border);color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:calc(var(--u)*.8);letter-spacing:.1em;text-transform:uppercase;padding:calc(var(--u)*.3) calc(var(--u)*.7);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s}
+  .replay-s{position:absolute;right:calc(var(--u)*2.2);bottom:calc(var(--u)*1.6 + 26px);z-index:6;background:none;border:1px solid var(--color-border);color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:calc(var(--u)*.8);letter-spacing:.1em;text-transform:uppercase;padding:calc(var(--u)*.3) calc(var(--u)*.7);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s}
   .replay-s.show{opacity:.7;pointer-events:auto}
   .learn .card.replayable{cursor:pointer}
   .replay-s:hover,.replay-s:focus-visible{opacity:1;color:var(--color-text-primary);border-color:var(--color-text-tertiary);outline:none}
@@ -742,7 +750,8 @@
 })();
 </script>
 <script>
-// Slide "Monday morning": each time it comes on, a mouse approves the first draft and asks for a rewrite of the second,
+// Slide "Monday morning": each time it comes on, a mouse approves the first draft and asks for a rewrite of the second
+// (typed, then sent, then "a new draft is on its way"),
 // so "your team decides" is seen, not said. Positions are read at run time (fonts are loaded by then).
 // Print and reduced motion: the static slide.
 (function () {
@@ -755,9 +764,9 @@
   app.appendChild(cur);
   var done = document.createElement('div'); done.className = 'm-done'; done.innerHTML = '&#10003; Approved · ready for your team to post';
   cards[0].appendChild(done);
-  var ask = document.createElement('div'); ask.className = 'm-ask'; ask.innerHTML = '<span class="m-lbl">Rewrite:</span><span class="m-txt"></span>';
+  var ask = document.createElement('div'); ask.className = 'm-ask'; ask.innerHTML = '<span class="m-lbl">Rewrite:</span><span class="m-txt"></span><b class="m-send">Send</b><span class="m-sent">&#8635; Rewrite requested · a new draft is on its way</span>';
   cards[1].appendChild(ask);
-  var txt = ask.querySelector('.m-txt'), timers = [];
+  var txt = ask.querySelector('.m-txt'), send = ask.querySelector('.m-send'), timers = [];
   function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
   function to(el, dx, dy, ms) {
     var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -767,7 +776,7 @@
   function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
   function reset() {
     timers.forEach(clearTimeout); timers = [];
-    cur.classList.remove('show', 'press'); s.classList.remove('m1', 'm2'); txt.textContent = '';
+    cur.classList.remove('show', 'press'); s.classList.remove('m1', 'm2', 'm3'); txt.textContent = '';
   }
   function run() {
     reset();
@@ -780,7 +789,10 @@
     at(3150, function () { click(); s.classList.add('m2'); });
     var t = 'Make it warmer.';
     for (var i = 1; i <= t.length; i++) (function (i) { at(3450 + i * 60, function () { txt.textContent = t.slice(0, i); }); })(i);
-    at(5000, function () { cur.classList.remove('show'); });
+    at(4500, function () { to(send, 0.5, 0.6, 450); });
+    at(5000, function () { click(); });
+    at(5150, function () { s.classList.add('m3'); });
+    at(6300, function () { cur.classList.remove('show'); });
   }
   var wasOn = s.classList.contains('on');
   new MutationObserver(function () {
@@ -799,7 +811,7 @@
 // Nothing loops. Print and reduced motion: no button.
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var DONE = { '5': 3600, '6': 5400, '7': 8200 };   // when each slide's motion has settled (ms)
+  var DONE = { '5': 3600, '6': 6600, '7': 8200 };   // when each slide's motion has settled (ms)
   window.__replay = window.__replay || {};
   var btns = {}, timers = {};
   function showLater(n) {
