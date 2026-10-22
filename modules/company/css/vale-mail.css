@@ -35,11 +35,13 @@
   --vm-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
   --vm-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --vm-top-h: 44px;
+  --vm-skel-band: rgba(255, 255, 255, 0.06);
   --vm-empty-top: min(14vh, 120px);
   --vm-listhead-h: 82px;
 }
 
 body[data-theme="light"] .vmail {
+  --vm-skel-band: rgba(0, 0, 0, 0.05);
   --vm-agent: #7c6cf2;
   --vm-agent-text: #5546d6;
   --vm-agent-dim: rgba(124, 108, 242, 0.12);
@@ -458,7 +460,15 @@ body[data-theme] a.vmail-skip:focus-visible {
   border-radius: 2px;
   background: var(--vm-text-3);
 }
+/* Tentative or not-yet-answered meetings: a dashed bar and a quieter title, so the rail scans at a glance. */
+.vmail-event--tentative::before,
+.vmail-event--proposed::before { background: repeating-linear-gradient(180deg, var(--vm-text-3) 0 4px, transparent 4px 7px); }
+.vmail-event--tentative .vmail-event__title,
+.vmail-event--proposed .vmail-event__title { color: var(--vm-text-2); }
 .vmail-event--clash::before { background: var(--vm-warn); }
+/* A clash keeps its warning colour; a tentative one still shows its dashes. */
+.vmail-event--clash.vmail-event--tentative::before,
+.vmail-event--clash.vmail-event--proposed::before { background: repeating-linear-gradient(180deg, var(--vm-warn) 0 4px, transparent 4px 7px); }
 .vmail-event--cancelled .vmail-event__title { text-decoration: line-through; color: var(--vm-text-3); }
 .vmail-event__time {
   display: block;
@@ -689,7 +699,7 @@ body[data-theme] a.vmail-skip:focus-visible {
   border-radius: 50%;
   background: transparent;
 }
-.vmail-row.is-unread .vmail-row__dot { background: var(--c-accent); }
+.vmail-row.is-unread .vmail-row__dot { background: var(--vm-agent); }
 .vmail-row__main { min-width: 0; }
 .vmail-row__top {
   display: flex;
@@ -766,7 +776,7 @@ body[data-theme] a.vmail-skip:focus-visible {
   white-space: nowrap;
 }
 .vmail-tag--needs_you { background: var(--vm-agent-dim); color: var(--vm-agent-text); }
-.vmail-tag--waiting { background: rgba(96, 165, 250, 0.12); color: var(--c-blue); }
+.vmail-tag--waiting { background: var(--vm-raised); color: var(--vm-text-2); border: 1px solid var(--vm-sep); line-height: 16px; }
 .vmail-tag--check {
   border: 1px solid var(--vm-danger-border);
   background: var(--vm-danger-bg);
@@ -889,6 +899,9 @@ body[data-theme] a.vmail-skip:focus-visible {
 body[data-theme="light"] .vmail-reader__bar.vmail-toolbar--with-subject { box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.12); }
 .vmail-toolbar--with-subject .vmail-spacer { display: none; }
 .vmail-reader__bar .vmail-spacer { flex: 1; }
+@media (min-width: 720px) {
+  .vmail-reader--compose .vmail-reader__bar { display: none; }
+}
 /* The subject that docks in the toolbar on scroll: right-aligned behind a hairline, in
    secondary text, so it never reads as another button. */
 .vmail-toolbar__subject {
@@ -1035,6 +1048,8 @@ body[data-theme="light"] .vmail-reader__bar.vmail-toolbar--with-subject { box-sh
   color: var(--vm-text-2);
 }
 .vmail-notice i { color: var(--vm-client); margin-top: 2px; }
+.vmail-notice--dayjob { color: var(--vm-agent-text); }
+.vmail-notice--dayjob i { color: var(--vm-agent); }
 
 .vmail-ask {
   padding-top: 12px;
@@ -1310,14 +1325,27 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
   margin: 0 0 12px;
   padding: 0;
 }
+/* Loading chips: the real chip's height, radius and border, a paperclip-sized dot, a soft band. */
 .vmail-attskel {
-  display: block;
-  width: 160px;
-  height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, var(--vm-raised) 0%, var(--vm-hover) 50%, var(--vm-raised) 100%);
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 120px;
+  height: calc(13px * 1.2 + 16px); /* the chip: 13px/1.2 text, 7px padding, 1px border */
+  padding: 0 10px;
+  border: 1px solid var(--vm-sep);
+  border-radius: var(--c-r-sm);
+  background: linear-gradient(90deg, transparent 0%, var(--vm-skel-band) 50%, transparent 100%) var(--vm-raised);
   background-size: 200% 100%;
   animation: vmail-shimmer 1.4s ease-in-out infinite;
+}
+.vmail-attskel + .vmail-attskel { width: 96px; }
+.vmail-attskel::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vm-hover);
 }
 .vmail-attachment {
   display: inline-flex;
@@ -1467,7 +1495,7 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
 .vmail-sendbar:not([hidden]) ~ .vmail-toast:not([hidden]) { bottom: 78px; }
 /* The toast would sit on the editor's Send/Discard row: it moves to the top of the reading column. */
 .vmail .vmail-toast.vmail-toast--high:not([hidden]),
-.vmail .vmail-sendbar:not([hidden]) ~ .vmail-toast.vmail-toast--high:not([hidden]) { align-self: start; justify-self: end; bottom: auto; top: 12px; margin-right: 16px; }
+.vmail .vmail-sendbar:not([hidden]) ~ .vmail-toast.vmail-toast--high:not([hidden]) { align-self: start; justify-self: end; bottom: auto; top: calc(var(--vm-top-h) + 16px); margin-right: 24px; }
 /* One Undo look in the send bar and the toast: tinted, so filled periwinkle stays Send's. */
 .vmail .vmail-sendbar__undo,
 .vmail .vmail-toast__undo {
@@ -1485,6 +1513,8 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
 .vmail .vmail-toast__undo:hover { background: var(--vm-agent); border-color: var(--vm-agent); color: var(--vm-agent-ink); }
 /* Room under the editor while the bar is up, so it never covers the editor text. */
 .vmail.is-sending .vmail-article { padding-bottom: 96px; }
+.vmail-reader--toast-pad .vmail-article { padding-bottom: 96px; }
+.vmail-reader--toast-pad2 .vmail-article { padding-bottom: 156px; }
 .vmail.is-sending .vmail-editor { scroll-margin-bottom: 84px; }
 .vmail-sendbar__text strong { font-variant-numeric: tabular-nums; }
 .vmail-sendbar__progress {
@@ -1523,21 +1553,22 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
   border-bottom: 1px solid var(--c-sep);
 }
 .vmail-sheet__head h2 { margin: 0; font-size: var(--c-text-md); font-weight: 600; }
-.vmail-keys { margin: 0; padding: 8px 16px 16px; }
+.vmail-keys { margin: 0; padding: 8px 16px 16px; display: grid; grid-template-columns: max-content 1fr; column-gap: 16px; }
 .vmail-sheet__body { padding: 8px 16px 16px; }
 /* In the schedule sheet, the title, day headers and event bars share one left edge. */
 .vmail-sheet__body .vmail-day__name { padding-left: 0; padding-right: 0; }
 .vmail-sheet__body .vmail-event { padding-left: 10px; }
 .vmail-sheet__body .vmail-event::before { left: 0; }
 .vmail-keys > div {
-  display: flex;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: 12px;
   padding: 7px 0;
   border-bottom: 1px solid var(--c-sep);
 }
 .vmail-keys > div:last-child { border-bottom: 0; }
-.vmail-keys dt { flex: none; width: 92px; display: flex; gap: 4px; }
+.vmail-keys dt { display: flex; gap: 4px; }
 .vmail-keys dd { margin: 0; color: var(--c-text-2); font-size: var(--c-text-base); }
 
 /* ── Signed-out / setup screens ── */

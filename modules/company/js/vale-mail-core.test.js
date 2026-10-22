@@ -1178,5 +1178,50 @@ test('svg <use href="#icon"> keeps its local reference', () => {
   assert.ok(d.includes('href="#icon"'), d);
 });
 
+test('subjectFromBrief: drops the ask verb and the person, sentence-cases the rest', () => {
+  assert.strictEqual(C.subjectFromBrief('tell Ravi the sandbox key is on its way by Monday'), 'Sandbox key is on its way by Monday');
+  assert.strictEqual(C.subjectFromBrief('ask Dana to send the signed SOW'), 'Send the signed SOW');
+  assert.strictEqual(C.subjectFromBrief('let Kim know that the deck is ready.'), 'Deck is ready');
+  assert.strictEqual(C.subjectFromBrief('Tell Pat at ClientCo the deck is ready'), 'Deck is ready');
+  assert.strictEqual(C.subjectFromBrief('please remind Theo about the renewal'), 'Renewal');
+});
+test('subjectFromBrief: plain briefs pass through; empty and punctuation-only give ""', () => {
+  assert.strictEqual(C.subjectFromBrief('quick hello'), 'Quick hello');
+  assert.strictEqual(C.subjectFromBrief('tell Ravi'), 'Tell Ravi');
+  assert.strictEqual(C.subjectFromBrief(''), '');
+  assert.strictEqual(C.subjectFromBrief('   '), '');
+  assert.strictEqual(C.subjectFromBrief('?!'), '');
+  assert.strictEqual(C.subjectFromBrief(null), '');
+});
+test('subjectFromBrief: long briefs stop at 60 characters on a word', () => {
+  const s = C.subjectFromBrief('remind Theo about the contract renewal on Friday and also mention we need to talk about pricing next quarter');
+  assert.ok(s.length <= 60 && !/\s$/.test(s) && /^Contract renewal on Friday/.test(s), s);
+});
+
+test('proposedTime: "<weekday> at <h>am Pacific" reads as that weekday in the zone', () => {
+  const rec = Date.parse('2026-10-13T18:00:00Z'); // Tue 11am PT
+  const p = C.proposedTime('Does Thursday at 10am Pacific work for you?', rec, 'America/Los_Angeles');
+  assert.ok(p, 'found');
+  assert.strictEqual(new Date(p.startMs).toISOString(), '2026-10-15T17:00:00.000Z');
+  assert.strictEqual(p.label, 'Thursday 10am');
+  assert.strictEqual(C.workHoursClash(p.startMs, p.startMs + 30 * 60000, { start: '09:00', end: '17:00', tz: 'America/Los_Angeles' }), true);
+});
+test('proposedTime: "tomorrow at 3pm" and "Monday at 9:30 am"', () => {
+  const rec = Date.parse('2026-10-15T18:00:00Z'); // Thu 11am PT
+  const t = C.proposedTime('Can we do tomorrow at 3pm?', rec, 'America/Los_Angeles');
+  assert.strictEqual(new Date(t.startMs).toISOString(), '2026-10-16T22:00:00.000Z');
+  assert.strictEqual(t.label, 'Tomorrow 3pm');
+  const m = C.proposedTime('How about Monday at 9:30 am?', rec, 'America/Los_Angeles');
+  assert.strictEqual(new Date(m.startMs).toISOString(), '2026-10-19T16:30:00.000Z');
+  assert.strictEqual(m.label, 'Monday 9:30am');
+});
+test('proposedTime: no time, bad hours and empty input give null', () => {
+  const rec = Date.parse('2026-10-15T18:00:00Z');
+  assert.strictEqual(C.proposedTime('Are you free next week?', rec), null);
+  assert.strictEqual(C.proposedTime('Thursday at 14pm', rec), null);
+  assert.strictEqual(C.proposedTime('', rec), null);
+  assert.strictEqual(C.proposedTime('Thursday at 10am', NaN), null);
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

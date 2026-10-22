@@ -226,6 +226,25 @@ async function main() {
     if (natural !== -1) check(natural > 0, 'demo: an image in the newsletter has naturalWidth > 0 (' + natural + ')');
     await page.screenshot({ path: path.join(SHOTS, '03-newsletter.png') });
 
+    // ── Round 7: schedule honesty, the day-job note, compose without an empty strip ──
+    {
+      const ev = await page.$$eval('#vmail-today-body .vmail-event', (xs) => xs.map((x) => ({ c: x.className, t: x.querySelector('.vmail-event__title').textContent })));
+      check(ev.some((e) => /vmail-event--clash/.test(e.c)), 'round 7: at least one meeting shows the day-job clash, any day of the week');
+      check(ev.filter((e) => /\((tentative|proposed)\)/.test(e.t)).every((e) => /vmail-event--(tentative|proposed)/.test(e.c)), 'round 7: tentative and proposed meetings carry their own (dashed) style');
+      check(ev.filter((e) => /weekly sync|Investor call/.test(e.t)).every((e) => !/vmail-event--(tentative|proposed)/.test(e.c)), 'round 7: confirmed meetings keep the solid bar');
+      await page.click('.vmail-chip[data-filter="needs_you"]');
+      await page.click('#vmail-list [data-id="demo-inb-006"]');
+      await page.waitForSelector('.vmail-vale .vmail-stance[data-stance="yes"]', { timeout: 5000 });
+      const dj = await page.$eval('.vmail-vale', (v) => { const n = v.querySelector('.vmail-notice--dayjob'); const st = v.querySelector('.vmail-stances'); return { t: n && n.textContent, above: !!(n && st && (n.compareDocumentPosition(st) & Node.DOCUMENT_POSITION_FOLLOWING)) }; });
+      check(/Thursday 10am is in your day-job hours/.test(dj.t || '') && dj.above, 'round 7: Dana\'s proposed time gets a day-job note above Yes/No (' + JSON.stringify(dj) + ')');
+      await page.click('#vmail-compose');
+      await page.waitForSelector('#vmail-compose-brief', { timeout: 5000 });
+      const cb = await page.evaluate(() => { const b = document.querySelector('.vmail-reader__bar'); return b ? b.getBoundingClientRect().height : 0; });
+      check(cb === 0, 'round 7: desktop compose has no empty toolbar strip (' + cb + ')');
+      await page.click('.vmail-editor [data-act="discard"]');
+      await page.click('.vmail-chip[data-filter="all"]');
+    }
+
     // ── Stance → draft → send → undo → send → Sent ──
     await page.click('.vmail-chip[data-filter="needs_you"]');
     await page.click('#vmail-list [data-id="demo-inb-006"]');
@@ -239,7 +258,19 @@ async function main() {
 
     await fillGaps(page); await page.click('#vmail-send');
     await page.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
-    check(/Sending/.test(await page.textContent('#vmail-sendbar')), 'Undo bar counts down');    check(!(await page.$('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft')), 'the row drops its "Draft" mark while the reply is in its send window');
+    check(/Sending/.test(await page.textContent('#vmail-sendbar')), 'Undo bar counts down');    {
+      const pad = await page.evaluate(() => {
+        const r = document.querySelector('#vmail-reader');
+        r.scrollTop = r.scrollHeight;
+        const art = r.querySelector('.vmail-article').getBoundingClientRect();
+        const bar = document.querySelector('#vmail-sendbar').getBoundingClientRect();
+        const fr = r.querySelector('iframe.vmail-body, .vmail-article iframe');
+        const last = fr ? fr.getBoundingClientRect().bottom : art.bottom - 96;
+        return { cls: r.className, clear: last <= bar.top };
+      });
+      check(/vmail-reader--toast-pad/.test(pad.cls) && pad.clear, 'round 7: with the send bar up, the end of the email scrolls clear of it (' + JSON.stringify(pad) + ')');
+    }
+    check(!(await page.$('#vmail-list [data-id="demo-inb-006"] .vmail-row__draft')), 'the row drops its "Draft" mark while the reply is in its send window');
 
     await page.screenshot({ path: path.join(SHOTS, '05-undo-bar.png') });
     await page.click('#vmail-undo-send');
@@ -1442,7 +1473,24 @@ async function main() {
         return { to: Math.round(r('#vmail-compose-to').top - r('label[for="vmail-compose-to"]').bottom), brief: Math.round(r('#vmail-compose-brief').top - r('label[for="vmail-compose-brief"]').bottom) };
       });
       check(lab.brief >= 0 && lab.brief <= 12, 'round 6: the Vale brief label sits right above its input (' + JSON.stringify(lab) + ')');
-      await pg.screenshot({ path: path.join(SHOTS, '19-compose-suggest.png') });
+      await pg.screenshot({ path: path.join(SHOTS, '19-compose-suggest.png') });      // Round 7: Vale fills an empty Subject from the brief; a blank Subject stops Send.
+      const subj7 = await pg.inputValue('#vmail-compose-subject');
+      check(subj7 === 'Sandbox key is on its way by Monday', 'round 7: the compose draft fills Subject from the brief (' + subj7 + ')');
+      await pg.fill('#vmail-compose-subject', '');
+      await pg.click('#vmail-send');
+      await pg.waitForTimeout(300);
+      const blk = await pg.evaluate(() => ({
+        bar: !document.querySelector('#vmail-sendbar').hidden,
+        focus: document.activeElement && document.activeElement.id,
+        note: (document.querySelector('#vmail-fill-note') || {}).textContent || ''
+      }));
+      check(!blk.bar && blk.focus === 'vmail-compose-subject' && /No subject yet/.test(blk.note), 'round 7: Send with no subject starts no countdown and points at Subject (' + JSON.stringify(blk) + ')');
+      await pg.click('#vmail-fill-note [data-act="send-anyway"]');
+      await pg.waitForSelector('#vmail-sendbar:not([hidden])', { timeout: 3000 });
+      check(true, 'round 7: Send anyway starts the countdown');
+      await pg.click('#vmail-undo-send');
+      await pg.waitForSelector('#vmail-sendbar', { state: 'hidden', timeout: 3000 });
+
       await pg.click('.vmail-editor [data-act="discard"]');
 
       // After a send, "Next" never offers a guarded email.

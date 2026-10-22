@@ -447,6 +447,33 @@ const allMsgs = (f) => [].concat(...Object.values(f.folders));
     assert.ok(top.bodyPreview.includes("I'll check & you're set."), top.bodyPreview);
   });
 
+  // Round 7: the morning brief agrees with the app (chip counts and the Today rail).
+  await test('the demo morning brief matches the needs-you count and the meetings that day', () => {
+    const f = fixture();
+    const C = require('./vale-mail-core.js');
+    const brief = f.folders.inbox.find((m) => /morning brief/i.test(m.subject));
+    assert.ok(brief, 'brief exists');
+    const text = C.htmlToText(brief.body.content) + ' ' + brief.bodyPreview;
+    const needs = C.counts(f.folders.inbox, f.labels).needs_you;
+    (text.match(/(\d+) emails? need you/g) || []).forEach((m) => assert.strictEqual(Number(m.match(/\d+/)[0]), needs, m));
+    assert.ok(/(\d+) emails? need you/.test(text), 'states the count');
+    const day = brief.receivedDateTime.slice(0, 10);
+    const events = f.calendar.filter((e) => String(e.start.dateTime).slice(0, 10) === day).length;
+    const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six'];
+    const mt = /\b(\w+) meetings? today/i.exec(text);
+    assert.ok(mt, 'states the meeting count');
+    const said = /^\d+$/.test(mt[1]) ? Number(mt[1]) : WORDS.indexOf(mt[1].toLowerCase());
+    assert.strictEqual(said, events, mt[0] + ' vs ' + events);
+    const free = /free after (\d+)\s*(am|pm)/i.exec(text);
+    if (free) {
+      const lastEnd = f.calendar.filter((e) => String(e.start.dateTime).slice(0, 10) === day)
+        .map((e) => Date.parse(e.end.dateTime.replace(/\.\d+$/, '') + 'Z')).sort().pop();
+      const h = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: f.workHours.tz }).format(lastEnd));
+      const saidH = (Number(free[1]) % 12) + (/pm/i.test(free[2]) ? 12 : 0);
+      assert.strictEqual(saidH, h, 'free after ' + free[1] + free[2] + ' vs last meeting end hour ' + h);
+    }
+  });
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exit(1);
 })();

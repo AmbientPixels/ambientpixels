@@ -541,7 +541,8 @@
   async function loadCalendar() {
     S.calendar = { loading: true, events: [], error: null };
     renderToday();
-    var start = new Date(); start.setHours(0, 0, 0, 0);
+    // The demo on a weekend shows the next two weekdays (see alignDemoCalendar).
+    var start = S.calBase ? new Date(S.calBase) : new Date(); start.setHours(0, 0, 0, 0);
     var end = new Date(start.getTime()); end.setDate(end.getDate() + 2);
     try {
       var evs = await S.g.calendarView(start.toISOString(), end.toISOString());
@@ -558,8 +559,11 @@
   function eventView(ev) {
     var s = C.eventMs(ev.start && ev.start.dateTime), e = C.eventMs(ev.end && ev.end.dateTime);
     var tentative = ev.responseStatus && /tentative/i.test(ev.responseStatus.response || '');
+    // Not yet answered (an invite Chad hasn't accepted) reads as proposed, not confirmed.
+    var proposed = !tentative && ev.responseStatus && /^(notResponded|none)$/i.test(ev.responseStatus.response || '');
     return {
       ev: ev, startMs: s, endMs: e, allDay: !!ev.isAllDay, cancelled: !!ev.isCancelled, tentative: tentative,
+      unsure: tentative || /^tentative$/i.test(ev.showAs || ''), proposed: proposed,
       clash: !ev.isAllDay && !ev.isCancelled && C.workHoursClash(s, e, S.workHours),
       online: !!(ev.isOnlineMeeting || (ev.onlineMeeting && ev.onlineMeeting.joinUrl))
     };
@@ -576,12 +580,14 @@
     if (v.cancelled) notes.push('<span class="vmail-event__note">Cancelled</span>');
     else if (v.tentative) notes.push('<span class="vmail-event__note">Tentative</span>');
     if (v.online && !v.cancelled) notes.push('<span class="vmail-event__note"><i class="fas fa-video" aria-hidden="true"></i>Online</span>');
-    return '<li class="vmail-event' + (v.clash ? ' vmail-event--clash' : '') + (v.cancelled ? ' vmail-event--cancelled' : '') + '">' +
+    return '<li class="vmail-event' + (v.clash ? ' vmail-event--clash' : '') + (v.cancelled ? ' vmail-event--cancelled' : '') +
+      (v.proposed ? ' vmail-event--proposed' : v.unsure ? ' vmail-event--tentative' : '') + '">' +
       '<span class="vmail-event__time">' + h(timeRange(v)) + '</span>' +
       '<span class="vmail-event__title">' + h(v.ev.subject || '(no title)') + '</span>' + notes.join(' ') + '</li>';
   }
+  function dayName(ms) { try { return new Date(ms).toLocaleDateString('en-US', { weekday: 'long' }); } catch (e) { return ''; } }
   function dayBuckets() {
-    var start = new Date(); start.setHours(0, 0, 0, 0);
+    var start = S.calBase ? new Date(S.calBase) : new Date(); start.setHours(0, 0, 0, 0);
     var t0 = start.getTime(), t1 = t0 + 86400000;
     var tomorrow = new Date(t0); tomorrow.setDate(tomorrow.getDate() + 1); t1 = tomorrow.getTime();
     var after = new Date(t1); after.setDate(after.getDate() + 1);
@@ -599,6 +605,11 @@
     function day(name, views, empty) {
       return '<div class="vmail-day"><div class="vmail-day__name">' + name + '</div>' +
         (views.length ? '<ul class="vmail-events">' + views.map(eventHtml).join('') + '</ul>' : '<p class="vmail-quiet">' + empty + '</p>') + '</div>';
+    }
+    if (S.calBase) {
+      var d1 = dayName(S.calBase), d2 = dayName(S.calBase + 86400000 + 3600000);
+      return day(h(d1), d.today, 'No meetings ' + h(d1) + '.') + day(h(d2), d.tomorrow, 'Nothing booked ' + h(d2) + '.') +
+        (S.workHours ? '' : '<p class="vmail-quiet">Set your day-job hours on the Office page so ' + h(S.agent) + ' can flag clashes.</p>');
     }
     return day('Today', d.today, 'No meetings today.') + day('Tomorrow', d.tomorrow, 'Nothing booked tomorrow.') +
       (S.workHours ? '' : '<p class="vmail-quiet">Set your day-job hours on the Office page so ' + h(S.agent) + ' can flag clashes.</p>');
@@ -631,13 +642,14 @@
     if (!upcoming.length) { el.hidden = true; return; }
     var v = upcoming[0];
     var rest = upcoming.length - 1;
+    var lead = S.calBase ? dayName(S.calBase) + ': ' : (v.startMs <= t ? 'Now: ' : 'Next: ');
     el.classList.toggle('vmail-nextup--clash', v.clash);
     el.innerHTML = '<i class="fas fa-calendar-day" aria-hidden="true"></i>' +
-      '<span class="vmail-nextup__title">' + (v.startMs <= t ? 'Now: ' : 'Next: ') +
+      '<span class="vmail-nextup__title">' + h(lead) +
       '<strong>' + h(v.allDay ? 'All day' : C.formatTime(v.startMs)) + ' ' + h(v.ev.subject || '(no title)') + '</strong>' +
       (v.clash ? ' · in your day-job hours' : '') + '</span>' +
       '<span class="vmail-nextup__more">' + (rest ? '+' + rest + ' more' : 'Schedule') + '<i class="fas fa-chevron-right" aria-hidden="true"></i></span>';
-    el.setAttribute('aria-label', 'Open your schedule. ' + (v.startMs <= t ? 'Now: ' : 'Next: ') + (v.allDay ? 'All day' : C.formatTime(v.startMs)) + ' ' + (v.ev.subject || '(no title)') + (rest ? ', and ' + rest + ' more today' : ''));
+    el.setAttribute('aria-label', 'Open your schedule. ' + lead + (v.allDay ? 'All day' : C.formatTime(v.startMs)) + ' ' + (v.ev.subject || '(no title)') + (rest ? ', and ' + rest + ' more ' + (S.calBase ? 'that day' : 'today') : ''));
     el.hidden = false;
   }
 
@@ -649,6 +661,8 @@
   function renderReader() {
     var r = $('vmail-reader');
     var o = S.open;
+    // Compose has no message tools: on wide screens its empty toolbar strip is hidden (CSS).
+    r.classList.toggle('vmail-reader--compose', !!(o && o.compose));
     if (!o && S.search) {
       // A search is showing: the reader stays quiet instead of greeting or showing an old email.
       // Same empty-state look (and height) as the list beside it.
@@ -948,10 +962,14 @@
       else if (kind === 'open') btns = '<button type="button" class="ap-btn vmail-btn-agent vmail-stance" data-act="draft"' + dis + '><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>Draft an answer</button>' + later;
       else btns = stanceBtn('ack', s, dis, copy('stances.ack', 'Acknowledge')) +
         '<button type="button" class="ap-btn vmail-btn-agent vmail-stance" data-act="draft"' + dis + '><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>Draft a reply</button>';
+      // A time the email proposes that falls in Chad's day-job hours: say so before he answers.
+      var pt = q && S.workHours ? C.proposedTime(q, Date.parse(m.receivedDateTime || m.sentDateTime || ''), S.workHours.tz) : null;
+      var dayJob = pt && C.workHoursClash(pt.startMs, pt.startMs + 30 * 60000, S.workHours)
+        ? '<p class="vmail-notice vmail-notice--dayjob"><i class="fas fa-briefcase" aria-hidden="true"></i><span>' + h(pt.label) + ' is in your day-job hours.</span></p>' : '';
       ask = '<div class="vmail-ask">' +
         (q ? '<p class="vmail-question"><span class="vmail-question__who">' + h(first) + ' asks</span><q>' + h(q) + '</q></p>'
           : '<p class="vmail-question"><span class="vmail-question__who">No direct question found</span>Want to let ' + h(first) + ' know you saw it?</p>') +
-        group + btns + '</div>' + tellForm(dis) + '</div>';
+        dayJob + group + btns + '</div>' + tellForm(dis) + '</div>';
     }
 
     // The client-mail note belongs next to a draft action only (stances, Tell Vale, Draft).
@@ -1506,6 +1524,10 @@
   // Bracketed gaps a draft leaves for Chad ("[day]"): named under the editor as soon as they
   // are there, and Send stops on them until they are filled (or Chad picks Send anyway).
   function fillNoteHtml(s, drafting) {
+    if (s.subjectBlocked && !drafting) {
+      return '<p class="vmail-fill" id="vmail-fill-note"><i class="fas fa-pen-to-square" aria-hidden="true"></i><span>No subject yet. Add one, or Send anyway.</span>' +
+        '<button type="button" class="ap-btn vmail-btn-sm" data-act="send-anyway">Send anyway</button></p>';
+    }
     var gaps = drafting ? [] : C.findPlaceholders(s.text);
     if (!gaps.length) return '';
     return '<p class="vmail-fill" id="vmail-fill-note"><i class="fas fa-pen-to-square" aria-hidden="true"></i><span>Fill in ' +
@@ -1602,6 +1624,12 @@
       s.text = text;
       s.lastVale = text;
       s.byVale = true;
+      // Compose: a subject from the brief, only while Chad hasn't written one himself.
+      if (compose) {
+        var subNow = $('vmail-compose-subject');
+        if (subNow) s.subject = subNow.value;
+        if (!String(s.subject || '').trim()) s.subject = C.subjectFromBrief(instruction);
+      }
       persist(s);
       renderEditorSlot();
       renderValeSlot();
@@ -1695,6 +1723,17 @@
     var bad = !to.length ? 'Add who this goes to.' : (to.some(function (r) { return !EMAIL_RE.test(r.address); }) ? 'One of those addresses doesn\'t look right.' : '');
     if (!bad && !s.text.trim()) bad = 'Write something first, or pick an answer for ' + S.agent + ' to draft.';
     if (bad) { s.error = bad; renderEditorSlot(); focusEditor(); return; }
+    // No subject: stop before the countdown, put Chad in Subject, and offer Send anyway.
+    if (s.mode === 'compose' && !String(s.subject || '').trim() && !s.sendAnyway) {
+      s.subjectBlocked = true;
+      s.error = null;
+      renderEditorSlot();
+      var subj = $('vmail-compose-subject');
+      if (subj) { try { subj.focus({ preventScroll: true }); } catch (e) { subj.focus(); } }
+      announce('No subject yet. Add one, or Send anyway.');
+      return;
+    }
+    s.subjectBlocked = false;
     // A gap left for Chad ("[day]") never goes out by accident: stop, select it, and offer
     // Send anyway. No countdown starts.
     var gaps = C.findPlaceholders(s.text);
@@ -2110,6 +2149,15 @@
   // keeps room under it). Only when the pane can't scroll that far does the toast move up to the
   // toolbar band, top right, clear of the subject. On scroll it only re-checks: it never scrolls
   // against Chad.
+  // While a toast or the send bar shows, the reader gets room below its last line, so the
+  // bottom of an email can always be scrolled clear of them.
+  function syncToastPad() {
+    var bar = $('vmail-sendbar'), t = $('vmail-toast'), r = $('vmail-reader');
+    if (!r) return;
+    var n = (bar && !bar.hidden ? 1 : 0) + (t && !t.hidden ? 1 : 0);
+    r.classList.toggle('vmail-reader--toast-pad', n === 1);
+    r.classList.toggle('vmail-reader--toast-pad2', n === 2);
+  }
   function placeToast(onShow) {
     var t = $('vmail-toast');
     if (!t || t.hidden) return;
@@ -2151,6 +2199,11 @@
   // ── Events ─────────────────────────────────────────────────────────────────
 
   function wire() {
+    // Every place that shows or hides the toast or send bar flips [hidden]: watch that one thing.
+    if (typeof MutationObserver === 'function') {
+      var padObs = new MutationObserver(syncToastPad);
+      ['vmail-sendbar', 'vmail-toast'].forEach(function (id) { if ($(id)) padObs.observe($(id), { attributes: true, attributeFilter: ['hidden'] }); });
+    }
     // The skip link is the page's first Tab stop: ahead of the site rail and sub-nav that
     // sidebar.js wraps around the page (it has already run by DOMContentLoaded).
     var skip = $('vmail-skip');
@@ -2274,7 +2327,10 @@
         var sg = $('vmail-suggest-to');
         if (sg) sg.hidden = !!s.toText.trim();
       }
-      else if (e.target.id === 'vmail-compose-subject') { s.subject = e.target.value; persist(s); }
+      else if (e.target.id === 'vmail-compose-subject') {
+        s.subject = e.target.value; persist(s);
+        if (s.subjectBlocked && s.subject.trim()) { s.subjectBlocked = false; renderFillNote(s); }
+      }
       else if (e.target.id === 'vmail-compose-brief') { s.brief = e.target.value; }
     });
     reader.addEventListener('keydown', function (e) {
@@ -2603,6 +2659,11 @@
     if (!isFinite(anchorMs) || !Array.isArray(fixture.calendar) || !window.ValeMailDemo.shiftIso) return;
     var a = new Date(anchorMs); a.setHours(0, 0, 0, 0);
     var n = new Date(); n.setHours(0, 0, 0, 0);
+    // A weekend has no day-job hours, so the demo would never show a clash: on Saturday and
+    // Sunday its meetings move to the next weekday, and the rail names the days.
+    var wd = n.getDay();
+    S.calBase = null;
+    if (wd === 6 || wd === 0) { n.setDate(n.getDate() + (wd === 6 ? 2 : 1)); S.calBase = n.getTime(); }
     var adj = Math.round((n.getTime() - a.getTime()) / 86400000) * 86400000 - (Date.now() - anchorMs);
     // shiftIso keeps whole seconds only: land a second past the minute so times read :00, not :59.
     adj = Math.ceil(adj / 1000) * 1000 + 1000;

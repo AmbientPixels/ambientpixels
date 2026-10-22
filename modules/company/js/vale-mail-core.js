@@ -775,6 +775,45 @@
     return false;
   }
 
+  // A meeting time an email proposes: "<weekday> at <h>[:mm][am|pm]" or "tomorrow at <h>…",
+  // read in tz (the sender's "Pacific"/"PT" is the same zone in this product). The weekday is
+  // the next one on or after the day the email arrived. Without am/pm, 1–7 read as PM.
+  // Returns { startMs, label } ("Thursday 10am") or null.
+  var LONG_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  function wallToMs(y, m, d, h, min, tz) {
+    var guess = Date.UTC(y, m - 1, d, h, min);
+    for (var i = 0; i < 2; i++) {
+      var z = zoned(guess, tz);
+      if (!z) return NaN;
+      var shown = Date.UTC(z.y, z.m - 1, z.d, z.h, z.min);
+      guess += Date.UTC(y, m - 1, d, h, min) - shown;
+    }
+    return guess;
+  }
+  function proposedTime(text, receivedMs, tz) {
+    var s = str(text);
+    if (!s || !isFinite(receivedMs)) return null;
+    var re = /\b(tomorrow|sunday|monday|tuesday|wednesday|thursday|friday|saturday)\s+at\s+(\d{1,2})(?::([0-5]\d))?\s*(am|pm|a\.m\.|p\.m\.)?(?![\w:])/i;
+    var m = re.exec(s);
+    if (!m) return null;
+    var hh = Number(m[2]), mm = m[3] ? Number(m[3]) : 0;
+    if (hh < 1 || hh > 23) return null;
+    var ap = m[4] ? m[4].charAt(0).toLowerCase() : '';
+    if (ap && hh > 12) return null;
+    var h24 = ap === 'p' ? (hh % 12) + 12 : ap === 'a' ? hh % 12 : (hh <= 7 ? hh + 12 : hh);
+    var zone = tz || DEFAULT_TZ;
+    var r = zoned(receivedMs, zone);
+    if (!r) return null;
+    var word = m[1].toLowerCase();
+    var add = word === 'tomorrow' ? 1 : (LONG_DAYS.indexOf(word) - r.wd + 7) % 7;
+    var day = new Date(Date.UTC(r.y, r.m - 1, r.d + add));
+    var ms = wallToMs(day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate(), h24, mm, zone);
+    if (!isFinite(ms)) return null;
+    var name = word === 'tomorrow' ? 'Tomorrow' : word.charAt(0).toUpperCase() + word.slice(1);
+    var h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return { startMs: ms, label: name + ' ' + h12 + (mm ? ':' + (mm < 10 ? '0' : '') + mm : '') + (h24 < 12 ? 'am' : 'pm') };
+  }
+
   function threadText(strip, nowMs, opts) {
     if (!strip || !(strip.count > 1)) return '';
     var parts = ['Thread of ' + strip.count];
@@ -976,6 +1015,28 @@
     return n === 1 ? pick : null;
   }
 
+  // A subject from a compose brief: "tell Ravi the sandbox key is on its way by Monday" →
+  // "Sandbox key is on its way by Monday". Drops a leading ask verb and the person it names
+  // ("tell X", "ask X to", "let X know that", "remind X"), a leading article, trailing
+  // punctuation; sentence case; at most 60 characters on a word boundary. '' when nothing is left.
+  function subjectFromBrief(brief) {
+    var s = str(brief).replace(/\s+/g, ' ').trim();
+    if (!s) return '';
+    s = s.replace(/^(?:please\s+|can you\s+|could you\s+)/i, '');
+    var NAME = "[A-Za-z][A-Za-z'’-]*(?:\\s+(?:at|from)\\s+[A-Z][A-Za-z0-9&'’.-]*)?";
+    var m = new RegExp('^let\\s+' + NAME + '\\s+know\\s+(?:that\\s+|about\\s+)?', 'i').exec(s) ||
+      new RegExp('^(?:tell|ask|remind|email|message|ping|write\\s+to|reply\\s+to|update|thank)\\s+' + NAME + '\\s*(?:,|:|\\s)\\s*(?:that\\s+|to\\s+|about\\s+|if\\s+|whether\\s+|for\\s+)?', 'i').exec(s);
+    if (m && m[0].length < s.length) s = s.slice(m[0].length);
+    s = s.replace(/^(?:the|a|an)\s+/i, '').replace(/[\s.!?,;:]+$/, '').trim();
+    if (!s) return '';
+    if (s.length > 60) {
+      var cut = s.slice(0, 61);
+      var sp = cut.lastIndexOf(' ');
+      s = (sp > 20 ? cut.slice(0, sp) : s.slice(0, 60)).replace(/[\s,;:-]+$/, '');
+    }
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
   // A sender that looks like someone you know but isn't: the same display name under another
   // address, or a domain one or two letters off a known correspondent's. Returns
   // { from, known } (addresses) or null. A sender you have written to before is never flagged.
@@ -1094,13 +1155,13 @@
 
   var _exports = {
     formatWhen: formatWhen, formatTime: formatTime, agoText: agoText, formatSize: formatSize, firstName: firstName,
-    fillDraft: fillDraft, eventMs: eventMs, workHoursClash: workHoursClash, threadText: threadText,
+    fillDraft: fillDraft, eventMs: eventMs, workHoursClash: workHoursClash, proposedTime: proposedTime, threadText: threadText,
     errorText: errorText, labelName: labelName, isAutomated: isAutomated, triageLabels: triageLabels,
     bytesToDataUrl: bytesToDataUrl, domainMatches: domainMatches,
     safeBodyDoc: safeBodyDoc, hasRemoteImages: hasRemoteImages, htmlToText: htmlToText, textToHtml: textToHtml,
     replyTargets: replyTargets, replyToMismatch: replyToMismatch, findQuestion: findQuestion,
     threadStrip: threadStrip, waitingOnYou: waitingOnYou, bucketOf: bucketOf, counts: counts,
-    isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor, listKeyFor: listKeyFor, contactFromBrief: contactFromBrief,
+    isClientMsg: isClientMsg, threadIsClient: threadIsClient, isSimpleHtml: isSimpleHtml, searchQuery: searchQuery, sendMachine: sendMachine, shortcutFor: shortcutFor, listKeyFor: listKeyFor, contactFromBrief: contactFromBrief, subjectFromBrief: subjectFromBrief,
     escapeHtml: escapeHtml,
     questionKind: questionKind, choiceOptions: choiceOptions, sendRecovery: sendRecovery,
     valeStateFrom: valeStateFrom, greetingFor: greetingFor,

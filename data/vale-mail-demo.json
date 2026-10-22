@@ -126,10 +126,10 @@
         "id": "demo-inb-029",
         "conversationId": "conv-demo-inb-029",
         "subject": "Your morning brief",
-        "bodyPreview": "Good morning, Chad. 3 emails need you today: Dana (kickoff time), Kim (SOW redlines, client), and Ravi (sandbox key). One payment-change email looks suspicious:",
+        "bodyPreview": "Good morning, Chad. 10 emails need you; the top 3: Dana (kickoff time), Kim (SOW redlines, client), and Ravi (sandbox key). One payment-change email looks suspicious:",
         "body": {
           "contentType": "html",
-          "content": "<div>Good morning, Chad.</div><div><br></div><div>3 emails need you today: Dana (kickoff time), Kim (SOW redlines, client), and Ravi (sandbox key). One payment-change email looks suspicious: its replies go to a different address.</div><div><br></div><div>Two meetings today. Your calendar is clear after 2pm.</div><div><br></div><div>Vale</div>"
+          "content": "<div>Good morning, Chad.</div><div><br></div><div>10 emails need you; the top 3: Dana (kickoff time), Kim (SOW redlines, client), and Ravi (sandbox key). One payment-change email looks suspicious: its replies go to a different address.</div><div><br></div><div>Three meetings today. You are free after 4pm.</div><div><br></div><div>Vale</div>"
         },
         "from": {
           "emailAddress": {
