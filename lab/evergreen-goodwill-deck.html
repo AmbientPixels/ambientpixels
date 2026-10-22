@@ -126,6 +126,10 @@
   .half.story{border-top:none;padding-top:0}
   .half.story .strip{width:100%;height:calc(var(--u)*8.5);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;opacity:.55;margin-bottom:calc(var(--u)*2)}
   .half.story .strip span{background-size:cover;background-position:center}
+  /* above the 42: the three asks the page should be making, drawn as empty placeholders */
+  .half.ask{border-top:none;padding-top:0}
+  .half.ask .asks{width:100%;height:calc(var(--u)*8.5);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:calc(var(--u)*2)}
+  .half.ask .asks span{display:flex;align-items:center;justify-content:center;border:2px dashed rgba(244,244,244,.26);color:rgba(244,244,244,.42);font-weight:900;font-size:calc(var(--u)*1.9);letter-spacing:-0.02em}
 
   .half .big .out{font-family:var(--font-display);font-weight:400;font-size:calc(var(--u)*2.2);letter-spacing:0;color:var(--color-text-tertiary);margin-left:calc(var(--u)*.8)}
   .overall{font-family:var(--font-mono);font-size:calc(var(--u)*.85);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary);border-top:1px solid var(--color-border-soft);padding-top:calc(var(--u)*1.1)}
@@ -437,7 +441,8 @@
         <div class="strip"><span style="background-image:url('goodwill/deck/p-career.jpg')"></span><span style="background-image:url('goodwill/deck/p-youth.jpg')"></span><span style="background-image:url('goodwill/deck/story.jpg')"></span></div>
         <div class="big g"><span class="count">72</span><span class="out">/ 100</span></div><div class="lab">Who you are</div>
       </div>
-      <div class="half">
+      <div class="half ask">
+        <div class="asks" aria-label="What visitors come to do: apply, give, shop"><span>Apply</span><span>Give</span><span>Shop</span></div>
         <div class="big muted"><span class="count">42</span><span class="out">/ 100</span></div><div class="lab">How the page asks people to act</div>
       </div>
     </div>
