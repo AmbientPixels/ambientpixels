@@ -112,7 +112,8 @@
   :root{--gw-navy:#003e6f;--gw-green:#3e7845;--gw-ink:#1d3a5c;--gw-line:#d5d9de;--gw-paper:#f6f7f8}
 
   /* 1 · title over their hero photograph */
-  .slide.photo .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:grayscale(.15)}
+  /* the title photo bleeds to the window edges, whatever the window shape (the stage itself stays 16:9) */
+  .slide.photo .bg{position:absolute;inset:calc((100% - 100vh) / 2) calc((100% - 100vw) / 2);background-size:cover;background-position:center;filter:grayscale(.15)}
   .slide.photo .foot .credit{font-style:normal;margin-left:calc(var(--u)*1.4);color:var(--color-text-muted)}
   .slide.photo .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,12,12,.94) 0%,rgba(12,12,12,.8) 45%,rgba(12,12,12,.35) 100%)}
   .slide.photo>*:not(.bg){position:relative}
@@ -438,7 +439,7 @@
       <h1 class="ap-display hero">A strong story,<br><em>and the words around it.</em></h1>
       <p class="agenda">Your audit · how social drafting could work, as a mock-up · next steps</p>
     </div>
-    <div class="foot"><span>Chad Martin · AmbientPixels <em class="credit">Photo: evergreengoodwill.org</em></span><span><a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-pitch.html" target="_blank" rel="noopener">The pitch ↗</a> · <a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html" target="_blank" rel="noopener">The full audit ↗</a></span></div>
+    <div class="foot"><span>Chad Martin · AmbientPixels</span><span><a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-pitch.html" target="_blank" rel="noopener">The pitch ↗</a> · <a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html" target="_blank" rel="noopener">The full audit ↗</a></span></div>
     
   </section>
 
