@@ -143,6 +143,15 @@
   .opt h3{font-weight:900;font-size:calc(var(--u)*2.4);letter-spacing:-0.03em;line-height:1;margin:calc(var(--u)*1) 0 calc(var(--u)*.9)}
   .opt h3 em{font-style:italic;font-weight:400;color:var(--color-text-body)}
   .opt p{margin:0;font-size:calc(var(--u)*1.35);line-height:1.45;color:var(--color-text-secondary);max-width:34ch}
+  /* slide 8: hovering an option lights it and quiets the others, so you can point while you talk */
+  .opt{position:relative;transition:opacity .25s;cursor:default}
+  .opt::before{content:"";position:absolute;left:0;right:calc(var(--u)*2);top:-1px;height:3px;background:#7fb886;transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+  .opt+.opt::before{left:calc(var(--u)*2)}
+  .opt .n,.opt p{transition:opacity .25s,color .25s}
+  .opts:hover .opt:not(:hover){opacity:.4}
+  .opt:hover::before{transform:scaleX(1)}
+  .opt:hover .n{opacity:1;color:#7fb886}
+  .opt:hover p{color:var(--color-text-primary)}
   .also{margin:calc(var(--u)*2.2) 0 0;font-size:calc(var(--u)*1.35);color:var(--color-text-secondary)}
   .also strong{color:var(--color-text-primary);font-weight:900}
   /* what the fixes move */
@@ -532,7 +541,7 @@
     <div class="opts">
       <div class="opt"><div class="n">01</div><h3>Your team <em>builds it.</em></h3><p>We write the new wording, measure where you are today and report back. Your web team or agency makes the changes.</p></div>
       <div class="opt"><div class="n">02</div><h3>We <em>build it.</em></h3><p>With access to your site, we make the changes too. One less thing on your team’s plate.</p></div>
-      <div class="opt"><div class="n">03</div><h3>Start with <em>one fix.</em></h3><p>Just the Apply button and headline. A small first step to see how we work together.</p></div>
+      <div class="opt"><div class="n">03</div><h3>Start with <em>one fix.</em></h3><p>Just the Apply link and headline. A small first step to see how we work together.</p></div>
     </div>
     <p class="also">Also, when you’re ready: <strong>a social sample week.</strong> One program page, five drafts in your voice, you mark each one yes or “no, because…”</p>
     <p class="proof">Or something else entirely. <strong>What fits how your team works?</strong></p>
