@@ -327,9 +327,9 @@ const product = JSON.parse(fs.readFileSync(path.join(DATA, 'vale-mail-product.js
 const demo = JSON.parse(fs.readFileSync(path.join(DATA, 'vale-mail-demo.json'), 'utf8'));
 const allMsgs = () => [].concat(demo.folders.inbox || [], demo.folders.sentitems || [], demo.folders.archive || []);
 
-test('product config has every field and ships unconfigured (clientId empty, demo default)', () => {
+test('product config has every field and a Vale Mail client ID (real mailbox; demo only via ?demo=1)', () => {
   ['productName', 'agent', 'tenantId', 'clientId', 'valeScope', 'ownDomain', 'graphScopes', 'demoDefault', 'copy'].forEach((k) => assert.ok(k in product, k));
-  assert.strictEqual(product.clientId, '');
+  assert.ok(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(product.clientId), 'clientId is a GUID');
   assert.strictEqual(product.demoDefault, true);
   assert.strictEqual(product.agent.color.toLowerCase(), '#9b8cff');
   ['User.Read', 'Mail.ReadWrite', 'Mail.Send', 'Calendars.Read'].forEach((s) => assert.ok(product.graphScopes.includes(s), s));

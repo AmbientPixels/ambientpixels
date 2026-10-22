@@ -28,6 +28,9 @@
   var STANCES = ['yes', 'no', 'later', 'more'];
   var DRAFT_KEY = 'vmail:draft:';
   var AUTH_RETURN_KEY = 'vmail.authReturn';
+  // Set by Sign out / Switch account: the next sign-in shows Microsoft's account picker
+  // instead of quietly reusing the account the browser is already signed in with.
+  var PICK_ACCOUNT_KEY = 'vmail.pickAccount';
   var DEFAULT_AGENT_COLOR = '#9b8cff';
 
   var S = {
@@ -2463,7 +2466,54 @@
     // vale-auth.html routes by the MSAL state ("…|vmail") in the response; the timestamped flag is
     // only a fallback and expires after 10 minutes, so an abandoned sign-in can't hijack the Office's.
     try { sessionStorage.setItem(AUTH_RETURN_KEY, JSON.stringify({ at: Date.now() })); } catch (e) { /* ignore */ }
-    S.msal.loginRedirect({ scopes: S.cfg.graphScopes, extraScopesToConsent: [S.cfg.valeScope], loginHint: S.cfg.mailbox, state: 'vmail' });
+    var pick = false;
+    try { pick = sessionStorage.getItem(PICK_ACCOUNT_KEY) === '1'; sessionStorage.removeItem(PICK_ACCOUNT_KEY); } catch (e) { /* ignore */ }
+    var req = { scopes: S.cfg.graphScopes, extraScopesToConsent: [S.cfg.valeScope], loginHint: S.cfg.mailbox, state: 'vmail' };
+    if (pick) req.prompt = 'select_account';
+    S.msal.loginRedirect(req);
+  }
+
+  // Signs this tab out of Vale Mail only (clears MSAL's cache, no Microsoft sign-out), so Outlook
+  // and the Office page stay signed in. Switch account goes straight to the account picker.
+  async function signOut(thenSignIn) {
+    try { sessionStorage.setItem(PICK_ACCOUNT_KEY, '1'); } catch (e) { /* ignore */ }
+    try { if (S.msal) await S.msal.clearCache({ account: S.account }); } catch (e) { /* ignore */ }
+    S.account = null;
+    if (thenSignIn) { signIn(); return; }
+    location.replace(location.pathname + '?signedout=1');
+  }
+
+  function renderAccount() {
+    var box = $('vmail-account');
+    if (!box) return;
+    var who = S.account && S.account.username;
+    box.hidden = S.demo || !who;
+    if (!who) return;
+    $('vmail-account-name').textContent = who;
+    $('vmail-account-mail').textContent = who;
+    $('vmail-account-btn').setAttribute('aria-label', 'Signed in as ' + who + '. Account menu');
+  }
+  function accountMenu(open) {
+    var menu = $('vmail-account-menu'), btn = $('vmail-account-btn');
+    if (!menu || menu.hidden === !open) return;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) $('vmail-account-switch').focus();
+  }
+  function wireAccount() {
+    var box = $('vmail-account');
+    if (!box) return;
+    $('vmail-account-btn').addEventListener('click', function () { accountMenu($('vmail-account-menu').hidden); });
+    $('vmail-account-switch').addEventListener('click', function () { signOut(true); });
+    $('vmail-account-signout').addEventListener('click', function () { signOut(false); });
+    box.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' || $('vmail-account-menu').hidden) return;
+      e.preventDefault(); e.stopPropagation();
+      accountMenu(false);
+      $('vmail-account-btn').focus();
+    });
+    document.addEventListener('click', function (e) { if (!box.contains(e.target)) accountMenu(false); });
+    box.addEventListener('focusout', function (e) { if (e.relatedTarget && !box.contains(e.relatedTarget)) accountMenu(false); });
   }
 
   function gate(title, text, button) {
@@ -2493,10 +2543,22 @@
     }
     if (!S.account) {
       var q = new URLSearchParams(location.search);
-      gate('Sign in to ' + S.cfg.productName, (q.get('signin') === 'error' ? 'Sign-in didn\'t finish. ' : '') +
+      var signedOut = q.get('signedout') === '1';
+      gate(signedOut ? 'Signed out of ' + S.cfg.productName : 'Sign in to ' + S.cfg.productName, (q.get('signin') === 'error' ? 'Sign-in didn\'t finish. ' : '') +
         'Use your ' + S.cfg.mailbox + ' Microsoft account. ' + S.agent + ' reads and drafts here; nothing sends without you pressing Send.',
         '<button type="button" class="ap-btn ap-btn--primary" id="vmail-signin">Sign in with Microsoft</button>');
       $('vmail-signin').addEventListener('click', signIn);
+      return false;
+    }
+    renderAccount();
+    // Only the mailbox in the product config works here (Vale's API answers the CEO alone):
+    // any other account gets one clear screen instead of a page of load errors.
+    var who = String(S.account.username || '').toLowerCase();
+    if (S.cfg.mailbox && who !== String(S.cfg.mailbox).toLowerCase()) {
+      gate('Wrong account', 'You\'re signed in as ' + (S.account.username || 'another account') + '. ' +
+        S.cfg.productName + ' only works with ' + S.cfg.mailbox + '.',
+        '<button type="button" class="ap-btn ap-btn--primary" id="vmail-switch-gate">Switch account</button>');
+      $('vmail-switch-gate').addEventListener('click', function () { signOut(true); });
       return false;
     }
     S.g = window.ValeGraphBrowser.createGraphClient({ fetch: window.fetch.bind(window), getToken: graphToken, timeZone: 'UTC' });
@@ -2570,6 +2632,7 @@
   async function boot() {
     try { sessionStorage.removeItem(AUTH_RETURN_KEY); } catch (e) { /* ignore */ }
     wire();
+    wireAccount();
     try {
       S.cfg = await (await fetch('/data/vale-mail-product.json', { cache: 'no-store' })).json();
     } catch (e) {

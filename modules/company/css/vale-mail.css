@@ -308,6 +308,61 @@ body[data-theme] a.vmail-skip:focus-visible {
   height: 32px;
   padding: 0;
 }
+
+/* ── Account chip: who is signed in, Switch account / Sign out ── */
+.vmail-account { position: relative; }
+.vmail-account[hidden] { display: none; }
+.vmail-account__btn { max-width: 240px; color: var(--vm-text-2); }
+.vmail-account__btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vmail-account__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  min-width: 240px;
+  padding: 6px;
+  border: 1px solid var(--vm-sep);
+  border-radius: 10px;
+  background: var(--vm-raised);
+  box-shadow: var(--vm-shadow);
+}
+.vmail-account__menu[hidden] { display: none; }
+.vmail-account__who {
+  margin: 0 0 6px;
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid var(--vm-sep);
+  color: var(--vm-text-3);
+  font-size: var(--c-text-xs);
+}
+.vmail-account__who strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--vm-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.vmail-account__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--vm-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.vmail-account__item i { width: 16px; color: var(--vm-text-2); }
+.vmail-account__item:hover { background: var(--vm-hover); }
+.vmail-account__item:focus-visible { outline: none; box-shadow: var(--vm-focus); }
 .vmail .ap-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -1523,7 +1578,8 @@ body[data-theme="light"] .vmail .ap-btn.vmail-btn-send:hover:not(:disabled) {
   .vmail-listhead__count { flex: none; }
   .vmail-search__kbd { display: none; }
   .vmail-top__actions .ap-btn span { display: none; }
-  .vmail-top__actions .vmail-btn-agent { width: 32px; height: 32px; padding: 0; justify-content: center; }
+  .vmail-top__actions .vmail-btn-agent,
+  .vmail-top__actions .vmail-account__btn { width: 32px; height: 32px; padding: 0; justify-content: center; }
   #vmail-help-btn { display: none; }
   .vmail-tool kbd,
   .vmail-tool__label { display: none; }
