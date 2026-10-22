@@ -352,6 +352,23 @@
   .idx,.overall,.mv .k2,.mv .scale,.fix.head .who,.fix.head .m,.fix.head .hint,.day .when{font-size:calc(var(--u)*1.05)}
   .mv .scale,.fix.head .hint{color:var(--color-text-tertiary)}
   .fix.head .hint,.mv .k2{white-space:nowrap}
+  /* slide "Monday morning": sources, fact highlights, and a mouse that decides (monday-anim.html) */
+  .app .card .src{font-size:calc(var(--u)*.85);color:#5b6570;border-top:1px solid var(--gw-line);padding-top:calc(var(--u)*.6);margin-bottom:calc(var(--u)*.8);line-height:1.35}
+  .app .card .src span{font-family:var(--font-mono);font-size:calc(var(--u)*.75);letter-spacing:.1em;text-transform:uppercase;color:var(--gw-green);margin-right:calc(var(--u)*.6)}
+  .app{position:relative}
+  .app .card{position:relative}
+  .mcur{position:absolute;width:calc(var(--u)*1.7);height:calc(var(--u)*2.3);opacity:0;z-index:5;pointer-events:none;transform-origin:8% 8%;transition-property:left,top,opacity,transform;transition-timing-function:cubic-bezier(.4,0,.2,1),cubic-bezier(.4,0,.2,1),ease,ease}
+  .mcur svg{width:100%;height:100%;display:block}
+  .mcur.show{opacity:1}
+  .mcur.press{transform:scale(.86)}
+  .m-done{position:absolute;left:calc(var(--u)*1.4);right:calc(var(--u)*1.4);bottom:calc(var(--u)*1.4);display:flex;align-items:center;min-height:calc(var(--u)*2.4);padding:0 calc(var(--u)*.9);background:#e8f1e9;color:var(--gw-green);font-weight:700;font-size:calc(var(--u)*.95);opacity:0;transition:opacity .35s}
+  .m1 .app .card:first-child{border-color:var(--gw-green);box-shadow:inset 0 0 0 1px var(--gw-green);transition:border-color .35s,box-shadow .35s}
+  .m1 .m-done{opacity:1}
+  .m-ask{position:absolute;left:calc(var(--u)*1.4);right:calc(var(--u)*1.4);bottom:calc(var(--u)*1.4);display:flex;align-items:center;gap:calc(var(--u)*.6);min-height:calc(var(--u)*2.4);padding:0 calc(var(--u)*.8);background:#fff;border:1px solid var(--gw-navy);box-shadow:0 6px 18px rgba(0,0,0,.12);opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
+  .m-ask .m-lbl{font-size:calc(var(--u)*.8);color:#5b6570}
+  .m-ask .m-txt{font-size:calc(var(--u)*1.05);color:var(--gw-ink);min-height:1.3em}
+  .m2 .m-ask{opacity:1;transform:none}
+  @media print{.mcur,.m-done,.m-ask{display:none}}
   /* reference links to the hosted pitch and audit */
   a.ref{color:inherit;text-decoration:underline;text-decoration-color:var(--color-text-muted);text-underline-offset:.25em;transition:color .2s,text-decoration-color .2s}
   a.ref:hover,a.ref:focus-visible{color:var(--color-text-primary);text-decoration-color:currentColor;outline:none}
@@ -441,16 +458,19 @@
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Illustration</div></div>
     <h2 class="ap-display h2">Monday morning <em>at Goodwill.</em></h2>
     <div class="app">
-      <div class="app-bar"><span class="app-title">Approvals</span><span class="illus">Illustration · not a live system</span><span class="app-meta">3 drafts waiting · written from evergreengoodwill.org</span></div>
+      <div class="app-bar"><span class="app-title">Approvals</span><span class="illus">Illustration · not a live system</span><span class="app-meta">7:00 am · 3 drafts waiting · written from evergreengoodwill.org</span></div>
       <div class="cards">
-        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Voice 8/10</span></div>
-          <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our free Job Training and Education programs, and items that find a new home stay out of landfills. Find your nearest donation center.</p>
+        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 8/10</span></div>
+          <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our <mark>free Job Training and Education programs</mark>, and items that find a new home stay <mark>out of landfills</mark>. Find your nearest donation center.</p>
+          <div class="src"><span>Source</span>Your homepage: “free Job Training and Education programs”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
-        <div class="card"><div class="ch"><span class="ch-ch">Instagram</span><span class="ch-tp">Adult Basic Education</span><span class="vs">Voice 9/10</span></div>
-          <p>Going back to school as an adult takes courage. Our Adult Basic Education classes and workshops help adults get ready for today’s workplace, and they’re free. Across five counties in Northwest Washington.</p>
+        <div class="card"><div class="ch"><span class="ch-ch">Instagram</span><span class="ch-tp">Adult education</span><span class="vs">Sounds like you: 9/10</span></div>
+          <p>Going back to school as an adult takes courage. Our Adult Basic Education classes and workshops help adults get ready for <mark>today’s workplace</mark>, and <mark>they’re free</mark>. Across <mark>five counties</mark> in Northwest Washington.</p>
+          <div class="src"><span>Source</span>Your Adult Education page: “today’s workplace”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
-        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Milestone</span><span class="vs">Voice 8/10</span></div>
-          <p>In 2025, Evergreen Goodwill served 6,403 students in free job training and education. Every purchase, donation and volunteer hour helped make that happen. Thank you. Jobs change lives.</p>
+        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Milestone</span><span class="vs">Sounds like you: 8/10</span></div>
+          <p>In 2025, Evergreen Goodwill served <mark>6,403 students</mark> in free job training and education. Every purchase, donation and volunteer hour helped make that happen. Thank you. Jobs change lives.</p>
+          <div class="src"><span>Source</span>Your homepage: “6,403 students served in 2025”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
       </div>
     </div>
@@ -692,6 +712,56 @@
     window.addEventListener('beforeprint', settle);
     if (s.classList.contains('on')) { wasOn = true; run(); }
   });
+})();
+</script>
+<script>
+// Slide "Monday morning": each time it comes on, a mouse approves the first draft and asks for a rewrite of the second,
+// so "your team decides" is seen, not said. Positions are read at run time (fonts are loaded by then).
+// Print and reduced motion: the static slide.
+(function () {
+  var s = document.querySelector('.slide[data-n="6"]'); if (!s) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var app = s.querySelector('.app'), cards = s.querySelectorAll('.app .card'); if (!app || cards.length < 2) return;
+  var ok1 = cards[0].querySelector('.a.ok'), rw2 = cards[1].querySelectorAll('.a')[1];
+  var cur = document.createElement('div'); cur.className = 'mcur';
+  cur.innerHTML = '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+  app.appendChild(cur);
+  var done = document.createElement('div'); done.className = 'm-done'; done.innerHTML = '&#10003; Approved · ready for your team to post';
+  cards[0].appendChild(done);
+  var ask = document.createElement('div'); ask.className = 'm-ask'; ask.innerHTML = '<span class="m-lbl">Rewrite:</span><span class="m-txt"></span>';
+  cards[1].appendChild(ask);
+  var txt = ask.querySelector('.m-txt'), timers = [];
+  function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function to(el, dx, dy, ms) {
+    var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
+    cur.style.transitionDuration = (ms || 650) + 'ms';
+    cur.style.left = (r.left - a.left + r.width * dx) + 'px'; cur.style.top = (r.top - a.top + r.height * dy) + 'px';
+  }
+  function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
+  function reset() {
+    timers.forEach(clearTimeout); timers = [];
+    cur.classList.remove('show', 'press'); s.classList.remove('m1', 'm2'); txt.textContent = '';
+  }
+  function run() {
+    reset();
+    var a = app.getBoundingClientRect();
+    cur.style.transitionDuration = '0ms'; cur.style.left = (a.width * 0.5) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
+    at(600, function () { cur.classList.add('show'); to(ok1, 0.6, 0.65, 800); });
+    at(1500, function () { click(); });
+    at(1650, function () { s.classList.add('m1'); });
+    at(2300, function () { to(rw2, 0.55, 0.65, 750); });
+    at(3150, function () { click(); s.classList.add('m2'); });
+    var t = 'Make it warmer.';
+    for (var i = 1; i <= t.length; i++) (function (i) { at(3450 + i * 60, function () { txt.textContent = t.slice(0, i); }); })(i);
+    at(5000, function () { cur.classList.remove('show'); });
+  }
+  var wasOn = s.classList.contains('on');
+  new MutationObserver(function () {
+    var on = s.classList.contains('on'); if (on === wasOn) return;
+    wasOn = on; if (on) run(); else reset();
+  }).observe(s, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('beforeprint', reset);
+  if (wasOn) run();
 })();
 </script>
 <script>document.addEventListener('click', function (e) { if (e.target.closest('a')) e.stopPropagation(); }, true);</script>
