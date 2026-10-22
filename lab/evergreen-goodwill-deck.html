@@ -425,6 +425,64 @@
   .learn .card.replayable,.app .card.replayable{cursor:pointer}
   .replay-s:hover,.replay-s:focus-visible{opacity:1;color:var(--color-text-primary);border-color:var(--color-text-tertiary);outline:none}
   @media print{.replay-s{display:none}}
+  /* slide 8 · email: an info inbox, sorted, with a reply a person sends (mail-news-anim.html) */
+  .app.mail .mail-body{flex:1;min-height:0;display:grid;grid-template-columns:38% 1fr;gap:calc(var(--u)*1.2);padding:calc(var(--u)*1.2)}
+  .mlist{display:flex;flex-direction:column;gap:calc(var(--u)*.4);min-height:0}
+  .mrow{display:grid;grid-template-columns:auto 1fr;column-gap:calc(var(--u)*.7);row-gap:2px;align-items:center;background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*.55) calc(var(--u)*.8);font-size:calc(var(--u)*.9);transition:background .3s,border-color .3s}
+  .mrow .lab{grid-row:1 / span 3;align-self:start;font-size:calc(var(--u)*.72);font-weight:700;padding:2px 6px;white-space:nowrap;text-align:center}
+  .lab.you{background:#fde8e3;color:#8c2f1e}.lab.wait{background:#fdf2dc;color:#7a5200}.lab.fyi{background:#e7eef6;color:var(--gw-navy)}.lab.low{background:#eef0f2;color:#6b7580}
+  .mrow b{color:var(--gw-navy);font-size:calc(var(--u)*.9)}
+  .mrow .subj{color:var(--gw-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mrow .why{color:#5b6570;font-style:italic;font-size:calc(var(--u)*.8)}
+  .mrow.dim{opacity:.6}
+  .mrow.on{background:#eef4fb;border-color:var(--gw-navy)}
+  .mread{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1.1) calc(var(--u)*1.3);display:flex;flex-direction:column;gap:calc(var(--u)*.7);transition:opacity .35s;min-height:0}
+  .mhead{display:flex;gap:calc(var(--u)*.8);align-items:baseline;border-bottom:1px solid var(--gw-line);padding-bottom:calc(var(--u)*.5);font-size:calc(var(--u)*.95)}
+  .mhead b{color:var(--gw-navy)}.mhead span{color:#5b6570}
+  .mtext{margin:0;font-size:calc(var(--u)*1.1);line-height:1.45;color:var(--gw-ink)}
+  .mtext mark.q{background:#fdf2dc;color:var(--gw-ink);padding:0 3px;transition:background .4s}
+  .stance{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.45);align-items:center;font-size:calc(var(--u)*.85)}
+  .stance .sl{color:#5b6570;margin-right:calc(var(--u)*.3)}
+  .stance .st{border:1px solid var(--gw-line);padding:3px 10px;font-weight:700;color:var(--gw-ink);background:#fff;transition:background .25s,color .25s,border-color .25s}
+  .stance .st.yes{background:var(--gw-navy);border-color:var(--gw-navy);color:#fff}
+  .draft{border:1px solid var(--gw-line);border-left:3px solid var(--gw-green);background:#f7faf7;padding:calc(var(--u)*.7) calc(var(--u)*.9);transition:opacity .45s,transform .45s}
+  .draft .dl{display:block;font-size:calc(var(--u)*.75);font-weight:700;color:var(--gw-green);margin-bottom:4px}
+  .draft p{margin:0 0 calc(var(--u)*.6);font-size:calc(var(--u)*1.02);line-height:1.45;color:var(--gw-ink)}
+  .dsend{display:flex;align-items:center;gap:calc(var(--u)*.8)}
+  .dsend .a{font-size:calc(var(--u)*.9);font-weight:700;padding:calc(var(--u)*.35) calc(var(--u)*1);background:var(--gw-navy);color:#fff}
+  .dsend .dn{font-size:calc(var(--u)*.8);color:#5b6570}
+  /* animation states (the markup is the finished state; these only apply while it plays) */
+  .e0 .mrow.on{background:#fff;border-color:var(--gw-line)}
+  .e0 .mread{opacity:0}
+  .e0 .q,.e1:not(.e2) .q{background:transparent}
+  .e0 .stance .st.yes,.e1:not(.e3) .stance .st.yes{background:#fff;color:var(--gw-ink);border-color:var(--gw-line)}
+  .e0 .draft,.e1:not(.e3) .draft{opacity:0;transform:translateY(8px)}
+  /* slide 9 · newsletter: items in, draft assembled, a person approves (mail-news-anim.html) */
+  .app.news .news-body{flex:1;min-height:0;display:grid;grid-template-columns:34% 1fr;gap:calc(var(--u)*1.2);padding:calc(var(--u)*1.2)}
+  .nitems{display:flex;flex-direction:column;gap:calc(var(--u)*.45)}
+  .nitems .nh{font-family:var(--font-mono);font-size:calc(var(--u)*.75);letter-spacing:.1em;text-transform:uppercase;color:#5b6570;margin-bottom:2px}
+  .nitem{display:flex;flex-direction:column;background:#fff;border:1px solid var(--gw-line);border-left:3px solid var(--gw-line);padding:calc(var(--u)*.55) calc(var(--u)*.8);font-size:calc(var(--u)*.92);transition:border-color .3s,opacity .3s}
+  .nitem b{color:var(--gw-navy)}.nitem span{color:var(--gw-ink)}
+  .nitem em{font-style:normal;font-size:calc(var(--u)*.72);color:var(--gw-green);margin-top:2px}
+  .nprev{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1) calc(var(--u)*1.3);display:flex;flex-direction:column;gap:calc(var(--u)*.6);min-height:0}
+  .nmast{font-weight:700;font-size:calc(var(--u)*1.35);color:var(--gw-green);border-bottom:2px solid var(--gw-green);padding-bottom:calc(var(--u)*.4)}
+  .nmast span{font-weight:400;color:var(--gw-navy);margin-left:calc(var(--u)*.6);font-size:calc(var(--u)*1.05)}
+  .nopen{margin:0;font-size:calc(var(--u)*1.02);line-height:1.45;color:var(--gw-ink);border:1px dashed #c9a24a;background:#fffaf0;padding:calc(var(--u)*.5) calc(var(--u)*.7);transition:opacity .4s,transform .4s}
+  .nopen .ntag{display:block;font-size:calc(var(--u)*.72);font-weight:700;color:#7a5200;margin-bottom:2px}
+  .nsec{font-size:calc(var(--u)*.98);line-height:1.4;color:var(--gw-ink);transition:opacity .4s,transform .4s}
+  .nsec b{color:var(--gw-navy);margin-right:4px}
+  .napprove{display:none;gap:calc(var(--u)*.6);margin-top:auto}
+  .napprove .a,.app.news .a{font-size:calc(var(--u)*.9);font-weight:700;padding:calc(var(--u)*.4) calc(var(--u)*.9);border:1px solid var(--gw-line);color:var(--gw-ink)}
+  .napprove .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
+  .ndone{margin-top:auto;background:#e8f1e9;color:var(--gw-green);font-weight:700;font-size:calc(var(--u)*.95);padding:calc(var(--u)*.55) calc(var(--u)*.8)}
+  .n0 .nitem{opacity:.55}
+  .n0 .nopen,.n0 .nsec{opacity:0;transform:translateY(6px)}
+  .n1 .nitem[data-i="1"],.n2 .nitem[data-i="2"],.n3 .nitem[data-i="3"],.n4 .nitem[data-i="4"]{opacity:1;border-left-color:var(--gw-green)}
+  .n1 .nsec[data-i="1"],.n2 .nsec[data-i="2"],.n3 .nopen,.n4 .nsec[data-i="4"]{opacity:1;transform:none}
+  .n0:not(.n5) .napprove{display:flex}
+  .n0:not(.n5) .ndone{display:none}
+  .app.mail.replayable,.app.news.replayable{cursor:pointer}
+  @media print{.app .mcur{display:none}}
   /* reference links to the hosted pitch and audit */
   a.ref{color:inherit;text-decoration:underline;text-decoration-color:var(--color-text-muted);text-underline-offset:.25em;transition:color .2s,text-decoration-color .2s}
   a.ref:hover,a.ref:focus-visible{color:var(--color-text-primary);text-decoration-color:currentColor;outline:none}
@@ -555,8 +613,65 @@
     
   </section>
 
-  <!-- 8 · Ways to start (options, not an assumption) -->
+  <!-- 8 · Email: a general info inbox, sorted, with a reply a person sends (modelled on the real email agents) -->
   <section class="slide" data-n="8">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Email</div></div>
+    <h2 class="ap-display h2">Email, sorted <em>by morning.</em></h2>
+    <div class="app mail">
+      <div class="app-bar"><span class="app-title">Info inbox</span><span class="illus">Illustration · not a live system</span><span class="app-meta">7:00 am · sorted, with a reason for each</span></div>
+      <div class="mail-body">
+        <div class="mlist">
+          <div class="mrow on"><span class="lab you">Needs you</span><b>Pat L. · donor</b><span class="subj">Dropping off clothes and books?</span><span class="why">Asks a yes-or-no question about donating</span></div>
+          <div class="mrow"><span class="lab you">Needs you</span><b>Sam R. · new volunteer</b><span class="subj">Interested in tutoring students</span><span class="why">Asks how to get started</span></div>
+          <div class="mrow"><span class="lab wait">Waiting</span><b>Store team</b><span class="subj">Re: signage for Saturday’s sale</span><span class="why">You asked a question; waiting on their answer</span></div>
+          <div class="mrow"><span class="lab fyi">FYI</span><b>Community partner</b><span class="subj">October newsletter</span><span class="why">No reply needed</span></div>
+          <div class="mrow dim"><span class="lab low">Low</span><b>Office supplier</b><span class="subj">Save 20% this week</span><span class="why">Promotion, no action</span></div>
+        </div>
+        <div class="mread">
+          <div class="mhead"><b>Pat L.</b><span>Dropping off clothes and books?</span></div>
+          <p class="mtext">Hi! I cleared out a closet and have a few boxes of clothes and books. <mark class="q">Can I drop them off this weekend?</mark> Thanks, Pat</p>
+          <div class="stance"><span class="sl">It’s asking a yes-or-no question:</span><span class="st yes">Yes</span><span class="st">No</span><span class="st">Later</span><span class="st">Need more</span></div>
+          <div class="draft">
+            <span class="dl">Drafted in your voice · edit freely</span>
+            <p>Hi Pat, yes, thank you! You can drop them at any of our donation centers. Hours, locations and what we accept are all on our website. Thanks for supporting free job training in our community.</p>
+            <div class="dsend"><span class="a ok">Send</span><span class="dn">Nothing sends until a person presses Send.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+
+  <!-- 9 · Newsletter: items gathered through the month, assembled into a draft, approved, then sent from Constant Contact -->
+  <section class="slide" data-n="9">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Newsletters</div></div>
+    <h2 class="ap-display h2">Newsletters, drafted <em>from your month.</em></h2>
+    <div class="app news">
+      <div class="app-bar"><span class="app-title">Newsletter</span><span class="illus">Illustration · not a live system</span><span class="app-meta">Draft ready 5 days before it goes out</span></div>
+      <div class="news-body">
+        <div class="nitems">
+          <span class="nh">This month’s items</span>
+          <div class="nitem" data-i="1"><b>Happy Cartober</b><span>Donate your vehicle</span><em>Source: your homepage banner</em></div>
+          <div class="nitem" data-i="2"><b>Program spotlight</b><span>Adult Basic Education, free classes</span><em>Source: your Adult Education page</em></div>
+          <div class="nitem" data-i="3"><b>The year so far</b><span>6,403 students served in 2025</span><em>Source: your homepage</em></div>
+          <div class="nitem" data-i="4"><b>Volunteer with us</b><span>Tutor students one-on-one</span><em>Source: your Volunteer page</em></div>
+        </div>
+        <div class="nprev">
+          <div class="nmast">Evergreen Goodwill <span>Community update</span></div>
+          <p class="nopen"><span class="ntag">Draft opening · rewrite in your words</span>In 2025, you helped 6,403 students into free job training and education. Thank you.</p>
+          <div class="nsec" data-i="1"><b>Happy Cartober</b> Turn your unused vehicle into community impact.</div>
+          <div class="nsec" data-i="2"><b>Spotlight: Adult Basic Education</b> Free classes that prepare adults for today’s workplace.</div>
+          <div class="nsec" data-i="4"><b>Volunteer with us</b> Tutor students one-on-one or in small groups.</div>
+          <div class="napprove"><span class="a ok">Approve</span><span class="a">Reject with a reason</span><span class="a">Skip</span></div>
+          <div class="ndone">&#10003; Approved · build and send it from Constant Contact</div>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+
+  <!-- 10 · Ways to start (options, not an assumption) -->
+  <section class="slide" data-n="10">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 03 — Next</div></div>
     <h2 class="ap-display h2">A few ways to start. <em>Your call.</em></h2>
     <div class="opts">
@@ -836,13 +951,91 @@
 })();
 </script>
 <script>
+// Slides "Email, sorted by morning" (8) and "Newsletters, drafted from your month" (9): each plays once when its slide
+// comes on; click the mock-up (or press R) to play it again. Without motion (print, reduced motion) both slides show
+// their finished state, because the markup IS the finished state and the scripts only add "pre" classes at the start.
+(function () {
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cursor(host) {
+    var c = document.createElement('div'); c.className = 'mcur';
+    c.innerHTML = '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+    host.appendChild(c); return c;
+  }
+  function wire(n, setup) {
+    var s = document.querySelector('.slide[data-n="' + n + '"]'); if (!s || still) return;
+    var app = s.querySelector('.app'), cur = cursor(app), timers = [];
+    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+    function to(el, dx, dy, ms) {
+      var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
+      cur.style.transitionDuration = (ms || 650) + 'ms';
+      cur.style.left = (r.left - a.left + r.width * dx) + 'px'; cur.style.top = (r.top - a.top + r.height * dy) + 'px';
+    }
+    function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
+    var steps = setup(s, at, to, click, cur);
+    function reset() { timers.forEach(clearTimeout); timers = []; cur.classList.remove('show', 'press'); steps.reset(); }
+    function run() {
+      reset(); steps.pre();
+      var a = app.getBoundingClientRect();
+      cur.style.transitionDuration = '0ms'; cur.style.left = (a.width * 0.55) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
+      steps.play();
+    }
+    var wasOn = s.classList.contains('on');
+    new MutationObserver(function () {
+      var on = s.classList.contains('on'); if (on === wasOn) return;
+      wasOn = on; if (on) run(); else reset();
+    }).observe(s, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('beforeprint', reset);
+    (window.__replay = window.__replay || {})[n] = run;
+    app.classList.add('replayable'); app.title = 'Click to replay';
+    app.addEventListener('click', function (e) { e.stopPropagation(); run(); });
+    if (wasOn) run();
+  }
+
+  // 8 · the inbox: open Pat's email, light up the question, pick Yes, the reply appears
+  wire('8', function (s, at, to, click, cur) {
+    var row = s.querySelector('.mrow.on'), yes = s.querySelector('.st.yes'), send = s.querySelector('.dsend .a');
+    return {
+      reset: function () { s.classList.remove('e0', 'e1', 'e2', 'e3'); },
+      pre: function () { s.classList.add('e0'); },
+      play: function () {
+        at(500, function () { cur.classList.add('show'); to(row, 0.5, 0.55, 750); });
+        at(1350, function () { click(); s.classList.remove('e0'); s.classList.add('e1'); });
+        at(2100, function () { s.classList.add('e2'); });
+        at(2700, function () { to(yes, 0.5, 0.6, 700); });
+        at(3500, function () { click(); s.classList.add('e3'); });
+        at(4400, function () { to(send, 0.5, 0.65, 650); });
+        at(6000, function () { cur.classList.remove('show'); });
+      }
+    };
+  });
+
+  // 9 · the newsletter: items drop into the draft one by one, then a person approves it
+  wire('9', function (s, at, to, click, cur) {
+    var ok = s.querySelector('.napprove .a.ok');
+    return {
+      reset: function () { s.classList.remove('n0', 'n1', 'n2', 'n3', 'n4', 'n5'); },
+      pre: function () { s.classList.add('n0'); },
+      play: function () {
+        at(600, function () { s.classList.add('n1'); });
+        at(1300, function () { s.classList.add('n2'); });
+        at(2000, function () { s.classList.add('n3'); });
+        at(2700, function () { s.classList.add('n4'); });
+        at(3300, function () { cur.classList.add('show'); to(ok, 0.5, 0.6, 800); });
+        at(4300, function () { click(); s.classList.add('n5'); });
+        at(5600, function () { cur.classList.remove('show'); });
+      }
+    };
+  });
+})();
+</script>
+<script>
 // Replay for the animated slides: a quiet "Replay" button fades in once a slide's animation has finished, and the
 // R key replays the slide you're on. CSS-driven motion (bars, timeline) restarts through the Web Animations API;
 // the scripted ones (count-up, Monday morning, Say it once) register their run() in window.__replay.
 // Nothing loops. Print and reduced motion: no button.
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var DONE = { '5': 3600, '6': 6600, '7': 8200 };   // when each slide's motion has settled (ms)
+  var DONE = { '5': 3600, '6': 6600, '7': 8200, '8': 6200, '9': 5800 };   // when each slide's motion has settled (ms)
   window.__replay = window.__replay || {};
   var btns = {}, timers = {};
   function showLater(n) {
