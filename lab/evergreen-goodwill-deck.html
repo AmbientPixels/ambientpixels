@@ -799,7 +799,7 @@
 // Nothing loops. Print and reduced motion: no button.
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var DONE = { '2': 1900, '4': 2700, '5': 3600, '6': 5400, '7': 8200 };   // when each slide's motion has settled (ms)
+  var DONE = { '4': 2700, '5': 3600, '6': 5400, '7': 8200 };   // when each slide's motion has settled (ms)
   window.__replay = window.__replay || {};
   var btns = {}, timers = {};
   function showLater(n) {
