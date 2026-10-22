@@ -126,6 +126,8 @@
   .half.story{border-top:none;padding-top:0}
   .half.story .strip{width:100%;height:calc(var(--u)*8.5);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;opacity:.55;margin-bottom:calc(var(--u)*2)}
   .half.story .strip span{background-size:cover;background-position:center}
+  .half.story .strip{position:relative;opacity:.8}
+  .half.story .strip .credit{position:absolute;right:0;bottom:calc(var(--u)*-1.5);font-style:normal;font-family:var(--font-mono);font-size:calc(var(--u)*.7);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}
   /* above the 42: the three asks the page should be making, drawn as empty placeholders */
   .half.ask{border-top:none;padding-top:0}
   .half.ask .asks{width:100%;height:calc(var(--u)*8.5);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:calc(var(--u)*2)}
@@ -445,7 +447,7 @@
     <h2 class="ap-display h2">Your story is strong. <em>The page doesn’t ask.</em></h2>
     <div class="score">
       <div class="half story">
-        <div class="strip"><span style="background-image:url('goodwill/deck/p-career.jpg')"></span><span style="background-image:url('goodwill/deck/p-youth.jpg')"></span><span style="background-image:url('goodwill/deck/story.jpg')"></span></div>
+        <div class="strip"><span title="Learn" style="background-image:url('goodwill/deck/site/learn-classroom.jpg')"></span><span title="Work" style="background-image:url('goodwill/deck/site/work-warehouse.png')"></span><span title="Give" style="background-image:url('goodwill/deck/site/give-dropoff.jpg')"></span><em class="credit">Photos: evergreengoodwill.org</em></div>
         <div class="big g"><span class="count">72</span><span class="out">/ 100</span></div><div class="lab">Who you are</div>
       </div>
       <div class="half ask">
