@@ -295,7 +295,7 @@
   .fxm-demo .field{display:flex;align-items:center;padding:0 .7em;font-size:1em;color:#1d2b3a;overflow:hidden;white-space:nowrap}
   .fxm-demo .tick{display:flex;align-items:center;justify-content:center;background:#3e7845;color:#fff;font-size:.8em;font-weight:700;border-radius:2px;opacity:0;transition:opacity .15s}
   .fxm-demo .tick.on{opacity:1}
-  .fxm-demo .done{display:flex;flex-direction:column;justify-content:center;gap:.4em;padding:0 1.2em;background:#003e6f;color:#fff;border:3px solid #f6b73c;border-radius:4px;opacity:0;transition:opacity .4s;z-index:2}
+  .fxm-demo .done{display:flex;flex-direction:column;justify-content:center;gap:.4em;padding:0 1.2em;background:#003e6f;color:#fff;border:none;border-radius:0;box-shadow:0 0 0 6px #003e6f;opacity:0;transition:opacity .4s;z-index:2}
   .fxm-demo .done.on{opacity:1}
   .fxm-demo .done b{font-size:1.35em}
   .fxm-demo .done span{font-size:1em;color:#d6e0ee}
@@ -653,7 +653,6 @@
   function play() {
     stop(); if (still) return; active = true; fit(); layer.classList.add('on');
     var cur = el('cur', null, '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>');
-    var ringForm = el('ring glow', R.form);
     var first = el('field', R.first), email = el('field', R.email), tick = el('tick', R.check, '&#10003;');
     var done = el('done', R.form, '<b>Thanks, Alex!</b><span>You\'re signed up for program updates.</span>');
     function move(p, ms) { cur.style.transitionDuration = (ms || 600) + 'ms'; cur.style.left = p.x + '%'; cur.style.top = p.y + '%'; }
@@ -661,7 +660,6 @@
     function type(field, text, per) { for (var i = 1; i <= text.length; i++) (function (i) { at(per * i, function () { field.textContent = text.slice(0, i); }); })(i); }
     cur.style.transitionDuration = '0ms'; cur.style.left = '62%'; cur.style.top = '92%';
     at(50, function () { cur.classList.add('show'); });
-    at(300, function () { ringForm.classList.add('on'); });
     at(900, function () { move(centre(R.first, 0.3), 750); });
     at(1750, function () { click(); type(first, 'Alex', 110); });
     at(2400, function () { move(centre(R.email, 0.3), 550); });
@@ -670,7 +668,7 @@
     at(4700, function () { click(); tick.classList.add('on'); });
     at(5000, function () { move(centre(R.btn, 0.55), 500); });
     at(5600, function () { click(); });
-    at(5800, function () { ringForm.classList.remove('on'); done.classList.add('on'); });
+    at(5800, function () { done.classList.add('on'); });
     at(7000, function () { cur.classList.remove('show'); });
   }
   window.FXMDemo = {
