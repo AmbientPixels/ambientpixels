@@ -253,6 +253,25 @@
   .fxm-rows span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-tertiary)}
   .fxm-rows p{margin:6px 0 0;font-size:16px;line-height:1.5;color:var(--color-text-body)}
   @media print{.fxm{display:none}}
+  /* fix 02: the signup shown working on the picture (fxm-demo.html) */
+  .fxm-imgbox{position:relative}
+  .fxm-demo{position:absolute;pointer-events:none;display:none;font-family:"Libre Franklin","Helvetica Neue",sans-serif}
+  .fxm-demo.on{display:block}
+  .fxm-demo .fd{position:absolute;box-sizing:border-box}
+  .fxm-demo .cur{width:2.1em;height:2.8em;margin:0;opacity:0;transform-origin:8% 8%;transition-property:left,top,opacity,transform;transition-timing-function:cubic-bezier(.4,0,.2,1),cubic-bezier(.4,0,.2,1),ease,ease;z-index:3}
+  .fxm-demo .cur svg{width:100%;height:100%;display:block}
+  .fxm-demo .cur.show{opacity:1}
+  .fxm-demo .cur.press{transform:scale(.86)}
+  .fxm-demo .ring{border-radius:6px;opacity:0;transition:opacity .35s, box-shadow .6s}
+  .fxm-demo .ring.on{opacity:1;box-shadow:0 0 0 .45em rgba(246,183,60,.35)}
+  .fxm-demo .field{display:flex;align-items:center;padding:0 .7em;font-size:1em;color:#1d2b3a;overflow:hidden;white-space:nowrap}
+  .fxm-demo .tick{display:flex;align-items:center;justify-content:center;background:#3e7845;color:#fff;font-size:.8em;font-weight:700;border-radius:2px;opacity:0;transition:opacity .15s}
+  .fxm-demo .tick.on{opacity:1}
+  .fxm-demo .done{display:flex;flex-direction:column;justify-content:center;gap:.4em;padding:0 1.2em;background:#003e6f;color:#fff;border:3px solid #f6b73c;border-radius:4px;opacity:0;transition:opacity .4s;z-index:2}
+  .fxm-demo .done.on{opacity:1}
+  .fxm-demo .done b{font-size:1.35em}
+  .fxm-demo .done span{font-size:1em;color:#d6e0ee}
+  .fxm-replay{margin-right:10px}
   /* slide "Say it once": typed-reason animation (static finished state without it) */
   .learn .card.faded{position:relative}
   .rbox{display:flex;align-items:center;border:1.5px solid transparent;margin-left:-10px;padding:3px 10px;min-height:1.5em;transition:border-color .3s}
@@ -474,8 +493,8 @@
 </div>
 <div class="fxm" id="fxm" hidden>
   <div class="fxm-card" role="dialog" aria-modal="true" aria-labelledby="fxm-title">
-    <div class="fxm-top"><span class="fxm-n" id="fxm-n"></span><h3 id="fxm-title"></h3><button type="button" class="fxm-x" id="fxm-x">Close</button></div>
-    <img id="fxm-img" alt="">
+    <div class="fxm-top"><span class="fxm-n" id="fxm-n"></span><h3 id="fxm-title"></h3><button type="button" class="fxm-x fxm-replay" id="fxm-replay" hidden>&#9654; Replay</button><button type="button" class="fxm-x" id="fxm-x">Close</button></div>
+    <div class="fxm-imgbox" id="fxm-imgbox"><img id="fxm-img" alt=""><div class="fxm-demo" id="fxm-demo" aria-hidden="true"></div></div>
     <div class="fxm-rows">
       <div><span>What changes</span><p id="fxm-what"></p></div>
       <div><span>Why it matters</span><p id="fxm-why"></p></div>
@@ -493,8 +512,8 @@
       why: 'It is the front door for the people the mission exists to serve, and today it does not say what is on offer.',
       measure: 'Clicks to apply or register.' },
     '2': { title: 'Newsletter on your own site', img: 'goodwill/deck/03-newsletter.png',
-      what: 'The footer link "Sign up for Newsletter", which leaves your site for a donorperfect.net address, becomes a signup on your own site, in the same footer, connected to the newsletter system you already use. Interests and store preferences are kept. The picture shows one possible look.',
-      why: 'An unfamiliar web address at the moment someone commits reads as a risk, and some people stop there.',
+      what: 'The footer link "Sign up for Newsletter", which leaves your site for a donorperfect.net address, is replaced by the signup form itself, right in the footer: no link to click, no new page. It connects to the newsletter system you already use, and "Choose topics and your store" keeps interests and store preferences. The picture shows one possible look.',
+      why: 'Every extra step loses people: a click, a new page, a web address they don\'t recognize. A form already on the page, asking only for a name and email, is the shortest path from "I\'d like updates" to signed up.',
       measure: 'Newsletter sign-ups.' },
     '3': { title: 'Shop button names the mission', img: 'goodwill/deck/02-shop-button.png',
       what: 'The "Shop Now" button in the Shop online band becomes "Shop Online: Every Purchase Supports Free Job Training".',
@@ -515,8 +534,9 @@
     document.getElementById('fxm-why').textContent = f.why;
     document.getElementById('fxm-measure').textContent = f.measure;
     last = row; m.hidden = false; document.getElementById('fxm-x').focus();
+    if (window.FXMDemo) window.FXMDemo.open(id);
   }
-  function close() { m.hidden = true; if (last) last.focus(); }
+  function close() { if (window.FXMDemo) window.FXMDemo.stop(); m.hidden = true; if (last) last.focus(); }
   document.querySelectorAll('.fix[data-fix], .mv .fx [data-fix]').forEach(function (row) {
     row.setAttribute('tabindex', '0'); row.setAttribute('role', 'button');
     row.addEventListener('click', function (e) { e.stopPropagation(); open(row.dataset.fix, row); });
@@ -528,6 +548,67 @@
     e.stopImmediatePropagation();
     if (e.key === 'Escape') { e.preventDefault(); close(); }
   }, true);
+})();
+</script>
+<script>
+// Fix 02 panel: a mouse shows the proposed footer signup working on the "after" picture. It fills in a name and email, ticks the 18+ box and presses Sign up. Targets are measured from the mockup source
+// (nl-measure.js), as % of the image, so they land on the picture at any size. Plays when panel 02 opens; Replay
+// runs it again; closing the panel stops it. Reduced motion: the picture stays still.
+(function () {
+  var R = {"size":[1400,640],"form":{"x":69.8,"y":29.84,"w":25.71,"h":24.26},"first":{"x":69.8,"y":37.23,"w":12.57,"h":5.94},"email":{"x":82.94,"y":37.23,"w":12.57,"h":5.94},"check":{"x":69.8,"y":44.41,"w":1.14,"h":2.5},"btn":{"x":69.8,"y":48.16,"w":5.89,"h":5.94}};
+  var box = document.getElementById('fxm-imgbox'), img = document.getElementById('fxm-img'),
+      layer = document.getElementById('fxm-demo'), replay = document.getElementById('fxm-replay');
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var timers = [], active = false;
+  function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function el(cls, r, html) {
+    var d = document.createElement('div'); d.className = 'fd ' + cls;
+    if (r) { d.style.left = r.x + '%'; d.style.top = r.y + '%'; d.style.width = r.w + '%'; d.style.height = r.h + '%'; }
+    if (html) d.innerHTML = html; layer.appendChild(d); return d;
+  }
+  // the picture is letterboxed (object-fit: contain), so the layer is fitted to the image's own box
+  function fit() {
+    var bw = img.clientWidth, bh = img.clientHeight, nr = img.naturalWidth / img.naturalHeight || 1, w = bw, h = bw / nr;
+    if (h > bh) { h = bh; w = bh * nr; }
+    layer.style.left = (img.offsetLeft + (bw - w) / 2) + 'px'; layer.style.top = (img.offsetTop + (bh - h) / 2) + 'px';
+    layer.style.width = w + 'px'; layer.style.height = h + 'px';
+    layer.style.fontSize = (h * 0.024) + 'px';
+  }
+  function stop() { timers.forEach(clearTimeout); timers = []; layer.innerHTML = ''; layer.classList.remove('on'); active = false; }
+  function centre(r, dx, dy) { return { x: r.x + r.w * (dx == null ? 0.5 : dx), y: r.y + r.h * (dy == null ? 0.6 : dy) }; }
+  function play() {
+    stop(); if (still) return; active = true; fit(); layer.classList.add('on');
+    var cur = el('cur', null, '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>');
+    var ringForm = el('ring glow', R.form);
+    var first = el('field', R.first), email = el('field', R.email), tick = el('tick', R.check, '&#10003;');
+    var done = el('done', R.form, '<b>Thanks, Alex!</b><span>You\'re signed up for program updates.</span>');
+    function move(p, ms) { cur.style.transitionDuration = (ms || 600) + 'ms'; cur.style.left = p.x + '%'; cur.style.top = p.y + '%'; }
+    function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
+    function type(field, text, per) { for (var i = 1; i <= text.length; i++) (function (i) { at(per * i, function () { field.textContent = text.slice(0, i); }); })(i); }
+    cur.style.transitionDuration = '0ms'; cur.style.left = '62%'; cur.style.top = '92%';
+    at(50, function () { cur.classList.add('show'); });
+    at(300, function () { ringForm.classList.add('on'); });
+    at(900, function () { move(centre(R.first, 0.3), 750); });
+    at(1750, function () { click(); type(first, 'Alex', 110); });
+    at(2400, function () { move(centre(R.email, 0.3), 550); });
+    at(3050, function () { click(); type(email, 'alex@example.org', 55); });
+    at(4100, function () { move(centre(R.check, 0.5, 0.55), 550); });
+    at(4700, function () { click(); tick.classList.add('on'); });
+    at(5000, function () { move(centre(R.btn, 0.55), 500); });
+    at(5600, function () { click(); });
+    at(5800, function () { ringForm.classList.remove('on'); done.classList.add('on'); });
+    at(7000, function () { cur.classList.remove('show'); });
+  }
+  window.FXMDemo = {
+    open: function (id) {
+      stop(); replay.hidden = !(id === '2' && !still);
+      if (id !== '2') return;
+      if (img.complete && img.naturalWidth) play(); else img.addEventListener('load', function once() { img.removeEventListener('load', once); if (!document.getElementById('fxm').hidden) play(); });
+    },
+    stop: function () { stop(); replay.hidden = true; }
+  };
+  replay.addEventListener('click', function (e) { e.stopPropagation(); play(); });
+  window.addEventListener('resize', function () { if (active) fit(); });
 })();
 </script>
 <svg class="ptr" id="s8ptr" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.6 1.1 3.9 7.4-3 1.5-3.9-7.5L4 20z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
