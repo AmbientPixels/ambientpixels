@@ -393,7 +393,7 @@
   /* Replay (replay.html): quiet, bottom right, only once the animation has finished */
   .replay-s{position:absolute;right:calc(var(--u)*2.2);bottom:calc(var(--u)*1.6 + 26px);z-index:6;background:none;border:1px solid var(--color-border);color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:calc(var(--u)*.8);letter-spacing:.1em;text-transform:uppercase;padding:calc(var(--u)*.3) calc(var(--u)*.7);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s}
   .replay-s.show{opacity:.7;pointer-events:auto}
-  .learn .card.replayable{cursor:pointer}
+  .learn .card.replayable,.app .card.replayable{cursor:pointer}
   .replay-s:hover,.replay-s:focus-visible{opacity:1;color:var(--color-text-primary);border-color:var(--color-text-tertiary);outline:none}
   @media print{.replay-s{display:none}}
   /* reference links to the hosted pitch and audit */
@@ -802,6 +802,8 @@
   }).observe(s, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('beforeprint', reset);
   (window.__replay = window.__replay || {})['6'] = run;
+  // click any card to play it again (without the click also changing slide)
+  cards.forEach(function (c) { c.classList.add('replayable'); c.title = 'Click to replay'; c.addEventListener('click', function (e) { e.stopPropagation(); run(); }); });
   if (wasOn) run();
 })();
 </script>
