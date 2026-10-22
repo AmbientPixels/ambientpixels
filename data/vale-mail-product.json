@@ -11,7 +11,7 @@
     "address": "vale@ambientpixels.ai"
   },
   "tenantId": "96bfe658-4094-4192-88f8-5b0874471c7e",
-  "clientId": "",
+  "clientId": "d22ac45a-4c74-44d0-8ac1-bb6833e320de",
   "valeScope": "api://b3abb7ff-5838-4bd7-97f1-205ab3237185/access_as_user",
   "authRedirectPath": "/pages/vale-auth.html",
   "mailbox": "chad@ambientpixels.ai",
