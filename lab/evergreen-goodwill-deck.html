@@ -207,7 +207,8 @@
   .acts{display:flex;gap:calc(var(--u)*.6)}
   .acts .a{font-size:calc(var(--u)*.95);font-weight:700;padding:calc(var(--u)*.45) calc(var(--u)*.9);border:1px solid var(--gw-line);color:var(--gw-ink)}
   .acts .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
-  .learn{flex:1;min-height:0;margin-top:calc(var(--u)*2.4);display:grid;grid-template-columns:1fr auto 1fr;gap:calc(var(--u)*2);align-items:start;flex:0 0 auto}
+  .learn{flex:1;min-height:0;margin-top:calc(var(--u)*2.4);display:grid;grid-template-columns:1fr auto 1fr;gap:calc(var(--u)*2);align-items:stretch;flex:0 0 auto}
+  .learn .lcol > .card{flex:1}
   .learn .card.faded p{color:#7a8794}
   .reason{border-top:1px solid var(--gw-line);padding-top:calc(var(--u)*1);font-size:calc(var(--u)*1.45);font-weight:700;color:#8c2f1e}
   .reason mark.why{background:#f6ddd5;color:#8c2f1e;padding:2px 8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
