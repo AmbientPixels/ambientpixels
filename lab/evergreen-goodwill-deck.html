@@ -242,7 +242,10 @@
   .rej{margin-left:auto;background:#f3e6e3;color:#8c2f1e;font-weight:700;padding:2px 8px}
   .card p{font-size:calc(var(--u)*1.3);line-height:1.5;margin:calc(var(--u)*1) 0;flex:1}
   .app .card p{font-size:calc(var(--u)*1.22);line-height:1.45;margin:calc(var(--u)*.8) 0}
-  .card mark{background:#e8f1e9;color:var(--gw-ink);padding:0 2px}
+  /* one colour, one meaning: blue = what changed (an edit, a rewrite, a note followed); amber = what the AI found or
+     wrote (slides 9 and 10). Facts from their site are plain text (each card names its source). */
+  .card mark{background:none;color:inherit;padding:0}
+  .card mark.chg{background:#e7eef6;color:var(--gw-navy);padding:0 2px;text-decoration:none}
   .acts{display:flex;gap:calc(var(--u)*.6)}
   .acts .a{font-size:calc(var(--u)*.95);font-weight:700;padding:calc(var(--u)*.45) calc(var(--u)*.9);border:1px solid var(--gw-line);color:var(--gw-ink)}
   .acts .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
@@ -250,7 +253,7 @@
   .learn .lcol > .card{flex:1}
   .learn .card.faded p{color:#7a8794}
   .reason{border-top:1px solid var(--gw-line);padding-top:calc(var(--u)*1);font-size:calc(var(--u)*1.45);font-weight:700;color:#8c2f1e}
-  .reason mark.why{background:#f6ddd5;color:#8c2f1e;padding:2px 8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .reason mark.why{text-decoration:none;background:#f6ddd5;color:#8c2f1e;padding:2px 8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
   .reason > span{display:block;font-weight:400;font-size:calc(var(--u)*.9);letter-spacing:.12em;text-transform:uppercase;color:#5b6570;margin-bottom:4px}
   .arrowbig{align-self:center;font-weight:900;font-size:calc(var(--u)*4);color:var(--color-text-muted)}
 
@@ -285,14 +288,17 @@
   .fix.head .hint{font-family:var(--font-mono);font-size:calc(var(--u)*.75);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}
   .fxm{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:24px}
   .fxm[hidden]{display:none}
-  .fxm-card{background:#141414;border:1px solid var(--color-border);width:min(1180px,96vw);max-height:94vh;overflow:auto;padding:22px 26px 24px}
-  .fxm-top{display:flex;align-items:baseline;gap:16px;margin-bottom:14px}
+  /* the before/after picture gets the panel's full width and nearly all of its height, so it can be read over a Teams
+     screen share; the text sits below it (scroll the panel on a short screen; the presenter says it out loud) */
+  .fxm-card{background:#141414;border:1px solid var(--color-border);width:96vw;max-height:94vh;overflow:auto;padding:16px 22px 20px}
+  .fxm-top{display:flex;align-items:baseline;gap:16px;margin-bottom:12px}
   .fxm-n{font-family:var(--font-heavy);font-size:34px;opacity:.3;letter-spacing:-0.04em}
   .fxm-top h3{margin:0;font-weight:900;font-size:28px;letter-spacing:-0.025em;flex:1}
   .fxm-x{background:none;border:1px solid var(--color-border);color:var(--color-text-primary);font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 14px;cursor:pointer}
   .fxm-x:hover{background:var(--color-text-primary);color:var(--color-bg)}
-  .fxm-card img{display:block;width:100%;height:auto;background:#fff;max-height:min(58vh, calc(94vh - 420px));object-fit:contain}
+  .fxm-card img{display:block;width:100%;height:auto;max-height:calc(94vh - 100px);object-fit:contain}
   .fxm-rows{display:grid;grid-template-columns:1.4fr 1fr .7fr;gap:24px;margin-top:16px;border-top:1px solid var(--color-border);padding-top:14px}
+  @media (max-width:760px){.fxm-rows{grid-template-columns:1fr}}
   .fxm-rows span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-tertiary)}
   .fxm-what{margin-top:6px;font-size:16px;line-height:1.5;color:var(--color-text-body)}
   .fxm-what ol.nums{list-style:none;margin:0;padding:0;counter-reset:n}
@@ -352,10 +358,18 @@
   .rej,.arrowbig,.learn .lcol:last-child{transition:opacity .6s,transform .6s}
   .s8done .arrowbig{transition-delay:.1s}
   .s8done .learn .lcol:last-child{transition-delay:.4s}
-  .s8done .learn .lcol:last-child .card mark{animation:s8glow 1s 1.1s both}
+  /* slide 8: the next draft starts as the old one, then the agent rewrites it: the text dims while it works, the new
+     draft appears at once and its change is swept blue */
+  .learn .card p{transition:opacity .3s}
+  .learn .card.s8swap p{opacity:.3}
+  .learn .follows{transition:opacity .4s}
+  .learn .follows.working{color:var(--gw-navy)}
+  /* an agent's change: the blue highlight sweeps in left to right (a person's edit types in instead) */
+  .card mark.chg.sweep{background:linear-gradient(#e7eef6,#e7eef6) no-repeat 0 0 / 0% 100%;animation:chgSweep .7s ease-out .1s forwards}
+  @keyframes chgSweep{to{background-size:100% 100%}}
   .s8done .reason mark.why{animation:s8mark .5s both}
   @keyframes s8blink{50%{opacity:0}}
-  @keyframes s8glow{from{background:transparent}to{background:#e8f1e9}}
+  @keyframes s8glow{from{background:transparent}to{background:#e7eef6}}
   @keyframes s8mark{from{background:transparent}to{background:#f6ddd5}}
   @media print{.ptr{display:none}}
   /* gentle entry motion: replays each time a slide comes on (.on) */
@@ -435,6 +449,11 @@
   .m-ask .m-lbl{font-size:calc(var(--u)*.8);color:#5b6570}
   .m-ask .m-txt{font-size:calc(var(--u)*1.05);color:var(--gw-ink);min-height:1.3em}
   .card.m2 .m-ask{opacity:1;transform:none}
+  /* card 2 after the rewrite: the text fades over to the warmer draft, and a line says which note it followed */
+  .app .card p{transition:opacity .25s}
+  .card.m-swap p{opacity:0}
+  .m-follow{display:none;font-size:calc(var(--u)*.85);font-weight:700;color:var(--gw-navy);margin:0 0 calc(var(--u)*.7)}
+  .card.m4 .m-follow{display:block}
   .m-ask .m-send{margin-left:auto;font-size:calc(var(--u)*.85);font-weight:700;background:var(--gw-navy);color:#fff;padding:calc(var(--u)*.3) calc(var(--u)*.8)}
   .m-ask .m-sent{display:none;font-weight:700;color:var(--gw-navy);font-size:calc(var(--u)*.95)}
   .card.m3 .m-ask{background:#eaf0f8}
@@ -549,6 +568,14 @@
   .nlm-foot .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
   .nlm-send{font-size:13px;color:#5b6570;margin-left:4px}
   @media print{.nl-thumb,.nlm{display:none}}
+  /* the loop back from "Who decides" to "Who writes what" (as on slide 6): a second grid row spanning columns 3-5,
+     a subgrid so its ends sit under the centres of those two columns at any width */
+  .nret{grid-column:3 / 6;grid-row:2;display:grid;grid-template-columns:subgrid;position:relative;height:calc(var(--u)*2.2);margin-top:calc(var(--u)*-1.2)}
+  .nret i{border-bottom:1px solid var(--color-text-tertiary)}
+  .nret .a{margin-left:50%;border-left:1px solid var(--color-text-tertiary);border-bottom-left-radius:calc(var(--u)*1.1);position:relative}
+  .nret .a::before{content:'';position:absolute;left:calc(var(--u)*-.45 - .5px);top:calc(var(--u)*-.2);border:calc(var(--u)*.45) solid transparent;border-bottom:calc(var(--u)*.8) solid var(--color-text-tertiary);border-top:none}
+  .nret .c{margin-right:50%;border-right:1px solid var(--color-text-tertiary);border-bottom-right-radius:calc(var(--u)*1.1)}
+  .nret .lbl{position:absolute;left:50%;bottom:0;transform:translate(-50%,50%);padding:0 calc(var(--u)*.7);background:var(--color-bg);font-style:italic;font-size:calc(var(--u)*1.3);color:var(--color-text-secondary);white-space:nowrap}
   .rh-lbl{font-family:var(--font-mono);font-size:calc(var(--u)*1.05);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary);padding-top:.35em}
   .rh{font-size:calc(var(--u)*1.3);line-height:1.4;color:var(--color-text-secondary)}
   .rh b{display:block;font-weight:900;color:var(--color-text-primary);font-size:calc(var(--u)*1.6);letter-spacing:-0.02em;margin-bottom:calc(var(--u)*.3)}
@@ -559,7 +586,8 @@
     .slide.on .nflow .farrow{animation:fadeIn .4s ease-out both}
     .slide.on .nflow .farrow:nth-child(2){animation-delay:.45s}
     .slide.on .nflow .farrow:nth-child(4){animation-delay:1.15s}
-    .slide.on .rhythms{animation:riseIn .6s ease-out 2.1s both}
+    .slide.on .nflow .nret{animation:fadeIn .5s ease-out 1.9s both}
+    .slide.on .rhythms{animation:riseIn .6s ease-out 2.4s both}
   }
   @media print{.app .mcur{display:none}}
   /* reference links to the hosted pitch and audit */
@@ -697,7 +725,7 @@
       <div class="arrowbig">→</div>
       <div class="lcol"><div class="steplab"><b>3</b>Your note is applied to the next draft</div>
       <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 9/10</span></div>
-        <p><mark>Free job training, powered by your donations.</mark> Clearing out a closet? Those clothes could help someone start a new career: donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
+        <p><mark class="chg">Free job training, powered by your donations.</mark> Clearing out a closet? Those clothes could help someone start a new career: donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
         <div class="follows">&#10003; Following your note: “Lead with free job training, every time.”</div>
         <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div></div>
     </div>
@@ -742,7 +770,7 @@
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Newsletters</div></div>
     <h2 class="ap-display h2">How a newsletter <em>gets made.</em></h2>
     <button type="button" class="nl-thumb" aria-label="Open a sample issue"><span class="nt-page"><i class="nt-mast"></i><i class="nt-open"></i><i></i><i></i><i class="nt-short"></i></span><span class="nt-lab">See a sample issue<em>Click to open</em></span></button>
-    <div class="nflow" role="img" aria-label="Facts come from your website, your team's items and standing sections. They go in word for word; the AI suggests only the opening. Your team approves, rejects with a reason or skips, and a person sends it from Constant Contact.">
+    <div class="nflow" role="img" aria-label="Facts come from your website, your team's items and standing sections. They go in word for word; the AI suggests only the opening. Your team approves, rejects with a reason or skips, and a person sends it from Constant Contact. Your reasons for rejecting one shape the next opening.">
       <div class="fcol"><span class="when">01 · Where it comes from</span>
         <div class="fitem"><b>Your website</b>Programs, stores, 6,403 students</div>
         <div class="fitem"><b>Your team’s items</b>One line each, added through the month</div>
@@ -750,11 +778,12 @@
       <div class="farrow" aria-hidden="true">→</div>
       <div class="fcol"><span class="when">02 · Who writes what</span>
         <div class="fitem"><b>Your facts go in word for word</b>Never rewritten, never invented.</div>
-        <div class="fitem ai"><b>The AI suggests only the opening</b>Marked “rewrite me” for your team.</div></div>
+        <div class="fitem ai"><b>The AI suggests only the opening</b>Clearly labelled, for your team to put in their own words.</div></div>
       <div class="farrow" aria-hidden="true">→</div>
       <div class="fcol you"><span class="when">03 · Who decides</span>
         <div class="fdec"><span class="ok">Approve</span><span>Reject with a reason</span><span>Skip</span></div>
         <div class="fitem"><b>A person sends it</b>From Constant Contact, which you already have. Nothing sends on its own.</div></div>
+      <div class="nret" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><span class="lbl">Your reasons shape the next opening</span></div>
     </div>
     <div class="rhythms">
       <span class="rh-lbl">Three rhythms</span>
@@ -774,8 +803,8 @@
       <div class="opt"><div class="n">02</div><h3>We <em>build it.</em></h3><p>With access to your site, we make the changes too. One less thing on your team’s plate.</p></div>
       <div class="opt"><div class="n">03</div><h3>Start with <em>one fix.</em></h3><p>Just the Apply link and headline. A small first step to see how we work together.</p></div>
     </div>
-    <p class="also"><strong>Try it first, before you commit to anything.</strong> A working prototype in a test sandbox, built from your own pages: a week of posts, a newsletter draft and a sorted sample inbox. Your team marks each one yes or “no, because…”. No live accounts; nothing posts or sends.</p>
-    <p class="proof">If it helps: <strong>start with one fix, and try the agents in a sandbox alongside it.</strong> Or something else entirely: what fits how your team works?</p>
+    <p class="also"><strong>Try the agents first.</strong> A test sandbox built from your own pages: a week of posts, a newsletter draft and a sample inbox, for your team to mark up. Nothing posts or sends.</p>
+    <p class="proof">If it helps: <strong>start with one fix, with the sandbox alongside it.</strong> Or tell us what fits how your team works.</p>
     
   </section>
 
@@ -783,11 +812,13 @@
 <div class="fxm" id="fxm" hidden>
   <div class="fxm-card" role="dialog" aria-modal="true" aria-labelledby="fxm-title">
     <div class="fxm-top"><span class="fxm-n" id="fxm-n"></span><h3 id="fxm-title"></h3><button type="button" class="fxm-x fxm-replay" id="fxm-replay" hidden>&#9654; Replay</button><button type="button" class="fxm-x" id="fxm-x">Close</button></div>
+    <div class="fxm-body">
     <div class="fxm-imgbox" id="fxm-imgbox"><img id="fxm-img" alt=""><div class="fxm-demo" id="fxm-demo" aria-hidden="true"></div></div>
     <div class="fxm-rows">
       <div><span>What changes</span><div class="fxm-what" id="fxm-what"></div></div>
       <div><span>Why it matters</span><p id="fxm-why"></p></div>
       <div><span>We'd measure</span><p id="fxm-measure"></p></div>
+    </div>
     </div>
   </div>
 </div>
@@ -901,13 +932,17 @@
 <svg class="ptr" id="s8ptr" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.6 1.1 3.9 7.4-3 1.5-3.9-7.5L4 20z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
 <script>
 // Slide "Say it once": each time the slide is shown (or its left card is clicked), a pointer clicks Reject on a normal-looking draft, the reason box
-// takes the buttons' place, it types the reason, saves it, and the next draft appears following it.
+// takes the buttons' place, it types the reason, saves it, and the next draft changes in front of you: it starts as
+// the same draft, then the agent rewrites it ("Rewriting with your note…", the text dims), the new draft appears at
+// once and the blue highlight sweeps over what changed, then "Following your note" shows. No typing: the agent did it.
 // Without motion (print, reduced motion) the slide is the static finished state.
 (function () {
   var s = document.querySelector('.slide[data-n="8"]'); if (!s) return;
   var card = s.querySelector('.learn .card.faded'), box = s.querySelector('.rbox'),
       typed = s.querySelector('.rbox .typed'), send = s.querySelector('.rbox .send'), rej = s.querySelector('.acts-l .rj'),
       ptr = document.getElementById('s8ptr'), full = typed.textContent, timers = [];
+  var right = s.querySelector('.learn .lcol:last-child .card'), rp = right.querySelector('p'), follows = right.querySelector('.follows');
+  var finalHTML = rp.innerHTML, before = card.querySelector('p').innerHTML, followsHTML = follows.innerHTML;
   card.appendChild(ptr);
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
@@ -917,10 +952,15 @@
     ptr.style.top = (r.top - c.top + r.height * dy) + 'px';
   }
   function click() { ptr.classList.add('click'); at(140, function () { ptr.classList.remove('click'); }); }
-  function stop() { timers.forEach(clearTimeout); timers = []; s.classList.remove('s8run', 's8pre', 's8typed', 's8done'); typed.textContent = full; }
+  function stop() {
+    timers.forEach(clearTimeout); timers = []; s.classList.remove('s8run', 's8pre', 's8typed', 's8done'); typed.textContent = full;
+    right.classList.remove('s8swap'); rp.innerHTML = finalHTML;
+    follows.innerHTML = followsHTML; follows.classList.remove('working'); follows.style.opacity = '';
+  }
   function run() {
     stop();
     typed.textContent = ''; s.classList.add('s8run', 's8pre');
+    rp.innerHTML = before; follows.style.opacity = '0';   // the next draft starts as the same draft
     ptr.style.transition = 'none'; ptr.style.left = '88%'; ptr.style.top = '18%';
     void ptr.offsetWidth; ptr.style.transition = '';
     at(500, function () { moveTo(rej, .55, .65); });
@@ -934,6 +974,14 @@
     at(t, function () { s.classList.add('s8typed'); moveTo(send, .5, .6); });
     at(t + 800, click);
     at(t + 950, function () { s.classList.remove('s8run', 's8typed'); s.classList.add('s8done'); });
+    // then the agent rewrites it: a working line, the text dims, the new draft appears and its change is swept blue
+    var d = t + 950 + 1300;
+    at(d, function () {
+      follows.innerHTML = '&#8635; Rewriting with your note…'; follows.classList.add('working'); follows.style.opacity = '1';
+      right.classList.add('s8swap');
+    });
+    at(d + 1000, function () { rp.innerHTML = finalHTML.replace('class="chg"', 'class="chg sweep"'); right.classList.remove('s8swap'); });
+    at(d + 1800, function () { follows.classList.remove('working'); follows.innerHTML = followsHTML; });
   }
   // React only to the slide turning on or off, not to our own class changes.
   var wasOn = s.classList.contains('on');
@@ -990,7 +1038,8 @@
 </script>
 <script>
 // Slide "Monday morning": three drafts wait, and each card is its own short movie, played by clicking it (click again
-// to replay): 1 approve, 2 ask for a rewrite ("Make it warmer.", sent, "a new draft is on its way"), 3 fix a word in
+// to replay): 1 approve, 2 ask for a rewrite ("Make it warmer.", sent, and the rewritten draft comes back, as the real tool
+// returns it straight away), 3 fix a word in
 // the text, then approve. Nothing plays when the slide comes on, so the presenter sets the pace; R or the Replay
 // button plays all three in order. Positions are read at run time (fonts are loaded by then).
 // Print and reduced motion: the static slide.
@@ -1004,8 +1053,13 @@
   function addDone(card, text) { var d = document.createElement('div'); d.className = 'm-done'; d.innerHTML = '&#10003; ' + text; card.appendChild(d); }
   addDone(cards[0], 'Approved · ready for your team to post');
   addDone(cards[2], 'Edited and approved · ready to post');
-  var ask = document.createElement('div'); ask.className = 'm-ask'; ask.innerHTML = '<span class="m-lbl">Rewrite:</span><span class="m-txt"></span><b class="m-send">Send</b><span class="m-sent">&#8635; Rewrite requested · a new draft is on its way</span>';
+  var ask = document.createElement('div'); ask.className = 'm-ask'; ask.innerHTML = '<span class="m-lbl">Rewrite:</span><span class="m-txt"></span><b class="m-send">Send</b><span class="m-sent">&#8635; Rewriting…</span>';
   cards[1].appendChild(ask);
+  // the rewritten draft: the same facts from their site, warmer, and the line that says which note it followed
+  var p2 = cards[1].querySelector('p'), p2Text = p2.innerHTML;
+  var p2Warm = 'Going back to school as an adult takes courage<mark class="chg sweep">, and we’re cheering you on</mark>. Our <mark>free</mark> Adult Basic Education classes and workshops help <mark class="chg sweep">you</mark> get ready for <mark>today’s workplace</mark>, across <mark>five counties</mark> in Northwest Washington.';
+  var follow = document.createElement('div'); follow.className = 'm-follow'; follow.innerHTML = '&#8635; Rewritten, following your note: “Make it warmer.”';
+  cards[1].insertBefore(follow, cards[1].querySelector('.acts'));
   var txt = ask.querySelector('.m-txt'), send = ask.querySelector('.m-send'), ins = cards[2].querySelector('.m-ins');
   var timers = [], live = null;   // live: the card index whose movie is playing, or 'all'
   function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
@@ -1017,8 +1071,8 @@
   function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
   function type(el, t, t0, step) { for (var i = 1; i <= t.length; i++) (function (i) { at(t0 + i * step, function () { el.textContent = t.slice(0, i); }); })(i); }
   function clearCard(i) {
-    cards[i].classList.remove('m1', 'm2', 'm3', 'm-ed');
-    if (i === 1) txt.textContent = '';
+    cards[i].classList.remove('m1', 'm2', 'm3', 'm4', 'm-swap', 'm-ed');
+    if (i === 1) { txt.textContent = ''; p2.innerHTML = p2Text; }
     if (i === 2 && ins) ins.textContent = '';
   }
   // stop whatever is playing; a movie cut off halfway is put back to its waiting state, finished ones stay done
@@ -1045,7 +1099,9 @@
       at(t0 + 2300, function () { to(send, 0.5, 0.6, 450); });
       at(t0 + 2800, click);
       at(t0 + 2950, function () { c.classList.add('m3'); });
-      return t0 + 3500;
+      at(t0 + 3900, function () { c.classList.add('m-swap'); });
+      at(t0 + 4150, function () { p2.innerHTML = p2Warm; c.classList.remove('m2', 'm3', 'm-swap'); c.classList.add('m4'); });
+      return t0 + 4800;
     },
     function (t0) {
       var c = cards[2], ok = c.querySelector('.a.ok');
@@ -1260,7 +1316,7 @@
 // Nothing loops. Print and reduced motion: no button.
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var DONE = { '6': 3600, '7': 10200, '8': 8200, '9': 6200, '10': 2800 };   // when each slide's motion has settled (ms)
+  var DONE = { '6': 3600, '7': 11500, '8': 9900, '9': 6200, '10': 3200 };   // when each slide's motion has settled (ms)
   window.__replay = window.__replay || {};
   var btns = {}, timers = {};
   function showLater(n) {
