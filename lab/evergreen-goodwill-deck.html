@@ -101,7 +101,14 @@
            display:block;margin-bottom:6px;font-weight:500}
   .help{position:fixed;left:16px;bottom:12px;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--color-text-muted)}
   body.presenting .help,body.presenting .counter{opacity:0}
+  /* Click zones over the side margins (deck-nav.js): the only places a click moves the slide, so highlighting words
+     on the content never does. A faint chevron shows on hover; above the slide content, below Replay and the panels. */
+  .nav-zone{position:absolute;top:0;bottom:0;width:calc(var(--u)*6.5);z-index:5;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .nav-zone.prev{left:0}.nav-zone.next{right:0}
+  .nav-zone span{font-size:calc(var(--u)*3.2);line-height:1;color:var(--color-text-tertiary);opacity:0;transition:opacity .2s}
+  .nav-zone:hover span{opacity:.6}
   @media print{
+    .nav-zone{display:none}
     html,body{overflow:visible;height:auto}
     .stage{position:static;transform:none;width:100%;height:auto}
     .slide{display:flex;position:relative;inset:auto;aspect-ratio:16/9;page-break-after:always;--u:1vw}
@@ -137,7 +144,8 @@
 
   .half .big .out{font-family:var(--font-display);font-weight:400;font-size:calc(var(--u)*2.2);letter-spacing:0;color:var(--color-text-tertiary);margin-left:calc(var(--u)*.8)}
   .overall{font-family:var(--font-mono);font-size:calc(var(--u)*.85);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary);border-top:1px solid var(--color-border-soft);padding-top:calc(var(--u)*1.1)}
-  .same{margin:calc(var(--u)*1.8) 0 0;font-size:calc(var(--u)*1.6);color:var(--color-text-secondary)}
+  .same{margin:calc(var(--u)*1.8) 0 0;font-size:calc(var(--u)*1.6);line-height:1.4;color:var(--color-text-secondary)}
+  .same-note{margin:calc(var(--u)*.7) 0 0;font-size:calc(var(--u)*1.2);line-height:1.4;color:var(--color-text-tertiary)}
   .same strong{color:var(--color-text-primary);font-weight:900}
   .lcol{display:flex;flex-direction:column;min-height:0}
   .steplab{font-weight:900;font-size:calc(var(--u)*1.5);letter-spacing:-0.015em;margin-bottom:calc(var(--u)*1);display:flex;align-items:center;gap:calc(var(--u)*.8)}
@@ -160,7 +168,10 @@
   .opt:hover::before{transform:scaleX(1)}
   .opt:hover .n{opacity:1;color:#7fb886}
   .opt:hover p{color:var(--color-text-primary)}
-  .also{margin:calc(var(--u)*2.2) 0 0;font-size:calc(var(--u)*1.35);color:var(--color-text-secondary)}
+  /* Part divider (slide 5): the part number, the part name, what's in it */
+  .part-n{font-family:var(--font-heavy);font-size:calc(var(--u)*6);line-height:1;letter-spacing:-0.04em;opacity:.16;margin-bottom:calc(var(--u)*1.2)}
+  .part-sub{margin:calc(var(--u)*1.2) 0 0;font-size:calc(var(--u)*1.7);color:var(--color-text-secondary)}
+  .also{margin:calc(var(--u)*2.2) 0 0;font-size:calc(var(--u)*1.35);line-height:1.45;color:var(--color-text-secondary);max-width:78ch}
   .also strong{color:var(--color-text-primary);font-weight:900}
   /* what the fixes move */
   .moves{margin-top:calc(var(--u)*3);display:flex;flex-direction:column}
@@ -214,6 +225,11 @@
   .app-title{font-weight:700;font-size:calc(var(--u)*1.6)}
   .app-meta{font-size:calc(var(--u)*1);opacity:.8}
   .cards{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*1.4);padding:calc(var(--u)*1.6)}
+  /* slide 7: a numbered label over each card says what clicking it shows; room comes from the space above the panel */
+  .app.labelled{margin-top:calc(var(--u)*1.4)}
+  .app.labelled .cards{grid-template-rows:auto 1fr;row-gap:calc(var(--u)*.6);padding-top:calc(var(--u)*1.1)}
+  .clab{margin:0;display:flex;align-items:center;gap:calc(var(--u)*.6);font-weight:700;font-size:calc(var(--u)*1.15);color:var(--gw-navy)}
+  .clab b{display:inline-flex;align-items:center;justify-content:center;width:calc(var(--u)*1.7);height:calc(var(--u)*1.7);border-radius:50%;background:var(--gw-navy);color:#fff;font-size:calc(var(--u)*.9)}
   .card{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1.4);display:flex;flex-direction:column;color:var(--gw-ink);
         font-family:'Libre Franklin','Helvetica Neue',var(--font-display),sans-serif}
   .ch{display:flex;gap:calc(var(--u)*.8);align-items:center;flex-wrap:wrap;font-size:calc(var(--u)*.95)}
@@ -407,17 +423,23 @@
   .mcur.show{opacity:1}
   .mcur.press{transform:scale(.86)}
   .m-done{position:absolute;left:calc(var(--u)*1.4);right:calc(var(--u)*1.4);bottom:calc(var(--u)*1.4);display:flex;align-items:center;min-height:calc(var(--u)*2.4);padding:0 calc(var(--u)*.9);background:#e8f1e9;color:var(--gw-green);font-weight:700;font-size:calc(var(--u)*.95);opacity:0;transition:opacity .35s}
-  .m1 .app .card:first-child{border-color:var(--gw-green);box-shadow:inset 0 0 0 1px var(--gw-green);transition:border-color .35s,box-shadow .35s}
-  .m1 .m-done{opacity:1}
+  /* state classes sit on each card, so every card is its own movie: m1 approved, m2 rewrite asked, m3 rewrite sent,
+     m-ed editing (card 3: caret in the text, the typed words highlighted as your edit) */
+  .app .card{transition:border-color .35s,box-shadow .35s}
+  .app .card.m1{border-color:var(--gw-green);box-shadow:inset 0 0 0 1px var(--gw-green)}
+  .card.m1 .m-done{opacity:1}
+  .card.m-ed p{outline:1px dashed var(--gw-navy);outline-offset:calc(var(--u)*.35)}
+  .m-ins{background:#e7eef6;color:var(--gw-navy)}
+  .card.m-ed .m-ins::after{content:'';display:inline-block;width:2px;height:1.05em;margin-left:1px;background:var(--gw-navy);vertical-align:-.18em;animation:s8blink 1s steps(1) infinite}
   .m-ask{position:absolute;left:calc(var(--u)*1.4);right:calc(var(--u)*1.4);bottom:calc(var(--u)*1.4);display:flex;align-items:center;gap:calc(var(--u)*.6);min-height:calc(var(--u)*2.4);padding:0 calc(var(--u)*.8);background:#fff;border:1px solid var(--gw-navy);box-shadow:0 6px 18px rgba(0,0,0,.12);opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
   .m-ask .m-lbl{font-size:calc(var(--u)*.8);color:#5b6570}
   .m-ask .m-txt{font-size:calc(var(--u)*1.05);color:var(--gw-ink);min-height:1.3em}
-  .m2 .m-ask{opacity:1;transform:none}
+  .card.m2 .m-ask{opacity:1;transform:none}
   .m-ask .m-send{margin-left:auto;font-size:calc(var(--u)*.85);font-weight:700;background:var(--gw-navy);color:#fff;padding:calc(var(--u)*.3) calc(var(--u)*.8)}
   .m-ask .m-sent{display:none;font-weight:700;color:var(--gw-navy);font-size:calc(var(--u)*.95)}
-  .m3 .m-ask{background:#eaf0f8}
-  .m3 .m-ask .m-lbl,.m3 .m-ask .m-txt,.m3 .m-ask .m-send{display:none}
-  .m3 .m-ask .m-sent{display:inline}
+  .card.m3 .m-ask{background:#eaf0f8}
+  .card.m3 .m-ask .m-lbl,.card.m3 .m-ask .m-txt,.card.m3 .m-ask .m-send{display:none}
+  .card.m3 .m-ask .m-sent{display:inline}
   @media print{.mcur,.m-done,.m-ask{display:none}}
   /* Replay (replay.html): quiet, bottom right, only once the animation has finished */
   .replay-s{position:absolute;right:calc(var(--u)*2.2);bottom:calc(var(--u)*1.6 + 26px);z-index:6;background:none;border:1px solid var(--color-border);color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:calc(var(--u)*.8);letter-spacing:.1em;text-transform:uppercase;padding:calc(var(--u)*.3) calc(var(--u)*.7);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s}
@@ -425,7 +447,7 @@
   .learn .card.replayable,.app .card.replayable{cursor:pointer}
   .replay-s:hover,.replay-s:focus-visible{opacity:1;color:var(--color-text-primary);border-color:var(--color-text-tertiary);outline:none}
   @media print{.replay-s{display:none}}
-  /* slide 8 · email: an info inbox, sorted, with a reply a person sends (mail-news-anim.html) */
+  /* slide 9 · email: an info inbox, sorted, with a reply a person sends (mail-news-anim.html) */
   .app.mail .mail-body{flex:1;min-height:0;display:grid;grid-template-columns:38% 1fr;gap:calc(var(--u)*1.2);padding:calc(var(--u)*1.2)}
   .mlist{display:flex;flex-direction:column;gap:calc(var(--u)*.4);min-height:0}
   .mrow{display:grid;grid-template-columns:auto 1fr;column-gap:calc(var(--u)*.7);row-gap:2px;align-items:center;background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*.55) calc(var(--u)*.8);font-size:calc(var(--u)*.9);transition:background .3s,border-color .3s}
@@ -444,44 +466,101 @@
   .stance{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.45);align-items:center;font-size:calc(var(--u)*.85)}
   .stance .sl{color:#5b6570;margin-right:calc(var(--u)*.3)}
   .stance .st{border:1px solid var(--gw-line);padding:3px 10px;font-weight:700;color:var(--gw-ink);background:#fff;transition:background .25s,color .25s,border-color .25s}
-  .stance .st.yes{background:var(--gw-navy);border-color:var(--gw-navy);color:#fff}
+  .stance .st.pick{background:var(--gw-navy);border-color:var(--gw-navy);color:#fff}
   .draft{border:1px solid var(--gw-line);border-left:3px solid var(--gw-green);background:#f7faf7;padding:calc(var(--u)*.7) calc(var(--u)*.9);transition:opacity .45s,transform .45s}
   .draft .dl{display:block;font-size:calc(var(--u)*.75);font-weight:700;color:var(--gw-green);margin-bottom:4px}
   .draft p{margin:0 0 calc(var(--u)*.6);font-size:calc(var(--u)*1.02);line-height:1.45;color:var(--gw-ink)}
   .dsend{display:flex;align-items:center;gap:calc(var(--u)*.8)}
   .dsend .a{font-size:calc(var(--u)*.9);font-weight:700;padding:calc(var(--u)*.35) calc(var(--u)*1);background:var(--gw-navy);color:#fff}
   .dsend .dn{font-size:calc(var(--u)*.8);color:#5b6570}
-  /* animation states (the markup is the finished state; these only apply while it plays) */
+  /* states (the markup is the finished state; these apply on screen): e0 waiting, e1 open, e2 question lit,
+     e3 reply drafted, e4 Send pressed. "live" = hands-on (mail-news-anim.html): the presenter does the clicks. */
+  .mread{position:relative}
+  .mread > *{transition:opacity .35s}
+  .mhint{display:none}
   .e0 .mrow.on{background:#fff;border-color:var(--gw-line)}
-  .e0 .mread{opacity:0}
+  .e0 .mread > :not(.mhint){opacity:0}
+  .e0 .mhint{display:flex;position:absolute;inset:0;align-items:center;justify-content:center;font-style:italic;font-size:calc(var(--u)*1);color:#5b6570}
   .e0 .q,.e1:not(.e2) .q{background:transparent}
-  .e0 .stance .st.yes,.e1:not(.e3) .stance .st.yes{background:#fff;color:var(--gw-ink);border-color:var(--gw-line)}
-  .e0 .draft,.e1:not(.e3) .draft{opacity:0;transform:translateY(8px)}
-  /* slide 9 · newsletter: items in, draft assembled, a person approves (mail-news-anim.html) */
-  .app.news .news-body{flex:1;min-height:0;display:grid;grid-template-columns:34% 1fr;gap:calc(var(--u)*1.2);padding:calc(var(--u)*1.2)}
-  .nitems{display:flex;flex-direction:column;gap:calc(var(--u)*.45)}
-  .nitems .nh{font-family:var(--font-mono);font-size:calc(var(--u)*.75);letter-spacing:.1em;text-transform:uppercase;color:#5b6570;margin-bottom:2px}
-  .nitem{display:flex;flex-direction:column;background:#fff;border:1px solid var(--gw-line);border-left:3px solid var(--gw-line);padding:calc(var(--u)*.55) calc(var(--u)*.8);font-size:calc(var(--u)*.92);transition:border-color .3s,opacity .3s}
-  .nitem b{color:var(--gw-navy)}.nitem span{color:var(--gw-ink)}
-  .nitem em{font-style:normal;font-size:calc(var(--u)*.72);color:var(--gw-green);margin-top:2px}
-  .nprev{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1) calc(var(--u)*1.3);display:flex;flex-direction:column;gap:calc(var(--u)*.6);min-height:0}
-  .nmast{font-weight:700;font-size:calc(var(--u)*1.35);color:var(--gw-green);border-bottom:2px solid var(--gw-green);padding-bottom:calc(var(--u)*.4)}
-  .nmast span{font-weight:400;color:var(--gw-navy);margin-left:calc(var(--u)*.6);font-size:calc(var(--u)*1.05)}
-  .nopen{margin:0;font-size:calc(var(--u)*1.02);line-height:1.45;color:var(--gw-ink);border:1px dashed #c9a24a;background:#fffaf0;padding:calc(var(--u)*.5) calc(var(--u)*.7);transition:opacity .4s,transform .4s}
-  .nopen .ntag{display:block;font-size:calc(var(--u)*.72);font-weight:700;color:#7a5200;margin-bottom:2px}
-  .nsec{font-size:calc(var(--u)*.98);line-height:1.4;color:var(--gw-ink);transition:opacity .4s,transform .4s}
-  .nsec b{color:var(--gw-navy);margin-right:4px}
-  .napprove{display:none;gap:calc(var(--u)*.6);margin-top:auto}
-  .napprove .a,.app.news .a{font-size:calc(var(--u)*.9);font-weight:700;padding:calc(var(--u)*.4) calc(var(--u)*.9);border:1px solid var(--gw-line);color:var(--gw-ink)}
-  .napprove .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
-  .ndone{margin-top:auto;background:#e8f1e9;color:var(--gw-green);font-weight:700;font-size:calc(var(--u)*.95);padding:calc(var(--u)*.55) calc(var(--u)*.8)}
-  .n0 .nitem{opacity:.55}
-  .n0 .nopen,.n0 .nsec{opacity:0;transform:translateY(6px)}
-  .n1 .nitem[data-i="1"],.n2 .nitem[data-i="2"],.n3 .nitem[data-i="3"],.n4 .nitem[data-i="4"]{opacity:1;border-left-color:var(--gw-green)}
-  .n1 .nsec[data-i="1"],.n2 .nsec[data-i="2"],.n3 .nopen,.n4 .nsec[data-i="4"]{opacity:1;transform:none}
-  .n0:not(.n5) .napprove{display:flex}
-  .n0:not(.n5) .ndone{display:none}
-  .app.mail.replayable,.app.news.replayable{cursor:pointer}
+  .e0 .stance .st.pick,.e1:not(.e3) .stance .st.pick{background:#fff;color:var(--gw-ink);border-color:var(--gw-line)}
+  .e0 .draft,.e1:not(.e3) .draft{opacity:0;transform:translateY(8px);pointer-events:none}
+  .mnote{display:none;margin:0;font-size:calc(var(--u)*1);line-height:1.45;color:var(--gw-navy);background:#eef4fb;padding:calc(var(--u)*.6) calc(var(--u)*.8)}
+  .dnext{display:none;margin-left:auto;font-size:calc(var(--u)*.9);font-weight:700;color:var(--gw-navy);white-space:nowrap}
+  .mnote .dnext{display:inline;margin-left:calc(var(--u)*.6)}
+  .e4 .dsend .dnext{display:inline}
+  .mrow.done .why{color:var(--gw-green);font-style:normal;font-weight:700}
+  .app.mail.live .mrow,.app.mail.live .stance .st,.app.mail.live .dsend .a,.app.mail.live .dnext{cursor:pointer}
+  .app.mail.live .mrow:not(.on):hover{border-color:var(--gw-navy)}
+  .app.mail.live .dnext:hover{text-decoration:underline}
+  .app.mail.live .stance .st:hover{border-color:var(--gw-navy)}
+  .app.mail.live .draft p{cursor:text;outline:none;border-radius:2px}
+  .app.mail.live .draft p:focus{box-shadow:0 0 0 1px var(--gw-navy);background:#fff}
+  .draft .blank{background:#fdf2dc;color:#7a5200;padding:0 3px}
+  .dsend .a.ed{background:#fff;color:var(--gw-navy);border:1px solid var(--gw-navy);padding:calc(var(--u)*.3) calc(var(--u)*.9)}
+  .e5 .draft{border-left-color:var(--gw-navy);background:#fff}
+  .e5 .draft .dl{color:var(--gw-navy)}
+  .e4 .dsend .a{background:#9aa5b1;border-color:#9aa5b1;color:#fff}
+  .e4 .dsend .dn{color:var(--gw-navy);font-weight:700}
+  /* slide 10 · newsletter: how one gets made (where it comes from → who writes what → who decides), then the three
+     rhythms. CSS-only motion, so replay.html restarts it through the Web Animations API. */
+  .nflow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:calc(var(--u)*1.2);margin:auto 0 0}
+  .fcol{border:1px solid var(--color-border);padding:calc(var(--u)*1.3) calc(var(--u)*1.5);display:flex;flex-direction:column;gap:calc(var(--u)*1)}
+  .fcol .when{font-family:var(--font-mono);font-size:calc(var(--u)*1.05);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary)}
+  .fcol.you{border-color:var(--color-text-tertiary)}
+  .fcol.you .when{color:var(--color-text-primary)}
+  .fitem{font-size:calc(var(--u)*1.3);line-height:1.4;color:var(--color-text-secondary)}
+  .fitem b{display:block;color:var(--color-text-primary);font-weight:900;font-size:calc(var(--u)*1.45);letter-spacing:-0.01em}
+  .fitem.ai{border:1px dashed #c9a24a;padding:calc(var(--u)*.6) calc(var(--u)*.8)}
+  .fitem.ai b{color:#e0bd6a}
+  .fcol.you .fitem b{color:#7fb886}
+  .farrow{align-self:center;font-size:calc(var(--u)*2.2);color:var(--color-text-tertiary)}
+  .fdec{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.5)}
+  .fdec span{font-size:calc(var(--u)*1.05);font-weight:700;padding:calc(var(--u)*.35) calc(var(--u)*.8);border:1px solid var(--color-border);color:var(--color-text-secondary)}
+  .fdec .ok{background:#7fb886;border-color:#7fb886;color:var(--color-bg)}
+  .rhythms{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:calc(var(--u)*2.2);margin:calc(var(--u)*2.4) 0 auto;padding-top:calc(var(--u)*1.6);border-top:1px solid var(--color-border)}
+  /* slide 10 · "See a sample issue": a thumbnail in the title row opens a sample draft (newsletter-sample.html) */
+  .slide .nl-thumb{position:absolute;right:calc(var(--u)*6.5);top:calc(var(--u)*9);display:flex;align-items:center;gap:calc(var(--u)*1);background:none;border:1px solid var(--color-border);padding:calc(var(--u)*.6);cursor:pointer;color:var(--color-text-secondary);font:inherit;z-index:6;transition:border-color .2s}
+  .slide .nl-thumb:hover,.slide .nl-thumb:focus-visible{border-color:var(--color-text-tertiary);outline:none}
+  .nt-page{display:flex;flex-direction:column;gap:3px;width:calc(var(--u)*3.6);height:calc(var(--u)*4.6);background:var(--gw-paper);padding:calc(var(--u)*.45)}
+  .nt-page i{display:block;height:3px;background:#c9ced4}
+  .nt-page .nt-mast{height:6px;background:var(--gw-green)}
+  .nt-page .nt-open{height:9px;background:#f1dfb4}
+  .nt-page .nt-short{width:60%}
+  .nt-lab{display:flex;flex-direction:column;text-align:left;font-weight:700;font-size:calc(var(--u)*1.1);color:var(--color-text-primary)}
+  .nt-lab em{font-style:normal;font-weight:400;font-size:calc(var(--u)*.9);color:var(--color-text-tertiary)}
+  .nlm{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:24px}
+  .nlm[hidden]{display:none}
+  .nlm-box{position:relative;width:min(760px,100%);max-height:100%;overflow:auto;background:#fff;color:var(--gw-ink);padding:22px 26px 20px}
+  .nlm-x{position:absolute;right:10px;top:6px;background:none;border:0;font-size:26px;line-height:1;color:#5b6570;cursor:pointer}
+  .nlm-top{display:flex;flex-direction:column;gap:8px;margin:0 30px 14px 0;font-size:14px;line-height:1.45;color:#5b6570}
+  .nlm-top .illus{align-self:flex-start;color:var(--gw-navy)}
+  .nlm-top b{color:var(--gw-navy)}
+  .nlm-issue{border:1px solid var(--gw-line);padding:18px 22px;display:flex;flex-direction:column;gap:12px}
+  .nlm-mast{font-weight:700;font-size:22px;color:var(--gw-green);border-bottom:2px solid var(--gw-green);padding-bottom:6px}
+  .nlm-mast span{font-weight:400;font-size:15px;color:var(--gw-navy);margin-left:8px}
+  .nlm-opening{margin:0;font-size:16px;line-height:1.5;border:1px dashed #c9a24a;background:#fffaf0;padding:8px 10px}
+  .nlm-tag{display:block;font-size:12px;font-weight:700;color:#7a5200;margin-bottom:2px}
+  .nlm-sec b{display:block;color:var(--gw-navy);font-size:16px}
+  .nlm-sec p{margin:2px 0 3px;font-size:15px;line-height:1.45}
+  .nlm-src{font-size:12px;color:var(--gw-green)}
+  .nlm-sec.std{border-top:1px solid var(--gw-line);padding-top:10px}
+  .nlm-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+  .nlm-foot .a{font-size:14px;font-weight:700;padding:5px 12px;border:1px solid var(--gw-line);color:var(--gw-ink)}
+  .nlm-foot .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
+  .nlm-send{font-size:13px;color:#5b6570;margin-left:4px}
+  @media print{.nl-thumb,.nlm{display:none}}
+  .rh-lbl{font-family:var(--font-mono);font-size:calc(var(--u)*1.05);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary);padding-top:.35em}
+  .rh{font-size:calc(var(--u)*1.3);line-height:1.4;color:var(--color-text-secondary)}
+  .rh b{display:block;font-weight:900;color:var(--color-text-primary);font-size:calc(var(--u)*1.6);letter-spacing:-0.02em;margin-bottom:calc(var(--u)*.3)}
+  @media screen and (prefers-reduced-motion: no-preference){
+    .slide.on .nflow .fcol{animation:riseIn .6s ease-out both}
+    .slide.on .nflow .fcol:nth-child(3){animation-delay:.7s}
+    .slide.on .nflow .fcol:nth-child(5){animation-delay:1.4s}
+    .slide.on .nflow .farrow{animation:fadeIn .4s ease-out both}
+    .slide.on .nflow .farrow:nth-child(2){animation-delay:.45s}
+    .slide.on .nflow .farrow:nth-child(4){animation-delay:1.15s}
+    .slide.on .rhythms{animation:riseIn .6s ease-out 2.1s both}
+  }
   @media print{.app .mcur{display:none}}
   /* reference links to the hosted pitch and audit */
   a.ref{color:inherit;text-decoration:underline;text-decoration-color:var(--color-text-muted);text-underline-offset:.25em;transition:color .2s,text-decoration-color .2s}
@@ -500,7 +579,7 @@
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">For Evergreen Goodwill</div></div>
     <div class="grow">
       <h1 class="ap-display hero">A strong story,<br><em>and the words around it.</em></h1>
-      <p class="agenda">Your audit · how social drafting could work, as a mock-up · next steps</p>
+      <p class="agenda">01 Your homepage audit · 02 AI agents for your team · 03 Ways to start</p>
     </div>
     <div class="foot"><span>Chad Martin · AmbientPixels <em class="credit">Photo: evergreengoodwill.org</em></span><span><a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-pitch.html" target="_blank" rel="noopener">The pitch ↗</a> · <a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html" target="_blank" rel="noopener">The full audit ↗</a></span></div>
     
@@ -508,7 +587,7 @@
 
   <!-- 2 · The score, as a compliment with a fixable gap -->
   <section class="slide" data-n="2">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 — The audit</div></div>
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 Audit — The scores</div></div>
     <h2 class="ap-display h2">Your story is strong. <em>The page doesn’t ask.</em></h2>
     <div class="score">
       <div class="half story">
@@ -526,7 +605,7 @@
 
   <!-- 3 · Four fixes, ranked -->
   <section class="slide" data-n="3">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 — The plan</div></div>
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 Audit — The plan</div></div>
     <h2 class="ap-display h2">Four fixes, <em>in order.</em></h2>
     <div class="fixes">
       <div class="fix" data-fix="1"><span class="n">01</span><span class="thumb" style="background-image:url('goodwill/deck/01-hero.png')"></span><span class="t">Apply for Free Job Training</span><span class="who">Job seekers</span><span class="m">Enrollment clicks</span></div>
@@ -541,7 +620,7 @@
 
   <!-- What the fixes move: the 42, broken down, with the fix that raises each part -->
   <section class="slide" data-n="4">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 — What moves</div></div>
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 Audit — What moves</div></div>
     <h2 class="ap-display h2">Aimed at the <em>lowest scores.</em></h2>
     <div class="moves">
       <div class="mv"><span class="k">Funnel friction<span class="tip" role="tooltip">How easy it is for someone who already wants to apply, give or shop to actually do it: how many clicks, how many choices, and whether anything pulls them away.</span></span><span class="bar"><i class="goal" style="width:40%"></i><i style="width:11%"></i></span><span class="v">11<span class="to">→</span><span class="g">40+</span></span><span class="fx"><b data-fix="2"><span class="fn">02</span>Newsletter</b><b data-fix="4"><span class="fn">04</span>Menu</b></span></div>
@@ -554,9 +633,21 @@
     
   </section>
 
-  <!-- 5 · Social: how it would work -->
-  <section class="slide" data-n="5">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Social</div></div>
+  <!-- 5 · Part 2 divider: AI agents (a checkpoint after the audit) -->
+  <section class="slide part" data-n="5">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents</div></div>
+    <div class="grow">
+      <span class="part-n">02</span>
+      <h2 class="ap-display hero">AI agents <em>for your team.</em></h2>
+      <p class="agenda">Social · Email · Newsletters</p>
+      <p class="part-sub">Drafted by agents, decided by your team.</p>
+    </div>
+    
+  </section>
+
+  <!-- 6 · Social: how it would work -->
+  <section class="slide" data-n="6">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Social</div></div>
     <h2 class="ap-display h2">How it would work <em>at Goodwill.</em></h2>
     <div class="day" role="img" aria-label="A morning at Goodwill: drafts arrive at 7 am, your team decides at 9:30, a person posts at 11, and your reasons shape the next drafts.">
       <div class="track"><i></i></div>
@@ -568,13 +659,14 @@
     
   </section>
 
-  <!-- 6 · Monday morning at Goodwill: mock approvals -->
-  <section class="slide" data-n="6">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Illustration</div></div>
+  <!-- 7 · Monday morning at Goodwill: mock approvals -->
+  <section class="slide" data-n="7">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Social</div></div>
     <h2 class="ap-display h2">Monday morning <em>at Goodwill.</em></h2>
-    <div class="app">
+    <div class="app labelled">
       <div class="app-bar"><span class="app-title">Approvals</span><span class="illus">Illustration · not a live system</span><span class="app-meta">7:00 am · 3 drafts waiting · written from evergreengoodwill.org</span></div>
       <div class="cards">
+        <p class="clab"><b>1</b>Approve</p><p class="clab"><b>2</b>Ask for a rewrite</p><p class="clab"><b>3</b>Fix a word</p>
         <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 8/10</span></div>
           <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our <mark>free Job Training and Education programs</mark>, and items that find a new home stay <mark>out of landfills</mark>. Find your nearest donation center.</p>
           <div class="src"><span>Source</span>Your homepage: “free Job Training and Education programs”</div>
@@ -584,7 +676,7 @@
           <div class="src"><span>Source</span>Your Adult Education page: “today’s workplace”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
         <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Milestone</span><span class="vs">Sounds like you: 8/10</span></div>
-          <p>In 2025, Evergreen Goodwill served <mark>6,403 students</mark> in free job training and education. Every purchase, donation and volunteer hour helped make that happen. Thank you. Jobs change lives.</p>
+          <p>In 2025, Evergreen Goodwill served <mark>6,403 students</mark> in free job training and education. Every purchase, donation and volunteer hour helped make that happen. Thank you<span class="m-ins"></span>. Jobs change lives.</p>
           <div class="src"><span>Source</span>Your homepage: “6,403 students served in 2025”</div>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
       </div>
@@ -592,9 +684,9 @@
     
   </section>
 
-  <!-- 7 · Say it once -->
-  <section class="slide" data-n="7">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — How it learns</div></div>
+  <!-- 8 · Say it once -->
+  <section class="slide" data-n="8">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — How they learn</div></div>
     <h2 class="ap-display h2">Say it once, <em>it sticks.</em></h2>
     <div class="learn">
       <div class="lcol"><div class="steplab"><b>1</b>A draft you don’t like</div>
@@ -603,19 +695,20 @@
         <div class="acts acts-l"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a rj">Reject</span></div>
         <div class="reason"><span><b class="rn">2</b>You say why, once</span><div class="rbox"><mark class="why"><span class="typed">Lead with free job training, every time.</span></mark><i class="caret"></i><b class="send">Save reason</b></div></div></div></div>
       <div class="arrowbig">→</div>
-      <div class="lcol"><div class="steplab"><b>3</b>Drafts after that follow it</div>
+      <div class="lcol"><div class="steplab"><b>3</b>Your agents learn it and follow it</div>
       <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 9/10</span></div>
         <p><mark>Free job training, powered by your donations.</mark> Clearing out a closet? Those clothes could help someone start a new career: donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
         <div class="follows">&#10003; Following your note: “Lead with free job training, every time.”</div>
         <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div></div>
     </div>
-    <p class="same">No settings, no training sessions: <strong>your “no, because…” is the training.</strong></p>
+    <p class="same">No settings, no training sessions. <strong>Your agents learn from your feedback:</strong> every reason you give and every word you fix becomes a note they follow in the next drafts.</p>
+    <p class="same-note">Your newest notes stay in front of your agents as they write. It isn’t retraining the AI, and a person still approves every post.</p>
     
   </section>
 
-  <!-- 8 · Email: a general info inbox, sorted, with a reply a person sends (modelled on the real email agents) -->
-  <section class="slide" data-n="8">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Email</div></div>
+  <!-- 9 · Email: a general info inbox, sorted, with a reply a person sends (modelled on the real email agents) -->
+  <section class="slide" data-n="9">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Email</div></div>
     <h2 class="ap-display h2">Email, sorted <em>by morning.</em></h2>
     <div class="app mail">
       <div class="app-bar"><span class="app-title">Info inbox</span><span class="illus">Illustration · not a live system</span><span class="app-meta">7:00 am · sorted, with a reason for each</span></div>
@@ -628,13 +721,15 @@
           <div class="mrow dim"><span class="lab low">Low</span><b>Office supplier</b><span class="subj">Save 20% this week</span><span class="why">Promotion, no action</span></div>
         </div>
         <div class="mread">
+          <div class="mhint">Click any email to open it</div>
           <div class="mhead"><b>Pat L.</b><span>Dropping off clothes and books?</span></div>
           <p class="mtext">Hi! I cleared out a closet and have a few boxes of clothes and books. <mark class="q">Can I drop them off this weekend?</mark> Thanks, Pat</p>
-          <div class="stance"><span class="sl">It’s asking a yes-or-no question:</span><span class="st yes">Yes</span><span class="st">No</span><span class="st">Later</span><span class="st">Need more</span></div>
+          <div class="stance"><span class="sl">It’s asking a yes-or-no question:</span><span class="st pick">Yes</span><span class="st">No</span><span class="st">Later</span><span class="st">Need more</span></div>
+          <p class="mnote"></p>
           <div class="draft">
             <span class="dl">Drafted in your voice · edit freely</span>
             <p>Hi Pat, yes, thank you! You can drop them at any of our donation centers. Hours, locations and what we accept are all on our website. Thanks for supporting free job training in our community.</p>
-            <div class="dsend"><span class="a ok">Send</span><span class="dn">Nothing sends until a person presses Send.</span></div>
+            <div class="dsend"><span class="a ok">Send</span><span class="a ed">Edit</span><span class="dn">Nothing sends until a person presses Send.</span><span class="dnext">Next email &#8594;</span></div>
           </div>
         </div>
       </div>
@@ -642,44 +737,44 @@
     
   </section>
 
-  <!-- 9 · Newsletter: items gathered through the month, assembled into a draft, approved, then sent from Constant Contact -->
-  <section class="slide" data-n="9">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 — Newsletters</div></div>
-    <h2 class="ap-display h2">Newsletters, drafted <em>from your month.</em></h2>
-    <div class="app news">
-      <div class="app-bar"><span class="app-title">Newsletter</span><span class="illus">Illustration · not a live system</span><span class="app-meta">Draft ready 5 days before it goes out</span></div>
-      <div class="news-body">
-        <div class="nitems">
-          <span class="nh">This month’s items</span>
-          <div class="nitem" data-i="1"><b>Happy Cartober</b><span>Donate your vehicle</span><em>Source: your homepage banner</em></div>
-          <div class="nitem" data-i="2"><b>Program spotlight</b><span>Adult Basic Education, free classes</span><em>Source: your Adult Education page</em></div>
-          <div class="nitem" data-i="3"><b>The year so far</b><span>6,403 students served in 2025</span><em>Source: your homepage</em></div>
-          <div class="nitem" data-i="4"><b>Volunteer with us</b><span>Tutor students one-on-one</span><em>Source: your Volunteer page</em></div>
-        </div>
-        <div class="nprev">
-          <div class="nmast">Evergreen Goodwill <span>Community update</span></div>
-          <p class="nopen"><span class="ntag">Draft opening · rewrite in your words</span>In 2025, you helped 6,403 students into free job training and education. Thank you.</p>
-          <div class="nsec" data-i="1"><b>Happy Cartober</b> Turn your unused vehicle into community impact.</div>
-          <div class="nsec" data-i="2"><b>Spotlight: Adult Basic Education</b> Free classes that prepare adults for today’s workplace.</div>
-          <div class="nsec" data-i="4"><b>Volunteer with us</b> Tutor students one-on-one or in small groups.</div>
-          <div class="napprove"><span class="a ok">Approve</span><span class="a">Reject with a reason</span><span class="a">Skip</span></div>
-          <div class="ndone">&#10003; Approved · build and send it from Constant Contact</div>
-        </div>
-      </div>
+  <!-- 10 · Newsletter: how one gets made (sources → who writes what → who decides) and the three rhythms; modelled on the real tool -->
+  <section class="slide" data-n="10">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Newsletters</div></div>
+    <h2 class="ap-display h2">How a newsletter <em>gets made.</em></h2>
+    <button type="button" class="nl-thumb" aria-label="Open a sample issue"><span class="nt-page"><i class="nt-mast"></i><i class="nt-open"></i><i></i><i></i><i class="nt-short"></i></span><span class="nt-lab">See a sample issue<em>Click to open</em></span></button>
+    <div class="nflow" role="img" aria-label="Facts come from your website, your team's items and standing sections. They go in word for word; the AI suggests only the opening. Your team approves, rejects with a reason or skips, and a person sends it from Constant Contact.">
+      <div class="fcol"><span class="when">01 · Where it comes from</span>
+        <div class="fitem"><b>Your website</b>Programs, stores, 6,403 students</div>
+        <div class="fitem"><b>Your team’s items</b>One line each, added through the month</div>
+        <div class="fitem"><b>Standing sections</b>Written once: how to give, shop, volunteer</div></div>
+      <div class="farrow" aria-hidden="true">→</div>
+      <div class="fcol"><span class="when">02 · Who writes what</span>
+        <div class="fitem"><b>Your facts go in word for word</b>Never rewritten, never invented.</div>
+        <div class="fitem ai"><b>The AI suggests only the opening</b>Marked “rewrite me” for your team.</div></div>
+      <div class="farrow" aria-hidden="true">→</div>
+      <div class="fcol you"><span class="when">03 · Who decides</span>
+        <div class="fdec"><span class="ok">Approve</span><span>Reject with a reason</span><span>Skip</span></div>
+        <div class="fitem"><b>A person sends it</b>From Constant Contact, which you already have. Nothing sends on its own.</div></div>
+    </div>
+    <div class="rhythms">
+      <span class="rh-lbl">Three rhythms</span>
+      <div class="rh"><b>Recurring</b>Monthly donor and staff newsletters, the same sections every issue.</div>
+      <div class="rh"><b>Campaigns</b>Cartober: drafts on a set rhythm while it runs, then it stops.</div>
+      <div class="rh"><b>One-offs</b>A single item, once: a thank-you, a reminder.</div>
     </div>
     
   </section>
 
-  <!-- 10 · Ways to start (options, not an assumption) -->
-  <section class="slide" data-n="10">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 03 — Next</div></div>
+  <!-- 11 · Ways to start (options, not an assumption) -->
+  <section class="slide" data-n="11">
+    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 03 — Ways to start</div></div>
     <h2 class="ap-display h2">A few ways to start. <em>Your call.</em></h2>
     <div class="opts">
       <div class="opt"><div class="n">01</div><h3>Your team <em>builds it.</em></h3><p>We write the new wording, measure where you are today and report back. Your web team or agency makes the changes.</p></div>
       <div class="opt"><div class="n">02</div><h3>We <em>build it.</em></h3><p>With access to your site, we make the changes too. One less thing on your team’s plate.</p></div>
       <div class="opt"><div class="n">03</div><h3>Start with <em>one fix.</em></h3><p>Just the Apply link and headline. A small first step to see how we work together.</p></div>
     </div>
-    <p class="also">Also, when you’re ready: <strong>a social and newsletter sample week.</strong> One program page, five posts and a newsletter draft in your voice, you mark each one yes or “no, because…”</p>
+    <p class="also"><strong>Try it first, before you commit to anything.</strong> A working prototype in a test sandbox, built from your own pages: a week of posts, a newsletter draft and a sorted info inbox. Your team marks each one yes or “no, because…”. No live accounts; nothing posts or sends.</p>
     <p class="proof">Or something else entirely. <strong>What fits how your team works?</strong></p>
     
   </section>
@@ -809,7 +904,7 @@
 // takes the buttons' place, it types the reason, saves it, and the next draft appears following it.
 // Without motion (print, reduced motion) the slide is the static finished state.
 (function () {
-  var s = document.querySelector('.slide[data-n="7"]'); if (!s) return;
+  var s = document.querySelector('.slide[data-n="8"]'); if (!s) return;
   var card = s.querySelector('.learn .card.faded'), box = s.querySelector('.rbox'),
       typed = s.querySelector('.rbox .typed'), send = s.querySelector('.rbox .send'), rej = s.querySelector('.acts-l .rj'),
       ptr = document.getElementById('s8ptr'), full = typed.textContent, timers = [];
@@ -847,7 +942,7 @@
     wasOn = on; if (on) run(); else stop();
   }).observe(s, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('beforeprint', stop);
-  (window.__replay = window.__replay || {})['7'] = run;
+  (window.__replay = window.__replay || {})['8'] = run;
   card.classList.add('replayable'); card.title = 'Click to replay';
   card.addEventListener('click', function (e) { e.stopPropagation(); run(); });
   if (wasOn) run();
@@ -894,23 +989,25 @@
 })();
 </script>
 <script>
-// Slide "Monday morning": each time it comes on, a mouse approves the first draft and asks for a rewrite of the second
-// (typed, then sent, then "a new draft is on its way"),
-// so "your team decides" is seen, not said. Positions are read at run time (fonts are loaded by then).
+// Slide "Monday morning": three drafts wait, and each card is its own short movie, played by clicking it (click again
+// to replay): 1 approve, 2 ask for a rewrite ("Make it warmer.", sent, "a new draft is on its way"), 3 fix a word in
+// the text, then approve. Nothing plays when the slide comes on, so the presenter sets the pace; R or the Replay
+// button plays all three in order. Positions are read at run time (fonts are loaded by then).
 // Print and reduced motion: the static slide.
 (function () {
-  var s = document.querySelector('.slide[data-n="6"]'); if (!s) return;
+  var s = document.querySelector('.slide[data-n="7"]'); if (!s) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var app = s.querySelector('.app'), cards = s.querySelectorAll('.app .card'); if (!app || cards.length < 2) return;
-  var ok1 = cards[0].querySelector('.a.ok'), rw2 = cards[1].querySelectorAll('.a')[1];
+  var app = s.querySelector('.app'), cards = s.querySelectorAll('.app .card'); if (!app || cards.length < 3) return;
   var cur = document.createElement('div'); cur.className = 'mcur';
   cur.innerHTML = '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
   app.appendChild(cur);
-  var done = document.createElement('div'); done.className = 'm-done'; done.innerHTML = '&#10003; Approved · ready for your team to post';
-  cards[0].appendChild(done);
+  function addDone(card, text) { var d = document.createElement('div'); d.className = 'm-done'; d.innerHTML = '&#10003; ' + text; card.appendChild(d); }
+  addDone(cards[0], 'Approved · ready for your team to post');
+  addDone(cards[2], 'Edited and approved · ready to post');
   var ask = document.createElement('div'); ask.className = 'm-ask'; ask.innerHTML = '<span class="m-lbl">Rewrite:</span><span class="m-txt"></span><b class="m-send">Send</b><span class="m-sent">&#8635; Rewrite requested · a new draft is on its way</span>';
   cards[1].appendChild(ask);
-  var txt = ask.querySelector('.m-txt'), send = ask.querySelector('.m-send'), timers = [];
+  var txt = ask.querySelector('.m-txt'), send = ask.querySelector('.m-send'), ins = cards[2].querySelector('.m-ins');
+  var timers = [], live = null;   // live: the card index whose movie is playing, or 'all'
   function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
   function to(el, dx, dy, ms) {
     var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -918,114 +1015,242 @@
     cur.style.left = (r.left - a.left + r.width * dx) + 'px'; cur.style.top = (r.top - a.top + r.height * dy) + 'px';
   }
   function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
-  function reset() {
-    timers.forEach(clearTimeout); timers = [];
-    cur.classList.remove('show', 'press'); s.classList.remove('m1', 'm2', 'm3'); txt.textContent = '';
+  function type(el, t, t0, step) { for (var i = 1; i <= t.length; i++) (function (i) { at(t0 + i * step, function () { el.textContent = t.slice(0, i); }); })(i); }
+  function clearCard(i) {
+    cards[i].classList.remove('m1', 'm2', 'm3', 'm-ed');
+    if (i === 1) txt.textContent = '';
+    if (i === 2 && ins) ins.textContent = '';
   }
-  function run() {
-    reset();
-    var a = app.getBoundingClientRect();
-    cur.style.transitionDuration = '0ms'; cur.style.left = (a.width * 0.5) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
-    at(600, function () { cur.classList.add('show'); to(ok1, 0.6, 0.65, 800); });
-    at(1500, function () { click(); });
-    at(1650, function () { s.classList.add('m1'); });
-    at(2300, function () { to(rw2, 0.55, 0.65, 750); });
-    at(3150, function () { click(); s.classList.add('m2'); });
-    var t = 'Make it warmer.';
-    for (var i = 1; i <= t.length; i++) (function (i) { at(3450 + i * 60, function () { txt.textContent = t.slice(0, i); }); })(i);
-    at(4500, function () { to(send, 0.5, 0.6, 450); });
-    at(5000, function () { click(); });
-    at(5150, function () { s.classList.add('m3'); });
-    at(6300, function () { cur.classList.remove('show'); });
+  // stop whatever is playing; a movie cut off halfway is put back to its waiting state, finished ones stay done
+  function stop() {
+    timers.forEach(clearTimeout); timers = []; cur.classList.remove('show', 'press');
+    if (live === 'all') [0, 1, 2].forEach(clearCard); else if (live !== null) clearCard(live);
+    live = null;
+  }
+  function resetAll() { stop(); [0, 1, 2].forEach(clearCard); }
+  // each movie starts at t0 and returns when it ends
+  var movies = [
+    function (t0) {
+      var c = cards[0], ok = c.querySelector('.a.ok');
+      at(t0 + 100, function () { cur.classList.add('show'); to(ok, 0.6, 0.65, 800); });
+      at(t0 + 1000, click);
+      at(t0 + 1150, function () { c.classList.add('m1'); });
+      return t0 + 1700;
+    },
+    function (t0) {
+      var c = cards[1], rw = c.querySelectorAll('.a')[1];
+      at(t0 + 100, function () { cur.classList.add('show'); to(rw, 0.55, 0.65, 750); });
+      at(t0 + 950, function () { click(); c.classList.add('m2'); });
+      type(txt, 'Make it warmer.', t0 + 1250, 60);
+      at(t0 + 2300, function () { to(send, 0.5, 0.6, 450); });
+      at(t0 + 2800, click);
+      at(t0 + 2950, function () { c.classList.add('m3'); });
+      return t0 + 3500;
+    },
+    function (t0) {
+      var c = cards[2], ok = c.querySelector('.a.ok');
+      at(t0 + 100, function () { cur.classList.add('show'); to(ins, 0, 0.55, 800); });
+      at(t0 + 950, function () { click(); c.classList.add('m-ed'); });
+      type(ins, ', Northwest Washington', t0 + 1200, 55);
+      at(t0 + 2700, function () { to(ok, 0.6, 0.65, 650); });
+      at(t0 + 3450, click);
+      at(t0 + 3600, function () { c.classList.remove('m-ed'); c.classList.add('m1'); });
+      return t0 + 4100;
+    }
+  ];
+  // the mouse comes up from below the card (or the middle of the app when playing all)
+  function enter(el) {
+    var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
+    cur.style.transitionDuration = '0ms';
+    cur.style.left = (r.left - a.left + r.width * 0.5) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
+  }
+  function play(i) {
+    stop(); clearCard(i); live = i; enter(cards[i]);
+    at(movies[i](0), function () { cur.classList.remove('show'); live = null; });
+  }
+  function playAll() {
+    stop(); [0, 1, 2].forEach(clearCard); live = 'all'; enter(app);
+    var t = movies[0](0) + 300; t = movies[1](t) + 300; t = movies[2](t);
+    at(t, function () { cur.classList.remove('show'); live = null; });
   }
   var wasOn = s.classList.contains('on');
   new MutationObserver(function () {
     var on = s.classList.contains('on'); if (on === wasOn) return;
-    wasOn = on; if (on) run(); else reset();
+    wasOn = on; if (!on) resetAll();
   }).observe(s, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('beforeprint', reset);
-  (window.__replay = window.__replay || {})['6'] = run;
-  // click any card to play it again (without the click also changing slide)
-  cards.forEach(function (c) { c.classList.add('replayable'); c.title = 'Click to replay'; c.addEventListener('click', function (e) { e.stopPropagation(); run(); }); });
-  if (wasOn) run();
+  window.addEventListener('beforeprint', resetAll);
+  (window.__replay = window.__replay || {})['7'] = playAll;
+  // click a card to play (or replay) its own movie, without the click also changing slide
+  cards.forEach(function (c, i) { c.classList.add('replayable'); c.title = 'Click to play'; c.addEventListener('click', function (e) { e.stopPropagation(); play(i); }); });
 })();
 </script>
 <script>
-// Slides "Email, sorted by morning" (8) and "Newsletters, drafted from your month" (9): each plays once when its slide
-// comes on; click the mock-up (or press R) to play it again. Without motion (print, reduced motion) both slides show
-// their finished state, because the markup IS the finished state and the scripts only add "pre" classes at the start.
+// Slide "Email, sorted by morning" (9), hands-on: nothing plays when the slide comes on, and every email in the inbox
+// opens. Pat and Sam ask something: the question lights up, Yes / No / Later / Need more drafts a reply for that
+// answer, Edit (or a click in the reply) lets you rewrite it in your own words, and Send says nothing was sent, marks the email Replied, and offers "Next email".
+// The store team's email is waiting on them (Acknowledge only); the FYI and the promotion need nothing, which is the
+// point of the sorting. R (or Replay) plays Pat's as a short movie with a mouse. Leaving the slide puts it all back.
+// The presenter does the clicks live, and anyone opening the shared copy later can do them too.
+// Without motion (print, reduced motion) it shows Pat's finished state, because the markup IS that state.
+// Slide 10 (the newsletter chart) is CSS-only; see build.js.
 (function () {
-  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function cursor(host) {
-    var c = document.createElement('div'); c.className = 'mcur';
-    c.innerHTML = '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
-    host.appendChild(c); return c;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var s = document.querySelector('.slide[data-n="9"]'); if (!s) return;
+  var app = s.querySelector('.app'), rows = [].slice.call(s.querySelectorAll('.mrow'));
+  var head = s.querySelector('.mhead'), body = s.querySelector('.mtext'), stance = s.querySelector('.stance'), note = s.querySelector('.mnote');
+  var draft = s.querySelector('.draft'), dp = draft.querySelector('p'), send = s.querySelector('.dsend .a'), dn = s.querySelector('.dsend .dn'), next = s.querySelector('.dnext');
+  var ed = s.querySelector('.dsend .ed'), dl = s.querySelector('.draft .dl'), dlText = dl.textContent;
+  var dnText = dn.textContent, whys = rows.map(function (r) { return r.querySelector('.why').textContent; });
+  var sign = ' Thanks for supporting free job training in our community.';
+  // the five emails; the people and emails are made up, and every Goodwill fact is already on their site
+  var mail = [
+    { from: 'Pat L.', subj: 'Dropping off clothes and books?', body: body.innerHTML, label: 'It’s asking a yes-or-no question:',
+      replies: { 'Yes': dp.innerHTML,
+        'No': 'Hi Pat, thank you so much for thinking of us. Unfortunately we can’t take them this time, because <span class="blank">[say why]</span>.' + sign,
+        'Later': 'Hi Pat, thanks for reaching out! Let me check on that and get back to you shortly.' + sign,
+        'Need more': 'Hi Pat, thank you! So I can point you to the right place, roughly how many boxes do you have, and which area are you in?' + sign } },
+    { from: 'Sam R.', subj: 'Interested in tutoring students', body: 'Hello! I saw that you have volunteer tutors. <mark class="q">How do I get started?</mark> I’m free most weekday mornings. Sam', label: 'It’s asking how to get started:',
+      replies: { 'Yes': 'Hi Sam, thank you so much for wanting to tutor! Everything you need to get started is on the Volunteer page of our website. We’d love to have you.' + sign,
+        'No': 'Hi Sam, thank you for offering. Unfortunately we can’t take new tutors right now, because <span class="blank">[say why]</span>.' + sign,
+        'Later': 'Hi Sam, thank you! Let me check on next steps and get back to you shortly.' + sign,
+        'Need more': 'Hi Sam, thanks for reaching out! Are you hoping to tutor one-on-one or in small groups?' + sign } },
+    { from: 'Store team', subj: 'Re: signage for Saturday’s sale', body: 'Thanks for the question! We’re checking with the print shop and will confirm by Thursday.', label: 'Waiting on them: they’ll confirm by Thursday.',
+      note: 'Nothing for you to do yet. It stays in Waiting until they answer.',
+      replies: { 'Acknowledge': 'Thanks! Talk Thursday.' } },
+    { from: 'Community partner', subj: 'October newsletter', body: 'Our October newsletter is here: community events, partner spotlights and more.',
+      note: 'FYI: nothing to answer. It’s here so you see it, not so you reply.' },
+    { from: 'Office supplier', subj: 'Save 20% this week', body: 'Save 20% on printer paper and toner this week only!',
+      note: 'A promotion: no action. Sorted to the bottom so it doesn’t take your morning.' }
+  ];
+  var openAt = -1, done = [];
+  var cur = document.createElement('div'); cur.className = 'mcur';
+  cur.innerHTML = '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+  app.appendChild(cur);
+  var timers = [];
+  function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function to(el, dx, dy, ms) {
+    var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
+    cur.style.transitionDuration = (ms || 650) + 'ms';
+    cur.style.left = (r.left - a.left + r.width * dx) + 'px'; cur.style.top = (r.top - a.top + r.height * dy) + 'px';
   }
-  function wire(n, setup) {
-    var s = document.querySelector('.slide[data-n="' + n + '"]'); if (!s || still) return;
-    var app = s.querySelector('.app'), cur = cursor(app), timers = [];
-    function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
-    function to(el, dx, dy, ms) {
-      var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
-      cur.style.transitionDuration = (ms || 650) + 'ms';
-      cur.style.left = (r.left - a.left + r.width * dx) + 'px'; cur.style.top = (r.top - a.top + r.height * dy) + 'px';
-    }
-    function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
-    var steps = setup(s, at, to, click, cur);
-    function reset() { timers.forEach(clearTimeout); timers = []; cur.classList.remove('show', 'press'); steps.reset(); }
-    function run() {
-      reset(); steps.pre();
-      var a = app.getBoundingClientRect();
-      cur.style.transitionDuration = '0ms'; cur.style.left = (a.width * 0.55) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
-      steps.play();
-    }
-    var wasOn = s.classList.contains('on');
-    new MutationObserver(function () {
-      var on = s.classList.contains('on'); if (on === wasOn) return;
-      wasOn = on; if (on) run(); else reset();
-    }).observe(s, { attributes: true, attributeFilter: ['class'] });
-    window.addEventListener('beforeprint', reset);
-    (window.__replay = window.__replay || {})[n] = run;
-    app.classList.add('replayable'); app.title = 'Click to replay';
-    app.addEventListener('click', function (e) { e.stopPropagation(); run(); });
-    if (wasOn) run();
+  function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
+
+  function buttons(m) {
+    var names = m.replies ? Object.keys(m.replies) : [];
+    stance.innerHTML = '<span class="sl">' + (m.label || '') + '</span>' + names.map(function (n) { return '<span class="st">' + n + '</span>'; }).join('');
+    stance.style.display = m.label ? '' : 'none';
+  }
+  function pick(name) {
+    var m = mail[openAt]; if (!m || !m.replies || !m.replies[name]) return;
+    [].forEach.call(stance.querySelectorAll('.st'), function (st) { st.classList.toggle('pick', st.textContent === name); });
+    dp.innerHTML = m.replies[name]; dn.textContent = dnText; dl.textContent = dlText; s.classList.remove('e4', 'e5'); s.classList.add('e3');
+  }
+  function open(i) {
+    var m = mail[i]; if (!m) return;
+    timers.forEach(clearTimeout); timers = [];
+    openAt = i; rows.forEach(function (r, k) { r.classList.toggle('on', k === i); });
+    head.innerHTML = '<b>' + m.from + '</b><span>' + m.subj + '</span>'; body.innerHTML = m.body;
+    buttons(m); note.style.display = m.note ? 'block' : 'none';
+    note.innerHTML = m.note ? m.note + ' <span class="dnext">Next email &#8594;</span>' : '';
+    dp.blur(); dn.textContent = dnText; dl.textContent = dlText; next.style.display = '';
+    s.classList.remove('e0', 'e2', 'e3', 'e4', 'e5'); s.classList.add('e1');
+    if (!rows[i].classList.contains('done') && !m.replies) markDone(i, '✓ Read');
+    at(500, function () { s.classList.add('e2'); });
+  }
+  function markDone(i, text) { rows[i].classList.add('done'); rows[i].querySelector('.why').textContent = text; done[i] = true; }
+  // the next email not yet handled, after the open one (wrapping round)
+  function nextOpen() { for (var k = 1; k <= rows.length; k++) { var j = (openAt + k) % rows.length; if (!done[j]) return j; } return -1; }
+  // back to the waiting inbox: closed, nothing handled, Pat's email restored for print
+  function reset() {
+    timers.forEach(clearTimeout); timers = []; cur.classList.remove('show', 'press');
+    s.classList.remove('e1', 'e2', 'e3', 'e4', 'e5'); s.classList.add('e0'); dl.textContent = dlText;
+    rows.forEach(function (r, k) { r.classList.toggle('on', k === 0); r.classList.remove('done'); r.querySelector('.why').textContent = whys[k]; });
+    done = []; openAt = 0;
+    head.innerHTML = '<b>' + mail[0].from + '</b><span>' + mail[0].subj + '</span>'; body.innerHTML = mail[0].body;
+    buttons(mail[0]); [].forEach.call(stance.querySelectorAll('.st'), function (st) { st.classList.toggle('pick', st.textContent === 'Yes'); });
+    note.style.display = 'none'; dp.innerHTML = mail[0].replies.Yes; dp.blur(); dn.textContent = dnText; next.style.display = ''; openAt = -1;
+  }
+  function movie() {
+    reset();
+    var a = app.getBoundingClientRect();
+    cur.style.transitionDuration = '0ms'; cur.style.left = (a.width * 0.55) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
+    at(500, function () { cur.classList.add('show'); to(rows[0], 0.5, 0.55, 750); });
+    at(1350, function () {
+      click(); open(0);
+      at(1350, function () { to(stance.querySelector('.st'), 0.5, 0.6, 700); });
+      at(2150, function () { click(); pick('Yes'); });
+      at(3050, function () { to(send, 0.5, 0.65, 650); });
+      at(4650, function () { cur.classList.remove('show'); });
+    });
   }
 
-  // 8 · the inbox: open Pat's email, light up the question, pick Yes, the reply appears
-  wire('8', function (s, at, to, click, cur) {
-    var row = s.querySelector('.mrow.on'), yes = s.querySelector('.st.yes'), send = s.querySelector('.dsend .a');
-    return {
-      reset: function () { s.classList.remove('e0', 'e1', 'e2', 'e3'); },
-      pre: function () { s.classList.add('e0'); },
-      play: function () {
-        at(500, function () { cur.classList.add('show'); to(row, 0.5, 0.55, 750); });
-        at(1350, function () { click(); s.classList.remove('e0'); s.classList.add('e1'); });
-        at(2100, function () { s.classList.add('e2'); });
-        at(2700, function () { to(yes, 0.5, 0.6, 700); });
-        at(3500, function () { click(); s.classList.add('e3'); });
-        at(4400, function () { to(send, 0.5, 0.65, 650); });
-        at(6000, function () { cur.classList.remove('show'); });
-      }
-    };
+  // hands-on: the presenter's own clicks (none of them also changes slide)
+  app.classList.add('live');
+  rows.forEach(function (r, i) { r.title = 'Click to open'; r.addEventListener('click', function (e) { e.stopPropagation(); open(i); }); });
+  stance.addEventListener('click', function (e) { var st = e.target.closest('.st'); e.stopPropagation(); if (st && s.classList.contains('e1')) pick(st.textContent); });
+  dp.addEventListener('click', function (e) { e.stopPropagation(); });
+  // typing in the reply must not reach the deck's keys (Space, arrows, R)
+  dp.addEventListener('keydown', function (e) { e.stopPropagation(); });
+  dp.setAttribute('contenteditable', 'true'); dp.setAttribute('spellcheck', 'false'); dp.title = 'Click to change a word';
+  send.addEventListener('click', function (e) {
+    e.stopPropagation(); if (!s.classList.contains('e3') || openAt < 0) return;
+    dp.blur(); s.classList.add('e4'); dn.textContent = 'Demo: nothing was sent. In real use, your team reviews it and sends it themselves.';
+    markDone(openAt, '✓ Replied');
+    next.style.display = nextOpen() < 0 ? 'none' : '';
   });
+  // Edit: the reply is yours to change; the caret goes to the end and the label says so
+  ed.addEventListener('click', function (e) {
+    e.stopPropagation(); if (!s.classList.contains('e3') || s.classList.contains('e4')) return;
+    s.classList.add('e5'); dl.textContent = 'Your words now · the draft is only a starting point';
+    dp.focus(); var r = document.createRange(); r.selectNodeContents(dp); r.collapse(false);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  });
+  function goNext(e) { e.stopPropagation(); var j = nextOpen(); if (j >= 0) open(j); }
+  next.addEventListener('click', goNext);
+  note.addEventListener('click', function (e) { if (e.target.closest('.dnext')) goNext(e); else e.stopPropagation(); });
 
-  // 9 · the newsletter: items drop into the draft one by one, then a person approves it
-  wire('9', function (s, at, to, click, cur) {
-    var ok = s.querySelector('.napprove .a.ok');
-    return {
-      reset: function () { s.classList.remove('n0', 'n1', 'n2', 'n3', 'n4', 'n5'); },
-      pre: function () { s.classList.add('n0'); },
-      play: function () {
-        at(600, function () { s.classList.add('n1'); });
-        at(1300, function () { s.classList.add('n2'); });
-        at(2000, function () { s.classList.add('n3'); });
-        at(2700, function () { s.classList.add('n4'); });
-        at(3300, function () { cur.classList.add('show'); to(ok, 0.5, 0.6, 800); });
-        at(4300, function () { click(); s.classList.add('n5'); });
-        at(5600, function () { cur.classList.remove('show'); });
-      }
-    };
-  });
+  var wasOn = s.classList.contains('on');
+  new MutationObserver(function () {
+    var on = s.classList.contains('on'); if (on === wasOn) return;
+    wasOn = on; reset();
+  }).observe(s, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('beforeprint', function () { reset(); s.classList.remove('e0'); });
+  (window.__replay = window.__replay || {})['9'] = movie;
+  reset();
+})();
+</script>
+<div class="nlm" id="nlm" role="dialog" aria-modal="true" aria-label="Sample newsletter issue" hidden>
+  <div class="nlm-box">
+    <button type="button" class="nlm-x" aria-label="Close">&#215;</button>
+    <div class="nlm-top"><span class="illus">Illustration · a sample draft</span><span class="nlm-fit">Shown in a plain layout. In practice it fills <b>your own Constant Contact template</b>, with your sections and your lists. Your sign-up form and lists stay as they are.</span></div>
+    <div class="nlm-issue">
+      <div class="nlm-mast">Evergreen Goodwill <span>Community update · October</span></div>
+      <p class="nlm-opening"><span class="nlm-tag">AI draft · rewrite in your words</span>In 2025, you helped 6,403 students into free job training and education. Thank you.</p>
+      <div class="nlm-sec"><b>Happy Cartober</b><p>Turn your unused vehicle into community impact.</p><span class="nlm-src">Your item · from your homepage banner</span></div>
+      <div class="nlm-sec"><b>Spotlight: Adult Basic Education</b><p>Free classes that help adults get ready for today’s workplace.</p><span class="nlm-src">Your item · from your Adult Education page</span></div>
+      <div class="nlm-sec"><b>Volunteer with us</b><p>Tutor students one-on-one or in small groups.</p><span class="nlm-src">Your item · from your Volunteer page</span></div>
+      <div class="nlm-sec std"><b>Give · Shop · Donate</b><p>Every purchase, donation and volunteer hour helps fund free job training. Find us at evergreengoodwill.org.</p><span class="nlm-src">Standing section · written once, reused every issue</span></div>
+    </div>
+    <div class="nlm-foot"><span class="a ok">Approve</span><span class="a">Reject with a reason</span><span class="a">Skip this month</span><span class="nlm-send">Then a person sends it from Constant Contact.</span></div>
+  </div>
+</div>
+<script>
+// Slide 10's "See a sample issue": a small thumbnail opens a sample draft in a pop-up (the same overlay style as the
+// fix panels). Click outside it, the × or Escape to close; while it is open the deck's keys do nothing, so an arrow
+// can't change the slide behind it. Not needed live; it is there for anyone reading the shared deck afterwards.
+(function () {
+  var m = document.getElementById('nlm'), t = document.querySelector('.slide[data-n="10"] .nl-thumb'); if (!m || !t) return;
+  function open(e) { if (e) e.stopPropagation(); m.hidden = false; m.querySelector('.nlm-x').focus(); }
+  function close() { m.hidden = true; t.focus(); }
+  t.addEventListener('click', open);
+  m.addEventListener('click', function (e) { e.stopPropagation(); if (e.target === m || e.target.closest('.nlm-x')) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (m.hidden) return;
+    e.stopPropagation(); if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); if (e.key === 'Escape') close(); } else if (/^(Arrow|Page|Home|End| $)/.test(e.key) || e.key === ' ' || /^[rRnNpPfF]$/.test(e.key)) e.preventDefault();
+  }, true);
+  // leaving the slide (e.g. by the margins) closes it
+  var s = t.closest('.slide');
+  new MutationObserver(function () { if (!s.classList.contains('on') && !m.hidden) m.hidden = true; }).observe(s, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
 <script>
@@ -1035,7 +1260,7 @@
 // Nothing loops. Print and reduced motion: no button.
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var DONE = { '5': 3600, '6': 6600, '7': 8200, '8': 6200, '9': 5800 };   // when each slide's motion has settled (ms)
+  var DONE = { '6': 3600, '7': 10200, '8': 8200, '9': 6200, '10': 2800 };   // when each slide's motion has settled (ms)
   window.__replay = window.__replay || {};
   var btns = {}, timers = {};
   function showLater(n) {
@@ -1092,7 +1317,21 @@
     }
   });
   document.addEventListener('fullscreenchange',function(){ document.body.classList.toggle('presenting',!!document.fullscreenElement); });
-  document.getElementById('stage').addEventListener('click',function(e){ show(e.clientX>window.innerWidth/3?i+1:i-1); });
+  // Only the side margins move slides (left back, right forward), so highlighting words while talking never does.
+  // The second click of a double-click is ignored, so it can't jump two slides. Keys and clickers are unchanged.
+  var stage=document.getElementById('stage');
+  function zone(cls,label,step,glyph){
+    var z=document.createElement('div'); z.className='nav-zone '+cls; z.title=label; z.setAttribute('aria-label',label);
+    z.innerHTML='<span aria-hidden="true">'+glyph+'</span>';
+    z.addEventListener('click',function(e){ e.stopPropagation(); if(e.detail>1) return; show(i+step); });
+    stage.appendChild(z);
+  }
+  zone('prev','Previous slide',-1,'&#8249;'); zone('next','Next slide',1,'&#8250;');
+  // the bars beside a letterboxed stage count as margins too
+  document.addEventListener('click',function(e){
+    if(e.target!==document.body&&e.target!==document.documentElement) return; if(e.detail>1) return;
+    var r=stage.getBoundingClientRect(); if(e.clientX<r.left) show(i-1); else if(e.clientX>r.right) show(i+1);
+  });
   function fromHash(){ var h=parseInt((location.hash||'').slice(1),10); if(!isNaN(h)&&h-1!==i) show(h-1); }
   window.addEventListener('hashchange',fromHash);
   var h0=parseInt((location.hash||'').slice(1),10); show(isNaN(h0)?0:h0-1);
