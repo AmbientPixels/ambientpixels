@@ -171,6 +171,15 @@
   /* Part divider (slide 5): the part number, the part name, what's in it */
   .part-n{font-family:var(--font-heavy);font-size:calc(var(--u)*6);line-height:1;letter-spacing:-0.04em;opacity:.16;margin-bottom:calc(var(--u)*1.2)}
   .part-sub{margin:calc(var(--u)*1.2) 0 0;font-size:calc(var(--u)*1.7);color:var(--color-text-secondary)}
+  /* slide 11: one suggestion first, then who makes the changes */
+  .lead-rec{margin:calc(var(--u)*1.8) 0 0;font-size:calc(var(--u)*1.8);line-height:1.4;color:var(--color-text-secondary);max-width:62ch}
+  .lead-rec strong{color:var(--color-text-primary);font-weight:900}
+  .opts-lbl{margin:calc(var(--u)*2.2) 0 0;font-family:var(--font-mono);font-size:calc(var(--u)*1.05);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary)}
+  .opts.two{grid-template-columns:repeat(2,1fr);margin-top:calc(var(--u)*.8)}
+  .opts.two .opt{padding-top:calc(var(--u)*1.1);padding-bottom:calc(var(--u)*1.3)}
+  .opts.two .opt .n{font-size:calc(var(--u)*3)}
+  .opts.two ~ .also{margin-top:calc(var(--u)*1.4)}
+  .opts.two ~ .proof{margin-top:calc(var(--u)*1.4)}
   .also{margin:calc(var(--u)*2.2) 0 0;font-size:calc(var(--u)*1.35);line-height:1.45;color:var(--color-text-secondary);max-width:78ch}
   .also strong{color:var(--color-text-primary);font-weight:900}
   /* what the fixes move */
@@ -292,6 +301,9 @@
      screen share; the text sits below it (scroll the panel on a short screen; the presenter says it out loud) */
   .fxm-card{background:#141414;border:1px solid var(--color-border);width:96vw;max-height:94vh;overflow:auto;padding:16px 22px 20px}
   .fxm-top{display:flex;align-items:baseline;gap:16px;margin-bottom:12px}
+  .fxm-tag{font-size:13px;font-weight:700;color:#e0bd6a;border:1px dashed #c9a24a;padding:3px 8px;white-space:nowrap}
+  .fxm-cue{position:sticky;bottom:-20px;margin:6px -22px -20px;padding:14px 8px 10px;text-align:center;background:linear-gradient(rgba(20,20,20,0),#141414 45%);font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-secondary);pointer-events:none}
+  .fxm-cue[hidden]{display:none}
   .fxm-n{font-family:var(--font-heavy);font-size:34px;opacity:.3;letter-spacing:-0.04em}
   .fxm-top h3{margin:0;font-weight:900;font-size:28px;letter-spacing:-0.025em;flex:1}
   .fxm-x{background:none;border:1px solid var(--color-border);color:var(--color-text-primary);font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 14px;cursor:pointer}
@@ -649,7 +661,7 @@
   <!-- What the fixes move: the 42, broken down, with the fix that raises each part -->
   <section class="slide" data-n="4">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 Audit — What moves</div></div>
-    <h2 class="ap-display h2">Aimed at the <em>lowest scores.</em></h2>
+    <h2 class="ap-display h2">Aimed at the <em>weakest scores.</em></h2>
     <div class="moves">
       <div class="mv"><span class="k">Ease of acting<span class="tip" role="tooltip">The audit calls this “funnel friction”. How easy it is for someone who already wants to apply, give or shop to actually do it: how many clicks, how many choices, and whether anything pulls them away.</span></span><span class="bar"><i class="goal" style="width:40%"></i><i style="width:11%"></i></span><span class="v">11<span class="to">→</span><span class="g">40+</span></span><span class="fx"><b data-fix="2"><span class="fn">02</span>Newsletter</b><b data-fix="4"><span class="fn">04</span>Menu</b></span></div>
       <div class="mv"><span class="k">What the page puts first<span class="tip" role="tooltip">The audit calls this “conversion hierarchy”. Whether the layout leads the eye to the most important action first, instead of giving everything equal weight.</span></span><span class="bar"><i class="goal" style="width:50%"></i><i style="width:29%"></i></span><span class="v">29<span class="to">→</span><span class="g">50+</span></span><span class="fx"><b data-fix="4"><span class="fn">04</span>Menu</b></span></div>
@@ -679,7 +691,7 @@
     <h2 class="ap-display h2">How it would work <em>at Goodwill.</em></h2>
     <div class="day" role="img" aria-label="A morning at Goodwill: drafts arrive at 7 am, your team decides at 9:30, a person posts at 11, and your reasons shape the next drafts.">
       <div class="track"><i></i></div>
-      <div class="stop"><span class="dot"></span><span class="when">7:00 am · AI drafts</span><h3>Drafts <em>arrive.</em></h3><p>Posts and newsletters, in your voice, from your own pages. Waiting when you log in.</p></div>
+      <div class="stop"><span class="dot"></span><span class="when">7:00 am · AI drafts</span><h3>Drafts <em>arrive.</em></h3><p>Posts and newsletter drafts, in your voice, from your own pages. Waiting when you log in.</p></div>
       <div class="stop you"><span class="dot"></span><span class="when">9:30 am · Your team</span><h3>You <em>decide.</em></h3><p>Approve, fix a word, or say no and why.</p></div>
       <div class="stop done"><span class="dot"></span><span class="when">11:00 am · A person</span><h3>A person <em>posts it.</em></h3><p>Nothing goes out on its own.</p></div>
       <div class="ret"><svg viewBox="0 0 967 100" preserveAspectRatio="none" aria-hidden="true"><path id="retpath" d="M966,0 L966,52 Q966,99 919,99 L48,99 Q1,99 1,52 L1,0"/><circle r="13" class="pip"><animateMotion dur="4s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".45 0 .25 1"><mpath href="#retpath"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.1;.8;.92;1" dur="4s" repeatCount="indefinite"/></circle></svg><span class="lbl">Your reasons shape the next drafts</span></div>
@@ -715,7 +727,7 @@
   <!-- 8 · Say it once -->
   <section class="slide" data-n="8">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — How they learn</div></div>
-    <h2 class="ap-display h2">Say it once. <em>It’s in every next draft.</em></h2>
+    <h2 class="ap-display h2">Say it once. <em>The next drafts follow it.</em></h2>
     <div class="learn">
       <div class="lcol"><div class="steplab"><b>1</b>A draft you don’t like</div>
       <div class="card faded"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs vs-l">Sounds like you: 8/10</span><span class="rej">Rejected</span></div>
@@ -756,7 +768,7 @@
           <p class="mnote"></p>
           <div class="draft">
             <span class="dl">Drafted in your voice · edit freely</span>
-            <p>Hi Pat, yes, thank you! You can drop them at any of our donation centers. Hours, locations and what we accept are all on our website. Thanks for supporting free job training in our community.</p>
+            <p>Hi Pat, yes, thank you! You can drop them at any of our donation centers. Hours for this weekend, locations and what we accept are all on our website. Thanks for supporting free job training in our community.</p>
             <div class="dsend"><span class="a ok">Send</span><span class="a ed">Edit</span><span class="dn">Nothing sends until a person presses Send.</span><span class="dnext">Next email &#8594;</span></div>
           </div>
         </div>
@@ -787,7 +799,7 @@
     </div>
     <div class="rhythms">
       <span class="rh-lbl">Three rhythms</span>
-      <div class="rh"><b>Recurring</b>Monthly donor and staff newsletters, the same sections every issue.</div>
+      <div class="rh"><b>Recurring</b>Monthly donor and staff updates, the same sections every issue.</div>
       <div class="rh"><b>Campaigns</b>Cartober: drafts on a set rhythm while it runs, then it stops.</div>
       <div class="rh"><b>One-offs</b>A single item, once: a thank-you, a reminder.</div>
     </div>
@@ -797,21 +809,22 @@
   <!-- 11 · Ways to start (options, not an assumption) -->
   <section class="slide" data-n="11">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 03 — Ways to start</div></div>
-    <h2 class="ap-display h2">A few ways to start. <em>Your call.</em></h2>
-    <div class="opts">
+    <h2 class="ap-display h2">Start small. <em>Your call.</em></h2>
+    <p class="lead-rec">Our suggestion: <strong>start with one fix, the Apply link and headline, with an agents sandbox alongside.</strong> A small first step to see how we work together.</p>
+    <p class="opts-lbl">Who makes the changes</p>
+    <div class="opts two">
       <div class="opt"><div class="n">01</div><h3>Your team <em>builds it.</em></h3><p>We write the new wording, measure where you are today and report back. Your web team or agency makes the changes.</p></div>
       <div class="opt"><div class="n">02</div><h3>We <em>build it.</em></h3><p>With access to your site, we make the changes too. One less thing on your team’s plate.</p></div>
-      <div class="opt"><div class="n">03</div><h3>Start with <em>one fix.</em></h3><p>Just the Apply link and headline. A small first step to see how we work together.</p></div>
     </div>
     <p class="also"><strong>Try the agents first.</strong> A test sandbox built from your own pages: a week of posts, a newsletter draft and a sample inbox, for your team to mark up. Nothing posts or sends.</p>
-    <p class="proof">If it helps: <strong>start with one fix, with the sandbox alongside it.</strong> Or tell us what fits how your team works.</p>
+    <p class="proof">Or something else entirely. <strong>What fits how your team works?</strong></p>
     
   </section>
 
 </div>
 <div class="fxm" id="fxm" hidden>
   <div class="fxm-card" role="dialog" aria-modal="true" aria-labelledby="fxm-title">
-    <div class="fxm-top"><span class="fxm-n" id="fxm-n"></span><h3 id="fxm-title"></h3><button type="button" class="fxm-x fxm-replay" id="fxm-replay" hidden>&#9654; Replay</button><button type="button" class="fxm-x" id="fxm-x">Close</button></div>
+    <div class="fxm-top"><span class="fxm-n" id="fxm-n"></span><h3 id="fxm-title"></h3><span class="fxm-tag" id="fxm-tag" hidden></span><button type="button" class="fxm-x fxm-replay" id="fxm-replay" hidden>&#9654; Replay</button><button type="button" class="fxm-x" id="fxm-x">Close</button></div>
     <div class="fxm-body">
     <div class="fxm-imgbox" id="fxm-imgbox"><img id="fxm-img" alt=""><div class="fxm-demo" id="fxm-demo" aria-hidden="true"></div></div>
     <div class="fxm-rows">
@@ -820,6 +833,7 @@
       <div><span>We'd measure</span><p id="fxm-measure"></p></div>
     </div>
     </div>
+    <div class="fxm-cue" id="fxm-cue" hidden>&#8595; What changes, below</div>
   </div>
 </div>
 <script>
@@ -827,7 +841,7 @@
 // While open, the deck's own click/keyboard navigation is held back.
 (function () {
   var FIXES = {
-    '1': { title: 'Apply for Free Job Training', img: 'goodwill/deck/deck/01-hero.png',
+    '1': { title: 'Apply for Free Job Training', img: 'goodwill/deck/deck/01-hero.png', tag: 'The new wording is a draft, for your team to rewrite',
       what: "<ol class=\"nums\"><li><b>Link.</b> “Click Here” becomes “Apply for Free Job Training”: a link that names the action gets clicked.</li><li><b>Headline.</b> From a belief to what’s on offer: visitors decide in seconds whether a page is for them.</li><li><b>Body.</b> Speaks to job seekers first, then tells donors and shoppers what their support pays for.</li><li><b>Button.</b> “Our Mission &amp; Vision” becomes “See How Our Programs Change Lives”: a reason to click.</li></ol><span class=\"note\">The red bar is as captured Oct 8; it rotates by campaign.</span>",
       why: 'It is the front door for the people the mission exists to serve, and today it does not say what is on offer.',
       measure: 'Clicks to apply or register.' },
@@ -844,7 +858,10 @@
       why: 'Today the header and menus hold 59 links, 25 of them visible before a click, reaching 31 destinations. Offered everything at once, most people choose nothing.',
       measure: 'Clicks to programs and to Donate.' }
   };
-  var m = document.getElementById('fxm'), last = null;
+  var m = document.getElementById('fxm'), last = null, card = m.querySelector('.fxm-card'), cueEl = document.getElementById('fxm-cue');
+  // on a short screen the text sits below the picture: say so until the panel is scrolled
+  function cue() { cueEl.hidden = !(card.scrollHeight > card.clientHeight + 8 && card.scrollTop < 20); }
+  card.addEventListener('scroll', cue);
   function open(id, row) {
     var f = FIXES[id]; if (!f) return;
     document.getElementById('fxm-n').textContent = '0' + id;
@@ -853,7 +870,9 @@
     document.getElementById('fxm-what').innerHTML = f.what;
     document.getElementById('fxm-why').textContent = f.why;
     document.getElementById('fxm-measure').textContent = f.measure;
-    last = row; m.hidden = false; document.getElementById('fxm-x').focus();
+    var tag = document.getElementById('fxm-tag'); tag.textContent = f.tag || ''; tag.hidden = !f.tag;
+    card.scrollTop = 0; last = row; m.hidden = false; document.getElementById('fxm-x').focus(); cue();
+    if (!img.complete) img.addEventListener('load', cue, { once: true });
     if (window.FXMDemo) window.FXMDemo.open(id);
   }
   function close() { if (window.FXMDemo) window.FXMDemo.stop(); m.hidden = true; if (last) last.focus(); }
@@ -1166,8 +1185,7 @@
         'Later': 'Hi Pat, thanks for reaching out! Let me check on that and get back to you shortly.' + sign,
         'Need more': 'Hi Pat, thank you! So I can point you to the right place, roughly how many boxes do you have, and which area are you in?' + sign } },
     { from: 'Sam R.', subj: 'Interested in tutoring students', body: 'Hello! I saw that you have volunteer tutors. <mark class="q">How do I get started?</mark> I’m free most weekday mornings. Sam', label: 'It’s asking how to get started:',
-      replies: { 'Yes': 'Hi Sam, thank you so much for wanting to tutor! Everything you need to get started is on the Volunteer page of our website. We’d love to have you.' + sign,
-        'No': 'Hi Sam, thank you for offering. Unfortunately we can’t take new tutors right now, because <span class="blank">[say why]</span>.' + sign,
+      replies: { 'Send the link': 'Hi Sam, thank you so much for wanting to tutor! Everything you need to get started is on the Volunteer page of our website. We’d love to have you.' + sign,
         'Later': 'Hi Sam, thank you! Let me check on next steps and get back to you shortly.' + sign,
         'Need more': 'Hi Sam, thanks for reaching out! Are you hoping to tutor one-on-one or in small groups?' + sign } },
     { from: 'Store team', subj: 'Re: signage for Saturday’s sale', body: 'Thanks for the question! We’re checking with the print shop and will confirm by Thursday.', label: 'Waiting on them: they’ll confirm by Thursday.',
@@ -1282,9 +1300,9 @@
     <div class="nlm-issue">
       <div class="nlm-mast">Evergreen Goodwill <span>Community update · October</span></div>
       <p class="nlm-opening"><span class="nlm-tag">AI draft · rewrite in your words</span>In 2025, you helped 6,403 students into free job training and education. Thank you.</p>
-      <div class="nlm-sec"><b>Happy Cartober</b><p>Turn your unused vehicle into community impact.</p><span class="nlm-src">Your item · from your homepage banner</span></div>
-      <div class="nlm-sec"><b>Spotlight: Adult Basic Education</b><p>Free classes that help adults get ready for today’s workplace.</p><span class="nlm-src">Your item · from your Adult Education page</span></div>
-      <div class="nlm-sec"><b>Volunteer with us</b><p>Tutor students one-on-one or in small groups.</p><span class="nlm-src">Your item · from your Volunteer page</span></div>
+      <div class="nlm-sec"><b>Happy Cartober</b><p>Turn your unused vehicle into community impact.</p><span class="nlm-src">From your homepage banner</span></div>
+      <div class="nlm-sec"><b>Spotlight: Adult Basic Education</b><p>Free classes that help adults get ready for today’s workplace.</p><span class="nlm-src">From your Adult Education page</span></div>
+      <div class="nlm-sec"><b>Volunteer with us</b><p>Tutor students one-on-one or in small groups.</p><span class="nlm-src">From your Volunteer page</span></div>
       <div class="nlm-sec std"><b>Give · Shop · Donate</b><p>Every purchase, donation and volunteer hour helps fund free job training. Find us at evergreengoodwill.org.</p><span class="nlm-src">Standing section · written once, reused every issue</span></div>
     </div>
     <div class="nlm-foot"><span class="a ok">Approve</span><span class="a">Reject with a reason</span><span class="a">Skip this month</span><span class="nlm-send">Then a person sends it from Constant Contact.</span></div>
