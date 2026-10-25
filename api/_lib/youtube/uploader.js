@@ -94,4 +94,16 @@ async function publish(pkg, files, opts) {
   return out;
 }
 
-module.exports = { publish, accessToken, metadata, MAX_BYTES };
+// A video's current privacy ('public' | 'unlisted' | 'private'), or null when YouTube no longer has it.
+async function privacyOf(videoId, opts) {
+  opts = opts || {};
+  const f = opts.fetch || fetch;
+  const token = await accessToken(opts.env, f);
+  const res = await f('https://www.googleapis.com/youtube/v3/videos?part=status&id=' + encodeURIComponent(videoId), { headers: { Authorization: 'Bearer ' + token } });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error('YouTube status check failed (' + res.status + ')');
+  const v = Array.isArray(j.items) && j.items[0];
+  return (v && v.status && v.status.privacyStatus) || null;
+}
+
+module.exports = { publish, privacyOf, accessToken, metadata, MAX_BYTES };

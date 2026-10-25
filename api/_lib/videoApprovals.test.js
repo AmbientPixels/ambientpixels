@@ -176,4 +176,19 @@ t('the publish timer picks an approved, link-less, not-yet-uploaded request; the
   assert.strictEqual(C.nextToPublish([failing]), null);
 });
 
+t('a private upload waits for public before the release marker (and so @Echo)', () => {
+  const C = require('../youtubePublishCron/index.js');
+  const pkg = desk.cleanPackage({ title: 'A good title', files: { video: 'renders/ambientpixels/a/x-master.mp4' } }, 'ambientpixels');
+  const base = marked('review', [studio(desk.checkpointMark('publish')), ceo(desk.ceoMark('approved', 'publish'))]);
+  const up = reqTask({ status: 'in-progress', youtubePackage: pkg, comments: base.concat([studio('[studio:youtube-uploaded https://youtu.be/KFTzJqT7c9k] On YouTube (private).')]) });
+  const r = desk.parseRequest(up);
+  assert.strictEqual(r.youtube.uploaded, 'https://youtu.be/KFTzJqT7c9k');
+  assert.strictEqual(r.youtube.url, null);
+  assert.strictEqual(C.nextToPublish([up]), null);
+  assert.deepStrictEqual(C.waitingForPublic([up]).map((w) => w.url), ['https://youtu.be/KFTzJqT7c9k']);
+  up.comments.push(studio('[studio:youtube https://youtu.be/KFTzJqT7c9k] Now public on YouTube.'));
+  assert.strictEqual(desk.parseRequest(up).youtube.url, 'https://youtu.be/KFTzJqT7c9k');
+  assert.deepStrictEqual(C.waitingForPublic([up]), []);
+});
+
 console.log(`videoApprovals: ${passed} passed${process.exitCode ? ', FAILURES above' : ''}`);

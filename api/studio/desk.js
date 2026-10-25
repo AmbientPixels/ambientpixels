@@ -155,16 +155,20 @@ const studioMark = (stage, video, project) => `[studio:${stage}${video ? ' video
 const CHECKPOINTS = ['script', 'cut', 'publish'];
 const CP_MARK = /^\[studio:checkpoint (script|cut|publish)\]\s*([\s\S]*)$/;
 const CEO_MARK = /^\[ceo:(approved|sent back) (script|cut|publish)\]\s*([\s\S]*)$/;
-// What the uploader reports on the task: "[studio:youtube https://youtu.be/<id>]" or "[studio:youtube-failed] why".
+// What the uploader reports on the task: "[studio:youtube https://youtu.be/<id>]" (public: releases it, tags @Echo),
+// "[studio:youtube-uploaded https://youtu.be/<id>]" (on YouTube but not public yet: waits for Chad to flip it in
+// YouTube Studio, 2026-10-24) or "[studio:youtube-failed] why".
 const YT_MARK = /^\[studio:youtube (https:\/\/youtu\.be\/[A-Za-z0-9_-]{6,20})\]/;
+const YT_UPLOADED = /^\[studio:youtube-uploaded (https:\/\/youtu\.be\/[A-Za-z0-9_-]{6,20})\]/;
 const YT_FAIL = /^\[studio:youtube-failed\]/;
 const YT_URL = /^https:\/\/(youtu\.be\/[A-Za-z0-9_-]{6,20}|(www\.)?youtube\.com\/(watch\?v=|shorts\/)[A-Za-z0-9_-]{6,20})\S*$/;
 const youtubeOf = (comments) => {
-  const out = { url: null, failures: 0 };
+  const out = { url: null, uploaded: null, failures: 0 };
   for (const c of comments) {
     if (c.who !== INBOX) continue;
-    const m = YT_MARK.exec(c.text);
-    if (m) out.url = m[1];
+    let m;
+    if ((m = YT_MARK.exec(c.text))) out.url = m[1];
+    else if ((m = YT_UPLOADED.exec(c.text))) out.uploaded = m[1];
     else if (YT_FAIL.test(c.text)) out.failures++;
   }
   return out;

@@ -4,6 +4,9 @@
 // default 'public'). Streams the package's files from the studio container, uploads (_lib/youtube/uploader.js), and
 // writes "[studio:youtube <url>]" on the request task; the PC worker then marks the Board's "Release it" done with the
 // link, which releases the video and tags @Echo. One video per run; three failed tries stop it (Chad sees them).
+// Not public yet (Google locks unaudited uploads private; Chad flips them in YouTube Studio, 2026-10-24): it writes
+// "[studio:youtube-uploaded <url>]" instead and checks every run; the "[studio:youtube <url>]" marker, and so @Echo,
+// waits until YouTube says the video is public.
 'use strict';
 
 const storage = require('../_utils/companyStorage');
@@ -22,10 +25,21 @@ function nextToPublish(tasks) {
     const r = desk.parseRequest(t);
     const cp = r && r.checkpoints && r.checkpoints.publish;
     if (!cp || cp.status !== 'approved' || cp.reason) continue;
-    if (r.youtube.url || r.youtube.failures >= MAX_FAILURES || !r.youtubePackage || !r.project) continue;
+    if (r.youtube.url || r.youtube.uploaded || r.youtube.failures >= MAX_FAILURES || !r.youtubePackage || !r.project) continue;
     return { task: t, r };
   }
   return null;
+}
+
+// Requests on YouTube but not public yet: waiting for Chad to switch them to Public in YouTube Studio.
+function waitingForPublic(tasks) {
+  const out = [];
+  for (const t of Array.isArray(tasks) ? tasks : []) {
+    if (!desk.isRequestTask(t) || t._archived) continue;
+    const r = desk.parseRequest(t);
+    if (r && r.youtube.uploaded && !r.youtube.url) out.push({ task: t, url: r.youtube.uploaded });
+  }
+  return out;
 }
 
 async function readFile(project, path) {
@@ -55,8 +69,20 @@ async function run(context, deps) {
   if (d.getUTCHours() % 6 === 0 && d.getUTCMinutes() < 12) return { skipped: 'heartbeat window' };
   const tasksRead = await storage.getStateWithMeta('tasks');
   if (tasksRead.failed) return { skipped: 'board unreadable' };
+  const nowPublic = [];
+  for (const w of waitingForPublic(tasksRead.value)) {
+    try {
+      const privacy = await (deps.privacyOf || uploader.privacyOf)(w.url.split('/').pop());
+      if (privacy !== 'public') continue;
+      await note(w.task.id, '[studio:youtube ' + w.url + '] Now public on YouTube.');
+      nowPublic.push(w.url);
+      if (context) context.log('[youtubePublishCron] now public', w.task.id, w.url);
+    } catch (err) {
+      if (context) context.log.warn('[youtubePublishCron] status check failed', w.task.id, (err && err.message) || err);
+    }
+  }
   const next = nextToPublish(tasksRead.value);
-  if (!next) return { idle: true };
+  if (!next) return nowPublic.length ? { nowPublic } : { idle: true };
   const { task, r } = next;
   const pkg = r.youtubePackage;
   try {
@@ -69,7 +95,9 @@ async function run(context, deps) {
     };
     const privacy = ['public', 'unlisted', 'private'].indexOf(yt.privacy) !== -1 ? yt.privacy : 'public';
     const out = await (deps.publish || uploader.publish)(pkg, files, { privacyStatus: privacy });
-    await note(task.id, '[studio:youtube ' + out.url + '] On YouTube (' + out.privacyStatus + '). Captions: ' + (out.captions || 'none') + '. Thumbnail: ' + (out.thumbnail || 'none') + '.');
+    const extras = ' Captions: ' + (out.captions || 'none') + '. Thumbnail: ' + (out.thumbnail || 'none') + '.';
+    if (out.privacyStatus === 'public') await note(task.id, '[studio:youtube ' + out.url + '] On YouTube (public).' + extras);
+    else await note(task.id, '[studio:youtube-uploaded ' + out.url + '] On YouTube (' + out.privacyStatus + '). Switch it to Public in YouTube Studio; Echo hears about it once it is public.' + extras);
     if (context) context.log('[youtubePublishCron] published', task.id, out.url, out.privacyStatus);
     return { published: out.url };
   } catch (err) {
@@ -87,3 +115,4 @@ module.exports = async function (context) {
 };
 module.exports.run = run;
 module.exports.nextToPublish = nextToPublish;
+module.exports.waitingForPublic = waitingForPublic;

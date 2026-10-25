@@ -67,4 +67,11 @@ t('a refused upload is an error; failed captions or thumbnail are not', async ()
   assert.match(r.thumbnail, /phone verification/);
 });
 
+t('privacyOf reads a video\'s privacy, null once YouTube no longer has it', async () => {
+  const res = (items) => ({ ok: true, status: 200, json: async () => ({ items }) });
+  const f = (items) => async (url) => (url.startsWith('https://oauth2') ? { ok: true, json: async () => ({ access_token: 'atok' }) } : res(items));
+  assert.strictEqual(await U.privacyOf('VID123', { env: ENV, fetch: f([{ id: 'VID123', status: { privacyStatus: 'public' } }]) }), 'public');
+  assert.strictEqual(await U.privacyOf('VID123', { env: ENV, fetch: f([]) }), null);
+});
+
 Promise.all(pending).then(() => console.log(`youtube uploader: ${passed} passed${process.exitCode ? ', FAILURES above' : ''}`));
