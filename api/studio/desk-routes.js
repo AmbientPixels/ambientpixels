@@ -63,13 +63,13 @@ module.exports = {
     const checkpoint = b.checkpoint ? String(b.checkpoint) : null;
     if (checkpoint && D.CHECKPOINTS.indexOf(checkpoint) === -1) return reply(context, 400, { error: 'checkpoint must be one of ' + D.CHECKPOINTS.join(', ') });
     if (!text && !stage && !checkpoint) return reply(context, 400, { error: 'nothing to say' });
+    const video = b.video && /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(b.video) ? b.video : null;
+    const project = b.project && /^[a-z0-9][a-z0-9-]{0,62}$/.test(b.project) ? b.project : null;
     let pkg = null;
     if (checkpoint === 'publish') {
       pkg = D.cleanPackage(b.package, project || '');
       if (typeof pkg === 'string') return reply(context, 400, { error: pkg });
     }
-    const video = b.video && /^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$/.test(b.video) ? b.video : null;
-    const project = b.project && /^[a-z0-9][a-z0-9-]{0,62}$/.test(b.project) ? b.project : null;
     if (inHeartbeatWindow(now)) return reply(context, 409, { error: 'the heartbeat is writing the board; retry after :12' });
     let refused = null, saved = null;
     await storage.mutateState('tasks', (tasks) => {

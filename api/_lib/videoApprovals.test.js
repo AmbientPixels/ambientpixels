@@ -191,4 +191,14 @@ t('a private upload waits for public before the release marker (and so @Echo)', 
   assert.deepStrictEqual(C.waitingForPublic([up]), []);
 });
 
+t('desk-comment checks a publish package against the request\'s project (not a ReferenceError)', () => {
+  const routes = require('../studio/desk-routes');
+  let got = null;
+  const p = routes.comment({ log() {} }, { body: { taskId: 'task-1-abc', text: 'x', checkpoint: 'publish', project: 'ambientpixels', package: { title: 'A good title', files: { video: 'renders/other/a.mp4' } } } }, (c, status, b) => { got = { status, b }; });
+  p.catch(() => {});
+  assert.ok(got, 'replied before any storage call');
+  assert.strictEqual(got.status, 400);
+  assert.match(got.b.error, /renders\/ambientpixels\//);
+});
+
 console.log(`videoApprovals: ${passed} passed${process.exitCode ? ', FAILURES above' : ''}`);
