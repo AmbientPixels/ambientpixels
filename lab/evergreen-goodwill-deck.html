@@ -126,7 +126,7 @@
   .slide.photo>*:not(.bg){position:relative}
 
   /* 2 · the score */
-  .score{flex:1;min-height:0;margin-top:calc(var(--u)*2.4);display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*3);align-items:end;padding-bottom:calc(var(--u)*2)}
+  .score{flex:1;min-height:0;margin-top:calc(var(--u)*2.4);display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*3);align-items:center;padding-bottom:calc(var(--u)*2)}
   .half{position:relative;border-top:1px solid var(--color-border);padding-top:calc(var(--u)*2)}
   .half .big{font-family:var(--font-heavy);font-size:calc(var(--u)*17);line-height:.85;letter-spacing:-0.05em;position:relative}
   .half .big.g{color:#7fb886}
@@ -184,11 +184,11 @@
   .also strong{color:var(--color-text-primary);font-weight:900}
   /* what the fixes move */
   .moves{margin-top:calc(var(--u)*3);display:flex;flex-direction:column}
-  .mv{display:grid;grid-template-columns:calc(var(--u)*19) 1fr calc(var(--u)*11) calc(var(--u)*23);gap:calc(var(--u)*1.8);align-items:center;padding:calc(var(--u)*1.3) 0;border-bottom:1px solid var(--color-border)}
+  .mv{display:grid;grid-template-columns:calc(var(--u)*21) 1fr calc(var(--u)*13);gap:calc(var(--u)*1.8);align-items:center;padding:calc(var(--u)*1.3) 0;border-bottom:1px solid var(--color-border)}
   .mv.head{order:-1;padding-top:0}
   .mv .k{font-weight:900;font-size:calc(var(--u)*1.75);letter-spacing:-0.02em}
   /* slide 4: hover a score name for a plain-language definition */
-  .mv .k{position:relative;cursor:help;text-decoration:underline dotted rgba(244,244,244,.35);text-underline-offset:.18em;text-decoration-thickness:2px}
+  .mv .k{position:relative;cursor:help}
   .mv .k .tip{position:absolute;left:0;top:calc(100% + var(--u)*.6);z-index:8;width:calc(var(--u)*30);padding:calc(var(--u)*.9) calc(var(--u)*1.1);background:#1b1b1b;border:1px solid var(--color-border);border-left:3px solid #7fb886;font-family:var(--font-display);font-weight:400;font-size:calc(var(--u)*1.1);line-height:1.45;letter-spacing:0;color:var(--color-text-body);text-decoration:none;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .2s,transform .2s}
   .mv .k:hover .tip{opacity:1;transform:none}
   @media print{.mv .k .tip{display:none}.mv .k{text-decoration:none}}
@@ -214,13 +214,13 @@
 
   /* 4 · ranked fixes */
   .fixes{margin-top:calc(var(--u)*2.6);display:flex;flex-direction:column}
-  .fix{display:grid;grid-template-columns:calc(var(--u)*5) calc(var(--u)*14) 1fr calc(var(--u)*13) calc(var(--u)*20);gap:calc(var(--u)*2);align-items:center;
+  .fix{display:grid;grid-template-columns:calc(var(--u)*5) calc(var(--u)*18) 1fr;gap:calc(var(--u)*2);align-items:center;
        padding:calc(var(--u)*1.1) 0;border-bottom:1px solid var(--color-border)}
   .fix.head{order:-1;border-bottom:1px solid var(--color-border);padding-top:0}
   .fix.head .who,.fix.head .m{font-family:var(--font-mono);font-size:calc(var(--u)*.8);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary)}
   .fix .n{font-family:var(--font-heavy);font-size:calc(var(--u)*2.6);opacity:.25;letter-spacing:var(--tracking-display)}
-  .fix .thumb{height:calc(var(--u)*5.2);background-size:200% auto;background-position:100% 48%;background-color:#fff;border:1px solid var(--color-border)}
-  .fix .t{font-weight:900;font-size:calc(var(--u)*1.9);letter-spacing:-0.02em}
+  .fix .thumb{height:calc(var(--u)*5.4);background-size:200% auto;background-position:100% 48%;background-color:#fff;border:1px solid var(--color-border)}
+  .fix .t{font-weight:900;font-size:calc(var(--u)*2.6);letter-spacing:-0.025em}
   .fix .who,.fix .m{font-size:calc(var(--u)*1.35);color:var(--color-text-secondary)}
 
   /* 5 · three windows onto the words-fixed homepage */
@@ -236,7 +236,17 @@
   .cards{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*1.4);padding:calc(var(--u)*1.6)}
   /* slide 7: a numbered label over each card says what clicking it shows; room comes from the space above the panel */
   .app.labelled{margin-top:calc(var(--u)*1.4)}
-  .app.labelled .cards{grid-template-rows:auto 1fr;row-gap:calc(var(--u)*.6);padding-top:calc(var(--u)*1.1)}
+  /* the drafts are short now, so the panel sizes to them and sits centred */
+  .app.labelled{flex:none;margin-bottom:auto;margin-top:auto}
+  .app.labelled .cards{flex:none}
+  .app.labelled .card{min-height:0;padding-top:calc(var(--u)*.9);padding-bottom:calc(var(--u)*.9)}
+  /* the 2 x 2 is tighter: smaller draft text, and the banners and boxes sit on the buttons exactly */
+  .app.labelled .card p{font-size:calc(var(--u)*1.1);line-height:1.4;margin:calc(var(--u)*.5) 0 calc(var(--u)*.6)}
+  .app.labelled .clab{font-size:calc(var(--u)*1)}
+  .app.labelled .card .m-done,.app.labelled .card .m-ask{bottom:calc(var(--u)*.9)}
+  .app.labelled .app-bar{padding-top:calc(var(--u)*.55);padding-bottom:calc(var(--u)*.55)}
+  .app.labelled .cards{grid-template-columns:repeat(2,1fr);grid-template-rows:auto auto auto auto;row-gap:calc(var(--u)*.35);column-gap:calc(var(--u)*1.4);padding:calc(var(--u)*.8) calc(var(--u)*1.6) calc(var(--u)*1)}
+  .app.labelled .clab:nth-of-type(n+3){margin-top:calc(var(--u)*.3)}
   .clab{margin:0;display:flex;align-items:center;gap:calc(var(--u)*.6);font-weight:700;font-size:calc(var(--u)*1.15);color:var(--gw-navy)}
   .clab b{display:inline-flex;align-items:center;justify-content:center;width:calc(var(--u)*1.7);height:calc(var(--u)*1.7);border-radius:50%;background:var(--gw-navy);color:#fff;font-size:calc(var(--u)*.9)}
   .card{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1.4);display:flex;flex-direction:column;color:var(--gw-ink);
@@ -451,7 +461,9 @@
   .m-done{position:absolute;left:calc(var(--u)*1.4);right:calc(var(--u)*1.4);bottom:calc(var(--u)*1.4);display:flex;align-items:center;min-height:calc(var(--u)*2.4);padding:0 calc(var(--u)*.9);background:#e8f1e9;color:var(--gw-green);font-weight:700;font-size:calc(var(--u)*.95);opacity:0;transition:opacity .35s}
   /* state classes sit on each card, so every card is its own movie: m1 approved, m2 rewrite asked, m3 rewrite sent,
      m-ed editing (card 3: caret in the text, the typed words highlighted as your edit) */
-  .app .card{transition:border-color .35s,box-shadow .35s}
+  .app .card{transition:border-color .35s,box-shadow .35s,opacity .3s}
+  /* the spotlight (monday-anim.html): while one card plays, the others dim */
+  .slide.spot .app .card:not(.lit){opacity:.35}
   .app .card.m1{border-color:var(--gw-green);box-shadow:inset 0 0 0 1px var(--gw-green)}
   .card.m1 .m-done{opacity:1}
   .card.m-ed p{outline:1px dashed var(--gw-navy);outline-offset:calc(var(--u)*.35)}
@@ -460,7 +472,17 @@
   .m-ask{position:absolute;left:calc(var(--u)*1.4);right:calc(var(--u)*1.4);bottom:calc(var(--u)*1.4);display:flex;align-items:center;gap:calc(var(--u)*.6);min-height:calc(var(--u)*2.4);padding:0 calc(var(--u)*.8);background:#fff;border:1px solid var(--gw-navy);box-shadow:0 6px 18px rgba(0,0,0,.12);opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
   .m-ask .m-lbl{font-size:calc(var(--u)*.8);color:#5b6570}
   .m-ask .m-txt{font-size:calc(var(--u)*1.05);color:var(--gw-ink);min-height:1.3em}
+  /* the scripted overlays (rewrite box, reason box, approved banner) are never clicked: clicks pass to the buttons under them */
+  .m-ask,.m-done{pointer-events:none}
   .card.m2 .m-ask{opacity:1;transform:none}
+  /* card 1's Reject (monday-anim.html): r1 the reason box, r2 the agent working, r3 the new draft and its note */
+  .card.r1 .m-rej{opacity:1;transform:none}
+  .card.r2 .m-rej{opacity:1;transform:none;background:#eaf0f8}
+  .card.r2 .m-rej .m-lbl,.card.r2 .m-rej .m-txt,.card.r2 .m-rej .m-send{display:none}
+  .card.r2 .m-rej .m-sent{display:inline}
+  .card.r2 p{opacity:.3}
+  .card.r3 .m-follow1{display:block;color:var(--gw-green)}
+
   /* card 2 after the rewrite: the text fades over to the warmer draft, and a line says which note it followed */
   .app .card p{transition:opacity .25s}
   .card.m-swap p{opacity:0}
@@ -486,8 +508,13 @@
   .lab.you{background:#fde8e3;color:#8c2f1e}.lab.wait{background:#fdf2dc;color:#7a5200}.lab.fyi{background:#e7eef6;color:var(--gw-navy)}.lab.low{background:#eef0f2;color:#6b7580}
   .mrow b{color:var(--gw-navy);font-size:calc(var(--u)*.9)}
   .mrow .subj{color:var(--gw-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mrow .why{color:#5b6570;font-style:italic;font-size:calc(var(--u)*.8)}
+  .mrow .why{display:none;color:#5b6570;font-style:italic;font-size:calc(var(--u)*.8)}
+  .mrow.done .why{display:block}
+  .mwhy{margin:0;font-style:italic;font-size:calc(var(--u)*.9);color:#5b6570}
   .mrow.dim{opacity:.6}
+  /* the inbox spotlight: while an email is open, the other rows step back */
+  .app.mail.live .mrow{transition:background .3s,border-color .3s,opacity .3s}
+  .e1 .app.mail.live .mrow:not(.on){opacity:.45}
   .mrow.on{background:#eef4fb;border-color:var(--gw-navy)}
   .mread{background:#fff;border:1px solid var(--gw-line);padding:calc(var(--u)*1.1) calc(var(--u)*1.3);display:flex;flex-direction:column;gap:calc(var(--u)*.7);transition:opacity .35s;min-height:0}
   .mhead{display:flex;gap:calc(var(--u)*.8);align-items:baseline;border-bottom:1px solid var(--gw-line);padding-bottom:calc(var(--u)*.5);font-size:calc(var(--u)*.95)}
@@ -534,7 +561,7 @@
   .e4 .dsend .dn{color:var(--gw-navy);font-weight:700}
   /* slide 10 · newsletter: how one gets made (where it comes from → who writes what → who decides), then the three
      rhythms. CSS-only motion, so replay.html restarts it through the Web Animations API. */
-  .nflow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:calc(var(--u)*1.2);margin:auto 0 0}
+  .nflow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:calc(var(--u)*1.2);margin:auto 0}
   .fcol{border:1px solid var(--color-border);padding:calc(var(--u)*1.3) calc(var(--u)*1.5);display:flex;flex-direction:column;gap:calc(var(--u)*1)}
   .fcol .when{font-family:var(--font-mono);font-size:calc(var(--u)*1.05);letter-spacing:var(--tracking-mono);text-transform:uppercase;color:var(--color-text-tertiary)}
   .fcol.you{border-color:var(--color-text-tertiary)}
@@ -580,6 +607,13 @@
   .nlm-foot .a.ok{background:var(--gw-green);border-color:var(--gw-green);color:#fff}
   .nlm-send{font-size:13px;color:#5b6570;margin-left:4px}
   @media print{.nl-thumb,.nlm{display:none}}
+  /* slide 9: the recap video, a poster thumbnail opening it in the same overlay */
+  .rc-poster{position:relative;display:block;width:calc(var(--u)*8);height:calc(var(--u)*4.5);overflow:hidden}
+  .rc-poster img{display:block;width:100%;height:100%;object-fit:cover}
+  .rc-poster i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:calc(var(--u)*1.6);color:#fff;background:rgba(0,0,0,.35)}
+  .rcm-box{position:relative;width:min(1600px,100%);background:#000;padding:34px 0 0}
+  .rcm-x{color:#c9ced4}
+  .rcm-v{display:block;width:100%;max-height:calc(100vh - 100px);background:#000}
   /* the loop back from "Who decides" to "Who writes what" (as on slide 6): a second grid row spanning columns 3-5,
      a subgrid so its ends sit under the centres of those two columns at any width */
   .nret{grid-column:3 / 6;grid-row:2;display:grid;grid-template-columns:subgrid;position:relative;height:calc(var(--u)*2.2);margin-top:calc(var(--u)*-1.2)}
@@ -599,7 +633,6 @@
     .slide.on .nflow .farrow:nth-child(2){animation-delay:.45s}
     .slide.on .nflow .farrow:nth-child(4){animation-delay:1.15s}
     .slide.on .nflow .nret{animation:fadeIn .5s ease-out 1.9s both}
-    .slide.on .rhythms{animation:riseIn .6s ease-out 2.4s both}
   }
   @media print{.app .mcur{display:none}}
   /* reference links to the hosted pitch and audit */
@@ -621,7 +654,7 @@
       <h1 class="ap-display hero">A strong story,<br><em>and the words around it.</em></h1>
       <p class="agenda">01 Your homepage audit · 02 AI agents for your team · 03 Ways to start</p>
     </div>
-    <div class="foot"><span>Chad Martin · AmbientPixels <em class="credit">Photo: evergreengoodwill.org</em></span><span><a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-pitch.html" target="_blank" rel="noopener">Overview ↗</a> · <a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html" target="_blank" rel="noopener">The full audit ↗</a></span></div>
+    <div class="foot"><span>Chad Martin · AmbientPixels <em class="credit">Photo: evergreengoodwill.org</em></span><span></span></div>
     
   </section>
 
@@ -631,15 +664,12 @@
     <h2 class="ap-display h2">Your story is strong. <em>The page doesn’t ask.</em></h2>
     <div class="score">
       <div class="half story">
-        <div class="strip"><span title="Learn" style="background-image:url('goodwill/deck/site/learn-classroom.jpg');background-position:center 40%"></span><span title="Work" style="background-image:url('goodwill/deck/site/work-store.png');background-position:center 30%"></span><span title="Work" style="background-image:url('goodwill/deck/site/work-warehouse.png');background-position:68% 25%"></span><em class="credit">Photos: evergreengoodwill.org</em></div>
         <div class="big g"><span class="count">72</span><span class="out">/ 100</span></div><div class="lab">Who you are</div>
       </div>
       <div class="half ask">
-        <div class="asks" aria-label="What visitors come to do: apply, give, shop"><span>Apply</span><span>Give</span><span>Shop</span></div>
         <div class="big muted"><span class="count">42</span><span class="out">/ 100</span></div><div class="lab">How the page asks people to act</div>
       </div>
     </div>
-    <div class="overall">Overall score: 56 / 100 · conversion audit of evergreengoodwill.org · <a class="ref" href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html" target="_blank" rel="noopener">Read the full audit ↗</a></div>
     
   </section>
 
@@ -648,11 +678,10 @@
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 Audit — The plan</div></div>
     <h2 class="ap-display h2">Four fixes, <em>in order.</em></h2>
     <div class="fixes">
-      <div class="fix" data-fix="1"><span class="n">01</span><span class="thumb" style="background-image:url('goodwill/deck/01-hero.png')"></span><span class="t">Apply for Free Job Training</span><span class="who">Job seekers</span><span class="m">Enrollment clicks</span></div>
-      <div class="fix" data-fix="2"><span class="n">02</span><span class="thumb" style="background-image:url('goodwill/deck/03-newsletter.png')"></span><span class="t">Newsletter on your own site</span><span class="who">Supporters</span><span class="m">Sign-ups</span></div>
-      <div class="fix" data-fix="3"><span class="n">03</span><span class="thumb" style="background-image:url('goodwill/deck/02-shop-button.png')"></span><span class="t">Shop button names the mission</span><span class="who">Shoppers</span><span class="m">Shop clicks</span></div>
-      <div class="fix" data-fix="4"><span class="n">04</span><span class="thumb" style="background-image:url('goodwill/deck/04-navigation.png');background-position:100% 16%"></span><span class="t">A simpler menu</span><span class="who">Everyone</span><span class="m">Clicks to programs and Donate</span></div>
-      <div class="fix head"><span></span><span class="hint">Click a fix for detail</span><span></span><span class="who">Helps</span><span class="m">We'd measure</span></div>
+      <div class="fix" data-fix="1"><span class="n">01</span><span class="thumb" style="background-image:url('goodwill/deck/01-hero.png')"></span><span class="t">Apply for Free Job Training</span></div>
+      <div class="fix" data-fix="2"><span class="n">02</span><span class="thumb" style="background-image:url('goodwill/deck/03-newsletter.png')"></span><span class="t">Newsletter on your own site</span></div>
+      <div class="fix" data-fix="3"><span class="n">03</span><span class="thumb" style="background-image:url('goodwill/deck/02-shop-button.png')"></span><span class="t">Shop button names the mission</span></div>
+      <div class="fix" data-fix="4"><span class="n">04</span><span class="thumb" style="background-image:url('goodwill/deck/04-navigation.png');background-position:100% 16%"></span><span class="t">A simpler menu</span></div>
     </div>
     <p class="same">Same pages, same photos. <strong>Small changes, no rebuild.</strong></p>
     
@@ -663,11 +692,10 @@
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 01 Audit — What moves</div></div>
     <h2 class="ap-display h2">Aimed at the <em>weakest scores.</em></h2>
     <div class="moves">
-      <div class="mv"><span class="k">Ease of acting<span class="tip" role="tooltip">The audit calls this “funnel friction”. How easy it is for someone who already wants to apply, give or shop to actually do it: how many clicks, how many choices, and whether anything pulls them away.</span></span><span class="bar"><i class="goal" style="width:40%"></i><i style="width:11%"></i></span><span class="v">11<span class="to">→</span><span class="g">40+</span></span><span class="fx"><b data-fix="2"><span class="fn">02</span>Newsletter</b><b data-fix="4"><span class="fn">04</span>Menu</b></span></div>
-      <div class="mv"><span class="k">What the page puts first<span class="tip" role="tooltip">The audit calls this “conversion hierarchy”. Whether the layout leads the eye to the most important action first, instead of giving everything equal weight.</span></span><span class="bar"><i class="goal" style="width:50%"></i><i style="width:29%"></i></span><span class="v">29<span class="to">→</span><span class="g">50+</span></span><span class="fx"><b data-fix="4"><span class="fn">04</span>Menu</b></span></div>
-      <div class="mv"><span class="k">Clear buttons and links<span class="tip" role="tooltip">The audit calls this “call-to-action strength”. Whether the links and buttons people click are easy to see and say exactly what happens next: “Apply for Free Job Training”, not “Click Here”.</span></span><span class="bar"><i class="goal" style="width:65%"></i><i style="width:41%"></i></span><span class="v">41<span class="to">→</span><span class="g">65+</span></span><span class="fx"><b data-fix="1"><span class="fn">01</span>Apply link</b><b data-fix="3"><span class="fn">03</span>Shop button</b></span></div>
-      <div class="mv"><span class="k">Clear in five seconds<span class="tip" role="tooltip">The audit calls this “messaging clarity”. Whether a visitor understands what you offer and why it matters within about five seconds.</span></span><span class="bar"><i class="goal" style="width:75%"></i><i style="width:61%"></i></span><span class="v">61<span class="to">→</span><span class="g">75+</span></span><span class="fx"><b data-fix="1"><span class="fn">01</span>Headline</b></span></div>
-      <div class="mv head"><span></span><span class="scale"><em>0</em><span class="k2"><i class="sw now"></i>Now <i class="sw goal"></i>Our goal</span><em>100</em></span><span></span><span class="k2">Raised by fix · click a tag</span></div>
+      <div class="mv"><span class="k">Ease of acting<span class="tip" role="tooltip">The audit calls this “funnel friction”. How easy it is for someone who already wants to apply, give or shop to actually do it: how many clicks, how many choices, and whether anything pulls them away.</span></span><span class="bar"><i class="goal" style="width:40%"></i><i style="width:11%"></i></span><span class="v">11<span class="to">→</span><span class="g">40+</span></span></div>
+      <div class="mv"><span class="k">What the page puts first<span class="tip" role="tooltip">The audit calls this “conversion hierarchy”. Whether the layout leads the eye to the most important action first, instead of giving everything equal weight.</span></span><span class="bar"><i class="goal" style="width:50%"></i><i style="width:29%"></i></span><span class="v">29<span class="to">→</span><span class="g">50+</span></span></div>
+      <div class="mv"><span class="k">Clear buttons and links<span class="tip" role="tooltip">The audit calls this “call-to-action strength”. Whether the links and buttons people click are easy to see and say exactly what happens next: “Apply for Free Job Training”, not “Click Here”.</span></span><span class="bar"><i class="goal" style="width:65%"></i><i style="width:41%"></i></span><span class="v">41<span class="to">→</span><span class="g">65+</span></span></div>
+      <div class="mv"><span class="k">Clear in five seconds<span class="tip" role="tooltip">The audit calls this “messaging clarity”. Whether a visitor understands what you offer and why it matters within about five seconds.</span></span><span class="bar"><i class="goal" style="width:75%"></i><i style="width:61%"></i></span><span class="v">61<span class="to">→</span><span class="g">75+</span></span></div>
     </div>
     <p class="proof">Goals, not guarantees. <strong>We re-run the same audit afterwards and show you the real numbers.</strong></p>
     
@@ -689,11 +717,12 @@
   <section class="slide" data-n="6">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — How it works</div></div>
     <h2 class="ap-display h2">How it would work <em>at Goodwill.</em></h2>
+    <button type="button" class="nl-thumb" aria-label="Open a sample issue"><span class="nt-page"><i class="nt-mast"></i><i class="nt-open"></i><i></i><i></i><i class="nt-short"></i></span><span class="nt-lab">See a sample issue<em>Click to open</em></span></button>
     <div class="day" role="img" aria-label="A morning at Goodwill: drafts arrive at 7 am, your team decides at 9:30, a person posts at 11, and your reasons shape the next drafts.">
       <div class="track"><i></i></div>
-      <div class="stop"><span class="dot"></span><span class="when">7:00 am · AI drafts</span><h3>Drafts <em>arrive.</em></h3><p>Posts and newsletter drafts, in your voice, from your own pages. Waiting when you log in.</p></div>
-      <div class="stop you"><span class="dot"></span><span class="when">9:30 am · Your team</span><h3>You <em>decide.</em></h3><p>Approve, fix a word, or say no and why.</p></div>
-      <div class="stop done"><span class="dot"></span><span class="when">11:00 am · A person</span><h3>A person <em>posts it.</em></h3><p>Nothing goes out on its own.</p></div>
+      <div class="stop"><span class="dot"></span><h3>Drafts <em>arrive.</em></h3></div>
+      <div class="stop you"><span class="dot"></span><h3>You <em>decide.</em></h3></div>
+      <div class="stop done"><span class="dot"></span><h3>A person <em>posts it.</em></h3></div>
       <div class="ret"><svg viewBox="0 0 967 100" preserveAspectRatio="none" aria-hidden="true"><path id="retpath" d="M966,0 L966,52 Q966,99 919,99 L48,99 Q1,99 1,52 L1,0"/><circle r="13" class="pip"><animateMotion dur="4s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".45 0 .25 1"><mpath href="#retpath"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.1;.8;.92;1" dur="4s" repeatCount="indefinite"/></circle></svg><span class="lbl">Your reasons shape the next drafts</span></div>
     </div>
     
@@ -704,54 +733,33 @@
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Social</div></div>
     <h2 class="ap-display h2">Monday morning <em>at Goodwill.</em></h2>
     <div class="app labelled">
-      <div class="app-bar"><span class="app-title">Approvals</span><span class="illus">Illustration · not a live system</span><span class="app-meta">7:00 am · 3 drafts waiting · written from evergreengoodwill.org</span></div>
+      <div class="app-bar"><span class="app-title">Approvals</span><span class="illus">Illustration · not a live system</span></div>
       <div class="cards">
-        <p class="clab"><b>1</b>Approve</p><p class="clab"><b>2</b>Ask for a rewrite</p><p class="clab"><b>3</b>Fix a word</p>
-        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 8/10</span></div>
-          <p>That box in your garage could be someone’s first step into a new career. Material donations to Evergreen Goodwill power our <mark>free Job Training and Education programs</mark>, and items that find a new home stay <mark>out of landfills</mark>. Find your nearest donation center.</p>
-          <div class="src"><span>Source</span>Your homepage: “free Job Training and Education programs”</div>
+        <p class="clab"><b>1</b>Approve</p><p class="clab"><b>2</b>Ask for a rewrite</p>
+        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span></div>
+          <p>That box in your garage could be someone’s first step into a new career. Donations power our free Job Training and Education programs.</p>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
-        <div class="card"><div class="ch"><span class="ch-ch">Instagram</span><span class="ch-tp">Adult education</span><span class="vs">Sounds like you: 9/10</span></div>
-          <p>Going back to school as an adult takes courage. Our Adult Basic Education classes and workshops help adults get ready for <mark>today’s workplace</mark>, and <mark>the classes are free</mark>. Across <mark>five counties</mark> in Northwest Washington.</p>
-          <div class="src"><span>Source</span>Your Adult Education page: “today’s workplace”</div>
+        <div class="card"><div class="ch"><span class="ch-ch">Instagram</span><span class="ch-tp">Adult education</span></div>
+          <p>Going back to school as an adult takes courage. Our free Adult Basic Education classes help adults get ready for today’s workplace.</p>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
-        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Milestone</span><span class="vs">Sounds like you: 8/10</span></div>
-          <p>In 2025, Evergreen Goodwill served <mark>6,403 students</mark> in free job training and education. Every purchase, donation and volunteer hour helped make that happen. Thank you<span class="m-ins"></span>. Jobs change lives.</p>
-          <div class="src"><span>Source</span>Your homepage: “6,403 students served in 2025”</div>
+        <p class="clab"><b>3</b>Fix a word</p><p class="clab"><b>4</b>Say why not</p>
+        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Milestone</span></div>
+          <p>In 2025, Evergreen Goodwill served 6,403 students in free job training and education. Thank you<span class="m-ins"></span>.</p>
+          <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
+        <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span></div>
+          <p>Clearing out a closet? Those clothes could help someone start a new career.</p>
           <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div>
       </div>
     </div>
     
   </section>
 
-  <!-- 8 · Say it once -->
+  <!-- 8 · Email: a general info inbox, sorted, with a reply a person sends (modelled on the real email agents) -->
   <section class="slide" data-n="8">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — How they learn</div></div>
-    <h2 class="ap-display h2">Say it once. <em>The next drafts follow it.</em></h2>
-    <div class="learn">
-      <div class="lcol"><div class="steplab"><b>1</b>A draft you don’t like</div>
-      <div class="card faded"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs vs-l">Sounds like you: 8/10</span><span class="rej">Rejected</span></div>
-        <p>Clearing out a closet? Those clothes could help someone start a new career. Donations to Evergreen Goodwill power our free Job Training and Education programs, and items that find a new home stay out of landfills.</p>
-        <div class="acts acts-l"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a rj">Reject</span></div>
-        <div class="reason"><span><b class="rn">2</b>You say why, once</span><div class="rbox"><mark class="why"><span class="typed">Lead with free job training, every time.</span></mark><i class="caret"></i><b class="send">Save reason</b></div></div></div></div>
-      <div class="arrowbig">→</div>
-      <div class="lcol"><div class="steplab"><b>3</b>Your note is applied to the next draft</div>
-      <div class="card"><div class="ch"><span class="ch-ch">LinkedIn</span><span class="ch-tp">Donations</span><span class="vs">Sounds like you: 9/10</span></div>
-        <p><mark class="chg">Free job training, powered by your donations.</mark> Clearing out a closet? Those clothes could help someone start a new career: donations to Evergreen Goodwill fund our Job Training and Education programs, and keep good things out of landfills.</p>
-        <div class="follows">&#10003; Following your note: “Lead with free job training, every time.”</div>
-        <div class="acts"><span class="a ok">Approve</span><span class="a">Rewrite</span><span class="a">Reject</span></div></div></div>
-    </div>
-    <p class="same">No settings, no training sessions. <strong>Every reason you give and every word you fix becomes a note your agents read before writing.</strong></p>
-    <p class="same-note">Your newest notes stay in front of your agents as they write. It isn’t retraining the AI, and a person still approves every post.</p>
-    
-  </section>
-
-  <!-- 9 · Email: a general info inbox, sorted, with a reply a person sends (modelled on the real email agents) -->
-  <section class="slide" data-n="9">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Email</div></div>
     <h2 class="ap-display h2">Email, sorted <em>by morning.</em></h2>
     <div class="app mail">
-      <div class="app-bar"><span class="app-title">Info inbox</span><span class="illus">Illustration · not a live system</span><span class="app-meta">7:00 am · sorted, with a reason for each</span></div>
+      <div class="app-bar"><span class="app-title">Info inbox</span><span class="illus">Illustration · not a live system</span></div>
       <div class="mail-body">
         <div class="mlist">
           <div class="mrow on"><span class="lab you">Needs you</span><b>Pat L. · donor</b><span class="subj">Dropping off clothes and books?</span><span class="why">Asks a yes-or-no question about donating</span></div>
@@ -763,6 +771,7 @@
         <div class="mread">
           <div class="mhint">Click any email to open it</div>
           <div class="mhead"><b>Pat L.</b><span>Dropping off clothes and books?</span></div>
+          <p class="mwhy">Asks a yes-or-no question about donating</p>
           <p class="mtext">Hi! I cleared out a closet and have a few boxes of clothes and books. <mark class="q">Can I drop them off this weekend?</mark> Thanks, Pat</p>
           <div class="stance"><span class="sl">It’s asking a yes-or-no question:</span><span class="st pick">Yes</span><span class="st">No</span><span class="st">Later</span><span class="st">Need more</span></div>
           <p class="mnote"></p>
@@ -777,47 +786,17 @@
     
   </section>
 
-  <!-- 10 · Newsletter: how one gets made (sources → who writes what → who decides) and the three rhythms; modelled on the real tool -->
-  <section class="slide" data-n="10">
-    <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 02 Agents — Newsletters</div></div>
-    <h2 class="ap-display h2">How a newsletter <em>gets made.</em></h2>
-    <button type="button" class="nl-thumb" aria-label="Open a sample issue"><span class="nt-page"><i class="nt-mast"></i><i class="nt-open"></i><i></i><i></i><i class="nt-short"></i></span><span class="nt-lab">See a sample issue<em>Click to open</em></span></button>
-    <div class="nflow" role="img" aria-label="Facts come from your website, your team's items and standing sections. They go in word for word; the AI suggests only the opening. Your team approves, rejects with a reason or skips, and a person sends it from Constant Contact. Your reasons for rejecting one shape the next opening.">
-      <div class="fcol"><span class="when">01 · Where it comes from</span>
-        <div class="fitem"><b>Your website</b>Programs, stores, 6,403 students</div>
-        <div class="fitem"><b>Your team’s items</b>One line each, added through the month</div>
-        <div class="fitem"><b>Standing sections</b>Written once: how to give, shop, volunteer</div></div>
-      <div class="farrow" aria-hidden="true">→</div>
-      <div class="fcol"><span class="when">02 · Who writes what</span>
-        <div class="fitem"><b>Your facts go in word for word</b>Never rewritten, never invented.</div>
-        <div class="fitem ai"><b>The AI suggests only the opening</b>Clearly labelled, for your team to put in their own words.</div></div>
-      <div class="farrow" aria-hidden="true">→</div>
-      <div class="fcol you"><span class="when">03 · Who decides</span>
-        <div class="fdec"><span class="ok">Approve</span><span>Reject with a reason</span><span>Skip</span></div>
-        <div class="fitem"><b>A person sends it</b>From Constant Contact, which you already have. Nothing sends on its own.</div></div>
-      <div class="nret" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><span class="lbl">Your reasons shape the next opening</span></div>
-    </div>
-    <div class="rhythms">
-      <span class="rh-lbl">Three rhythms</span>
-      <div class="rh"><b>Recurring</b>Monthly donor and staff updates, the same sections every issue.</div>
-      <div class="rh"><b>Campaigns</b>Cartober: drafts on a set rhythm while it runs, then it stops.</div>
-      <div class="rh"><b>One-offs</b>A single item, once: a thank-you, a reminder.</div>
-    </div>
-    
-  </section>
-
-  <!-- 11 · Ways to start (options, not an assumption) -->
-  <section class="slide" data-n="11">
+  <!-- 9 · Ways to start (options, not an assumption) -->
+  <section class="slide" data-n="9">
     <div class="top"><div class="ap-logo"><span class="m"></span> AmbientPixels.</div><div class="idx">§ 03 — Ways to start</div></div>
+    <button type="button" class="nl-thumb rc-thumb" aria-label="Play the recap video, 1 minute 46"><span class="rc-poster"><img src="goodwill/deck/02-recap-poster.jpg" alt=""><i>&#9654;</i></span><span class="nt-lab">The recap<em>1:46 · click to play</em></span></button>
     <h2 class="ap-display h2">Start small. <em>Your call.</em></h2>
-    <p class="lead-rec">Our suggestion: <strong>start with one fix, the Apply link and headline, with an agents sandbox alongside.</strong> A small first step to see how we work together.</p>
+    <p class="lead-rec">Our suggestion: <strong>start with one fix, the Apply link and headline, and try the agents in a test sandbox alongside.</strong> Nothing posts or sends.</p>
     <p class="opts-lbl">Who makes the changes</p>
     <div class="opts two">
-      <div class="opt"><div class="n">01</div><h3>Your team <em>builds it.</em></h3><p>We write the new wording, measure where you are today and report back. Your web team or agency makes the changes.</p></div>
-      <div class="opt"><div class="n">02</div><h3>We <em>build it.</em></h3><p>With access to your site, we make the changes too. One less thing on your team’s plate.</p></div>
+      <div class="opt"><div class="n">01</div><h3>Your team <em>builds it.</em></h3><p>We write the words and measure. Your team or agency makes the changes.</p></div>
+      <div class="opt"><div class="n">02</div><h3>We <em>build it.</em></h3><p>We make the changes too.</p></div>
     </div>
-    <p class="also"><strong>Try the agents first.</strong> A test sandbox built from your own pages: a week of posts, a newsletter draft and a sample inbox, for your team to mark up. Nothing posts or sends.</p>
-    <p class="proof">Or something else entirely. <strong>What fits how your team works?</strong></p>
     
   </section>
 
@@ -948,73 +927,6 @@
   window.addEventListener('resize', function () { if (active) fit(); });
 })();
 </script>
-<svg class="ptr" id="s8ptr" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.6 1.1 3.9 7.4-3 1.5-3.9-7.5L4 20z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
-<script>
-// Slide "Say it once": each time the slide is shown (or its left card is clicked), a pointer clicks Reject on a normal-looking draft, the reason box
-// takes the buttons' place, it types the reason, saves it, and the next draft changes in front of you: it starts as
-// the same draft, then the agent rewrites it ("Rewriting with your note…", the text dims), the new draft appears at
-// once and the blue highlight sweeps over what changed, then "Following your note" shows. No typing: the agent did it.
-// Without motion (print, reduced motion) the slide is the static finished state.
-(function () {
-  var s = document.querySelector('.slide[data-n="8"]'); if (!s) return;
-  var card = s.querySelector('.learn .card.faded'), box = s.querySelector('.rbox'),
-      typed = s.querySelector('.rbox .typed'), send = s.querySelector('.rbox .send'), rej = s.querySelector('.acts-l .rj'),
-      ptr = document.getElementById('s8ptr'), full = typed.textContent, timers = [];
-  var right = s.querySelector('.learn .lcol:last-child .card'), rp = right.querySelector('p'), follows = right.querySelector('.follows');
-  var finalHTML = rp.innerHTML, before = card.querySelector('p').innerHTML, followsHTML = follows.innerHTML;
-  card.appendChild(ptr);
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
-  function moveTo(el, dx, dy) {
-    var c = card.getBoundingClientRect(), r = el.getBoundingClientRect();
-    ptr.style.left = (r.left - c.left + r.width * dx) + 'px';
-    ptr.style.top = (r.top - c.top + r.height * dy) + 'px';
-  }
-  function click() { ptr.classList.add('click'); at(140, function () { ptr.classList.remove('click'); }); }
-  function stop() {
-    timers.forEach(clearTimeout); timers = []; s.classList.remove('s8run', 's8pre', 's8typed', 's8done'); typed.textContent = full;
-    right.classList.remove('s8swap'); rp.innerHTML = finalHTML;
-    follows.innerHTML = followsHTML; follows.classList.remove('working'); follows.style.opacity = '';
-  }
-  function run() {
-    stop();
-    typed.textContent = ''; s.classList.add('s8run', 's8pre');
-    rp.innerHTML = before; follows.style.opacity = '0';   // the next draft starts as the same draft
-    ptr.style.transition = 'none'; ptr.style.left = '88%'; ptr.style.top = '18%';
-    void ptr.offsetWidth; ptr.style.transition = '';
-    at(500, function () { moveTo(rej, .55, .65); });
-    at(1300, click);
-    at(1450, function () { s.classList.remove('s8pre'); });
-    at(1700, function () { moveTo(box, .25, .7); });
-    at(2400, click);
-    var t = 2650;
-    for (var k = 1; k <= full.length; k++) (function (k) { at(t + k * 55, function () { typed.textContent = full.slice(0, k); }); })(k);
-    t += full.length * 55 + 250;
-    at(t, function () { s.classList.add('s8typed'); moveTo(send, .5, .6); });
-    at(t + 800, click);
-    at(t + 950, function () { s.classList.remove('s8run', 's8typed'); s.classList.add('s8done'); });
-    // then the agent rewrites it: a working line, the text dims, the new draft appears and its change is swept blue
-    var d = t + 950 + 1300;
-    at(d, function () {
-      follows.innerHTML = '&#8635; Rewriting with your note…'; follows.classList.add('working'); follows.style.opacity = '1';
-      right.classList.add('s8swap');
-    });
-    at(d + 1000, function () { rp.innerHTML = finalHTML.replace('class="chg"', 'class="chg sweep"'); right.classList.remove('s8swap'); });
-    at(d + 1800, function () { follows.classList.remove('working'); follows.innerHTML = followsHTML; });
-  }
-  // React only to the slide turning on or off, not to our own class changes.
-  var wasOn = s.classList.contains('on');
-  new MutationObserver(function () {
-    var on = s.classList.contains('on'); if (on === wasOn) return;
-    wasOn = on; if (on) run(); else stop();
-  }).observe(s, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('beforeprint', stop);
-  (window.__replay = window.__replay || {})['8'] = run;
-  card.classList.add('replayable'); card.title = 'Click to replay';
-  card.addEventListener('click', function (e) { e.stopPropagation(); run(); });
-  if (wasOn) run();
-})();
-</script>
 <script>
 // Numbers marked .count roll up from 0 each time their slide comes on.
 // The markup holds the final value, so print and reduced motion show it as is.
@@ -1059,13 +971,14 @@
 // Slide "Monday morning": three drafts wait, and each card is its own short movie, played by clicking it (click again
 // to replay): 1 approve, 2 ask for a rewrite ("Make it warmer.", sent, and the rewritten draft comes back, as the real tool
 // returns it straight away), 3 fix a word in
-// the text, then approve. Nothing plays when the slide comes on, so the presenter sets the pace; R or the Replay
-// button plays all three in order. Positions are read at run time (fonts are loaded by then).
+// the text, then approve, 4 say why not (what the old "Say it once" slide showed): Reject, the reason types in, Save
+// reason, the agent rewrites the draft following it. Nothing plays when the slide comes on, so the presenter sets the
+// pace; R or the Replay button plays all four in order. Positions are read at run time (fonts are loaded by then).
 // Print and reduced motion: the static slide.
 (function () {
   var s = document.querySelector('.slide[data-n="7"]'); if (!s) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var app = s.querySelector('.app'), cards = s.querySelectorAll('.app .card'); if (!app || cards.length < 3) return;
+  var app = s.querySelector('.app'), cards = s.querySelectorAll('.app .card'); if (!app || cards.length < 4) return;
   var cur = document.createElement('div'); cur.className = 'mcur';
   cur.innerHTML = '<svg viewBox="0 0 30 40"><path d="M3 3 L3 33 L11 25 L16.5 37 L21.5 34.8 L16.2 23.2 L27 23.2 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
   app.appendChild(cur);
@@ -1076,10 +989,18 @@
   cards[1].appendChild(ask);
   // the rewritten draft: the same facts from their site, warmer, and the line that says which note it followed
   var p2 = cards[1].querySelector('p'), p2Text = p2.innerHTML;
-  var p2Warm = 'Going back to school as an adult takes courage<mark class="chg sweep">, and we’re cheering you on</mark>. Our <mark>free</mark> Adult Basic Education classes and workshops help <mark class="chg sweep">you</mark> get ready for <mark>today’s workplace</mark>, across <mark>five counties</mark> in Northwest Washington.';
+  var p2Warm = 'Going back to school as an adult takes courage<mark class="chg sweep">, and we’re cheering you on</mark>. Our free Adult Basic Education classes help <mark class="chg sweep">you</mark> get ready for today’s workplace.';
   var follow = document.createElement('div'); follow.className = 'm-follow'; follow.innerHTML = '&#8635; Rewritten, following your note: “Make it warmer.”';
   cards[1].insertBefore(follow, cards[1].querySelector('.acts'));
   var txt = ask.querySelector('.m-txt'), send = ask.querySelector('.m-send'), ins = cards[2].querySelector('.m-ins');
+  // card 1's Reject: a reason, once, and the agent's rewrite that follows it
+  var rej = document.createElement('div'); rej.className = 'm-ask m-rej'; rej.innerHTML = '<span class="m-lbl">Why not?</span><span class="m-txt"></span><b class="m-send">Save reason</b><span class="m-sent">&#8635; Rewriting with your note…</span>';
+  cards[3].appendChild(rej);
+  var rtxt = rej.querySelector('.m-txt'), rsave = rej.querySelector('.m-send'), rejBtn = cards[3].querySelectorAll('.acts .a')[2];
+  var p1 = cards[3].querySelector('p'), p1Text = p1.innerHTML;
+  var p1New = '<mark class="chg sweep">Free job training, powered by your donations.</mark> Clearing out a closet? Those clothes could help someone start a new career.';
+  var follow1 = document.createElement('div'); follow1.className = 'm-follow m-follow1'; follow1.innerHTML = '&#10003; Following your note: “Lead with free job training, every time.” Kept for every draft.';
+  cards[3].insertBefore(follow1, cards[3].querySelector('.acts'));
   var timers = [], live = null;   // live: the card index whose movie is playing, or 'all'
   function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
   function to(el, dx, dy, ms) {
@@ -1090,17 +1011,21 @@
   function click() { cur.classList.add('press'); at(140, function () { cur.classList.remove('press'); }); }
   function type(el, t, t0, step) { for (var i = 1; i <= t.length; i++) (function (i) { at(t0 + i * step, function () { el.textContent = t.slice(0, i); }); })(i); }
   function clearCard(i) {
-    cards[i].classList.remove('m1', 'm2', 'm3', 'm4', 'm-swap', 'm-ed');
+    cards[i].classList.remove('m1', 'm2', 'm3', 'm4', 'm-swap', 'm-ed', 'r1', 'r2', 'r3');
+    if (i === 3) { rtxt.textContent = ''; p1.innerHTML = p1Text; }
     if (i === 1) { txt.textContent = ''; p2.innerHTML = p2Text; }
     if (i === 2 && ins) ins.textContent = '';
   }
   // stop whatever is playing; a movie cut off halfway is put back to its waiting state, finished ones stay done
+  // the spotlight: while a card's movie plays, the other two dim, so there is one place to look
+  function light(i) { s.classList.add('spot'); cards.forEach(function (c, k) { c.classList.toggle('lit', k === i); }); }
+  function unlight() { s.classList.remove('spot'); cards.forEach(function (c) { c.classList.remove('lit'); }); }
   function stop() {
-    timers.forEach(clearTimeout); timers = []; cur.classList.remove('show', 'press');
-    if (live === 'all') [0, 1, 2].forEach(clearCard); else if (live !== null) clearCard(live);
+    timers.forEach(clearTimeout); timers = []; cur.classList.remove('show', 'press'); unlight();
+    if (live === 'all') [0, 1, 2, 3].forEach(clearCard); else if (live !== null) clearCard(live);
     live = null;
   }
-  function resetAll() { stop(); [0, 1, 2].forEach(clearCard); }
+  function resetAll() { stop(); [0, 1, 2, 3].forEach(clearCard); }
   // each movie starts at t0 and returns when it ends
   var movies = [
     function (t0) {
@@ -1131,8 +1056,22 @@
       at(t0 + 3450, click);
       at(t0 + 3600, function () { c.classList.remove('m-ed'); c.classList.add('m1'); });
       return t0 + 4100;
+    },
+    // 4 · card 4, say why not: Reject, the reason once; the agent rewrites the draft following the note
+    function (t0) {
+      var c = cards[3], why = 'Lead with free job training, every time.';
+      at(t0 + 100, function () { cur.classList.add('show'); to(rejBtn, 0.55, 0.65, 750); });
+      at(t0 + 950, function () { click(); c.classList.add('r1'); });
+      type(rtxt, why, t0 + 1250, 45);
+      var t1 = t0 + 1250 + why.length * 45;
+      at(t1 + 200, function () { to(rsave, 0.5, 0.6, 450); });
+      at(t1 + 700, click);
+      at(t1 + 850, function () { c.classList.add('r2'); });
+      at(t1 + 1850, function () { p1.innerHTML = p1New; c.classList.remove('r1', 'r2'); c.classList.add('r3'); });
+      return t1 + 2500;
     }
   ];
+  var cardOf = [0, 1, 2, 3];   // which card each movie plays on
   // the mouse comes up from below the card (or the middle of the app when playing all)
   function enter(el) {
     var a = app.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -1140,13 +1079,19 @@
     cur.style.left = (r.left - a.left + r.width * 0.5) + 'px'; cur.style.top = (a.height * 1.02) + 'px';
   }
   function play(i) {
-    stop(); clearCard(i); live = i; enter(cards[i]);
-    at(movies[i](0), function () { cur.classList.remove('show'); live = null; });
+    var ci = cardOf[i];
+    stop(); clearCard(ci); live = ci; enter(cards[ci]); light(ci);
+    var end = movies[i](0);
+    at(end, function () { live = null; });   // finished: its result stays even if the next card is clicked now
+    at(end + 400, function () { if (live === null) { cur.classList.remove('show'); unlight(); } });
   }
   function playAll() {
-    stop(); [0, 1, 2].forEach(clearCard); live = 'all'; enter(app);
-    var t = movies[0](0) + 300; t = movies[1](t) + 300; t = movies[2](t);
-    at(t, function () { cur.classList.remove('show'); live = null; });
+    stop(); [0, 1, 2, 3].forEach(clearCard); live = 'all'; enter(app); light(0);
+    var t = movies[0](0) + 300; at(t, function () { light(1); });
+    t = movies[1](t) + 300; at(t, function () { light(2); });
+    t = movies[2](t) + 300; at(t, function () { light(3); });
+    t = movies[3](t);
+    at(t + 400, function () { cur.classList.remove('show'); unlight(); live = null; });
   }
   var wasOn = s.classList.contains('on');
   new MutationObserver(function () {
@@ -1160,19 +1105,19 @@
 })();
 </script>
 <script>
-// Slide "Email, sorted by morning" (9), hands-on: nothing plays when the slide comes on, and every email in the inbox
+// Slide "Email, sorted by morning" (8), hands-on: nothing plays when the slide comes on, and every email in the inbox
 // opens. Pat and Sam ask something: the question lights up, Yes / No / Later / Need more drafts a reply for that
 // answer, Edit (or a click in the reply) lets you rewrite it in your own words, and Send says nothing was sent, marks the email Replied, and offers "Next email".
 // The store team's email is waiting on them (Acknowledge only); the FYI and the promotion need nothing, which is the
 // point of the sorting. R (or Replay) plays Pat's as a short movie with a mouse. Leaving the slide puts it all back.
 // The presenter does the clicks live, and anyone opening the shared copy later can do them too.
 // Without motion (print, reduced motion) it shows Pat's finished state, because the markup IS that state.
-// Slide 10 (the newsletter chart) is CSS-only; see build.js.
+// 
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var s = document.querySelector('.slide[data-n="9"]'); if (!s) return;
+  var s = document.querySelector('.slide[data-n="8"]'); if (!s) return;
   var app = s.querySelector('.app'), rows = [].slice.call(s.querySelectorAll('.mrow'));
-  var head = s.querySelector('.mhead'), body = s.querySelector('.mtext'), stance = s.querySelector('.stance'), note = s.querySelector('.mnote');
+  var mwhy = s.querySelector('.mwhy'), head = s.querySelector('.mhead'), body = s.querySelector('.mtext'), stance = s.querySelector('.stance'), note = s.querySelector('.mnote');
   var draft = s.querySelector('.draft'), dp = draft.querySelector('p'), send = s.querySelector('.dsend .a'), dn = s.querySelector('.dsend .dn'), next = s.querySelector('.dnext');
   var ed = s.querySelector('.dsend .ed'), dl = s.querySelector('.draft .dl'), dlText = dl.textContent;
   var dnText = dn.textContent, whys = rows.map(function (r) { return r.querySelector('.why').textContent; });
@@ -1223,7 +1168,7 @@
     var m = mail[i]; if (!m) return;
     timers.forEach(clearTimeout); timers = [];
     openAt = i; rows.forEach(function (r, k) { r.classList.toggle('on', k === i); });
-    head.innerHTML = '<b>' + m.from + '</b><span>' + m.subj + '</span>'; body.innerHTML = m.body;
+    head.innerHTML = '<b>' + m.from + '</b><span>' + m.subj + '</span>'; body.innerHTML = m.body; mwhy.textContent = whys[i];
     buttons(m); note.style.display = m.note ? 'block' : 'none';
     note.innerHTML = m.note ? m.note + ' <span class="dnext">Next email &#8594;</span>' : '';
     dp.blur(); dn.textContent = dnText; dl.textContent = dlText; next.style.display = '';
@@ -1240,7 +1185,7 @@
     s.classList.remove('e1', 'e2', 'e3', 'e4', 'e5'); s.classList.add('e0'); dl.textContent = dlText;
     rows.forEach(function (r, k) { r.classList.toggle('on', k === 0); r.classList.remove('done'); r.querySelector('.why').textContent = whys[k]; });
     done = []; openAt = 0;
-    head.innerHTML = '<b>' + mail[0].from + '</b><span>' + mail[0].subj + '</span>'; body.innerHTML = mail[0].body;
+    head.innerHTML = '<b>' + mail[0].from + '</b><span>' + mail[0].subj + '</span>'; body.innerHTML = mail[0].body; mwhy.textContent = whys[0];
     buttons(mail[0]); [].forEach.call(stance.querySelectorAll('.st'), function (st) { st.classList.toggle('pick', st.textContent === 'Yes'); });
     note.style.display = 'none'; dp.innerHTML = mail[0].replies.Yes; dp.blur(); dn.textContent = dnText; next.style.display = ''; openAt = -1;
   }
@@ -1289,7 +1234,7 @@
     wasOn = on; reset();
   }).observe(s, { attributes: true, attributeFilter: ['class'] });
   window.addEventListener('beforeprint', function () { reset(); s.classList.remove('e0'); });
-  (window.__replay = window.__replay || {})['9'] = movie;
+  (window.__replay = window.__replay || {})['8'] = movie;
   reset();
 })();
 </script>
@@ -1309,11 +1254,11 @@
   </div>
 </div>
 <script>
-// Slide 10's "See a sample issue": a small thumbnail opens a sample draft in a pop-up (the same overlay style as the
+// Slide 6's "See a sample issue": a small thumbnail opens a sample draft in a pop-up (the same overlay style as the
 // fix panels). Click outside it, the × or Escape to close; while it is open the deck's keys do nothing, so an arrow
 // can't change the slide behind it. Not needed live; it is there for anyone reading the shared deck afterwards.
 (function () {
-  var m = document.getElementById('nlm'), t = document.querySelector('.slide[data-n="10"] .nl-thumb'); if (!m || !t) return;
+  var m = document.getElementById('nlm'), t = document.querySelector('.slide[data-n="6"] .nl-thumb'); if (!m || !t) return;
   function open(e) { if (e) e.stopPropagation(); m.hidden = false; m.querySelector('.nlm-x').focus(); }
   function close() { m.hidden = true; t.focus(); }
   t.addEventListener('click', open);
@@ -1327,6 +1272,38 @@
   new MutationObserver(function () { if (!s.classList.contains('on') && !m.hidden) m.hidden = true; }).observe(s, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
+<div class="nlm rcm" id="rcm" role="dialog" aria-modal="true" aria-label="The recap video" hidden>
+  <div class="rcm-box">
+    <button type="button" class="nlm-x rcm-x" aria-label="Close">&#215;</button>
+    <video class="rcm-v" controls playsinline preload="none" poster="goodwill/deck/02-recap-poster.jpg">
+      <source src="goodwill/deck/02-recap.mp4" type="video/mp4">
+      <track kind="captions" src="goodwill/deck/02-recap.vtt" srclang="en" label="English" default>
+    </video>
+  </div>
+</div>
+<script>
+// Slide 9's "The recap": the 1:46 recap video (built in the AI video pipeline, project evergreen-goodwill) in a pop-up,
+// the same overlay as slide 6's sample issue. It plays when it opens; closing it (×, a click outside, Escape, or
+// leaving the slide) pauses it. While it is open the deck's keys do nothing except Escape, and Space plays or pauses.
+(function () {
+  var m = document.getElementById('rcm'), t = document.querySelector('.slide[data-n="9"] .rc-thumb'); if (!m || !t) return;
+  var v = m.querySelector('video');
+  function open(e) { if (e) e.stopPropagation(); m.hidden = false; v.focus(); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+  function close() { v.pause(); m.hidden = true; t.focus(); }
+  t.addEventListener('click', open);
+  m.addEventListener('click', function (e) { e.stopPropagation(); if (e.target === m || e.target.closest('.rcm-x')) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (m.hidden) return;
+    e.stopPropagation();
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    else if (e.key === ' ' && e.target !== v) { e.preventDefault(); if (v.paused) v.play(); else v.pause(); }
+    else if (/^(Arrow|Page|Home|End)/.test(e.key) && e.target !== v) e.preventDefault();
+    else if (/^[rRnNpPfF]$/.test(e.key)) e.preventDefault();
+  }, true);
+  var s = t.closest('.slide');
+  new MutationObserver(function () { if (!s.classList.contains('on') && !m.hidden) { v.pause(); m.hidden = true; } }).observe(s, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
 <script>
 // Replay for the animated slides: a quiet "Replay" button fades in once a slide's animation has finished, and the
 // R key replays the slide you're on. CSS-driven motion (bars, timeline) restarts through the Web Animations API;
@@ -1334,7 +1311,7 @@
 // Nothing loops. Print and reduced motion: no button.
 (function () {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var DONE = { '6': 3600, '7': 11500, '8': 9900, '9': 6200, '10': 3200 };   // when each slide's motion has settled (ms)
+  var DONE = { '6': 3600, '7': 18200, '8': 6200 };   // when each slide's motion has settled (ms)
   window.__replay = window.__replay || {};
   var btns = {}, timers = {};
   function showLater(n) {
