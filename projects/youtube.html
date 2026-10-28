@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels on YouTube — ambient environments for focus, travel, and rest. Built for atmosphere, not noise." />
+  <meta name="description" content="AmbientPixels on YouTube — animated music videos sung by our AI character Mote, plus ambient environments for focus, travel, and rest." />
   <meta property="og:title" content="YouTube — AmbientPixels" />
-  <meta property="og:description" content="Ambient environments for focus, travel, and rest. Built for atmosphere, not noise." />
+  <meta property="og:description" content="Animated music videos sung by our AI character Mote, plus ambient environments for focus, travel, and rest." />
   <meta property="og:image" content="/images/nova/YouTube_banner_glowing_dreamlike_landscape.png" />
   <meta property="og:url" content="https://www.ambientpixels.ai/projects/youtube" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
@@ -60,7 +60,9 @@
       border-color: rgba(255, 0, 0, 0.6);
       transform: translateY(-2px);
     }
-    @media (max-width: 1000px) { .yt-grid { grid-template-columns: 1fr; } }
+    .yt-grid--two { grid-template-columns: repeat(2, 1fr); }
+    .yt-cap a { color: inherit; text-underline-offset: 2px; }
+    @media (max-width: 1000px) { .yt-grid, .yt-grid--two { grid-template-columns: 1fr; } }
   </style>
 
   <script defer src="/js/ap-nav-mobile.js"></script>
@@ -95,7 +97,7 @@
           <h1 class="ap-display">YouTube<em>.</em></h1>
         </div>
         <div class="ap-sec-meta">
-          Ambient environments for relaxation, work, and sleep. Whether you need to unwind on a long flight, build a peaceful atmosphere at home, or drift off quickly &mdash; you&rsquo;ll find something here. Atmosphere, not noise.
+          Music videos made by our AI studio, and ambient environments for focus, travel, and sleep. Whether you want a song about merge conflicts or a quiet room to drift off in &mdash; you&rsquo;ll find it here.
         </div>
       </div>
       <div class="ap-cta-actions" style="display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-8);">
@@ -104,11 +106,47 @@
       </div>
     </section>
 
-    <!-- § 01 — FEATURED VIDEOS -->
+    <!-- § 01 — MUSIC VIDEOS (Mote, the AI character) -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; FEATURED</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; MUSIC VIDEOS</div>
+          <h2 class="ap-display">Now playing,<br><em>from our AI studio.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Animated music videos from our studio, starring Mote, the dot-matrix face grown out of our logo. Made with our in-house AI video pipeline.
+        </div>
+      </div>
+
+      <div class="yt-grid yt-grid--two">
+        <div>
+          <div class="yt-frame">
+            <iframe src="https://www.youtube.com/embed/LiCmQ4kZaW4"
+                    title="Merge Conflict (music video)"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </div>
+          <p class="yt-cap">Merge Conflict &mdash; a song made of things coders really say &middot; <a href="/blog/the-breakdown-01-merge-conflict">How we made it &rarr;</a></p>
+        </div>
+        <div>
+          <div class="yt-frame">
+            <iframe src="https://www.youtube.com/embed/AUBunJP3M3I"
+                    title="Context Window (music video)"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </div>
+          <p class="yt-cap">Context Window &mdash; an AI looks out through the screen at you</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 02 — FEATURED VIDEOS -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; FEATURED</div>
           <h2 class="ap-display">Three to start,<br><em>more on the channel.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -122,7 +160,8 @@
             <iframe src="https://www.youtube.com/embed/yAJtma9FybQ"
                     title="Ambient Environments Demo"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen loading="lazy"></iframe>
+                    allowfullscreen loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
           <p class="yt-cap">01 &mdash; Ambient environments demo</p>
         </div>
@@ -131,7 +170,8 @@
             <iframe src="https://www.youtube.com/embed/DPzacDkWVA8"
                     title="Getting Started Guide"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen loading="lazy"></iframe>
+                    allowfullscreen loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
           <p class="yt-cap">02 &mdash; Getting started</p>
         </div>
@@ -140,18 +180,19 @@
             <iframe src="https://www.youtube.com/embed/_kOIUVxqy1o"
                     title="Nova's Ambient Soundscapes"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen loading="lazy"></iframe>
+                    allowfullscreen loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
           <p class="yt-cap">03 &mdash; Nova&rsquo;s soundscapes</p>
         </div>
       </div>
     </section>
 
-    <!-- § 02 — PLAYLISTS (pillar grid) -->
-    <section class="ap-sec">
+    <!-- § 03 — PLAYLISTS (pillar grid) -->
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; PLAYLISTS</div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; PLAYLISTS</div>
           <h2 class="ap-display">Three rooms,<br><em>three moods.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -195,11 +236,11 @@
       </div>
     </section>
 
-    <!-- § 03 — RELATED WORK -->
-    <section class="ap-sec ap-sec--cool">
+    <!-- § 04 — RELATED WORK -->
+    <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; RELATED WORK</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; RELATED WORK</div>
           <h2 class="ap-display">Adjacent rooms,<br><em>same studio.</em></h2>
         </div>
         <div class="ap-sec-meta">
