@@ -130,7 +130,7 @@ async function _readCanonical(id) {
 async function _buildDigest(dateStr, entries) {
   var stats = {
     total: entries.length,
-    byType: { contact: 0, demo: 0, newsletter: 0, other: 0 },
+    byType: { contact: 0, demo: 0, newsletter: 0, note: 0, other: 0 },
     uniqueTasks: 0,
     duplicates: 0,
     filtered: 0
@@ -168,7 +168,7 @@ async function _buildDigest(dateStr, entries) {
     // Candidate for notable: non-duplicate, demo or contact
     if (e.status !== 'duplicate' && !e.duplicateOf &&
         (!e.spamFlags || e.spamFlags.length === 0) &&
-        (e.type === 'demo' || e.type === 'contact')) {
+        (e.type === 'demo' || e.type === 'contact' || e.type === 'note')) {
       candidates.push(e);
     }
   }

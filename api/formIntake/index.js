@@ -8,6 +8,8 @@
  * - Anti-spam: honeypot, min-time-to-submit, IP rate limiting via blob counters
  * - Storage: canonical JSON per submission + daily JSON index
  * - Task spawning: contact/demo types create AmbientOS tasks; newsletter = store-only
+ * - note: the /contact/ page's quick note — message required, name/email optional
+ *   (anonymous allowed), no consent box, store-only (shows on Inbound + digest)
  * - v1.1: Duplicate suppression — dedupe index blob per email+type key,
  *   60-min rolling window, always stores record but skips task if duplicate,
  *   appends comment to existing task on duplicate detection
@@ -63,7 +65,7 @@ function _corsHeaders(origin) {
 // ── Validation + Normalization ──
 // ══════════════════════════════════════════════════════
 
-var VALID_TYPES = ['contact', 'demo', 'newsletter', 'conversioncore_strategy', 'ambientscore_strategy'];
+var VALID_TYPES = ['contact', 'demo', 'newsletter', 'note', 'conversioncore_strategy', 'ambientscore_strategy'];
 var LIMITS = { name: 120, email: 200, company: 200, role: 200, subject: 200, body: 8000 };
 var MAX_BODY_BYTES = 32 * 1024;
 
@@ -77,9 +79,13 @@ function _validatePayload(body) {
   if (!body || typeof body !== 'object') return { valid: false, errors: ['Invalid request body'] };
   if (!body.type || VALID_TYPES.indexOf(body.type) === -1) errors.push('type required: contact|demo|newsletter');
   if (!body.pageUrl || typeof body.pageUrl !== 'string') errors.push('pageUrl required');
-  if (!body.contact || !body.contact.email || typeof body.contact.email !== 'string') errors.push('contact.email required');
+  if (body.type === 'note') {
+    // Anonymous allowed: only the message is required; an email, if given, must look like one
+    if (!body.message || typeof body.message.body !== 'string' || !body.message.body.trim()) errors.push('message required');
+    if (body.contact && body.contact.email && typeof body.contact.email !== 'string') errors.push('contact.email invalid');
+  } else if (!body.contact || !body.contact.email || typeof body.contact.email !== 'string') errors.push('contact.email required');
   if (body.contact && body.contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.contact.email)) errors.push('contact.email invalid');
-  if (body.type !== 'newsletter') {
+  if (body.type !== 'newsletter' && body.type !== 'note') {
     if (!body.consent || !body.consent.privacyAccepted) errors.push('consent.privacyAccepted required');
   }
   return { valid: errors.length === 0, errors: errors };
@@ -503,6 +509,7 @@ function _generateSlotToken(submissionId, slotIndex) {
 
 async function _spawnTask(record) {
   if (record.type === 'newsletter') return null;
+  if (record.type === 'note') return null;
   // Contact form submissions are informational — CEO handles via Inbound page, not agent work
   if (record.type === 'contact') return null;
 

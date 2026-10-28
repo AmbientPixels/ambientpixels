@@ -97,7 +97,7 @@
     filtered.forEach(function (item) {
       var time = item.receivedAt ? formatTime(item.receivedAt) : '—';
       var typeClass = 'inb-type--' + (item.type || 'contact');
-      var nameEmail = item.name || item.email || '—';
+      var nameEmail = item.name || item.email || (item.type === 'note' ? 'Anonymous' : '—');
       var source = item.pageUrl ? extractSource(item.pageUrl) : '—';
       var status = getStatus(item);
       var taskLink = (item.links && item.links.inboundTask) ? item.links.inboundTask : (item.taskId ? '/modules/company/tasks.html?task=' + item.taskId : null);

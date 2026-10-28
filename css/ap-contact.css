@@ -1,0 +1,42 @@
+/* /contact/ — the quick-note form. Field styles come from ap-components.css (.ap-form). */
+
+.contact-note {
+  max-width: 720px;
+  margin-top: var(--sp-12);
+}
+
+.contact-note-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-8);
+}
+
+.contact-note-opt {
+  opacity: .55;
+  margin-left: var(--sp-2);
+}
+
+.contact-note .ap-form-helper a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.contact-note .form-status.success { color: var(--color-text-primary); }
+
+.contact-note-project {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-xs);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--color-border);
+  max-width: 720px;
+}
+.contact-note-project a { color: var(--color-text-primary); }
+
+@media (max-width: 600px) {
+  .contact-note-row { grid-template-columns: 1fr; gap: 0; }
+}

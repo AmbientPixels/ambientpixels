@@ -1575,13 +1575,15 @@ body {
 }
 
 /* Form (bottom-border-only per DS §5) */
-.ap-modal .form-group {
+.ap-modal .form-group,
+.ap-form .form-group {
   margin-bottom: var(--sp-6);
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
 }
-.ap-modal .form-group label {
+.ap-modal .form-group label,
+.ap-form .form-group label {
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   letter-spacing: var(--tracking-mono-md);
@@ -1591,7 +1593,10 @@ body {
 .ap-modal input[type="text"],
 .ap-modal input[type="email"],
 .ap-modal select,
-.ap-modal textarea {
+.ap-modal textarea,
+.ap-form input[type="text"],
+.ap-form input[type="email"],
+.ap-form textarea {
   font-family: var(--font-display);
   font-weight: var(--fw-regular);
   font-size: var(--fs-body);
@@ -1606,10 +1611,13 @@ body {
 }
 .ap-modal input:focus,
 .ap-modal select:focus,
-.ap-modal textarea:focus {
+.ap-modal textarea:focus,
+.ap-form input:focus,
+.ap-form textarea:focus {
   border-bottom-color: var(--color-text-primary);
 }
-.ap-modal textarea {
+.ap-modal textarea,
+.ap-form textarea {
   resize: vertical;
   min-height: 120px;
   line-height: var(--lh-body);
@@ -1674,7 +1682,8 @@ body {
   margin: 0;
 }
 
-.ap-modal .form-status {
+.ap-modal .form-status,
+.ap-form .form-status {
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   letter-spacing: var(--tracking-mono-sm);
@@ -1684,7 +1693,8 @@ body {
   color: var(--color-text-secondary);
   min-height: 1.5em;
 }
-.ap-modal .form-status:empty { display: none; }
+.ap-modal .form-status:empty,
+.ap-form .form-status:empty { display: none; }
 
 /* Modal responsive */
 @media (max-width: 600px) {

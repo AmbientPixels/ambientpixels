@@ -41,6 +41,7 @@
 .inb-type--contact { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.15); }
 .inb-type--demo { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.15); }
 .inb-type--newsletter { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.15); }
+.inb-type--note { background: rgba(212,169,82,0.1); color: #d4a952; border: 1px solid rgba(212,169,82,0.15); }
 
 /* Status */
 .inb-status { font-size: var(--c-text-xs); opacity: 0.5; }

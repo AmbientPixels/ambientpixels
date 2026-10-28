@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Send AmbientPixels a note. A question, an idea, a bug you spotted. Name and email optional." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="canonical" href="https://www.ambientpixels.ai/contact/" />
+  <title>Contact — AmbientPixels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="/css/ap-contact.css" />
+  <script defer src="/js/ap-nav-mobile.js"></script>
+</head>
+<body class="polish-glow polish-hairlines polish-type" data-texture="none">
+  <div class="tx-layer" aria-hidden="true"></div>
+
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
+    </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
+
+  <main>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; CONTACT</div>
+          <h1 class="ap-display">Send us a<em> note.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          A question, an idea for something we should break down, a bug you spotted. Leave your name and email if you&rsquo;d like a reply. Or don&rsquo;t.
+        </div>
+      </div>
+
+      <form class="ap-form contact-note" method="POST" data-ambientos-intake="true">
+        <input type="hidden" name="type" value="note">
+        <input type="hidden" name="subject" value="">
+
+        <div class="form-group">
+          <label for="note-message">Your note</label>
+          <textarea id="note-message" name="message" rows="6" maxlength="8000" required></textarea>
+        </div>
+
+        <div class="contact-note-row">
+          <div class="form-group">
+            <label for="note-name">Name <span class="contact-note-opt">optional</span></label>
+            <input type="text" id="note-name" name="name" maxlength="120" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="note-email">Email <span class="contact-note-opt">optional</span></label>
+            <input type="email" id="note-email" name="email" maxlength="200" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="ap-form-actions">
+          <button type="submit" class="ap-btn ap-btn--primary">Send note &rarr;</button>
+          <p class="ap-form-helper">No email, no reply, no problem. <a href="/privacy.html">Privacy</a></p>
+        </div>
+      </form>
+
+      <p class="contact-note-project">Have a project in mind? <a href="/#start">Start a project &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li><li><a href="/skills/chad-martin-resume.html">Resume</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/contact/">Send a note</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
+    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand, operated live.</div>
+  </footer>
+
+  <script src="/js/contact-page.js" defer></script>
+  <script src="/js/form-intake.js" defer></script>
+</body>
+</html>
