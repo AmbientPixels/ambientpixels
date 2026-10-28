@@ -78,6 +78,30 @@
   text-decoration: none;
 }
 
+/* Series filter above the index list (?series=...) */
+.ap-journal-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  margin-bottom: var(--sp-8);
+}
+.ap-journal-filter a {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid transparent;
+}
+.ap-journal-filter a:hover,
+.ap-journal-filter a:focus-visible { color: var(--color-text-primary); }
+.ap-journal-filter a.is-active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-text-primary);
+}
+
 /* Tighten vertical rhythm around the subnav. Default .ap-sec-head has a
    large margin-bottom tuned for full content sections, and two stacked
    .ap-sec containers produce 2x var(--sec-pad-y) between them (= 240px).

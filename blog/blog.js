@@ -24,6 +24,14 @@
     }
   }
 
+  // Series are tags, not document kinds (kind is pipeline routing, never shown to readers)
+  var SERIES = { 'the-breakdown': 'The Breakdown' };
+  function seriesOf(p) {
+    var tags = (p && p.tags) || [];
+    for (var t = 0; t < tags.length; t++) if (SERIES[tags[t]]) return tags[t];
+    return '';
+  }
+
   if (slug && slug !== 'index.html') {
     loadSinglePost(slug);
   } else {
@@ -106,7 +114,7 @@
     }
 
     var dateStr = formatISO(post.published_at);
-    var kindLabel = (post.kind || 'entry').toUpperCase();
+    var series = seriesOf(post);
     var readTime = estimateReadTime(post.content_md);
 
     // Title — split last 1–2 words as the italic punchline if title ends
@@ -129,7 +137,7 @@
           '<div>' +
             '<div class="ap-sec-idx">' +
               '§ JOURNAL' +
-              (post.kind ? ' / ' + esc(kindLabel) : '') +
+              (series ? ' / ' + esc(SERIES[series].toUpperCase()) : '') +
               (dateStr ? ' &mdash; ' + esc(dateStr) : '') +
             '</div>' +
             '<h1 class="ap-display ap-journal-title">' + titleHtml + '</h1>' +
@@ -196,6 +204,20 @@
         '</nav>' +
       '</section>';
 
+    // ?series=the-breakdown filters the list; the filter row only shows once a series has a post
+    var activeSeries = new URLSearchParams(window.location.search).get('series') || '';
+    if (!SERIES[activeSeries]) activeSeries = '';
+    var used = Object.keys(SERIES).filter(function (k) { return (posts || []).some(function (p) { return seriesOf(p) === k; }); });
+    var filterHtml = used.length
+      ? '<nav class="ap-journal-filter" aria-label="Filter by series">' +
+          '<a class="ap-link-mono' + (activeSeries ? '' : ' is-active') + '" href="/blog/">All</a>' +
+          used.map(function (k) {
+            return '<a class="ap-link-mono' + (activeSeries === k ? ' is-active' : '') + '" href="/blog/?series=' + k + '">' + esc(SERIES[k]) + '</a>';
+          }).join('') +
+        '</nav>'
+      : '';
+    if (activeSeries) posts = posts.filter(function (p) { return seriesOf(p) === activeSeries; });
+
     if (!posts || posts.length === 0) {
       contentEl.innerHTML =
         '<section class="ap-sec">' +
@@ -208,7 +230,8 @@
     var rows = posts.map(function (p, idx) {
       var n = String(idx + 1).padStart(2, '0');
       var dateStr = formatISO(p.published_at);
-      var kindLabel = (p.kind || 'entry').replace(/_/g, ' ').toUpperCase();
+      var series = seriesOf(p);
+      var seriesLabel = series ? SERIES[series].toUpperCase() : '';
       var readTime = estimateReadTime(p.content_md || '');
       var titleHtml = italicizePunchline(p.title);
 
@@ -219,8 +242,8 @@
             '<h3>' + titleHtml + '</h3>' +
             '<span class="meta">' +
               (dateStr ? esc(dateStr) : '') +
-              (dateStr && kindLabel ? ' &middot; ' : '') +
-              esc(kindLabel) +
+              (dateStr && seriesLabel ? ' &middot; ' : '') +
+              esc(seriesLabel) +
             '</span>' +
           '</div>' +
           '<p>' + esc(p.excerpt || '') + '</p>' +
@@ -232,6 +255,7 @@
 
     contentEl.innerHTML =
       '<section class="ap-sec">' +
+        filterHtml +
         '<div class="ap-prods ap-shipped">' + rows + '</div>' +
       '</section>';
 
