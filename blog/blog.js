@@ -163,6 +163,14 @@
         '</div>' +
       '</section>';
 
+    // Off-site links (YouTube etc.) open in a new tab; DOMPurify strips target from the markdown
+    contentEl.querySelectorAll('.ap-journal-body a[href^="http"]').forEach(function (a) {
+      if (a.hostname && a.hostname.replace(/^www\./, '') !== location.hostname.replace(/^www\./, '')) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+    });
+
     show('doc');
   }
 
