@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Words That Ask — Evergreen Goodwill Starter Kit</title>
+<style>
+  :root{--paper:#F3EEE3;--paper-2:#EAE3D3;--warm:#FBF7EB;--rule:#D4CBB5;--rule-2:#BDB299;
+        --ink:#1A1613;--ink-soft:#3D342C;--ink-muted:#6B6052;--stamp:#8C2F1E;--ok:#3e6b45}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink-soft);
+       font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:11.5pt;line-height:1.55}
+  .doc{max-width:52rem;margin:0 auto;padding:2.5rem 2rem 4rem}
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,monospace;
+        font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase}
+  header{border-bottom:2px solid var(--ink);padding-bottom:1.1rem;margin-bottom:1.6rem}
+  .eyebrow{color:var(--stamp);margin:0 0 .5rem}
+  h1{font-size:23pt;line-height:1.15;color:var(--ink);margin:0 0 .35rem;font-weight:600}
+  h1 em{font-weight:400}
+  .sub{color:var(--ink-muted);font-size:10pt;margin:0}
+  h2{font-size:9pt;letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+     font-family:ui-monospace,monospace;margin:2.4rem 0 .8rem;padding-bottom:.4rem;
+     border-bottom:1px solid var(--rule)}
+  h3{font-size:13pt;color:var(--ink);margin:0 0 .3rem;font-weight:600}
+  .lede{font-size:12.5pt;color:var(--ink);line-height:1.5}
+  a{color:var(--stamp)}
+  .rule{border-top:1px solid var(--rule);padding:1rem 0;break-inside:avoid;display:grid;grid-template-columns:2.2rem 1fr;gap:0 .6rem}
+  .rule .n{font-family:ui-monospace,monospace;font-size:9pt;color:var(--stamp);padding-top:.3rem}
+  .rule p{margin:.2rem 0 .5rem}
+  .was,.now{margin:.35rem 0 0;font-size:10.5pt}
+  .was{color:var(--ink-muted)}
+  .now{color:var(--ink);background:var(--warm);border-left:2px solid var(--stamp);padding:.5rem .7rem}
+  .was span,.now span,.tag{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;
+       text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
+  .test{background:var(--warm);border:1px solid var(--rule);padding:1rem 1.3rem}
+  .test ol{margin:.4rem 0 .4rem;padding-left:1.3rem;font-size:12pt;color:var(--ink)}
+  .test p{margin:.3rem 0 0;font-size:10.5pt}
+  ul.check{list-style:none;padding:0;margin:0}
+  ul.check li{padding:.45rem 0 .45rem 1.8rem;border-bottom:1px solid var(--rule);position:relative;font-size:10.5pt}
+  ul.check li::before{content:"";position:absolute;left:.2rem;top:.65rem;width:.8rem;height:.8rem;border:1.5px solid var(--ink-muted)}
+  table{width:100%;border-collapse:collapse;font-size:10pt}
+  th{text-align:left;font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;
+     color:var(--ink-muted);font-weight:400;padding:.4rem .5rem;border-bottom:1px solid var(--rule-2)}
+  td{padding:.55rem .5rem;border-bottom:1px solid var(--rule);vertical-align:top}
+  td.b{color:var(--ink-muted)} td.a{color:var(--ink)}
+  .opts{padding-left:1.2rem;font-size:10.5pt} .opts li{margin-bottom:.5rem}
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.6rem 0 .8rem}
+  .flow div{background:var(--warm);border:1px solid var(--rule);padding:.7rem .8rem;font-size:10pt}
+  .flow b{display:block;font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);font-weight:400;margin-bottom:.3rem}
+  .note{background:var(--paper-2);border:1px solid var(--rule);padding:1rem 1.2rem;font-size:10.5pt}
+  .note p{margin:.3rem 0}
+  .next{display:grid;gap:.7rem}
+  .next div{border:1px solid var(--rule);background:var(--warm);padding:.9rem 1.1rem;display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;align-items:baseline}
+  .next h3{font-size:12pt;margin:0}
+  .next p{grid-column:1 / -1;margin:0;font-size:10.5pt}
+  .price{font-family:ui-monospace,monospace;font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--ok)}
+  .reads li{margin-bottom:.45rem}
+  .part{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:17pt;letter-spacing:0;text-transform:none;
+        color:var(--ink);margin:3rem 0 .2rem;font-weight:600;border-bottom:0;border-top:2px solid var(--ink);padding:1rem 0 0}
+  .part span{display:block;font-family:ui-monospace,monospace;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);font-weight:400;margin-bottom:.3rem}
+  .part + p{margin-top:.4rem}
+  .bp{border-top:1px solid var(--rule);padding:.8rem 0;break-inside:avoid}
+  .bp h3{font-size:11.5pt}
+  .bp p{margin:.15rem 0 0;font-size:10.5pt}
+  .src{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted)}
+  .issue{background:#fff;border:1px solid var(--rule-2);max-width:34rem;margin:1rem auto .4rem;font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#222;break-inside:avoid}
+  .issue .ih{background:#003e6f;color:#fff;padding:.8rem 1.1rem}
+  .issue .ih b{display:block;font-size:13pt} .issue .ih span{font-size:9pt;opacity:.85}
+  .issue .ib{padding:.4rem 1.1rem 1rem}
+  .issue .blk{border-bottom:1px solid #e3e3e3;padding:.7rem 0}
+  .issue .blk h4{margin:0 0 .2rem;font-size:11pt;color:#003e6f}
+  .issue .blk p{margin:0}
+  .issue .from{display:block;margin-top:.25rem;font-size:8pt;color:#777;font-style:italic}
+  .issue .ai{background:#fff6dc;border:1px dashed #c9a227;padding:.6rem .7rem;margin-top:.7rem}
+  .issue .ai i{display:block;font-style:normal;font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:#8a6d0b;margin-bottom:.2rem}
+  .issue .acts{display:flex;gap:.4rem;flex-wrap:wrap;padding-top:.8rem;font-size:9pt}
+  .issue .acts span{border:1px solid #c8ced6;padding:.3rem .7rem;color:#1d3a5c}
+  .issue .acts span:first-child{background:#3e7845;border-color:#3e7845;color:#fff}
+  .cap{text-align:center;font-size:9pt;color:var(--ink-muted);margin:0 0 1rem}
+  .exec{background:var(--warm);border:1px solid var(--rule);border-top:3px solid var(--stamp);padding:1.2rem 1.4rem 1rem;break-inside:avoid}
+  .exec > .mono{color:var(--stamp);margin:0 0 .5rem}
+  .exec .lede{margin:0 0 1rem}
+  .ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem 1.4rem}
+  .ex-grid div{font-size:10.5pt;border-top:1px solid var(--rule);padding-top:.6rem}
+  .ex-grid b{display:block;font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);font-weight:400;margin-bottom:.25rem}
+  .ex-from{font-size:10pt;color:var(--ink-muted);margin:-.2rem 0 .7rem}
+  .ex-foot{font-size:10pt;color:var(--ink-muted);margin:1rem 0 0}
+  @media (max-width:640px){ .ex-grid{grid-template-columns:1fr} }
+  .sect{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:24pt;line-height:1.15;color:var(--paper);background:var(--ink);
+        margin:3.5rem 0 0;padding:1.4rem 1.6rem;font-weight:600;break-before:page;break-inside:avoid}
+  .sect span{display:block;font-family:ui-monospace,monospace;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:#E7B9A9;font-weight:400;margin-bottom:.4rem}
+  .sect p{font-size:11pt;font-weight:400;color:#D9D1BF;margin:.5rem 0 0;line-height:1.45}
+  .sect + .part{border-top:0;margin-top:1.6rem}
+  .fixes{border:1px solid var(--rule);background:var(--warm);padding:1rem 1.3rem;margin:1.6rem 0 0;break-inside:avoid}
+  .fixes .mono{color:var(--stamp);margin:0 0 .4rem}
+  .fixes ol{margin:0 0 .5rem;padding-left:1.3rem;font-size:10.5pt} .fixes li{margin-bottom:.3rem}
+  .fixes p:last-child{margin:0;font-size:10pt;color:var(--ink-muted)}
+  .dim{border-top:1px solid var(--rule);padding:.9rem 0;break-inside:avoid;display:grid;grid-template-columns:4.2rem 1fr;gap:0 .9rem}
+  .dim .sc{font-size:22pt;line-height:1;color:var(--ink);font-weight:600;text-align:right}
+  .dim .sc small{display:block;font-family:ui-monospace,monospace;font-size:7pt;letter-spacing:.1em;font-weight:400;color:var(--ink-muted);margin-top:.3rem}
+  .dim.low .sc{color:var(--stamp)}
+  .dim h3{font-size:12pt;margin:0}
+  .dim .aka{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted)}
+  .dim .q{margin:.25rem 0 .35rem;font-style:italic;color:var(--ink)}
+  .dim ul{margin:0;padding-left:1.1rem;font-size:10.5pt} .dim li{margin-bottom:.2rem}
+  footer{margin-top:2.5rem;padding-top:1rem;border-top:2px solid var(--ink);font-size:9pt;color:var(--ink-muted)}
+  @media (max-width:640px){
+    .doc{padding:1.6rem 1rem 3rem}
+    .flow{grid-template-columns:1fr 1fr}
+    table,thead,tbody,tr,td,th{display:block} thead{display:none}
+    td{border:0;padding:.15rem 0} tr{border-bottom:1px solid var(--rule);padding:.5rem 0}
+  }
+  @media print{
+    body{background:#fff;font-size:10.5pt}
+    .doc{max-width:none;padding:0}
+    h2{break-after:avoid}
+    a{color:var(--ink)}
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<header>
+  <p class="mono eyebrow">Prepared for Evergreen Goodwill · October 2026</p>
+  <h1>Words that ask. <em>A starter kit for your website and AI agents.</em></h1>
+  <p class="sub">Best practices for evergreengoodwill.org from your homepage audit, and how AI agents could help your team with social posts, newsletters and your contact form. Free to use, whoever makes the changes.</p>
+</header>
+
+<section class="exec">
+  <p class="mono">Executive summary</p>
+  <p class="ex-from">From Chad Martin, AmbientPixels, following our October 27 call with Alyssa and Tyler.</p>
+  <p class="lede">Your homepage already tells a strong story. People can see your mission. What the words around it don't do yet is ask: to apply, to give, or to shop.</p>
+  <div class="ex-grid">
+    <div><b>Where you stand</b>Your homepage tells your story well. Where it falls short is asking people to act. The three weakest of the audit's eight measures are how easy it is to act (11), what the page puts first (29) and how clear the buttons are (41).</div>
+    <div><b>What to do first</b>Four small fixes, all words and order, no rebuild: rename “Click Here” to “Apply for Free Job Training” and lead the headline with it, the newsletter signup on your own site, a Shop button that names the mission, and a simpler menu.</div>
+    <div><b>Where agents help</b>AI agents can draft social posts and newsletters, and file every contact form message into a bucket your teams own, in a voice guide your team defines and tuned by your team's comments. A person approves everything. Once your accounts are connected, approving a post publishes it: no copying and pasting.</div>
+    <div><b>The next step</b>Start small: fix 01, with a free sandbox alongside, meaning a private test version of the agents, built from your public pages, with no live accounts. To begin, just reply with one contact on your team. A re-run of the audit ($29) is available whenever your team makes changes. Once agents go live, Microsoft bills the AI usage separately.</div>
+  </div>
+  <p class="ex-foot">The rest of this kit is the detail, in two halves: your website, from the audit, and AI agents for your team.</p>
+</section>
+
+<div class="sect"><span>Section A</span>Your website<p>From your homepage audit: the words, the site around them, and how you'll know the changes worked.</p></div>
+
+<div class="fixes">
+  <p class="mono">The four fixes from your audit</p>
+  <ol>
+    <li><b>Apply for Free Job Training.</b> The student link and the headline say what's on offer.</li>
+    <li><b>The newsletter on your own site.</b> People sign up without leaving evergreengoodwill.org.</li>
+    <li><b>A Shop button that names the mission.</b> Every purchase supports free job training, and the button says so.</li>
+    <li><b>A simpler menu.</b> Five main menu items, plus the Give and Donate buttons. Every other page stays, one click further in.</li>
+  </ol>
+  <p>Same pages, same photos. Small changes, no rebuild. The rest of this section is the thinking behind them, so your team can use it on any page.</p>
+</div>
+
+<h2 class="part"><span>Part 1</span>The words</h2>
+
+<h2>Six rules for words that ask</h2>
+
+<div class="rule"><span class="n">01</span><div>
+  <h3>Name what happens next.</h3>
+  <p>A link or button should say what the person gets when they click it. “Click Here”, “Learn More” and “Read More” make people guess, and people who have to guess often don't click.</p>
+  <p class="was"><span>Before</span>Click Here <span style="margin-left:.5rem">(the student registration link in your top bar, October 8)</span></p>
+  <p class="now"><span>After</span>Apply for Free Job Training</p>
+</div></div>
+
+<div class="rule"><span class="n">02</span><div>
+  <h3>Lead with what people get, and keep the mission beside it.</h3>
+  <p>A headline is the first thing a visitor reads. Leading with the offer tells them in a few seconds why they're here. Your brand line isn't lost: it can sit right under the headline, or in a button.</p>
+  <p class="was"><span>Before</span>We believe in the power of jobs to change lives.</p>
+  <p class="now"><span>After</span>Free Job Training Programs That Lead to Real Careers — Serving Five Counties in Northwest Washington</p>
+  <p class="now"><span>Brand line</span>See How Our Programs Change Lives</p>
+</div></div>
+
+<div class="rule"><span class="n">03</span><div>
+  <h3>Say “free” where it's free.</h3>
+  <p>Your programs are free, and your page already says so in the body text. Put the word where the decision happens: in the headline and on the button.</p>
+</div></div>
+
+<div class="rule"><span class="n">04</span><div>
+  <h3>Connect every action to the mission.</h3>
+  <p>Shopping, donating and giving all fund the same work. Saying so on the button gives people a reason to choose you, and it costs only a few words.</p>
+  <p class="was"><span>Before</span>Shop Now</p>
+  <p class="now"><span>After</span>Shop Online — Every Purchase Supports Free Job Training</p>
+</div></div>
+
+<div class="rule"><span class="n">05</span><div>
+  <h3>Fewer, clearer choices.</h3>
+  <p>When everything has the same weight, nothing stands out. Give each section of a page one main action, and let people choose a direction before they see every option.</p>
+  <p class="now"><span>Menu</span>Five main menu items: Education · Volunteer · Locations · Shop · About, plus the Give (money) and Donate (goods) buttons, which stay where they are. Every other page stays, one click further in.</p>
+</div></div>
+
+<div class="rule"><span class="n">06</span><div>
+  <h3>Keep people on your site.</h3>
+  <p>When a step sends someone to a different-looking website, some people stop there. Wherever you can, let them finish on your own pages. The newsletter signup below is the clearest example.</p>
+</div></div>
+
+<h2>The five-second test</h2>
+<div class="test">
+  <p>Show a page to someone who hasn't seen it for five seconds, then ask:</p>
+  <ol>
+    <li>What is this website about?</li>
+    <li>What can I do here?</li>
+    <li>Why should I do it?</li>
+  </ol>
+  <p>If they hesitate on any of the three, the words on that page need work. It's free, it takes a minute, and it works on any page your team writes.</p>
+</div>
+
+<h2>Before you publish a page update</h2>
+<ul class="check">
+  <li>Does every link and button say what happens next? No “Click Here”, “Learn More” or “Read More” on its own.</li>
+  <li>Does the headline lead with what the reader gets?</li>
+  <li>Does the page have one main action, and does it stand out from the rest?</li>
+  <li>If it's free, does the button say so?</li>
+  <li>Does the action connect back to the mission, in a few words?</li>
+  <li>Does every link stay on your site, or say clearly where it's going?</li>
+  <li>Would it pass the five-second test with someone outside your team?</li>
+  <li>Does the copy in the red top bar name its action, like “Donate your vehicle”?</li>
+</ul>
+
+<h2 class="part"><span>Part 2</span>The site around the words</h2>
+<p>Words are one part of it. The rest is how easy the page makes it to act. Below are the eight things your audit measured, with what good looks like for each, then the specific points from your homepage, then general good practice for any page.</p>
+
+<h2>What turns a visit into an action</h2>
+<p>These are the eight measures in your audit, weakest first, with your homepage's score out of 100. Use them as a lens for any page your team writes or changes.</p>
+
+<div class="dim low"><div class="sc">11<small>of 100</small></div><div>
+  <h3>Ease of acting</h3><span class="aka">Funnel friction</span>
+  <p class="q">How easy is it for someone who already wants to apply, give or shop to actually do it?</p>
+  <ul>
+    <li>Count the clicks from the homepage to a finished application, donation or purchase, and remove any you can.</li>
+    <li>Fewer choices on a page, not more (rule 05 above).</li>
+    <li>Keep forms short: only the fields you need, clear labels, and helpful messages when something's missing.</li>
+    <li>Watch for anything that pulls people away mid-step: links to other sites, pop-ups, or a second offer competing with the first.</li>
+  </ul>
+</div></div>
+
+<div class="dim low"><div class="sc">29<small>of 100</small></div><div>
+  <h3>What the page puts first</h3><span class="aka">Conversion hierarchy</span>
+  <p class="q">Does the layout lead the eye to the most important action first?</p>
+  <ul>
+    <li>Use size, color and space to make the main action the most visible thing in each section.</li>
+    <li>Follow a natural order: the need, how you help, proof that it works, then the ask.</li>
+    <li>Reveal detail as people need it. Don't put everything up front, and don't bury what matters.</li>
+  </ul>
+</div></div>
+
+<div class="dim low"><div class="sc">41<small>of 100</small></div><div>
+  <h3>Clear buttons and links</h3><span class="aka">CTA strength</span>
+  <p class="q">Are the buttons people click easy to see, and do they say exactly what happens next?</p>
+  <ul>
+    <li>Make the main buttons stand out: high contrast, and at least one visible without scrolling.</li>
+    <li>Start with an action word and say what people get: “Apply for Free Job Training”, not “Submit” or “Click Here”.</li>
+    <li>Match the button to what's around it: the words on the button should finish the promise the section makes.</li>
+    <li>Place buttons where people decide: after a story, after the details, at the end of a section.</li>
+  </ul>
+</div></div>
+
+<div class="dim"><div class="sc">59<small>of 100</small></div><div>
+  <h3>Speaks to each audience</h3><span class="aka">Audience alignment</span>
+  <p class="q">Does the language fit the person reading it?</p>
+  <ul>
+    <li>Write for the person you want to act: a job seeker, a donor, a shopper or an employer each need different words.</li>
+    <li>Name what they're looking for (a new career, a place for their donations) before describing your programs.</li>
+    <li>Match the detail to the reader: enough to decide, not so much that they stop reading.</li>
+  </ul>
+</div></div>
+
+<div class="dim"><div class="sc">61<small>of 100</small></div><div>
+  <h3>Clear in five seconds</h3><span class="aka">Messaging clarity</span>
+  <p class="q">Can a visitor tell what you offer and why it matters within about five seconds?</p>
+  <ul>
+    <li>Make the headline state a concrete benefit people can picture.</li>
+    <li>Prefer specifics to general claims: “free job training” over a general phrase like “making a difference”.</li>
+    <li>Use everyday words, and explain any program names.</li>
+    <li>Keep one message from headline to button, without drifting topic.</li>
+  </ul>
+</div></div>
+
+<div class="dim"><div class="sc">70<small>of 100</small></div><div>
+  <h3>Quick wins</h3><span class="aka">Quick-win fixes</span>
+  <p class="q">What small changes could make a real difference in a day?</p>
+  <ul>
+    <li>Start with words before layout: renaming a button is a copy change, not a rebuild.</li>
+    <li>Your fix 01 (the Apply link and headline) is the clearest quick win on the homepage.</li>
+  </ul>
+</div></div>
+
+<div class="dim"><div class="sc">72<small>of 100</small></div><div>
+  <h3>Why Goodwill</h3><span class="aka">Differentiation</span>
+  <p class="q">Is it clear why someone should choose you?</p>
+  <ul>
+    <li>One of your strengths. Keep saying what only you can: shopping and donating fund free job training.</li>
+    <li>Use words no other organization could use about itself.</li>
+  </ul>
+</div></div>
+
+<div class="dim"><div class="sc">79<small>of 100</small></div><div>
+  <h3>Reasons to trust</h3><span class="aka">Trust signals</span>
+  <p class="q">Does the page show you're credible?</p>
+  <ul>
+    <li>Your strongest score. Keep your success stories specific: what someone achieved, with their permission.</li>
+    <li>Show what supports your work: partners, accreditations, years serving the community.</li>
+    <li>Lower the risk of acting: say what happens after someone applies, and how donations are used.</li>
+    <li>Make contact details, store locations and your privacy policy easy to find.</li>
+  </ul>
+</div></div>
+
+<h2>From your audit</h2>
+<p>These come from your homepage audit, so they're specific to your site.</p>
+<div class="bp"><h3>One clear path for each audience.</h3>
+  <p>Job seekers, donors, shoppers and employers all arrive on the same homepage, and today it asks all four at once. Decide which action matters most there, then give each audience an easy way in, such as “I want to: Find Training · Donate · Shop · Hire Graduates”.</p></div>
+<div class="bp"><h3>Fewer buttons competing for attention.</h3>
+  <p>Your audit counted 14 calls to action on the homepage, including several “Read More” and “Contact” links that repeat. Keep one main action per section and give it the most visual weight.</p></div>
+<div class="bp"><h3>Ask right after the story.</h3>
+  <p>Your student success stories are where readers are most moved. Add an Apply or Give button directly after them, while that feeling is fresh.</p></div>
+<div class="bp"><h3>Keep the main area for the main actions.</h3>
+  <p>Events, like the soccer screen-printing event, are worth promoting, but in a news or events section where they don't compete with job training.</p></div>
+<div class="bp"><h3>Tidy what's hidden.</h3>
+  <p>A hidden second row of stats still has placeholder labels in the page code. Visitors don't see it, but search engines read it. Finish it or remove it.</p></div>
+
+<h2>Good practice for any page</h2>
+<ul class="check">
+  <li>Check the page on a phone first. Most visitors will see it there.</li>
+  <li>Describe every image with alt text, so screen readers and search engines can understand it.</li>
+  <li>Keep text easy to read against its background, including text on photos.</li>
+  <li>Check page speed with Google's free <a href="https://pagespeed.web.dev/">PageSpeed Insights</a>.</li>
+  <li>Give every page a clear title and description: they're what people see in search results.</li>
+  <li>Make it easy to reach a person: contact details and store locations one click away.</li>
+</ul>
+
+<h2>The newsletter signup</h2>
+<p>Today the footer's “Sign up for Newsletter” link goes to a DonorPerfect form on a different website. That form collects useful things (interests, print or email, preferred store), so the right fix depends on how your team uses that information. There are three good ways to keep people on your site without losing any of it:</p>
+<ol class="opts">
+  <li><b>Put the same form on your own page.</b> Same form, same data, and the visitor never leaves evergreengoodwill.org. It needs a quick test on iPhones first.</li>
+  <li><b>A short signup in the footer</b> (first name, email, a few topics) through the Constant Contact plugin already installed on your site. We'd confirm with your DonorPerfect contact that signups still reach your donor records.</li>
+  <li><b>Both:</b> the short signup for most people, with “Manage all your preferences” linking to the full form.</li>
+</ol>
+<p>Whichever you choose, keep the “I am 18 years or older” confirmation your current form uses.</p>
+
+<h2>How you'll know the website changes worked</h2>
+<div class="note">
+  <p><b>Before any change,</b> note today's numbers: clicks on the Apply link, newsletter sign-ups (in DonorPerfect or Constant Contact), and online shop visits from the homepage.</p>
+  <p><b>After any change goes live,</b> re-run the same audit. You see the before and after in the same scores your team has already seen, instead of taking anyone's word for it. You don't have to wait for us or the sandbox ($29 a report, see What's next): if your team applies something from this kit, a fresh report shows whether it moved the needle.</p>
+</div>
+
+<div class="sect"><span>Section B</span>AI agents for your team<p>How agents would draft your social posts and newsletters in your voice, and sort your contact form, with a person deciding every time.</p></div>
+
+<h2 class="part"><span>Part 3</span>Your social posts</h2>
+
+<h2>How a post gets made</h2>
+<p>Each morning, the agents draft a few posts for the channels you already use, like Facebook, Instagram and LinkedIn. They write in your voice, using facts from your own pages. Your team reviews the drafts in one place, and nothing goes out until someone approves it.</p>
+<div class="flow">
+  <div><b>1 · Approve</b>It's ready to go as it is.</div>
+  <div><b>2 · Ask for a rewrite</b>Say what to change, like “make it warmer”. A new draft comes back with the same facts.</div>
+  <div><b>3 · Fix a word</b>Edit it yourself, then approve. You're never locked into what the AI wrote.</div>
+  <div><b>4 · Say why not</b>Reject it with a reason. The reason becomes a note for every future draft (Part 4).</div>
+</div>
+<div class="rule" style="grid-template-columns:1fr"><div>
+  <p class="now"><span>LinkedIn · Donations</span>That box in your garage could be someone's first step into a new career. Donations power our free Job Training and Education programs.</p>
+  <p class="now"><span>Instagram · Adult education</span>Going back to school as an adult takes courage. Our free Adult Basic Education classes help adults get ready for today's workplace.</p>
+</div></div>
+<p class="cap" style="text-align:left">Illustration · sample drafts, built only from your public pages.</p>
+<div class="note">
+  <p><b>What it never does:</b> post without your team's approval, invent people or stories, or name a student without your team choosing to.</p>
+</div>
+
+<h2 class="part"><span>Part 4</span>Your voice</h2>
+
+<h2>How the agents learn to sound like Goodwill</h2>
+<p>An agent is only useful if its drafts sound like your team wrote them. That doesn't come from the AI guessing. It comes from two things your team controls, working together: a voice guide that sets the starting point, and the review loop, where your team's comments on each draft keep tuning it.</p>
+
+<div class="rule"><span class="n">01</span><div>
+  <h3>A voice guide your team defines.</h3>
+  <p>Your team decides how the agents should sound: the tone, the words to use and avoid, the facts to lead with, and anything that's off limits. Every agent reads that guide before writing anything, and follows it.</p>
+  <p>So nobody starts from a blank page, we can draft a first version from your own website for your team to rewrite. But the guide is yours: your team writes it, owns it, and can change it at any time.</p>
+  <p class="now"><span>From a sample guide</span>“Jobs change lives” is our mission line. Say “free job training”, not just “training”. Give means money; Donate means goods. Never name a student without their permission.</p>
+</div></div>
+
+<div class="rule"><span class="n">02</span><div>
+  <h3>On top of that, your team's comments on every draft.</h3>
+  <p>A person reviews every draft before it goes out. When someone rejects one, they say why in a sentence. That comment becomes a standing note the agents read alongside the voice guide before the next draft, so nobody has to say it twice. Over time, the notes tune the agents to how your team actually writes.</p>
+  <p class="was"><span>Your note</span>Lead with free job training, every time.</p>
+  <p class="now"><span>Next draft</span>Free job training, powered by your donations. Clearing out a closet? Those clothes could help someone start a new career.</p>
+</div></div>
+
+<div class="note">
+  <p><b>What this memory is:</b> plain-language notes your team can read, change or delete at any time. One note about your voice can apply everywhere the agents write: social posts, newsletters and replies.</p>
+  <p><b>What it isn't:</b> retraining the AI. Your notes stay private to Goodwill, and a person still approves everything before it goes out.</p>
+</div>
+
+<h2 class="part"><span>Part 5</span>Your newsletter</h2>
+
+<h2>How an agent would put an issue together</h2>
+<p>The newsletter works like the social posts in Part 3: the agent drafts, and your team decides.</p>
+<div class="flow" style="grid-template-columns:repeat(3,1fr)">
+  <div><b>1 · Where it comes from</b>Your own website, short items your team adds during the month, and standing sections you write once.</div>
+  <div><b>2 · Who writes what</b>Your facts go in word for word. Your team can write any entry by hand, with the agent's help if they want it. The AI suggests the opening, clearly labeled for your team to rewrite.</div>
+  <div><b>3 · Who decides</b>Your team approves it, rejects it with a reason, or skips a month. Once connected, approving it sends it through your email tool, such as Constant Contact.</div>
+</div>
+<p>When you reject a draft, you say why, and the next opening follows that note. The same flow works for a regular newsletter, a campaign like Cartober that runs and then stops, and one-off announcements. It can be set up once for your external newsletter and once for an internal one for staff.</p>
+
+<div class="issue" role="img" aria-label="A sample newsletter draft for Evergreen Goodwill">
+  <div class="ih"><b>Evergreen Goodwill</b><span>Community update · October</span></div>
+  <div class="ib">
+    <div class="ai"><i>AI draft · rewrite in your words</i>In 2025, you helped us serve 6,403 students in free job training and education. Thank you.</div>
+    <div class="blk"><h4>Happy Cartober</h4><p>Turn your unused vehicle into community impact.</p><span class="from">From your homepage banner</span></div>
+    <div class="blk"><h4>Spotlight: Adult Basic Education</h4><p>Free classes that help adults get ready for today's workplace.</p><span class="from">From your Adult Education page</span></div>
+    <div class="blk"><h4>Volunteer with us</h4><p>Tutor students one-on-one or in small groups.</p><span class="from">From your Volunteer page</span></div>
+    <div class="blk"><h4>Give · Shop · Donate</h4><p>Every purchase, donation and volunteer hour helps fund free job training.</p><span class="from">Standing section · written once, reused every issue</span></div>
+    <div class="acts"><span>Approve</span><span>Reject with a reason</span><span>Skip this month</span></div>
+  </div>
+</div>
+<p class="cap">Illustration · a sample draft, built only from your public pages. In practice it uses your own newsletter design, sections and mailing lists.</p>
+
+<div class="note">
+  <p><b>What it never does:</b> send without your team's approval, invent people or stories, or pull a student's story without your team choosing it. The agent doesn't change your signup form or your lists.</p>
+</div>
+
+<h2>Write it yourself, with a second pair of eyes</h2>
+<p>Anyone on your team can add an entry by hand: a headline, a few lines, a link. Then, if they want, they ask the agent to review it. It checks the entry against your voice guide, suggests a tighter headline or a clearer button, and points out anything missing, like a date or a link. The writer accepts or ignores each suggestion. Nothing changes without them.</p>
+<div class="rule" style="grid-template-columns:1fr"><div>
+  <p class="was"><span>Your team writes</span>We're doing Cartober again this year, people can donate their cars.</p>
+  <p class="now"><span>Agent suggests</span>Happy Cartober! Turn your unused vehicle into community impact. [Donate Your Vehicle]</p>
+  <p class="was"><span>Agent notes</span>Added a button that says what it does. Missing: when does Cartober end?</p>
+</div></div>
+<p class="cap" style="text-align:left">An example. The suggested words come from your own homepage banner; the agent asks rather than guessing a date.</p>
+
+<h2 class="part"><span>Part 6</span>Your contact form</h2>
+
+<h2>Buckets, owned by your teams</h2>
+<p>A general contact form brings in all kinds of messages, from all kinds of people. The simplest fix: your team agrees on a few buckets and who owns each one. The AI files every message into a bucket, and each team picks up its own.</p>
+<table>
+  <thead><tr><th>Bucket</th><th>Owned by</th><th>Who can see it</th></tr></thead>
+  <tbody>
+    <tr><td class="a">Store and shopping</td><td class="b">Your team decides</td><td class="b">That team</td></tr>
+    <tr><td class="a">Donations</td><td class="b">Your team decides</td><td class="b">That team</td></tr>
+    <tr><td class="a">Job training and classes</td><td class="b">Your team decides</td><td class="b">That team</td></tr>
+    <tr><td class="a">Past employees</td><td class="b">Your team decides</td><td class="b">Only the named owner: may be personal</td></tr>
+    <tr><td class="a">Not sure</td><td class="b">Front desk</td><td class="b">Front desk</td></tr>
+  </tbody>
+</table>
+<p class="cap" style="text-align:left;margin-top:.5rem">An example to start from. Your team names the real buckets and owners, and can change them any time.</p>
+<p>The buckets live wherever suits your team: a shared mailbox, Teams, or a simple dashboard.</p>
+
+<h2>How it works</h2>
+<div class="flow">
+  <div><b>1 · Filed</b>A message arrives. The AI reads it and files it into a bucket, with a one-line reason.</div>
+  <div><b>2 · Picked up</b>Each team checks its own bucket and handles what's there. Nobody has to pass messages around.</div>
+  <div><b>3 · Not sure?</b>If the AI isn't sure, it sends the message to “Not sure” instead of picking. The front desk checks only that bucket.</div>
+  <div><b>4 · Nothing lost</b>A short weekly list shows anything still waiting in any bucket.</div>
+</div>
+<p><b>Wrong bucket?</b> Anyone can move a message in one click. The move becomes a note the AI reads, so similar messages land in the right place next time: the same review loop as your social drafts.</p>
+<p>The main gain isn't time. It's that every message has an owner, nothing falls through the cracks, and personal messages only reach the person who should see them.</p>
+<h2>Help with replies, if you want it</h2>
+<p>Once a message is in the right bucket, the person who picks it up can choose how much help they want, message by message:</p>
+<ol class="opts">
+  <li><b>A suggested reply.</b> The agent drafts an answer in your voice, using facts from your own website. The person edits it and sends it.</li>
+  <li><b>Help with their own reply.</b> They write it; the agent suggests clearer wording and points out anything they haven't answered.</li>
+  <li><b>No help.</b> They reply as they do today.</li>
+</ol>
+<div class="rule" style="grid-template-columns:1fr"><div>
+  <p class="was"><span>Message</span>I have a few boxes of clothes and books. Can I drop them off this weekend?</p>
+  <p class="now"><span>Suggested reply</span>Thank you for thinking of us! You can drop them at any of our donation centers. Hours, locations and what we accept are all on our website: [link]. Every donation helps fund free job training.</p>
+  <p class="was"><span>Agent notes</span>Pointed to your website for hours and accepted items, rather than guessing.</p>
+</div></div>
+<p class="cap" style="text-align:left">An example. The agent is told to use only what your website says, and a person checks every reply before it goes.</p>
+<p>Nothing sends on its own: a person always reads, edits and sends the reply. Reply help can be turned off for sensitive buckets, like past employees, so those stay person to person. And when someone fixes a suggested reply, they can say why, so the next one follows it.</p>
+<p>It would all start in the sandbox with sample messages written to look like yours, not real ones, so your team can check how it files them and what it suggests before anything real goes through it. The same helper can also sort your general info inbox, the way we showed on the call.</p>
+
+<div class="sect"><span>Next steps</span>Going live, and where to start</div>
+
+<h2>From sandbox to live, in stages</h2>
+<p>On the call, each approved draft was posted by a person. Once the agents are connected to your accounts, that step goes away: what your team approves goes out directly, with no copying and pasting. It happens in three stages, and you decide when to move to the next one.</p>
+<div class="flow" style="grid-template-columns:repeat(3,1fr)">
+  <div><b>1 · Try it safely</b>The sandbox. No accounts are connected, so nothing can post or send. Your team reviews the drafts and tells us what works.</div>
+  <div><b>2 · Connect your accounts</b>When you're happy, someone on your team logs in to your social media and email newsletter accounts once and gives the agents permission, the same way you'd let any app use an account.</div>
+  <div><b>3 · Approve, and it's done</b>From then on, when your team presses Approve, the post goes up or the newsletter goes out, straight from the agents' dashboard.</div>
+</div>
+<p>Nothing publishes until a person approves it, and you can disconnect an account at any time. Each platform has its own approval process for connected apps; we'd work through it with you, and some platforms take a while to approve.</p>
+<div class="note">
+  <p><b>Your data.</b> The sandbox uses only your public pages and sample messages. Before any real message goes through, we'll set out in writing where your data lives, which AI service reads it (one that doesn't use your data to train its models) and who can see it, for your IT team to approve. Replies to past employees are never AI-assisted, and those messages are seen only by their owner.</p>
+</div>
+
+<h2>How you'll know the agents are working</h2>
+<div class="note">
+  <p><b>In the sandbox,</b> your team marks each draft and each filed message: yes, or “no, because”. Those marks show how often the agents get it right before anything real goes through them.</p>
+  <p><b>Once it's running,</b> a few simple counts tell you how it's going: how many drafts are approved with only small edits, how many messages land in “Not sure” or get moved, and whether anything waits more than a week without an owner.</p>
+</div>
+
+
+<h2>Further reading</h2>
+<ul class="reads">
+  <li><a href="https://ambientpixels.ai/blog/3-reasons-your-buy-now-button-isn-t-getting-clicks">3 Reasons Your ‘Buy Now’ Button Isn't Getting Clicks</a>: why “Click Here” and “Learn More” hold people back, and what to write instead.</li>
+  <li><a href="https://ambientpixels.ai/blog/how-to-find-conversion-killers-on-your-homepage-for-free">How to Find Conversion Killers on Your Homepage (for Free)</a>: the five-second test, in more detail.</li>
+  <li><a href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html">Your homepage audit</a>: every finding, with the recommended wording.</li>
+  <li><a href="https://ambientpixels.ai/lab/evergreen-goodwill-deck.html">The deck from our call</a>, with the short recap video on the last slide.</li>
+</ul>
+
+<h2>What's next</h2>
+<p><b>Where to start.</b> Our suggestion: start small, with fix 01 (the Apply link and headline) and the sandbox alongside. For the website fixes, you choose who makes the changes: your team or agency builds them, with our words and measurement, or we build them, with access to your site.</p>
+<div class="next">
+  <div><h3>This kit</h3><span class="price">Free</span>
+    <p>Yours to use and share, whether your team, your agency or we make the changes.</p></div>
+  <div><h3>A sandbox</h3><span class="price">Free</span>
+    <p>A working test version of the agents, on an isolated test setup we arrange, at no cost to Goodwill: the contact form helper, a sorted sample inbox, a sample newsletter issue and a week of social drafts, built from your public pages and sample messages. No live accounts, and nothing posts or sends. Your team tries it and marks each result yes, or “no, because”.</p></div>
+  <div><h3>The re-run audit</h3><span class="price">$29</span>
+    <p>This is how we show you the before and after, as we said on the call. Any time your team makes changes, whoever makes them and with or without the sandbox, we re-run the same audit and walk you through the before and after. $29 is the standard price of a report from AmbientScore, our audit tool. If you'd like to track progress over time, or audit other pages like Education or Donate, a 3-pack of reports is $79.</p></div>
+</div>
+<p><b>The AI itself</b> is a usage cost billed by Microsoft, separate from our work: it depends on how much the agents read and write (measured in “tokens”, roughly per word processed). The sandbox costs Goodwill nothing. When you go live, the agents move to your own Azure account, and we'll agree together how the AI usage is covered. We can build a simple dashboard, with a monthly cap, so your team sees that cost as it happens.</p>
+<p><b>A grant may cover it.</b> Microsoft for Nonprofits gives eligible nonprofits $2,000 a year in Azure credits, which can be used for AI services like these. If you're not already using it, we can help you check eligibility and apply through Microsoft's <a href="https://nonprofit.microsoft.com/">Nonprofit Hub</a>.</p>
+<p><b>Our work</b>, building the fixes ourselves and setting up the agents on your live accounts, we'd price once you've seen the sandbox and chosen where to start, along with the timing for each step.</p>
+
+<footer>
+  Chad Martin · AmbientPixels · <a href="https://ambientpixels.ai">ambientpixels.ai</a><br>
+  Built from the public pages of evergreengoodwill.org, as they were in October 2026. Wording suggestions are starting points; your team settles the final words.
+</footer>
+
+</div>
+</body>
+</html>
