@@ -96,10 +96,14 @@
   .fixes .mono{color:var(--stamp);margin:0 0 .4rem}
   .fixes ol{margin:0 0 .5rem;padding-left:1.3rem;font-size:10.5pt} .fixes li{margin-bottom:.3rem}
   .fixes p:last-child{margin:0;font-size:10pt;color:var(--ink-muted)}
+  .chk-h{font-family:ui-monospace,monospace;font-size:8pt;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin:1.1rem 0 .2rem}
+  .data-list{margin:.2rem 0 .5rem;padding-left:1.2rem} .data-list li{margin-bottom:.15rem}
+  .bp .how{color:var(--ink-muted);font-size:10pt;margin-top:.35rem}
   .dim{border-top:1px solid var(--rule);padding:.9rem 0;break-inside:avoid;display:grid;grid-template-columns:4.2rem 1fr;gap:0 .9rem}
   .dim .sc{font-size:22pt;line-height:1;color:var(--ink);font-weight:600;text-align:right}
   .dim .sc small{display:block;font-family:ui-monospace,monospace;font-size:7pt;letter-spacing:.1em;font-weight:400;color:var(--ink-muted);margin-top:.3rem}
   .dim.low .sc{color:var(--stamp)}
+  .dim.high .sc{color:var(--ok)}
   .dim h3{font-size:12pt;margin:0}
   .dim .aka{font-family:ui-monospace,monospace;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted)}
   .dim .q{margin:.25rem 0 .35rem;font-style:italic;color:var(--ink)}
@@ -133,18 +137,18 @@
 
 <section class="exec">
   <p class="mono">Executive summary</p>
-  <p class="ex-from">From Chad Martin, AmbientPixels, following our October 27 call with Alyssa and Tyler.</p>
+  <p class="ex-from">From Chad Martin, following our October 27 call with Alyssa and Tyler.</p>
   <p class="lede">Your homepage already tells a strong story. People can see your mission. What the words around it don't do yet is ask: to apply, to give, or to shop.</p>
   <div class="ex-grid">
     <div><b>Where you stand</b>Your homepage tells your story well. Where it falls short is asking people to act. The three weakest of the audit's eight measures are how easy it is to act (11), what the page puts first (29) and how clear the buttons are (41).</div>
-    <div><b>What to do first</b>Four small fixes, all words and order, no rebuild: rename “Click Here” to “Apply for Free Job Training” and lead the headline with it, the newsletter signup on your own site, a Shop button that names the mission, and a simpler menu.</div>
+    <div><b>What to do first</b>Four small fixes, all words and order, no rebuild: rename “Click Here” to “Apply for Free Job Training” and lead the headline with free job training, the newsletter signup on your own site, a Shop button that names the mission, and a simpler menu.</div>
     <div><b>Where agents help</b>AI agents can draft social posts and newsletters, and file every contact form message into a bucket your teams own, in a voice guide your team defines and tuned by your team's comments. A person approves everything. Once your accounts are connected, approving a post publishes it: no copying and pasting.</div>
-    <div><b>The next step</b>Start small: fix 01, with a free sandbox alongside, meaning a private test version of the agents, built from your public pages, with no live accounts. To begin, just reply with one contact on your team. A re-run of the audit ($29) is available whenever your team makes changes. Once agents go live, Microsoft bills the AI usage separately.</div>
+    <div><b>The next step</b>Start small: fix 01, with a free sandbox alongside, meaning a private test version of the agents, built from your public pages, with no live accounts. To begin, just reply with one contact on your team. A re-run of the audit ($29) is available whenever your team makes changes. Once agents go live, AI usage is a separate Microsoft cost; we'll agree together how it's covered.</div>
   </div>
   <p class="ex-foot">The rest of this kit is the detail, in two halves: your website, from the audit, and AI agents for your team.</p>
 </section>
 
-<div class="sect"><span>Section A</span>Your website<p>From your homepage audit: the words, the site around them, and how you'll know the changes worked.</p></div>
+<div class="sect"><span>Section A</span>Your website<p>From your homepage audit: the words, the site around them, how you'll know the changes worked, and best practices for any page.</p></div>
 
 <div class="fixes">
   <p class="mono">The four fixes from your audit</p>
@@ -210,20 +214,8 @@
   <p>If they hesitate on any of the three, the words on that page need work. It's free, it takes a minute, and it works on any page your team writes.</p>
 </div>
 
-<h2>Before you publish a page update</h2>
-<ul class="check">
-  <li>Does every link and button say what happens next? No “Click Here”, “Learn More” or “Read More” on its own.</li>
-  <li>Does the headline lead with what the reader gets?</li>
-  <li>Does the page have one main action, and does it stand out from the rest?</li>
-  <li>If it's free, does the button say so?</li>
-  <li>Does the action connect back to the mission, in a few words?</li>
-  <li>Does every link stay on your site, or say clearly where it's going?</li>
-  <li>Would it pass the five-second test with someone outside your team?</li>
-  <li>Does the copy in the red top bar name its action, like “Donate your vehicle”?</li>
-</ul>
-
 <h2 class="part"><span>Part 2</span>The site around the words</h2>
-<p>Words are one part of it. The rest is how easy the page makes it to act. Below are the eight things your audit measured, with what good looks like for each, then the specific points from your homepage, then general good practice for any page.</p>
+<p>Words are one part of it. The rest is how easy the page makes it to act. Below are the eight things your audit measured, with what good looks like for each, then the specific points from your homepage.</p>
 
 <h2>What turns a visit into an action</h2>
 <p>These are the eight measures in your audit, weakest first, with your homepage's score out of 100. Use them as a lens for any page your team writes or changes.</p>
@@ -281,7 +273,7 @@
   </ul>
 </div></div>
 
-<div class="dim"><div class="sc">70<small>of 100</small></div><div>
+<div class="dim high"><div class="sc">70<small>of 100</small></div><div>
   <h3>Quick wins</h3><span class="aka">Quick-win fixes</span>
   <p class="q">What small changes could make a real difference in a day?</p>
   <ul>
@@ -290,7 +282,7 @@
   </ul>
 </div></div>
 
-<div class="dim"><div class="sc">72<small>of 100</small></div><div>
+<div class="dim high"><div class="sc">72<small>of 100</small></div><div>
   <h3>Why Goodwill</h3><span class="aka">Differentiation</span>
   <p class="q">Is it clear why someone should choose you?</p>
   <ul>
@@ -299,7 +291,7 @@
   </ul>
 </div></div>
 
-<div class="dim"><div class="sc">79<small>of 100</small></div><div>
+<div class="dim high"><div class="sc">79<small>of 100</small></div><div>
   <h3>Reasons to trust</h3><span class="aka">Trust signals</span>
   <p class="q">Does the page show you're credible?</p>
   <ul>
@@ -323,21 +315,11 @@
 <div class="bp"><h3>Tidy what's hidden.</h3>
   <p>A hidden second row of stats still has placeholder labels in the page code. Visitors don't see it, but search engines read it. Finish it or remove it.</p></div>
 
-<h2>Good practice for any page</h2>
-<ul class="check">
-  <li>Check the page on a phone first. Most visitors will see it there.</li>
-  <li>Describe every image with alt text, so screen readers and search engines can understand it.</li>
-  <li>Keep text easy to read against its background, including text on photos.</li>
-  <li>Check page speed with Google's free <a href="https://pagespeed.web.dev/">PageSpeed Insights</a>.</li>
-  <li>Give every page a clear title and description: they're what people see in search results.</li>
-  <li>Make it easy to reach a person: contact details and store locations one click away.</li>
-</ul>
-
 <h2>The newsletter signup</h2>
 <p>Today the footer's “Sign up for Newsletter” link goes to a DonorPerfect form on a different website. That form collects useful things (interests, print or email, preferred store), so the right fix depends on how your team uses that information. There are three good ways to keep people on your site without losing any of it:</p>
 <ol class="opts">
   <li><b>Put the same form on your own page.</b> Same form, same data, and the visitor never leaves evergreengoodwill.org. It needs a quick test on iPhones first.</li>
-  <li><b>A short signup in the footer</b> (first name, email, a few topics) through the Constant Contact plugin already installed on your site. We'd confirm with your DonorPerfect contact that signups still reach your donor records.</li>
+  <li><b>A short signup in the footer</b> (first name, email, a few topics) through the Constant Contact plugin already installed on your site. I'd confirm with your DonorPerfect contact that signups still reach your donor records.</li>
   <li><b>Both:</b> the short signup for most people, with “Manage all your preferences” linking to the full form.</li>
 </ol>
 <p>Whichever you choose, keep the “I am 18 years or older” confirmation your current form uses.</p>
@@ -345,12 +327,86 @@
 <h2>How you'll know the website changes worked</h2>
 <div class="note">
   <p><b>Before any change,</b> note today's numbers: clicks on the Apply link, newsletter sign-ups (in DonorPerfect or Constant Contact), and online shop visits from the homepage.</p>
-  <p><b>After any change goes live,</b> re-run the same audit. You see the before and after in the same scores your team has already seen, instead of taking anyone's word for it. You don't have to wait for us or the sandbox ($29 a report, see What's next): if your team applies something from this kit, a fresh report shows whether it moved the needle.</p>
+  <p><b>After any change goes live,</b> re-run the same audit. You see the before and after in the same scores your team has already seen, instead of taking anyone's word for it. You don't have to wait for me or the sandbox: if your team applies something from this kit, a fresh report ($29, see What's next) shows whether it moved the needle.</p>
 </div>
+
+<h2 class="part"><span>Part 3</span>Best practices for any page</h2>
+<p>Parts 1 and 2 start from your homepage. These are the habits behind a good page anywhere on your site: a program page, a store page, a volunteer page. Each one is short: why it matters, and a quick way to check it.</p>
+
+<h2>Make it easy to read</h2>
+<div class="bp"><h3>People scan before they read.</h3>
+  <p>Most visitors don't read a web page from top to bottom. They glance at headings, the first words of paragraphs and anything bold, looking for what they came for. If the answer is buried in the middle of a long paragraph, many people never find it.</p>
+  <p class="how"><b>How to check:</b> look at the page for ten seconds, reading only the headings and bold words. Do they tell the whole story? If not, rewrite the headings so they say something, not just label a section.</p></div>
+<div class="bp"><h3>Put the important words first.</h3>
+  <p>In headings, links and the first line of each paragraph, start with the words people are looking for. “Free job training for adults” is found faster than “Our organization is proud to offer a range of programs, including…”.</p>
+  <p class="how"><b>How to check:</b> read only the first two or three words of each heading and link. Do they still make sense?</p></div>
+<div class="bp"><h3>Short paragraphs, plain words.</h3>
+  <p>Short paragraphs and everyday words make a page easier on a phone, for people reading in a second language, and for anyone in a hurry. Program names that mean a lot inside the organization often mean little outside it, so explain them in a few words.</p>
+  <p class="how"><b>How to check:</b> ask someone outside your team to read the page and point at any word they'd have to guess.</p></div>
+<h2>Make it work for everyone</h2>
+<div class="bp"><h3>Check every page on a phone first.</h3>
+  <p>Many visitors will only ever see your site on a phone, often on the go. A page that looks fine on a desk can hide its main button below the fold, or shrink text until it's hard to read.</p>
+  <p class="how"><b>How to check:</b> open the page on your own phone. Can you see what to do, and tap it with your thumb, without zooming or scrolling sideways?</p></div>
+<div class="bp"><h3>Describe every image.</h3>
+  <p>Alt text is a short written description of an image. Screen readers read it aloud to people who can't see the image, and search engines use it to understand the page. A photo of a classroom might be “Adult students working with an instructor in a computer lab”.</p>
+  <p class="how"><b>How to check:</b> in your site editor, open each image on the page and make sure its alt text describes what's in the picture. Purely decorative images can be left empty.</p></div>
+<div class="bp"><h3>Make text easy to see.</h3>
+  <p>Light grey text on white, or white text over a busy photo, is hard to read for many people, especially on a phone outdoors. Strong contrast between text and background helps everyone.</p>
+  <p class="how"><b>How to check:</b> look at the page on a phone in bright light. Any text you have to squint at needs a darker color or a plainer background.</p></div>
+<div class="bp"><h3>Links that make sense on their own.</h3>
+  <p>People using screen readers often jump from link to link, hearing only the link words. “Click here” and “Read more” tell them nothing. The same words that help them help everyone else too (rule 01 in Part 1).</p>
+  <p class="how"><b>How to check:</b> read just the links on the page, out of context. Does each one say where it goes?</p></div>
+<h2>Make it fast and easy to find</h2>
+<div class="bp"><h3>Speed matters.</h3>
+  <p>A slow page loses people before they see anything, especially on a phone. Large images are the most common cause, and the easiest to fix.</p>
+  <p class="how"><b>How to check:</b> run the page through Google's free <a href="https://pagespeed.web.dev/">PageSpeed Insights</a>. It lists what slows the page down, most important first.</p></div>
+<div class="bp"><h3>Give every page a clear title and description.</h3>
+  <p>The page title and description are what people see in Google's results, before they ever reach your site. A clear title, like “Free Job Training Programs | Evergreen Goodwill”, helps the right people click.</p>
+  <p class="how"><b>How to check:</b> search Google for one of your programs and look at how your page appears. Does the title say what the page is?</p></div>
+<h2>Keep people's trust</h2>
+<div class="bp"><h3>Keep it current.</h3>
+  <p>An event that has already happened, a broken link or an old date tells visitors the page may not be looked after, and makes them less sure the rest is right.</p>
+  <p class="how"><b>How to check:</b> once a month, click every link on your most visited pages and remove anything past its date.</p></div>
+<div class="bp"><h3>Make it easy to reach a person.</h3>
+  <p>Some visitors want to talk to someone before they apply, give or visit. Contact details and store locations one click away reassure them that there are real people behind the page.</p>
+  <p class="how"><b>How to check:</b> from any page, can you find a phone number or contact form in one click?</p></div>
+<h2>Before you publish a page update</h2>
+<p class="chk-h">The words</p>
+<ul class="check">
+  <li>Does every link and button say what happens next? No “Click Here”, “Learn More” or “Read More” on its own.</li>
+  <li>Does the headline lead with what the reader gets?</li>
+  <li>Does the page have one main action, and does it stand out from the rest?</li>
+  <li>If it's free, does the button say so?</li>
+  <li>Does the action connect back to the mission, in a few words?</li>
+  <li>Does every link stay on your site, or say clearly where it's going?</li>
+  <li>Would it pass the five-second test with someone outside your team?</li>
+  <li>Does the copy in the red top bar name its action, like “Donate your vehicle”?</li>
+</ul>
+
+<p class="chk-h">The page</p>
+<ul class="check">
+  <li>Check the page on a phone first. Many visitors will see it there.</li>
+  <li>Describe every image with alt text, so screen readers and search engines can understand it.</li>
+  <li>Keep text easy to read against its background, including text on photos.</li>
+  <li>Check page speed with Google's free <a href="https://pagespeed.web.dev/">PageSpeed Insights</a>.</li>
+  <li>Give every page a clear title and description: they're what people see in search results.</li>
+  <li>Make it easy to reach a person: contact details and store locations one click away.</li>
+</ul>
+
+<h2>Read more</h2>
+<ul class="reads">
+  <li><a href="https://ambientpixels.ai/blog/3-reasons-your-buy-now-button-isn-t-getting-clicks">3 Reasons Your ‘Buy Now’ Button Isn't Getting Clicks</a>: why “Click Here” and “Learn More” hold people back, and what to write instead.</li>
+  <li><a href="https://ambientpixels.ai/blog/how-to-find-conversion-killers-on-your-homepage-for-free">How to Find Conversion Killers on Your Homepage (for Free)</a>: the five-second test, in more detail.</li>
+  <li><a href="https://www.nngroup.com/articles/how-users-read-on-the-web/">How Users Read on the Web</a> (Nielsen Norman Group): the research on why people scan.</li>
+  <li><a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/">F-Shaped Pattern of Reading on the Web</a> (Nielsen Norman Group): where people's eyes go on a page, and what to do about it.</li>
+  <li><a href="https://www.w3.org/WAI/fundamentals/accessibility-intro/">Introduction to Web Accessibility</a> (W3C): a plain introduction to making a site work for everyone.</li>
+  <li><a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide">Search Engine Optimization Starter Guide</a> (Google): how to help the right people find your pages.</li>
+  <li><a href="https://web.dev/articles/vitals">Web Vitals</a> (Google): what “a fast page” means, and how it's measured.</li>
+</ul>
 
 <div class="sect"><span>Section B</span>AI agents for your team<p>How agents would draft your social posts and newsletters in your voice, and sort your contact form, with a person deciding every time.</p></div>
 
-<h2 class="part"><span>Part 3</span>Your social posts</h2>
+<h2 class="part"><span>Part 4</span>Your social posts</h2>
 
 <h2>How a post gets made</h2>
 <p>Each morning, the agents draft a few posts for the channels you already use, like Facebook, Instagram and LinkedIn. They write in your voice, using facts from your own pages. Your team reviews the drafts in one place, and nothing goes out until someone approves it.</p>
@@ -358,7 +414,7 @@
   <div><b>1 · Approve</b>It's ready to go as it is.</div>
   <div><b>2 · Ask for a rewrite</b>Say what to change, like “make it warmer”. A new draft comes back with the same facts.</div>
   <div><b>3 · Fix a word</b>Edit it yourself, then approve. You're never locked into what the AI wrote.</div>
-  <div><b>4 · Say why not</b>Reject it with a reason. The reason becomes a note for every future draft (Part 4).</div>
+  <div><b>4 · Say why not</b>Reject it with a reason. The reason becomes a note for every future draft (Part 5).</div>
 </div>
 <div class="rule" style="grid-template-columns:1fr"><div>
   <p class="now"><span>LinkedIn · Donations</span>That box in your garage could be someone's first step into a new career. Donations power our free Job Training and Education programs.</p>
@@ -369,7 +425,7 @@
   <p><b>What it never does:</b> post without your team's approval, invent people or stories, or name a student without your team choosing to.</p>
 </div>
 
-<h2 class="part"><span>Part 4</span>Your voice</h2>
+<h2 class="part"><span>Part 5</span>Your voice</h2>
 
 <h2>How the agents learn to sound like Goodwill</h2>
 <p>An agent is only useful if its drafts sound like your team wrote them. That doesn't come from the AI guessing. It comes from two things your team controls, working together: a voice guide that sets the starting point, and the review loop, where your team's comments on each draft keep tuning it.</p>
@@ -377,7 +433,7 @@
 <div class="rule"><span class="n">01</span><div>
   <h3>A voice guide your team defines.</h3>
   <p>Your team decides how the agents should sound: the tone, the words to use and avoid, the facts to lead with, and anything that's off limits. Every agent reads that guide before writing anything, and follows it.</p>
-  <p>So nobody starts from a blank page, we can draft a first version from your own website for your team to rewrite. But the guide is yours: your team writes it, owns it, and can change it at any time.</p>
+  <p>So nobody starts from a blank page, I can draft a first version from your own website for your team to rewrite. But the guide is yours: your team writes it, owns it, and can change it at any time.</p>
   <p class="now"><span>From a sample guide</span>“Jobs change lives” is our mission line. Say “free job training”, not just “training”. Give means money; Donate means goods. Never name a student without their permission.</p>
 </div></div>
 
@@ -393,10 +449,10 @@
   <p><b>What it isn't:</b> retraining the AI. Your notes stay private to Goodwill, and a person still approves everything before it goes out.</p>
 </div>
 
-<h2 class="part"><span>Part 5</span>Your newsletter</h2>
+<h2 class="part"><span>Part 6</span>Your newsletter</h2>
 
 <h2>How an agent would put an issue together</h2>
-<p>The newsletter works like the social posts in Part 3: the agent drafts, and your team decides.</p>
+<p>The newsletter works like the social posts in Part 4: the agent drafts, and your team decides.</p>
 <div class="flow" style="grid-template-columns:repeat(3,1fr)">
   <div><b>1 · Where it comes from</b>Your own website, short items your team adds during the month, and standing sections you write once.</div>
   <div><b>2 · Who writes what</b>Your facts go in word for word. Your team can write any entry by hand, with the agent's help if they want it. The AI suggests the opening, clearly labeled for your team to rewrite.</div>
@@ -430,7 +486,7 @@
 </div></div>
 <p class="cap" style="text-align:left">An example. The suggested words come from your own homepage banner; the agent asks rather than guessing a date.</p>
 
-<h2 class="part"><span>Part 6</span>Your contact form</h2>
+<h2 class="part"><span>Part 7</span>Your contact form</h2>
 
 <h2>Buckets, owned by your teams</h2>
 <p>A general contact form brings in all kinds of messages, from all kinds of people. The simplest fix: your team agrees on a few buckets and who owns each one. The AI files every message into a bucket, and each team picks up its own.</p>
@@ -469,54 +525,52 @@
   <p class="was"><span>Agent notes</span>Pointed to your website for hours and accepted items, rather than guessing.</p>
 </div></div>
 <p class="cap" style="text-align:left">An example. The agent is told to use only what your website says, and a person checks every reply before it goes.</p>
-<p>Nothing sends on its own: a person always reads, edits and sends the reply. Reply help can be turned off for sensitive buckets, like past employees, so those stay person to person. And when someone fixes a suggested reply, they can say why, so the next one follows it.</p>
-<p>It would all start in the sandbox with sample messages written to look like yours, not real ones, so your team can check how it files them and what it suggests before anything real goes through it. The same helper can also sort your general info inbox, the way we showed on the call.</p>
+<p>Nothing sends on its own: a person always reads, edits and sends the reply. Reply help is always off for past employees, so those replies stay person to person. And when someone fixes a suggested reply, they can say why, so the next one follows it.</p>
+<p>It would all start in the sandbox with sample messages written to look like yours, not real ones, so your team can check how it files them and what it suggests before anything real goes through it. The same helper can also sort your general info inbox, the way I showed on the call.</p>
 
 <div class="sect"><span>Next steps</span>Going live, and where to start</div>
 
 <h2>From sandbox to live, in stages</h2>
-<p>On the call, each approved draft was posted by a person. Once the agents are connected to your accounts, that step goes away: what your team approves goes out directly, with no copying and pasting. It happens in three stages, and you decide when to move to the next one.</p>
+<p>Here's how the agents go from a test to the real thing. First, you try them safely in the sandbox. When you're ready, I move them onto your own Azure account and connect them to your social media and email accounts. From then on, when your team approves a post or a newsletter, it goes out directly: no copying and pasting. You decide when to move from one stage to the next.</p>
 <div class="flow" style="grid-template-columns:repeat(3,1fr)">
-  <div><b>1 · Try it safely</b>The sandbox. No accounts are connected, so nothing can post or send. Your team reviews the drafts and tells us what works.</div>
-  <div><b>2 · Connect your accounts</b>When you're happy, someone on your team logs in to your social media and email newsletter accounts once and gives the agents permission, the same way you'd let any app use an account.</div>
+  <div><b>1 · Try it safely</b>The sandbox. No accounts are connected, so nothing can post or send. Your team reviews the drafts and tells me what works.</div>
+  <div><b>2 · Move in and connect</b>When you're happy, the agents move from my test setup onto your own Azure account (or one you set up, which I can help with). Then someone on your team logs in to your social media and email newsletter accounts once and gives the agents permission, the same way you'd let any app use an account.</div>
   <div><b>3 · Approve, and it's done</b>From then on, when your team presses Approve, the post goes up or the newsletter goes out, straight from the agents' dashboard.</div>
 </div>
-<p>Nothing publishes until a person approves it, and you can disconnect an account at any time. Each platform has its own approval process for connected apps; we'd work through it with you, and some platforms take a while to approve.</p>
+<p>Nothing publishes until a person approves it, and you can disconnect an account at any time. Each platform has its own approval process for connected apps; I'd work through it with you, and some platforms take a while to approve.</p>
 <div class="note">
-  <p><b>Your data.</b> The sandbox uses only your public pages and sample messages. Before any real message goes through, we'll set out in writing where your data lives, which AI service reads it (one that doesn't use your data to train its models) and who can see it, for your IT team to approve. Replies to past employees are never AI-assisted, and those messages are seen only by their owner.</p>
+  <p><b>Your data.</b> In the sandbox, the agents only see your public website and made-up sample messages. No private information is involved.</p>
+  <p>Before any real message goes through, I'll write down three things for your IT team to approve:</p>
+  <ul class="data-list">
+    <li>where your data is stored</li>
+    <li>which AI service reads it (one that never uses your data to train its AI)</li>
+    <li>who on your team can see it</li>
+  </ul>
+  <p>Messages from past employees stay private: only the person who owns that bucket sees them, and the AI never helps write the replies.</p>
 </div>
 
-<h2>How you'll know the agents are working</h2>
-<div class="note">
-  <p><b>In the sandbox,</b> your team marks each draft and each filed message: yes, or “no, because”. Those marks show how often the agents get it right before anything real goes through them.</p>
-  <p><b>Once it's running,</b> a few simple counts tell you how it's going: how many drafts are approved with only small edits, how many messages land in “Not sure” or get moved, and whether anything waits more than a week without an owner.</p>
-</div>
-
-
-<h2>Further reading</h2>
+<h2>Your audit and the deck</h2>
 <ul class="reads">
-  <li><a href="https://ambientpixels.ai/blog/3-reasons-your-buy-now-button-isn-t-getting-clicks">3 Reasons Your ‘Buy Now’ Button Isn't Getting Clicks</a>: why “Click Here” and “Learn More” hold people back, and what to write instead.</li>
-  <li><a href="https://ambientpixels.ai/blog/how-to-find-conversion-killers-on-your-homepage-for-free">How to Find Conversion Killers on Your Homepage (for Free)</a>: the five-second test, in more detail.</li>
   <li><a href="https://ambientpixels.ai/lab/evergreen-goodwill-audit.html">Your homepage audit</a>: every finding, with the recommended wording.</li>
   <li><a href="https://ambientpixels.ai/lab/evergreen-goodwill-deck.html">The deck from our call</a>, with the short recap video on the last slide.</li>
 </ul>
 
 <h2>What's next</h2>
-<p><b>Where to start.</b> Our suggestion: start small, with fix 01 (the Apply link and headline) and the sandbox alongside. For the website fixes, you choose who makes the changes: your team or agency builds them, with our words and measurement, or we build them, with access to your site.</p>
+<p><b>Where to start.</b> My suggestion: start small, with fix 01 (the Apply link and headline) and the sandbox alongside. For the website fixes, you choose who makes the changes: your team or agency builds them, with my words and measurement, or I build them, with access to your site.</p>
 <div class="next">
   <div><h3>This kit</h3><span class="price">Free</span>
-    <p>Yours to use and share, whether your team, your agency or we make the changes.</p></div>
+    <p>Yours to use and share, whether your team, your agency or I make the changes.</p></div>
   <div><h3>A sandbox</h3><span class="price">Free</span>
-    <p>A working test version of the agents, on an isolated test setup we arrange, at no cost to Goodwill: the contact form helper, a sorted sample inbox, a sample newsletter issue and a week of social drafts, built from your public pages and sample messages. No live accounts, and nothing posts or sends. Your team tries it and marks each result yes, or “no, because”.</p></div>
+    <p>A working test version of the agents, on an isolated test setup I arrange, at no cost to Goodwill: the contact form helper (with a sorted sample inbox), a sample newsletter issue and a week of social drafts, built from your public pages and sample messages. No live accounts, and nothing posts or sends. Your team tries it and marks each result yes, or “no, because”.</p></div>
   <div><h3>The re-run audit</h3><span class="price">$29</span>
-    <p>This is how we show you the before and after, as we said on the call. Any time your team makes changes, whoever makes them and with or without the sandbox, we re-run the same audit and walk you through the before and after. $29 is the standard price of a report from AmbientScore, our audit tool. If you'd like to track progress over time, or audit other pages like Education or Donate, a 3-pack of reports is $79.</p></div>
+    <p>This is how I show you the before and after, as I said on the call. Any time your team makes changes, whoever makes them and with or without the sandbox, I re-run the same audit and walk you through the before and after. $29 is the standard price of a report from AmbientScore, my audit tool. If you'd like to track progress over time, or audit other pages like Education or Donate, a 3-pack of reports is $79.</p></div>
 </div>
-<p><b>The AI itself</b> is a usage cost billed by Microsoft, separate from our work: it depends on how much the agents read and write (measured in “tokens”, roughly per word processed). The sandbox costs Goodwill nothing. When you go live, the agents move to your own Azure account, and we'll agree together how the AI usage is covered. We can build a simple dashboard, with a monthly cap, so your team sees that cost as it happens.</p>
-<p><b>A grant may cover it.</b> Microsoft for Nonprofits gives eligible nonprofits $2,000 a year in Azure credits, which can be used for AI services like these. If you're not already using it, we can help you check eligibility and apply through Microsoft's <a href="https://nonprofit.microsoft.com/">Nonprofit Hub</a>.</p>
-<p><b>Our work</b>, building the fixes ourselves and setting up the agents on your live accounts, we'd price once you've seen the sandbox and chosen where to start, along with the timing for each step.</p>
+<p><b>The AI itself</b> is a usage cost billed by Microsoft, separate from my work: it depends on how much the agents read and write (measured in “tokens”, roughly per word processed). The sandbox costs Goodwill nothing. When you go live, the agents move to your own Azure account, and we'll agree together how the AI usage is covered. I can build a simple dashboard, with a monthly budget alert, so your team sees that cost as it happens.</p>
+<p><b>A grant may cover it.</b> Microsoft for Nonprofits gives eligible nonprofits $2,000 a year in Azure credits, which can be used for AI services like these. If you're not already using it, I can help you check eligibility and apply through Microsoft's <a href="https://nonprofit.microsoft.com/">Nonprofit Hub</a>.</p>
+<p><b>My work</b>, building the fixes myself and setting up the agents on your live accounts, I'd price once you've seen the sandbox and chosen where to start, along with the timing for each step.</p>
 
 <footer>
-  Chad Martin · AmbientPixels · <a href="https://ambientpixels.ai">ambientpixels.ai</a><br>
+  Chad Martin · <a href="mailto:chad@ambientpixels.ai">chad@ambientpixels.ai</a> · AmbientPixels · <a href="https://ambientpixels.ai">ambientpixels.ai</a><br>
   Built from the public pages of evergreengoodwill.org, as they were in October 2026. Wording suggestions are starting points; your team settles the final words.
 </footer>
 
