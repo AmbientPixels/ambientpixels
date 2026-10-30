@@ -121,7 +121,10 @@
   @media print{
     body{background:#fff;font-size:10.5pt}
     .doc{max-width:none;padding:0}
-    h2{break-after:avoid}
+    h2,h3,.chk-h,.part,.sect{break-after:avoid}
+    /* keep boxes, cards and rows whole: they move to the next page instead of splitting */
+    .flow,.flow div,.note,.rule,.bp,.dim,.fixes,.exec,.next div,.issue,table,tr,.check li,.reads li,.opts li,.part,ul.check{break-inside:avoid}
+    footer{break-before:avoid;margin-top:1.2rem}
     a{color:var(--ink)}
   }
 </style>
