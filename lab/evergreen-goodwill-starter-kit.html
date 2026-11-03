@@ -7,7 +7,7 @@
 <title>Words That Ask — Evergreen Goodwill Starter Kit</title>
 <style>
   :root{--paper:#FFFFFF;--paper-2:#F1F3F5;--warm:#F6F7F9;--rule:#D3D8DE;--rule-2:#AEB5BE;
-        --ink:#111111;--ink-soft:#1F1F1F;--ink-muted:#4A4F55;--stamp:#8C2F1E;--ok:#2F6B3A;
+        --ink:#111111;--ink-soft:#1F1F1F;--ink-muted:#4A4F55;--stamp:#8C2F1E;--accent:#003e6f;--ok:#2F6B3A;
         --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
   *,*::before,*::after{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink-soft);
@@ -16,22 +16,22 @@
   .mono{font-family:var(--sans);
         font-size:9pt;letter-spacing:.06em;text-transform:uppercase}
   header{border-bottom:2px solid var(--ink);padding-bottom:1.1rem;margin-bottom:1.6rem}
-  .eyebrow{color:var(--stamp);margin:0 0 .5rem}
+  .eyebrow{color:var(--accent);margin:0 0 .5rem}
   h1{font-size:23pt;line-height:1.15;color:var(--ink);margin:0 0 .35rem;font-weight:600}
   h1 em{font-weight:400}
   .sub{color:var(--ink-muted);font-size:10.5pt;margin:0}
-  h2{font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--stamp);
+  h2{font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
      font-family:var(--sans);margin:2.4rem 0 .8rem;padding-bottom:.4rem;
      border-bottom:1px solid var(--rule)}
   h3{font-size:13pt;color:var(--ink);margin:0 0 .3rem;font-weight:600}
   .lede{font-size:12.5pt;color:var(--ink);line-height:1.5}
-  a{color:var(--stamp)}
+  a{color:var(--accent)}
   .rule{border-top:1px solid var(--rule);padding:1rem 0;break-inside:avoid;display:grid;grid-template-columns:2.2rem 1fr;gap:0 .6rem}
-  .rule .n{font-family:var(--sans);font-size:9.5pt;color:var(--stamp);padding-top:.3rem}
+  .rule .n{font-family:var(--sans);font-size:9.5pt;color:var(--accent);padding-top:.3rem}
   .rule p{margin:.2rem 0 .5rem}
   .was,.now{margin:.35rem 0 0;font-size:11pt}
   .was{color:var(--ink-muted)}
-  .now{color:var(--ink);background:var(--warm);border-left:2px solid var(--stamp);padding:.5rem .7rem}
+  .now{color:var(--ink);background:var(--warm);border-left:2px solid var(--accent);padding:.5rem .7rem}
   .was span,.now span,.tag{font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;
        text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
   .test{background:var(--warm);border:1px solid var(--rule);padding:1rem 1.3rem}
@@ -48,7 +48,7 @@
   .opts{padding-left:1.2rem;font-size:11pt} .opts li{margin-bottom:.5rem}
   .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.6rem 0 .8rem}
   .flow div{background:var(--warm);border:1px solid var(--rule);padding:.7rem .8rem;font-size:10.5pt}
-  .flow b{display:block;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--stamp);font-weight:400;margin-bottom:.3rem}
+  .flow b{display:block;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:400;margin-bottom:.3rem}
   .note{background:var(--paper-2);border:1px solid var(--rule);padding:1rem 1.2rem;font-size:11pt}
   .note p{margin:.3rem 0}
   .next{display:grid;gap:.7rem}
@@ -58,7 +58,7 @@
   .reads li{margin-bottom:.45rem}
   .part{font-family:var(--sans);font-size:17pt;letter-spacing:0;text-transform:none;
         color:var(--ink);margin:3rem 0 .2rem;font-weight:600;border-bottom:0;border-top:2px solid var(--ink);padding:1rem 0 0}
-  .part span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--stamp);font-weight:400;margin-bottom:.3rem}
+  .part span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:400;margin-bottom:.3rem}
   .part + p{margin-top:.4rem}
   .bp{border-top:1px solid var(--rule);padding:.8rem 0;break-inside:avoid}
   .bp h3{font-size:12pt}
@@ -78,8 +78,8 @@
   .issue .acts span{border:1px solid #c8ced6;padding:.3rem .7rem;color:#1d3a5c}
   .issue .acts span:first-child{background:#3e7845;border-color:#3e7845;color:#fff}
   .cap{text-align:center;font-size:9.5pt;color:var(--ink-muted);margin:0 0 1rem}
-  .exec{background:var(--warm);border:1px solid var(--rule);border-top:3px solid var(--stamp);padding:1.2rem 1.4rem 1rem;break-inside:avoid}
-  .exec > .mono{color:var(--stamp);margin:0 0 .5rem}
+  .exec{background:var(--warm);border:1px solid var(--rule);border-top:3px solid var(--accent);padding:1.2rem 1.4rem 1rem;break-inside:avoid}
+  .exec > .mono{color:var(--accent);margin:0 0 .5rem}
   .exec .lede{margin:0 0 1rem}
   .ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem 1.4rem}
   .ex-grid div{font-size:11pt;border-top:1px solid var(--rule);padding-top:.6rem}
@@ -89,11 +89,11 @@
   @media (max-width:640px){ .ex-grid{grid-template-columns:1fr} }
   .sect{font-family:var(--sans);font-size:24pt;line-height:1.15;color:var(--paper);background:var(--ink);
         margin:3.5rem 0 0;padding:1.4rem 1.6rem;font-weight:600;break-before:page;break-inside:avoid}
-  .sect span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:#E7B9A9;font-weight:400;margin-bottom:.4rem}
+  .sect span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:#A9C8E8;font-weight:400;margin-bottom:.4rem}
   .sect p{font-size:11pt;font-weight:400;color:#E4E4E4;margin:.5rem 0 0;line-height:1.45}
   .sect + .part{border-top:0;margin-top:1.6rem}
   .fixes{border:1px solid var(--rule);background:var(--warm);padding:1rem 1.3rem;margin:1.6rem 0 0;break-inside:avoid}
-  .fixes .mono{color:var(--stamp);margin:0 0 .4rem}
+  .fixes .mono{color:var(--accent);margin:0 0 .4rem}
   .fixes ol{margin:0 0 .5rem;padding-left:1.3rem;font-size:11pt} .fixes li{margin-bottom:.3rem}
   .fixes p:last-child{margin:0;font-size:10.5pt;color:var(--ink-muted)}
   .chk-h{font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);margin:1.1rem 0 .2rem}
