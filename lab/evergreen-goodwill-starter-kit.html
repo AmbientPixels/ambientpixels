@@ -7,18 +7,18 @@
 <title>Words That Ask — Evergreen Goodwill Starter Kit</title>
 <style>
   :root{--paper:#FFFFFF;--paper-2:#F1F3F5;--warm:#F6F7F9;--rule:#D3D8DE;--rule-2:#AEB5BE;
-        --ink:#111111;--ink-soft:#1F1F1F;--ink-muted:#4A4F55;--stamp:#8C2F1E;--accent:#003e6f;--ok:#2F6B3A;
+        --ink:#111111;--ink-soft:#111111;--ink-muted:#4A4F55;--stamp:#8C2F1E;--accent:#003e6f;--ok:#2F6B3A;
         --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif}
   *,*::before,*::after{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink-soft);
        font-family:var(--sans);font-size:12pt;line-height:1.55}
   .doc{max-width:52rem;margin:0 auto;padding:2.5rem 2rem 4rem}
   .mono{font-family:var(--sans);
-        font-size:9pt;letter-spacing:.06em;text-transform:uppercase}
-  header{border-bottom:2px solid var(--ink);padding-bottom:1.1rem;margin-bottom:1.6rem}
+        font-size:9pt;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  header{padding-bottom:.4rem;margin-bottom:1.6rem}
   .eyebrow{color:var(--accent);margin:0 0 .5rem}
   h1{font-size:23pt;line-height:1.15;color:var(--ink);margin:0 0 .35rem;font-weight:600}
-  h1 em{font-weight:400}
+  h1 em{font-weight:400;display:block}
   .sub{color:var(--ink-muted);font-size:10.5pt;margin:0}
   h2{font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
      font-family:var(--sans);margin:2.4rem 0 .8rem;padding-bottom:.4rem;
@@ -32,7 +32,7 @@
   .was,.now{margin:.35rem 0 0;font-size:11pt}
   .was{color:var(--ink-muted)}
   .now{color:var(--ink);background:var(--warm);border-left:2px solid var(--accent);padding:.5rem .7rem}
-  .was span,.now span,.tag{font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;
+  .was span,.now span,.tag{font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;font-weight:600;
        text-transform:uppercase;color:var(--ink-muted);margin-right:.4rem}
   .test{background:var(--warm);border:1px solid var(--rule);padding:1rem 1.3rem}
   .test ol{margin:.4rem 0 .4rem;padding-left:1.3rem;font-size:12pt;color:var(--ink)}
@@ -41,14 +41,14 @@
   ul.check li{padding:.45rem 0 .45rem 1.8rem;border-bottom:1px solid var(--rule);position:relative;font-size:11pt}
   ul.check li::before{content:"";position:absolute;left:.2rem;top:.65rem;width:.8rem;height:.8rem;border:1.5px solid var(--ink-muted)}
   table{width:100%;border-collapse:collapse;font-size:10.5pt}
-  th{text-align:left;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;
+  th{text-align:left;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;font-weight:600;
      color:var(--ink-muted);font-weight:400;padding:.4rem .5rem;border-bottom:1px solid var(--rule-2)}
   td{padding:.55rem .5rem;border-bottom:1px solid var(--rule);vertical-align:top}
   td.b{color:var(--ink-muted)} td.a{color:var(--ink)}
   .opts{padding-left:1.2rem;font-size:11pt} .opts li{margin-bottom:.5rem}
   .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.6rem 0 .8rem}
   .flow div{background:var(--warm);border:1px solid var(--rule);padding:.7rem .8rem;font-size:10.5pt}
-  .flow b{display:block;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:400;margin-bottom:.3rem}
+  .flow b{display:block;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:.3rem}
   .note{background:var(--paper-2);border:1px solid var(--rule);padding:1rem 1.2rem;font-size:11pt}
   .note p{margin:.3rem 0}
   .next{display:grid;gap:.7rem}
@@ -58,7 +58,7 @@
   .reads li{margin-bottom:.45rem}
   .part{font-family:var(--sans);font-size:17pt;letter-spacing:0;text-transform:none;
         color:var(--ink);margin:3rem 0 .2rem;font-weight:600;border-bottom:0;border-top:2px solid var(--ink);padding:1rem 0 0}
-  .part span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:400;margin-bottom:.3rem}
+  .part span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:.3rem}
   .part + p{margin-top:.4rem}
   .bp{border-top:1px solid var(--rule);padding:.8rem 0;break-inside:avoid}
   .bp h3{font-size:12pt}
@@ -83,20 +83,20 @@
   .exec .lede{margin:0 0 1rem}
   .ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem 1.4rem}
   .ex-grid div{font-size:11pt;border-top:1px solid var(--rule);padding-top:.6rem}
-  .ex-grid b{display:block;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);font-weight:400;margin-bottom:.25rem}
+  .ex-grid b{display:block;font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:.25rem}
   .ex-from{font-size:10.5pt;color:var(--ink-muted);margin:-.2rem 0 .7rem}
   .ex-foot{font-size:10.5pt;color:var(--ink-muted);margin:1rem 0 0}
   @media (max-width:640px){ .ex-grid{grid-template-columns:1fr} }
   .sect{font-family:var(--sans);font-size:24pt;line-height:1.15;color:var(--paper);background:var(--ink);
         margin:3.5rem 0 0;padding:1.4rem 1.6rem;font-weight:600;break-before:page;break-inside:avoid}
-  .sect span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:#A9C8E8;font-weight:400;margin-bottom:.4rem}
+  .sect span{display:block;font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:#A9C8E8;font-weight:600;margin-bottom:.4rem}
   .sect p{font-size:11pt;font-weight:400;color:#E4E4E4;margin:.5rem 0 0;line-height:1.45}
   .sect + .part{border-top:0;margin-top:1.6rem}
   .fixes{border:1px solid var(--rule);background:var(--warm);padding:1rem 1.3rem;margin:1.6rem 0 0;break-inside:avoid}
   .fixes .mono{color:var(--accent);margin:0 0 .4rem}
   .fixes ol{margin:0 0 .5rem;padding-left:1.3rem;font-size:11pt} .fixes li{margin-bottom:.3rem}
   .fixes p:last-child{margin:0;font-size:10.5pt;color:var(--ink-muted)}
-  .chk-h{font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);margin:1.1rem 0 .2rem}
+  .chk-h{font-family:var(--sans);font-size:9pt;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:1.1rem 0 .2rem}
   .data-list{margin:.2rem 0 .5rem;padding-left:1.2rem} .data-list li{margin-bottom:.15rem}
   .bp .how{color:var(--ink-muted);font-size:10.5pt;margin-top:.35rem}
   .dim{border-top:1px solid var(--rule);padding:.9rem 0;break-inside:avoid;display:grid;grid-template-columns:4.2rem 1fr;gap:0 .9rem}
@@ -105,7 +105,7 @@
   .dim.low .sc{color:var(--stamp)}
   .dim.high .sc{color:var(--ok)}
   .dim h3{font-size:12pt;margin:0}
-  .dim .aka{font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted)}
+  .dim .aka{font-family:var(--sans);font-size:8.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);font-weight:600}
   .dim .q{margin:.25rem 0 .35rem;font-style:italic;color:var(--ink)}
   .dim ul{margin:0;padding-left:1.1rem;font-size:11pt} .dim li{margin-bottom:.2rem}
   footer{margin-top:2.5rem;padding-top:1rem;border-top:2px solid var(--ink);font-size:9.5pt;color:var(--ink-muted)}
@@ -133,7 +133,7 @@
 <div class="doc">
 
 <header>
-  <p class="mono eyebrow">Prepared for Evergreen Goodwill · October 2026</p>
+  <p class="mono eyebrow">Prepared for Evergreen Goodwill · November 2026</p>
   <h1>Words that ask. <em>A starter kit for your website and AI agents.</em></h1>
   <p class="sub">Best practices for evergreengoodwill.org from your homepage audit, and how AI agents could help your team with social posts, newsletters and your contact form. Free to use, whoever makes the changes.</p>
 </header>
