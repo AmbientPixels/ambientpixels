@@ -12,6 +12,7 @@ const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlock } = require('./social-intel');
 const { buildForgeOpsDigest } = require('./ops-intel');
 const _laneBackpressure = require('./_utils/laneBackpressure');
+const _routing = require('./routing');
 const { buildFinanceDigest, applyCampaignRevenue } = require('./finance-intel');
 const { buildResearchDemandDigest } = require('./research-intel');
 const { buildContentDigest } = require('./content-intel');
@@ -213,8 +214,9 @@ module.exports = async function (context) {
     const _agentMessagesRaw = (await storage.getState('agentMessages')) || {};
     const _agentMsgPending = Array.isArray(_agentMessagesRaw.pending) ? _agentMessagesRaw.pending : [];
     const _agentMsgArchive = Array.isArray(_agentMessagesRaw.archive) ? _agentMessagesRaw.archive : [];
-    // TTL cleanup: expire messages older than 2 cycles (60 min)
-    const _msgTtlMs = 60 * 60 * 1000;
+    // TTL cleanup: expire messages older than 2 cycles. Derived from the real schedule — a fixed
+    // 60 min TTL against a 6 h cycle expired every message before its recipient's next turn.
+    const _msgTtlMs = 2 * C.HEARTBEAT_INTERVAL_MS;
     const _msgNow = Date.now();
     const _expiredMsgs = _agentMsgPending.filter(function (m) { return _msgNow - new Date(m.createdAt || 0).getTime() > _msgTtlMs; });
     _expiredMsgs.forEach(function (m) { m.expired = true; _agentMsgArchive.push(m); });
@@ -2162,9 +2164,12 @@ module.exports = async function (context) {
     // Process agents in execution groups (Phase 4C)
     // Group 1: Nova (triage) — sequential
     // Group 2: Cipher, Pixel, Forge, Scout — parallel Gemini calls, sequential mutation processing
-    // Group 3: Scribe → Quill — sequential (content pipeline)
-    // Group 4: Echo — sequential (needs Scribe output)
-    const _EXEC_GROUPS = [['nova'], ['cipher', 'pixel', 'forge', 'scout'], ['scribe', 'quill'], ['echo']];
+    // Group 3: Echo — briefs first, so Scribe can write them in this same run
+    // Group 4: Scribe, then Group 5: Quill — one agent per group ON PURPOSE. Any group of 2+ is
+    // prefetched in parallel above, which handed Quill a board from before Scribe wrote anything.
+    // At one run a day each lost stage is a lost day (2026-11-04). The auto-post block after this
+    // loop turns reviewed copy into a social action, so nothing here needs Echo to run last.
+    const _EXEC_GROUPS = [['nova'], ['cipher', 'pixel', 'forge', 'scout'], ['echo'], ['scribe'], ['quill']];
     // ── Agent Identity Evolution (System 14) ──
     // _EXEC_GROUPS hardcodes the 8 bootstrap agents. After a hire, AGENT_IDS can
     // include agents not in any group — they'd silently never run. Append any
@@ -3067,13 +3072,17 @@ module.exports = async function (context) {
             var _assigned = false;
             var _agentKeys = Object.keys(_AGENT_NAMES);
             for (var _ai = 0; _ai < _agentKeys.length; _ai++) {
-              if (_cLower.indexOf(_agentKeys[_ai]) !== -1) {
-                _t.assignee = _AGENT_NAMES[_agentKeys[_ai]];
+              // Whole word only — a substring match handed any task mentioning "AmbientPixels" to Pixel.
+              if (new RegExp('\\b' + _agentKeys[_ai] + '\\b').test(_cLower)) {
+                // Named agent goes through routing: a HOLDS_ONLY or non-running agent's work goes by role.
+                var _routedTo = _routing.routeTask(Object.assign({}, _t, { assignee: _AGENT_NAMES[_agentKeys[_ai]] }));
+                if (!_routedTo) break; // routing gap — leave unassigned for the handoff sweep to log
+                _t.assignee = _routedTo;
                 _t.updatedAt = new Date().toISOString();
                 if (_t.id) _tasksTouched.add(_t.id);
                 if (!_t.comments) _t.comments = [];
-                _t.comments.push({ id: 'cmt-autoassign-' + Date.now(), author: 'system', text: 'Auto-assigned to ' + _agentKeys[_ai] + ' based on Nova triage comment.', type: 'system', createdAt: new Date().toISOString() });
-                context.log('[Heartbeat] AUTO-ASSIGN:', _t.id, '→', _AGENT_NAMES[_agentKeys[_ai]], '(Nova mentioned', _agentKeys[_ai], 'in triage comment)');
+                _t.comments.push({ id: 'cmt-autoassign-' + Date.now(), author: 'system', text: 'Auto-assigned to ' + _routedTo + ' based on Nova triage comment' + (_routedTo !== _agentKeys[_ai] ? ' (named ' + _agentKeys[_ai] + ', routed by role).' : '.'), type: 'system', createdAt: new Date().toISOString() });
+                context.log('[Heartbeat] AUTO-ASSIGN:', _t.id, '→', _routedTo, '(Nova mentioned', _agentKeys[_ai], 'in triage comment)');
                 _assigned = true;
                 break;
               }

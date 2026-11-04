@@ -1005,7 +1005,8 @@ Write the full deliverable first, then the structured JSON block.`;
   // v2: Skip convergence-blocked tasks (5+ deliverables) — try a different task or review-task instead
   if (agentId !== 'nova') {
     const _hasWorkAction = actions.some(a =>
-      a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action' || a.type === 'review-task'
+      a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action' || a.type === 'review-task' ||
+      a.type === 'generate-image' // Pixel's real work: without this, anti-stall forced an execute-task the Pixel gate blocks
     );
     if (!_hasWorkAction) {
       const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -5166,7 +5167,12 @@ Write the full deliverable first, then the structured JSON block.`;
       if (imgPurpose === 'blog_header' && attachTo && attachTo.type === 'document' && attachTo.id) {
         const _earlyDocCheck = (await storage.getState('documents')) || [];
         const _earlyDoc = _earlyDocCheck.find(d => d.id === attachTo.id);
-        if (_earlyDoc && _earlyDoc.hero_image_asset_id) {
+        // A 'hero-replace' task is the CEO asking for a new image, so the existing hero must not stop it.
+        // The attach guard below already honoured this; this one didn't, so a rejected hero could never
+        // be replaced (29 straight blocked cycles on doc_1791331255682_e8yq, 2026-10-25 to 11-04).
+        const _earlyReplace = tasks.some(t => _isOpenHeroTaskFor(t, null, attachTo.id) &&
+          Array.isArray(t.tags) && t.tags.indexOf('hero-replace') !== -1);
+        if (_earlyDoc && _earlyDoc.hero_image_asset_id && !_earlyReplace) {
           context.log('[Heartbeat]', agentId, 'generate-image SKIPPED (early): doc', attachTo.id, 'already has hero_image_asset_id:', _earlyDoc.hero_image_asset_id);
           continue;
         }

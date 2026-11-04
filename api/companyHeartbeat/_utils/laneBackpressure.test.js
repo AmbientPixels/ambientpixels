@@ -44,16 +44,16 @@ test('the real backlog offers zero', () => {
 });
 
 test('remaining shrinks as the queue fills', () => {
-  assert.strictEqual(BP.laneCapacity(many(5), 'scribe', 'bluesky_reply').remaining, 3);
-  assert.strictEqual(BP.laneCapacity(many(8), 'scribe', 'bluesky_reply').remaining, 0);
+  assert.strictEqual(BP.laneCapacity(many(BP.DEFAULT_QUEUE_DEPTH - 1), 'scribe', 'bluesky_reply').remaining, 1);
+  assert.strictEqual(BP.laneCapacity(many(BP.DEFAULT_QUEUE_DEPTH), 'scribe', 'bluesky_reply').remaining, 0);
 });
 
 test('finished work frees capacity — the self-correcting half', () => {
   // A rate cap keeps minting while the agent is stuck. A depth cap reopens only as
   // she actually finishes things, which is the whole reason it is a depth.
-  const t = many(8);
-  t.slice(0, 5).forEach(x => { x.status = 'done'; });
-  assert.strictEqual(BP.laneCapacity(t, 'scribe', 'bluesky_reply').remaining, 5);
+  const t = many(BP.DEFAULT_QUEUE_DEPTH + 2);
+  t.slice(0, 4).forEach(x => { x.status = 'done'; }); // leaves 1 open
+  assert.strictEqual(BP.laneCapacity(t, 'scribe', 'bluesky_reply').remaining, BP.DEFAULT_QUEUE_DEPTH - 1);
 });
 
 test('canceled and archived tasks do not hold capacity', () => {
@@ -73,11 +73,11 @@ test('other assignees and other task types are not counted', () => {
 test('all three lanes share one queue, so they share one limit', () => {
   // roast, AS-prospect and participation all mint bluesky_reply onto scribe. Gating
   // one lane alone just moves the overflow to the other two.
-  const t = many(6);
+  const t = many(BP.DEFAULT_QUEUE_DEPTH - 1);
   const roast = BP.laneCapacity(t, 'scribe', 'bluesky_reply');
   const participation = BP.laneCapacity(t, 'scribe', 'bluesky_reply');
-  assert.strictEqual(roast.remaining, 2);
-  assert.strictEqual(participation.remaining, 2, 'same shared budget, not 2 each');
+  assert.strictEqual(roast.remaining, 1);
+  assert.strictEqual(participation.remaining, 1, 'same shared budget, not 1 each');
 });
 
 test('depth is overridable per call', () => {

@@ -35,7 +35,7 @@ const HEARTBEAT_INTERVAL_MS = _readHeartbeatIntervalMs();
 const STALE_REVIEW_GRACE_CYCLES = 2;
 const STALE_REVIEW_THRESHOLD_MS = HEARTBEAT_INTERVAL_MS * STALE_REVIEW_GRACE_CYCLES;
 
-// Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
+// Agent id list. Run order is _EXEC_GROUPS in index.js (Echo before Scribe before Quill since 2026-11-04).
 const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout', 'vale'];
 // Departments that take tasks but never deliberate in the heartbeat (2026-10-15). 'studio' = the Video department:
 // the Studio crew on Chad's PC. Its tasks are video requests; agents may only comment on them (agent-runner guard).
@@ -51,7 +51,7 @@ const VIDEO_TASK_TYPE = 'video_request';
 // are optional extensions parsed in agent-runner.js.
 // Lives in constants.js (not normalization.js) to avoid a gemini→normalization→
 // helpers→gemini require cycle.
-// maxItems caps mirror existing guardrails (maxActionsPerCyclePerAgent=3,
+// maxItems caps mirror existing guardrails (maxActionsPerCyclePerAgent=5,
 // "max 2-3 variants" prompt guidance, memory rate cap). Without caps, Gemini
 // structured-output mode interprets a required array with open items as
 // "emit one item per data point seen" — confirmed at ~170 items/agent on
@@ -60,7 +60,7 @@ const AGENT_ENVELOPE_SCHEMA = {
   type: 'OBJECT',
   properties: {
     reasoning:        { type: 'STRING' },
-    taskUpdates:      { type: 'ARRAY', maxItems: 3, items: { type: 'OBJECT' } },
+    taskUpdates:      { type: 'ARRAY', maxItems: 5, items: { type: 'OBJECT' } },
     proposals:        { type: 'ARRAY', maxItems: 5, items: { type: 'OBJECT' } },
     remember:         { type: 'ARRAY', maxItems: 3, items: { type: 'OBJECT' } },
     observations:     { type: 'ARRAY', maxItems: 5, items: { type: 'STRING' } },
@@ -122,7 +122,9 @@ const CFO_THRESHOLD = 100;
 
 // ── Guardrails ──
 const GUARDRAILS = {
-  maxActionsPerCyclePerAgent: 3,
+  // 3→5 (2026-11-04): one run a day. Executes stay at 3 below: each is an extra model call, and
+  // the worst run already takes 357s of the 600s function timeout.
+  maxActionsPerCyclePerAgent: 5,
   // Raised 20→40 (2026-06-20): on Sonnet, ~4 agents (nova/cipher/pixel/forge)
   // exhausted 20 calls and the main loop broke, structurally starving the back
   // half (scout/scribe/quill/echo — incl. the campaign proposer Echo) every busy

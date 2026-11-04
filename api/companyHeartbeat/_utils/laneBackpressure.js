@@ -28,10 +28,10 @@
 
 'use strict';
 
-// One day of realistic drain. Deliberately not the theoretical 12: mandatory peer
-// review claims Scribe's first action slot most cycles, and a QG rejection burns
-// another. A queue this deep is roughly "everything you could finish today".
-var DEFAULT_QUEUE_DEPTH = 8;
+// One day of realistic drain. Was 8 at four runs a day. At one run a day Scribe gets 3
+// executes (2026-11-04), shared with social copy, and replies die at 3 days, so a deeper
+// queue only mints drafts that expire. A queue this deep is "what you could finish today".
+var DEFAULT_QUEUE_DEPTH = 3;
 
 function _isOpen(t) {
   var s = String((t && t.status) || '').toLowerCase();

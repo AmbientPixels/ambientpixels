@@ -1291,7 +1291,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   // Action-slot cap stated in the rules below — must match agent-runner _slotCap
   // (GUARDRAILS.maxActionsPerCyclePerAgent). Rewards levels are display-only since 2026-10-16
   // and no longer reach the prompt.
-  const _promptSlotCap = 3;
+  const _promptSlotCap = require('./constants').GUARDRAILS.maxActionsPerCyclePerAgent;
 
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
@@ -2279,7 +2279,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     - Fewer than 3 active campaigns, OR active campaigns are STAGNANT (most at ~0% velocity, little/no output shipped this week, flat or declining metrics). Many stalled campaigns is NOT coverage — propose fresh campaigns and pause/pivot the dead ones.
     - Fewer than 3 active objectives, OR existing objectives are stale (no active campaigns or tasks 14+ days). Propose a new MEASURABLE objective (northStarMetric + metricTarget + metricDeadline).
     - The task board is light (few todo/in-progress tasks) and agents are returning idle — that is your signal to GENERATE strategy, not to keep re-triaging the same items.
-    When work is low, a campaign or objective proposal OUTRANKS low-value triage AND beats seeding more tasks into a stuck campaign: one good proposal spawns a cadence of tasks that keeps the whole fleet busy. If a campaign keeps blocking new tasks (you'll see "Campaign cadence blocked" / "throttled" in governance) or sits at ~0 output, it is DEAD — pause-campaign it and propose a replacement instead of seeding it again. Spend at least one of your action slots on a proposal whenever campaigns are stagnant or objectives lack tasks; don't burn all 3 on triage + seeding. (Mandatory peer review still comes first.)
+    When work is low, a campaign or objective proposal OUTRANKS low-value triage AND beats seeding more tasks into a stuck campaign: one good proposal spawns a cadence of tasks that keeps the whole fleet busy. If a campaign keeps blocking new tasks (you'll see "Campaign cadence blocked" / "throttled" in governance) or sits at ~0 output, it is DEAD — pause-campaign it and propose a replacement instead of seeding it again. Spend at least one of your action slots on a proposal whenever campaigns are stagnant or objectives lack tasks; don't burn all ${_promptSlotCap} on triage + seeding. (Mandatory peer review still comes first.)
   - WEEKLY CEO DIGEST: Every 7 days, create a spec doc (create-doc, kind: spec) titled "Weekly Summary — [date range]". Include: campaigns launched/paused/completed, experiments concluded (KEEP/DISCARD), agent performance highlights (top performer, biggest improver, any red flags), Scout's top research findings, Cipher's cost summary, key metrics (tasks completed, social posts published, blog posts). Check EXISTING DOCUMENTS first — do not duplicate if a summary for the current week exists.
   - SYSTEM DIRECTIVES (Nova — course correction):
     When an agent is underperforming, stalled, or misaligned (Forge flags it, or you detect it during triage), you can issue a system directive:
