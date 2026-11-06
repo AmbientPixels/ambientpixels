@@ -287,6 +287,39 @@ body:has(.ap-journal-subnav) #blog-content > .ap-sec {
   margin-bottom: var(--sp-6);
 }
 
+/* Markdown tables in post bodies */
+.ap-journal-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--sp-8) 0;
+  font-size: 15px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+.ap-journal-body th {
+  padding: 0 var(--sp-3) var(--sp-3) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--fw-regular);
+  letter-spacing: .08em;
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: bottom;
+  color: var(--color-text-tertiary);
+}
+.ap-journal-body td {
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
+  border-bottom: 1px solid var(--color-border-soft);
+  vertical-align: top;
+  color: var(--color-text-secondary);
+}
+.ap-journal-body td:first-child { color: var(--color-text-primary); }
+.ap-journal-body th:last-child,
+.ap-journal-body td:last-child { padding-right: 0; }
+.ap-journal-body th[align="right"],
+.ap-journal-body td[align="right"] { text-align: right; }
+
 /* ---- Responsive ----------------------------------------------------- */
 
 @media (max-width: 1000px) {
